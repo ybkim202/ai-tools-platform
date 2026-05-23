@@ -1,0 +1,180 @@
+.compare-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40px 20px;
+}
+
+.compare-header {
+  max-width: 1200px;
+  margin: 0 auto 40px;
+  color: white;
+  text-align: center;
+}
+
+.compare-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.compare-header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 20px;
+}
+
+.compare-empty {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.empty-content {
+  text-align: center;
+  color: white;
+}
+
+.empty-content h2 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.empty-content p {
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+  opacity: 0.9;
+}
+
+.comparison-table {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 15px;
+  overflow: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.comparison-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 20px;
+  text-align: center;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.comparison-table th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+}
+
+.comparison-table th:first-child,
+.comparison-table td:first-child {
+  text-align: left;
+  min-width: 120px;
+}
+
+.table-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.label {
+  font-weight: 600;
+  color: #333;
+}
+
+.difficulty {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.difficulty.쉬움 {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.difficulty.보통 {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.difficulty.어려움 {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.pricing-list,
+.benchmark-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.price-item,
+.benchmark-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 0.9rem;
+}
+
+.plan,
+.type {
+  font-weight: 600;
+  color: #555;
+}
+
+.price,
+.score {
+  color: #667eea;
+  font-weight: 700;
+}
+
+.btn-small {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.btn-small:hover {
+  transform: scale(1.05);
+}
+
+.loading,
+.error {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.loading {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.error {
+  background: rgba(255, 107, 107, 0.3);
+  border: 2px solid #ff6b6b;
+}

@@ -1,6 +1,9 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
+import Compare from './pages/Compare';
+import Details from './pages/Details';
+import Recommendations from './pages/Recommendations';
 import { useUIStore } from './stores/toolStore';
 import './App.css';
 
@@ -30,10 +33,10 @@ function App() {
               <a href="/" className="nav-link">
                 홈
               </a>
-              <a href="/#" className="nav-link">
+              <a href="/compare" className="nav-link">
                 비교
               </a>
-              <a href="/#" className="nav-link">
+              <a href="/recommendations" className="nav-link">
                 추천
               </a>
               <button className="nav-button">
@@ -46,6 +49,9 @@ function App() {
         {/* 메인 콘텐츠 */}
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/compare" element={<Compare />} />
+          <Route path="/recommendations" element={<Recommendations />} />
+          <Route path="/details/:id" element={<Details />} />
         </Routes>
 
         {/* 푸터 */}
