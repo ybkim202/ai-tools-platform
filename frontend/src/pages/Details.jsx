@@ -11,12 +11,7 @@ const Details = () => {
   const [benchmarks, setBenchmarks] = React.useState(null);
   const [news, setNews] = React.useState(null);
 
-  useEffect(() => {
-    fetchToolDetail(id);
-    fetchBenchmarksAndNews();
-  }, [id]);
-
-  const fetchBenchmarksAndNews = async () => {
+  const fetchBenchmarksAndNews = React.useCallback(async () => {
     try {
       const benchRes = await benchmarksAPI.getBenchmarkSummary(id);
       setBenchmarks(benchRes.data.data);
@@ -26,7 +21,12 @@ const Details = () => {
     } catch (err) {
       console.error('Error fetching details:', err);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchToolDetail(id);
+    fetchBenchmarksAndNews();
+  }, [id, fetchToolDetail, fetchBenchmarksAndNews]);
 
   if (loading) return <div className="loading">로딩 중...</div>;
   if (!selectedTool) return <div className="error">도구를 찾을 수 없습니다</div>;

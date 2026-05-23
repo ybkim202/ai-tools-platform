@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useUIStore, useToolStore } from '../stores/toolStore';
+import { useUIStore } from '../stores/toolStore';
 import { compareAPI, handleApiError } from '../services/api';
 import '../styles/Compare.css';
 
@@ -9,13 +9,7 @@ const Compare = () => {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
 
-  useEffect(() => {
-    if (selectedToolsForCompare.length > 0) {
-      fetchComparison();
-    }
-  }, [selectedToolsForCompare]);
-
-  const fetchComparison = async () => {
+  const fetchComparison = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -27,7 +21,13 @@ const Compare = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedToolsForCompare]);
+
+  useEffect(() => {
+    if (selectedToolsForCompare.length > 0) {
+      fetchComparison();
+    }
+  }, [selectedToolsForCompare, fetchComparison]);
 
   if (selectedToolsForCompare.length === 0) {
     return (

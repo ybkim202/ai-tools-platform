@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { toolsAPI, handleApiError } from '../services/api';
 import ToolCard from '../components/ToolCard';
 import '../styles/Home.css';
@@ -14,11 +14,7 @@ const Home = () => {
   const categories = ['전체', '이미지생성', '영상생성', '텍스트생성', '데이터분석', '코딩'];
   const difficulties = ['전체', '쉬움', '보통', '어려움'];
 
-  useEffect(() => {
-    fetchTools();
-  }, [searchQuery, selectedCategory, selectedDifficulty]);
-
-  const fetchTools = async () => {
+  const fetchTools = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -45,7 +41,11 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchQuery, selectedCategory, selectedDifficulty]);
+
+  useEffect(() => {
+    fetchTools();
+  }, [fetchTools]);
 
   return (
     <div className="home-page">
@@ -97,7 +97,15 @@ const Home = () => {
       </div>
 
       {loading && <div className="loading-container"><p>로딩 중...</p></div>}
-      {error && <div className="error-container"><p>⚠️ {error}</p></div>}
+      {error && (
+        <div className="error-container">
+          <p>⚠️ 서버에 연결할 수 없습니다.</p>
+          <p style={{ fontSize: '0.9rem', marginTop: '10px' }}>{error}</p>
+          <button onClick={fetchTools} className="btn btn-primary" style={{ marginTop: '15px' }}>
+            다시 시도
+          </button>
+        </div>
+      )}
 
       {!loading && !error && tools && tools.length > 0 && (
         <div className="tools-section">
@@ -113,6 +121,13 @@ const Home = () => {
       {!loading && !error && (!tools || tools.length === 0) && (
         <div className="empty-state">
           <p>검색 결과가 없습니다.</p>
+          <button onClick={() => {
+            setSearchQuery('');
+            setSelectedCategory('전체');
+            setSelectedDifficulty('전체');
+          }} className="btn btn-primary">
+            필터 초기화
+          </button>
         </div>
       )}
     </div>
