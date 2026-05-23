@@ -1,0 +1,300 @@
+.tool-card {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.tool-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+}
+
+/* ==================== 카드 헤더 ==================== */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.card-logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.card-title-info {
+  flex: 1;
+}
+
+.card-title-info h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: 700;
+}
+
+.category-badge {
+  display: inline-block;
+  margin-top: 5px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ==================== 카드 본문 ==================== */
+.card-body {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.description {
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ==================== 메타 정보 ==================== */
+.meta-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.meta-label {
+  color: #888;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.meta-value {
+  color: #333;
+  font-weight: 600;
+}
+
+.difficulty-badge {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.difficulty-badge.쉬움 {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.difficulty-badge.보통 {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.difficulty-badge.어려움 {
+  background: #ffebee;
+  color: #c62828;
+}
+
+/* ==================== 카드 푸터 ==================== */
+.card-footer {
+  display: flex;
+  gap: 10px;
+  padding: 15px 20px;
+  border-top: 1px solid #e0e0e0;
+  background: #fafafa;
+}
+
+.btn {
+  flex: 1;
+  padding: 12px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: scale(1.02);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+}
+
+.btn-secondary:hover {
+  background: #f5f5f5;
+}
+
+.btn-secondary.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+}
+
+/* ==================== 상태별 스타일 ==================== */
+.tool-card.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.tool-card.selected {
+  border: 3px solid #667eea;
+}
+
+/* ==================== 다크 모드 ==================== */
+@media (prefers-color-scheme: dark) {
+  .tool-card {
+    background: #2d2d2d;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, #3d3d3d 0%, #2d2d2d 100%);
+    border-bottom-color: #444;
+  }
+
+  .card-title-info h3 {
+    color: #f0f0f0;
+  }
+
+  .description {
+    color: #bbb;
+  }
+
+  .meta-item {
+    background: #3d3d3d;
+  }
+
+  .meta-label {
+    color: #888;
+  }
+
+  .meta-value {
+    color: #f0f0f0;
+  }
+
+  .card-footer {
+    background: #3d3d3d;
+    border-top-color: #444;
+  }
+
+  .btn-secondary {
+    background: #2d2d2d;
+    color: #667eea;
+    border-color: #667eea;
+  }
+
+  .btn-secondary:hover {
+    background: #3d3d3d;
+  }
+}
+
+/* ==================== 반응형 디자인 ==================== */
+@media (max-width: 768px) {
+  .tool-card {
+    border-radius: 12px;
+  }
+
+  .card-header {
+    padding: 15px;
+  }
+
+  .card-logo {
+    width: 45px;
+    height: 45px;
+  }
+
+  .card-title-info h3 {
+    font-size: 1.1rem;
+  }
+
+  .card-body {
+    padding: 15px;
+    gap: 12px;
+  }
+
+  .card-footer {
+    padding: 12px 15px;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-header {
+    gap: 10px;
+  }
+
+  .card-logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .card-title-info h3 {
+    font-size: 1rem;
+  }
+
+  .category-badge {
+    font-size: 0.65rem;
+    padding: 3px 8px;
+  }
+
+  .card-footer {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}

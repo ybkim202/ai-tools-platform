@@ -1,0 +1,121 @@
+import axios from 'axios';
+
+// API 기본 URL
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+
+// axios 인스턴스 생성
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// ==================== Tools API ====================
+export const toolsAPI = {
+  // 도구 목록 조회
+  getTools: (params = {}) => {
+    return apiClient.get('/tools', { params });
+  },
+
+  // 도구 상세 조회
+  getToolDetail: (toolId) => {
+    return apiClient.get(`/tools/${toolId}`);
+  },
+
+  // 도구 검색
+  searchTools: (searchQuery, params = {}) => {
+    return apiClient.get('/tools', {
+      params: { search: searchQuery, ...params },
+    });
+  },
+};
+
+// ==================== Recommendations API ====================
+export const recommendationsAPI = {
+  // 맞춤 추천
+  getRecommendations: (task = null, profession = null, limit = 10) => {
+    const params = { limit };
+    if (task) params.task = task;
+    if (profession) params.profession = profession;
+    
+    return apiClient.get('/recommendations', { params });
+  },
+};
+
+// ==================== Compare API ====================
+export const compareAPI = {
+  // 도구 비교
+  compareTools: (toolIds) => {
+    return apiClient.get('/compare', {
+      params: { ids: toolIds.join(',') },
+    });
+  },
+};
+
+// ==================== News API ====================
+export const newsAPI = {
+  // 뉴스 조회
+  getNews: (params = {}) => {
+    return apiClient.get('/news', { params });
+  },
+
+  // 트렌딩 뉴스
+  getTrendingNews: (days = 7, limit = 10) => {
+    return apiClient.get('/news/trending', {
+      params: { days, limit },
+    });
+  },
+
+  // 특정 도구의 뉴스
+  getToolNews: (toolId, limit = 10) => {
+    return apiClient.get('/news', {
+      params: { tool_id: toolId, limit },
+    });
+  },
+};
+
+// ==================== Benchmarks API ====================
+export const benchmarksAPI = {
+  // 벤치마크 조회
+  getBenchmarks: (params = {}) => {
+    return apiClient.get('/benchmarks', { params });
+  },
+
+  // 벤치마크 요약
+  getBenchmarkSummary: (toolId) => {
+    return apiClient.get(`/benchmarks/summary/${toolId}`);
+  },
+
+  // 벤치마크 종류
+  getBenchmarkTypes: () => {
+    return apiClient.get('/benchmarks/types');
+  },
+};
+
+// ==================== 에러 핸들러 ====================
+export const handleApiError = (error) => {
+  if (error.response) {
+    // 서버가 응답했지만 에러 상태
+    const errorData = error.response.data;
+    const message = errorData?.error?.message || '요청 처리 중 오류가 발생했습니다.';
+    const code = errorData?.error?.code || 'UNKNOWN_ERROR';
+    
+    return { message, code, status: error.response.status };
+  } else if (error.request) {
+    // 요청을 보냈지만 응답이 없음
+    return {
+      message: '서버에 연결할 수 없습니다.',
+      code: 'NO_RESPONSE',
+    };
+  } else {
+    // 요청을 설정하는 중에 오류 발생
+    return {
+      message: error.message || '알 수 없는 오류가 발생했습니다.',
+      code: 'REQUEST_ERROR',
+    };
+  }
+};
+
+export default apiClient;
