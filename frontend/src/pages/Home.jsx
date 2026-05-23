@@ -1,183 +1,120 @@
 import React, { useEffect, useState } from 'react';
-import { useToolStore, useRecommendationStore } from '../stores/toolStore';
+import { toolsAPI, handleApiError } from '../services/api';
 import ToolCard from '../components/ToolCard';
-import LoadingSpinner from '../components/LoadingSpinner';
 import '../styles/Home.css';
 
 const Home = () => {
-  const { fetchTools, tools, loading, error, pagination, filters, updateFilters, searchTools } = useToolStore();
-  const { fetchRecommendations, recommendations: recommendedTools } = useRecommendationStore();
-  const [activeTab, setActiveTab] = useState('popular');
+  const [tools, setTools] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('전체');
+  const [selectedDifficulty, setSelectedDifficulty] = useState('전체');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // 초기 로드
+  const categories = ['전체', '이미지생성', '영상생성', '텍스트생성', '데이터분석', '코딩'];
+  const difficulties = ['전체', '쉬움', '보통', '어려움'];
+
   useEffect(() => {
-    fetchTools({ limit: 20 });
-    fetchRecommendations(null, null, 10);
-  }, []);
+    fetchTools();
+  }, [searchQuery, selectedCategory, selectedDifficulty]);
 
-  // 필터 변경 시 다시 조회
-  useEffect(() => {
-    const params = {
-      limit: filters.limit || 20,
-      offset: 0,
-    };
+  const fetchTools = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = {
+        search: searchQuery || undefined,
+        category: selectedCategory !== '전체' ? selectedCategory : undefined,
+        difficulty: selectedDifficulty !== '전체' ? selectedDifficulty : undefined,
+        limit: 100,
+      };
 
-    if (filters.search) params.search = filters.search;
-    if (filters.category) params.category = filters.category;
-    if (filters.country) params.country = filters.country;
-    if (filters.difficulty) params.difficulty = filters.difficulty;
-    if (filters.sort_by) params.sort_by = filters.sort_by;
-
-    fetchTools(params);
-  }, [filters]);
-
-  const handleSearch = (searchValue) => {
-    updateFilters({ search: searchValue });
-  };
-
-  const handleCategoryFilter = (category) => {
-    updateFilters({ category: category === filters.category ? null : category });
+      const response = await toolsAPI.getTools(params);
+      
+      if (response.data && response.data.data) {
+        setTools(response.data.data);
+      } else if (Array.isArray(response.data)) {
+        setTools(response.data);
+      } else {
+        setTools([]);
+      }
+    } catch (err) {
+      const error = handleApiError(err);
+      setError(error.message);
+      setTools([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="home">
-      {/* 히어로 섹션 */}
-      <section className="hero">
-        <div className="hero-content">
-          <h1>🤖 AITools</h1>
-          <p>모든 AI 도구를 한곳에서 비교하고 추천받으세요</p>
-          
-          {/* 검색 바 */}
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="ChatGPT, Claude, DALL-E... 검색하기"
-              value={filters.search}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="search-input"
-            />
-            <button className="search-btn">🔍</button>
+    <div className="home-page">
+      <div className="home-banner">
+        <h1>🚀 모든 AI 도구를 한곳에서!</h1>
+        <p>최신 AI 도구를 발견하고, 비교하고, 당신에게 맞는 도구를 추천받으세요</p>
+      </div>
+
+      <div className="search-section">
+        <input
+          type="text"
+          placeholder="도구 이름, 기능으로 검색..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="search-input"
+        />
+      </div>
+
+      <div className="filter-section">
+        <div className="filter-group">
+          <label>카테고리</label>
+          <div className="filter-options">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                className={`filter-btn ${selectedCategory === cat ? 'active' : ''}`}
+                onClick={() => setSelectedCategory(cat)}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
         </div>
-      </section>
 
-      {/* 메인 콘텐츠 */}
-      <div className="main-content">
-        {/* 사이드바 - 필터 */}
-        <aside className="sidebar">
-          <h3>필터</h3>
-          
-          {/* 카테고리 필터 */}
-          <div className="filter-group">
-            <h4>카테고리</h4>
-            <div className="filter-options">
-              {['생성형AI', '이미지생성', '개발도구', '콘텐츠생성'].map((cat) => (
-                <button
-                  key={cat}
-                  className={`filter-btn ${filters.category === cat ? 'active' : ''}`}
-                  onClick={() => handleCategoryFilter(cat)}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
+        <div className="filter-group">
+          <label>난이도</label>
+          <div className="filter-options">
+            {difficulties.map((diff) => (
+              <button
+                key={diff}
+                className={`filter-btn ${selectedDifficulty === diff ? 'active' : ''}`}
+                onClick={() => setSelectedDifficulty(diff)}
+              >
+                {diff}
+              </button>
+            ))}
           </div>
-
-          {/* 난이도 필터 */}
-          <div className="filter-group">
-            <h4>난이도</h4>
-            <div className="filter-options">
-              {['쉬움', '보통', '어려움'].map((diff) => (
-                <button
-                  key={diff}
-                  className={`filter-btn ${filters.difficulty === diff ? 'active' : ''}`}
-                  onClick={() => updateFilters({ difficulty: filters.difficulty === diff ? null : diff })}
-                >
-                  {diff}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 정렬 */}
-          <div className="filter-group">
-            <h4>정렬</h4>
-            <select
-              value={filters.sort_by}
-              onChange={(e) => updateFilters({ sort_by: e.target.value })}
-              className="sort-select"
-            >
-              <option value="popularity">인기순</option>
-              <option value="price">가격순</option>
-              <option value="recent">최신순</option>
-            </select>
-          </div>
-        </aside>
-
-        {/* 메인 영역 */}
-        <main className="main-area">
-          {/* 탭 */}
-          <div className="tabs">
-            <button
-              className={`tab ${activeTab === 'popular' ? 'active' : ''}`}
-              onClick={() => setActiveTab('popular')}
-            >
-              인기 도구
-            </button>
-            <button
-              className={`tab ${activeTab === 'recommended' ? 'active' : ''}`}
-              onClick={() => setActiveTab('recommended')}
-            >
-              추천 도구
-            </button>
-          </div>
-
-          {/* 로딩 상태 */}
-          {loading && <LoadingSpinner />}
-
-          {/* 에러 상태 */}
-          {error && (
-            <div className="error-message">
-              <p>⚠️ {error}</p>
-            </div>
-          )}
-
-          {/* 도구 목록 */}
-          {!loading && !error && activeTab === 'popular' && (
-            <div className="tools-grid">
-              {tools.map((tool) => (
-                <ToolCard key={tool.id} tool={tool} />
-              ))}
-            </div>
-          )}
-
-          {/* 추천 도구 */}
-          {!loading && !error && activeTab === 'recommended' && (
-            <div className="tools-grid">
-              {recommendedTools.map((tool) => (
-                <ToolCard key={tool.id} tool={tool} />
-              ))}
-            </div>
-          )}
-
-          {/* 결과 없음 */}
-          {!loading && !error && tools.length === 0 && activeTab === 'popular' && (
-            <div className="no-results">
-              <p>검색 결과가 없습니다.</p>
-            </div>
-          )}
-
-          {/* 페이지네이션 */}
-          {!loading && pagination.pages > 1 && (
-            <div className="pagination">
-              <p>
-                전체 {pagination.total}개 중 {pagination.offset + 1}-
-                {Math.min(pagination.offset + pagination.limit, pagination.total)}개 보기
-              </p>
-            </div>
-          )}
-        </main>
+        </div>
       </div>
+
+      {loading && <div className="loading-container"><p>로딩 중...</p></div>}
+      {error && <div className="error-container"><p>⚠️ {error}</p></div>}
+
+      {!loading && !error && tools && tools.length > 0 && (
+        <div className="tools-section">
+          <h2>도구 목록 ({tools.length})</h2>
+          <div className="tools-grid">
+            {tools.map((tool) => (
+              <ToolCard key={tool.id} tool={tool} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!loading && !error && (!tools || tools.length === 0) && (
+        <div className="empty-state">
+          <p>검색 결과가 없습니다.</p>
+        </div>
+      )}
     </div>
   );
 };
