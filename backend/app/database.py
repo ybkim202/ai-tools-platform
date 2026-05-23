@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # PostgreSQL 연결
-DATABASE_URL = os.getenv("DATABASE_URL", "***REMOVED-DB-URL***")
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()  # .strip() 추가!
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
