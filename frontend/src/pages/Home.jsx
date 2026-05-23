@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { toolsAPI, handleApiError } from '../services/api';
 import ToolCard from '../components/ToolCard';
-import '../styles/Home_Linear.css';
+import '../styles/Home.css';
 
 const Home = () => {
   const [tools, setTools] = useState([]);
