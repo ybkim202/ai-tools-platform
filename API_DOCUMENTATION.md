@@ -1,0 +1,635 @@
+# 📡 AITools API 완전 문서화
+
+**Base URL**: `http://localhost:8000` (개발) / `https://api.aitools.com` (프로덕션)  
+**API Version**: v1.0.0  
+**Authentication**: Optional API Key (X-API-Key 헤더)
+
+---
+
+## 📋 **목차**
+
+1. [시작하기](#시작하기)
+2. [인증](#인증)
+3. [에러 처리](#에러-처리)
+4. [Tools API](#tools-api)
+5. [Recommendations API](#recommendations-api)
+6. [Compare API](#compare-api)
+7. [News API](#news-api)
+8. [Benchmarks API](#benchmarks-api)
+9. [Rate Limiting](#rate-limiting)
+
+---
+
+## 🚀 **시작하기**
+
+### **Requirements**
+- Python 3.9+
+- FastAPI
+- PostgreSQL 15+
+
+### **설치**
+
+```bash
+# 1. 리포지토리 클론
+git clone https://github.com/yourusername/ai-tools-platform.git
+cd ai-tools-platform/backend
+
+# 2. 가상환경 생성
+python3 -m venv venv
+source venv/bin/activate
+
+# 3. 의존성 설치
+pip install -r requirements.txt
+
+# 4. 환경변수 설정
+cp .env.example .env
+# .env 파일에 DATABASE_URL 입력
+
+# 5. 서버 실행
+python3 -m uvicorn app.main:app --reload
+```
+
+### **확인**
+
+```bash
+# 헬스 체크
+curl http://localhost:8000/health
+
+# API 문서 (Swagger UI)
+http://localhost:8000/docs
+```
+
+---
+
+## 🔐 **인증**
+
+### **선택적 인증 (Optional)**
+
+API Key 없이도 대부분의 엔드포인트 사용 가능합니다.
+
+```bash
+# API Key 없음 (공개 API)
+curl "http://localhost:8000/api/tools"
+
+# API Key 포함 (인증됨)
+curl -H "X-API-Key: your-api-key" "http://localhost:8000/api/tools"
+```
+
+### **API Key 발급**
+
+테스트용 키: `***REMOVED-API-KEY***`
+
+프로덕션 환경에서는 `.env` 파일의 `API_KEY` 변수를 수정하세요.
+
+### **필수 인증이 필요한 엔드포인트**
+
+현재는 모두 선택적 인증입니다. 향후 추가될 수 있습니다.
+
+---
+
+## ❌ **에러 처리**
+
+### **응답 형식**
+
+모든 에러는 일관된 형식으로 반환됩니다:
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "에러 메시지"
+  }
+}
+```
+
+### **에러 코드**
+
+| 코드 | HTTP Status | 설명 |
+|------|-------------|------|
+| `TOOL_NOT_FOUND` | 404 | 도구를 찾을 수 없음 |
+| `INVALID_PARAMETERS` | 400 | 잘못된 파라미터 |
+| `DATABASE_ERROR` | 500 | 데이터베이스 오류 |
+| `AUTHENTICATION_ERROR` | 401 | 인증 실패 |
+| `INVALID_API_KEY` | 401 | 유효하지 않은 API Key |
+| `MISSING_API_KEY` | 401 | API Key 누락 |
+| `RATE_LIMIT_EXCEEDED` | 429 | 요청 한도 초과 |
+| `VALIDATION_ERROR` | 422 | 데이터 검증 실패 |
+
+### **예시**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "TOOL_NOT_FOUND",
+    "message": "요청한 도구를 찾을 수 없습니다."
+  }
+}
+```
+
+---
+
+## 🔧 **Tools API**
+
+도구 정보 조회, 필터링, 검색 기능
+
+### **GET /api/tools**
+
+도구 목록을 조회합니다.
+
+**파라미터**
+
+| 파라미터 | 타입 | 필수 | 설명 | 예시 |
+|---------|------|------|------|------|
+| `search` | string | ❌ | 검색어 (도구명) | `ChatGPT` |
+| `category` | string | ❌ | 카테고리 필터 | `생성형AI` |
+| `country` | string | ❌ | 국가 필터 | `미국` |
+| `difficulty` | string | ❌ | 난이도 필터 | `쉬움` |
+| `min_price` | number | ❌ | 최소 가격 | `0` |
+| `max_price` | number | ❌ | 최대 가격 | `100` |
+| `min_users` | number | ❌ | 최소 사용자 수 | `1000000` |
+| `max_users` | number | ❌ | 최대 사용자 수 | `100000000` |
+| `sort_by` | string | ❌ | 정렬 (popularity/price/recent) | `popularity` |
+| `limit` | number | ❌ | 결과 수 (1-100, 기본: 20) | `10` |
+| `offset` | number | ❌ | 오프셋 (페이징) | `0` |
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 4,
+      "name": "ChatGPT",
+      "logo_url": "https://...",
+      "official_url": "https://openai.com/chatgpt",
+      "description": "OpenAI의 대화형 AI 모델...",
+      "category": "생성형AI",
+      "country": "미국",
+      "difficulty": "쉬움",
+      "user_count": 100000000,
+      "user_count_source": "공식발표",
+      "user_count_date": "2026-05-24T00:00:00",
+      "created_at": "2026-05-24T00:00:00",
+      "updated_at": "2026-05-24T00:00:00"
+    }
+  ],
+  "pagination": {
+    "total": 78,
+    "limit": 20,
+    "offset": 0,
+    "pages": 4
+  }
+}
+```
+
+**예시**
+
+```bash
+# 생성형AI 도구 10개
+curl "http://localhost:8000/api/tools?category=생성형AI&limit=10"
+
+# ChatGPT 검색
+curl "http://localhost:8000/api/tools?search=ChatGPT"
+
+# 가격대별 필터
+curl "http://localhost:8000/api/tools?min_price=0&max_price=50"
+```
+
+---
+
+### **GET /api/tools/{tool_id}**
+
+특정 도구의 상세 정보를 조회합니다.
+
+**파라미터**
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|---------|------|------|------|
+| `tool_id` | number | ✅ | 도구 ID |
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 4,
+    "name": "ChatGPT",
+    "description": "...",
+    "category": "생성형AI",
+    "country": "미국",
+    "user_count": 100000000,
+    "benchmarks": [
+      {
+        "id": 1,
+        "benchmark_type": "속도",
+        "score": 85,
+        "source": "공식벤치마크",
+        "collected_date": "2026-05-15T00:00:00"
+      }
+    ],
+    "pricing": [
+      {
+        "id": 1,
+        "plan_name": "무료",
+        "price": 0,
+        "currency": "USD",
+        "billing_period": "free",
+        "description": "기본 기능만 사용 가능"
+      },
+      {
+        "id": 2,
+        "plan_name": "Pro",
+        "price": 20,
+        "currency": "USD",
+        "billing_period": "monthly",
+        "description": "고급 기능 포함"
+      }
+    ],
+    "recent_news": [
+      {
+        "id": 1,
+        "title": "GPT-4 Turbo 업데이트",
+        "content": "새로운 성능 개선...",
+        "news_date": "2026-05-20T00:00:00",
+        "source_url": "https://..."
+      }
+    ]
+  }
+}
+```
+
+**예시**
+
+```bash
+# ChatGPT 상세 정보
+curl "http://localhost:8000/api/tools/4"
+```
+
+---
+
+## 💡 **Recommendations API**
+
+맞춤 추천
+
+### **GET /api/recommendations**
+
+업무 또는 직업에 따른 도구 추천
+
+**파라미터**
+
+| 파라미터 | 타입 | 필수 | 설명 | 예시 |
+|---------|------|------|------|------|
+| `task` | string | ❌ | 업무 | `콘텐츠작성` |
+| `profession` | string | ❌ | 직업 | `개발자` |
+| `limit` | number | ❌ | 추천 개수 (기본: 10) | `5` |
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "query": {
+    "task": null,
+    "profession": null
+  },
+  "data": [
+    {
+      "id": 4,
+      "name": "ChatGPT",
+      "category": "생성형AI",
+      "user_count": 100000000,
+      "difficulty": "쉬움",
+      "reason": "현재 가장 인기 있는 도구입니다."
+    }
+  ]
+}
+```
+
+**예시**
+
+```bash
+# 업무별 추천
+curl "http://localhost:8000/api/recommendations?task=콘텐츠작성"
+
+# 직업별 추천
+curl "http://localhost:8000/api/recommendations?profession=개발자"
+
+# 인기 도구
+curl "http://localhost:8000/api/recommendations"
+```
+
+---
+
+## ⚖️ **Compare API**
+
+도구 비교
+
+### **GET /api/compare**
+
+여러 도구를 비교합니다.
+
+**파라미터**
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|---------|------|------|------|
+| `ids` | string | ✅ | 도구 ID들 (쉼표로 구분, 최대 5개) |
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "comparison": [
+    {
+      "id": 4,
+      "name": "ChatGPT",
+      "category": "생성형AI",
+      "user_count": 100000000,
+      "difficulty": "쉬움",
+      "official_url": "https://openai.com/chatgpt",
+      "pricing": [
+        {
+          "plan": "무료",
+          "price": 0,
+          "currency": "USD",
+          "billing_period": "free"
+        }
+      ],
+      "benchmarks": {}
+    }
+  ],
+  "total_tools": 3
+}
+```
+
+**예시**
+
+```bash
+# 3개 도구 비교
+curl "http://localhost:8000/api/compare?ids=4,5,6"
+```
+
+---
+
+## 📰 **News API**
+
+뉴스 및 업데이트
+
+### **GET /api/news**
+
+최신 뉴스 조회
+
+**파라미터**
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|---------|------|------|------|
+| `tool_id` | number | ❌ | 특정 도구의 뉴스만 |
+| `days` | number | ❌ | 최근 N일 (1-365, 기본: 30) |
+| `limit` | number | ❌ | 결과 수 (기본: 20) |
+| `offset` | number | ❌ | 오프셋 |
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "tool_id": 4,
+      "tool_name": "ChatGPT",
+      "title": "GPT-4 Turbo 업데이트",
+      "content": "새로운 기능들이 추가되었습니다...",
+      "news_date": "2026-05-20T00:00:00",
+      "source_url": "https://openai.com/..."
+    }
+  ],
+  "pagination": {
+    "total": 0,
+    "limit": 20,
+    "offset": 0,
+    "pages": 0
+  }
+}
+```
+
+### **GET /api/news/trending**
+
+최근 가장 업데이트가 많은 도구들의 뉴스
+
+**파라미터**
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|---------|------|------|------|
+| `days` | number | ❌ | 최근 N일 (기본: 7) |
+| `limit` | number | ❌ | 결과 수 (기본: 10) |
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "tool_id": 4,
+      "tool_name": "ChatGPT",
+      "title": "GPT-4 Turbo 업데이트",
+      "content": "...",
+      "news_date": "2026-05-20T00:00:00",
+      "update_count": 5
+    }
+  ],
+  "period_days": 7
+}
+```
+
+**예시**
+
+```bash
+# 모든 뉴스
+curl "http://localhost:8000/api/news?limit=10"
+
+# 특정 도구 뉴스
+curl "http://localhost:8000/api/news?tool_id=4"
+
+# 트렌딩
+curl "http://localhost:8000/api/news/trending"
+```
+
+---
+
+## 📊 **Benchmarks API**
+
+성능 벤치마크
+
+### **GET /api/benchmarks**
+
+벤치마크 데이터 조회
+
+**파라미터**
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|---------|------|------|------|
+| `tool_id` | number | ❌ | 특정 도구만 |
+| `benchmark_type` | string | ❌ | 벤치마크 종류 |
+| `sort_by` | string | ❌ | 정렬 (score_desc/score_asc/recent) |
+| `limit` | number | ❌ | 결과 수 (기본: 20) |
+| `offset` | number | ❌ | 오프셋 |
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "tool_id": 4,
+      "tool_name": "ChatGPT",
+      "benchmark_type": "속도",
+      "score": 85,
+      "source": "공식벤치마크",
+      "collected_date": "2026-05-15T00:00:00"
+    }
+  ],
+  "pagination": {
+    "total": 0,
+    "limit": 20,
+    "offset": 0,
+    "pages": 0
+  }
+}
+```
+
+### **GET /api/benchmarks/summary/{tool_id}**
+
+도구별 벤치마크 요약
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "data": {
+    "tool_id": 4,
+    "tool_name": "ChatGPT",
+    "benchmarks": {
+      "속도": {
+        "score": 85,
+        "source": "공식벤치마크",
+        "collected_date": "2026-05-15T00:00:00"
+      }
+    },
+    "average_score": 85
+  }
+}
+```
+
+### **GET /api/benchmarks/types**
+
+사용 가능한 벤치마크 종류 목록
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "type": "속도",
+      "count": 5
+    },
+    {
+      "type": "정확도",
+      "count": 3
+    }
+  ]
+}
+```
+
+**예시**
+
+```bash
+# 벤치마크 종류
+curl "http://localhost:8000/api/benchmarks/types"
+
+# 특정 도구 요약
+curl "http://localhost:8000/api/benchmarks/summary/4"
+
+# 속도 벤치마크 정렬
+curl "http://localhost:8000/api/benchmarks?benchmark_type=속도&sort_by=score_desc"
+```
+
+---
+
+## ⚡ **Rate Limiting**
+
+### **한도**
+
+- **분당 요청 수**: 100개
+- **제한 대상**: API Key별 (없으면 anonymous)
+- **초과 시 응답**: HTTP 429
+
+### **예시**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "분당 100개 요청으로 제한됩니다."
+  }
+}
+```
+
+---
+
+## 🔗 **SDK & 클라이언트**
+
+### **Python**
+
+```python
+import requests
+
+BASE_URL = "http://localhost:8000/api"
+
+# 도구 검색
+response = requests.get(f"{BASE_URL}/tools", params={"search": "ChatGPT"})
+tools = response.json()["data"]
+
+# 비교
+response = requests.get(f"{BASE_URL}/compare", params={"ids": "4,5,6"})
+comparison = response.json()["comparison"]
+```
+
+### **JavaScript**
+
+```javascript
+const BASE_URL = "http://localhost:8000/api";
+
+// 도구 검색
+const response = await fetch(`${BASE_URL}/tools?search=ChatGPT`);
+const tools = await response.json();
+
+// 비교
+const compareResponse = await fetch(`${BASE_URL}/compare?ids=4,5,6`);
+const comparison = await compareResponse.json();
+```
+
+---
+
+## 📞 **지원**
+
+- **문서**: http://localhost:8000/docs (Swagger UI)
+- **GitHub Issues**: [여기](https://github.com/yourusername/ai-tools-platform/issues)
+- **이메일**: support@aitools.com
+
+---
+
+**Last Updated**: 2026-05-24  
+**Version**: 1.0.0
