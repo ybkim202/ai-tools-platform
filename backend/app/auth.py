@@ -8,7 +8,7 @@ load_dotenv()
 
 # API Key 설정
 API_KEYS = [
-    "test-key-12345",  # 테스트 키
+    "c1oWAhxxFa9Qqn0qZzu2d5X1I9NBYvQEluu5aJTOOsA",  # 테스트 키
     os.getenv("API_KEY", "your-secret-api-key")  # 환경변수에서 읽기
 ]
 
