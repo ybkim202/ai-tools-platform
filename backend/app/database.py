@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # PostgreSQL 연결
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://aitools_9ob0_user:lZ2zMiAAGaDKwP7iNzF2XQhjA3N3Npjp@dpg-d889pgbtqb8s7387scf0-a.singapore-postgres.render.com/aitools_9ob0")
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()  # .strip() 추가!
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
