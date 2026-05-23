@@ -2,14 +2,11 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# requirements.txt 먼저 복사
-COPY requirements.txt ./
+# 현재 backend 폴더의 requirements.txt 복사
+COPY . .
 
 # 설치
 RUN pip install --no-cache-dir -r requirements.txt
-
-# 앱 코드 복사
-COPY . .
 
 # 환경변수
 ENV PYTHONUNBUFFERED=1
