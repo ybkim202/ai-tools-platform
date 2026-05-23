@@ -2,17 +2,17 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copy requirements (backend 폴더에 있으니까)
-COPY requirements.txt .
+# requirements.txt 먼저 복사
+COPY requirements.txt ./
 
-# Install dependencies
+# 설치
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app code
-COPY app ./app
+# 앱 코드 복사
+COPY . .
 
-# Set environment
+# 환경변수
 ENV PYTHONUNBUFFERED=1
 
-# Run the app
+# 실행
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
