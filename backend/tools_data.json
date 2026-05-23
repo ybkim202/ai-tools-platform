@@ -1,0 +1,1115 @@
+[
+  {
+    "name": "ChatGPT",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg",
+    "official_url": "https://openai.com/chatgpt",
+    "description": "OpenAI의 대화형 AI 모델. 자연스러운 텍스트 생성, 질문 답변, 코딩 등 다양한 작업 가능",
+    "category": "생성형AI",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 100000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Pro", "price": 20, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Claude",
+    "logo_url": "https://www.anthropic.com/images/claude-logo.png",
+    "official_url": "https://claude.ai",
+    "description": "Anthropic의 AI 어시스턴트. 깊이 있는 분석, 창의적 작업, 프로그래밍에 강점",
+    "category": "생성형AI",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 50000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Pro", "price": 20, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "DALL-E 3",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/e/e6/OpenAI_Logo.svg",
+    "official_url": "https://openai.com/dall-e-3",
+    "description": "OpenAI의 이미지 생성 모델. 텍스트 설명으로 고품질 이미지 생성",
+    "category": "이미지생성",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 30000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "API 기반", "price": 0.04, "currency": "USD", "billing_period": "per_image"}
+    ]
+  },
+  {
+    "name": "Midjourney",
+    "logo_url": "https://www.midjourney.com/apple-touch-icon.png",
+    "official_url": "https://www.midjourney.com",
+    "description": "Discord 기반 AI 이미지 생성 도구. 예술적이고 창의적인 이미지 생성에 특화",
+    "category": "이미지생성",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 20000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "Basic", "price": 10, "currency": "USD", "billing_period": "monthly"},
+      {"plan_name": "Standard", "price": 30, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "GitHub Copilot",
+    "logo_url": "https://github.githubassets.com/images/modules/copilot/copilot-icon.svg",
+    "official_url": "https://github.com/features/copilot",
+    "description": "GitHub의 AI 코드 어시스턴트. IDE에서 실시간 코드 제안 및 자동완성",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 2000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "유료", "price": 10, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Runway",
+    "logo_url": "https://files.readme.io/c6cfbc5-runway-logo-mark.png",
+    "official_url": "https://runwayml.com",
+    "description": "AI 비디오 편집 및 생성 플랫폼. 영상 편집, 배경제거, 모션 감지 등",
+    "category": "비디오생성",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 5000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Standard", "price": 12, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Gemini",
+    "logo_url": "https://www.gstatic.com/images/branding/product/1x/gemini_512dp.png",
+    "official_url": "https://gemini.google.com",
+    "description": "Google의 멀티모달 AI 모델. 텍스트, 이미지, 비디오 등 다양한 입력 처리",
+    "category": "생성형AI",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 40000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Advanced", "price": 20, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Perplexity AI",
+    "logo_url": "https://www.perplexity.ai/favicon.ico",
+    "official_url": "https://www.perplexity.ai",
+    "description": "웹 검색 기능이 있는 AI 검색 엔진. 최신 정보를 기반으로 답변 제공",
+    "category": "검색AI",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 5000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Pro", "price": 20, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Stable Diffusion",
+    "logo_url": "https://huggingface.co/front/assets/huggingface_logo-noborder.svg",
+    "official_url": "https://huggingface.co/spaces/stabilityai/stable-diffusion-webui",
+    "description": "오픈소스 이미지 생성 모델. 로컬에서 실행 가능하고 커스터마이징 가능",
+    "category": "이미지생성",
+    "country": "미국",
+    "difficulty": "어려움",
+    "user_count": 1000000,
+    "user_count_source": "커뮤니티",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Jasper",
+    "logo_url": "https://www.jasper.ai/assets/jasper-logo.svg",
+    "official_url": "https://www.jasper.ai",
+    "description": "마케팅 콘텐츠 생성 AI. 블로그, 이메일, 소셜 미디어 콘텐츠 작성",
+    "category": "콘텐츠생성",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 3000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "Creator", "price": 49, "currency": "USD", "billing_period": "monthly"},
+      {"plan_name": "Teams", "price": 125, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Copy.ai",
+    "logo_url": "https://www.copy.ai/favicon.ico",
+    "official_url": "https://www.copy.ai",
+    "description": "AI 마케팅 카피 생성 도구. 광고, 제품 설명, 이메일 등 작성",
+    "category": "콘텐츠생성",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 2000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Pro", "price": 49, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Synthesia",
+    "logo_url": "https://www.synthesia.io/favicon.ico",
+    "official_url": "https://www.synthesia.io",
+    "description": "AI 비디오 생성 플랫폼. 텍스트를 읽어주는 아바타 비디오 생성",
+    "category": "비디오생성",
+    "country": "영국",
+    "difficulty": "보통",
+    "user_count": 1000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "Starter", "price": 30, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Descript",
+    "logo_url": "https://www.descript.com/favicon.ico",
+    "official_url": "https://www.descript.com",
+    "description": "비디오/오디오 편집 AI. 자동 자막, 음성 인식, AI 보이스 생성",
+    "category": "오디오편집",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 1000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Creator", "price": 24, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Murf AI",
+    "logo_url": "https://murf.ai/favicon.ico",
+    "official_url": "https://murf.ai",
+    "description": "텍스트 음성 변환 AI. 120개 언어의 AI 음성으로 내레이션 생성",
+    "category": "음성생성",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 500000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Basic", "price": 10, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "ElevenLabs",
+    "logo_url": "https://elevenlabs.io/favicon.ico",
+    "official_url": "https://elevenlabs.io",
+    "description": "고급 음성 합성 AI. 자연스러운 AI 음성으로 텍스트 읽음",
+    "category": "음성생성",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 2000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Starter", "price": 11, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Grammarly",
+    "logo_url": "https://www.grammarly.com/favicon.ico",
+    "official_url": "https://www.grammarly.com",
+    "description": "AI 문법 검사 및 쓰기 개선 도구. 맞춤법, 문법, 스타일 개선",
+    "category": "쓰기보조",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 30000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Premium", "price": 12, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Notion AI",
+    "logo_url": "https://www.notion.so/favicon.ico",
+    "official_url": "https://www.notion.so/product/ai",
+    "description": "Notion에 통합된 AI. 문서 작성, 요약, 아이디어 생성 보조",
+    "category": "생산성",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 10000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "구독포함", "price": 10, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Codeium",
+    "logo_url": "https://codeium.com/favicon.ico",
+    "official_url": "https://codeium.com",
+    "description": "GitHub Copilot 대체 코드 자동완성 AI. 무료 버전 제공",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 1000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Tabnine",
+    "logo_url": "https://tabnine.com/favicon.ico",
+    "official_url": "https://www.tabnine.com",
+    "description": "AI 코드 자동완성. 30개 이상 프로그래밍 언어 지원",
+    "category": "개발도구",
+    "country": "이스라엘",
+    "difficulty": "쉬움",
+    "user_count": 1000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Pro", "price": 12, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Beautiful.ai",
+    "logo_url": "https://www.beautiful.ai/favicon.ico",
+    "official_url": "https://www.beautiful.ai",
+    "description": "AI 프레젠테이션 생성. 자동 디자인과 레이아웃 제안",
+    "category": "생산성",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 500000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Pro", "price": 19, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Canva AI",
+    "logo_url": "https://www.canva.com/favicon.ico",
+    "official_url": "https://www.canva.com",
+    "description": "Canva 플랫폼의 AI 기능. 이미지 생성, 배경제거, 텍스트 효과",
+    "category": "디자인",
+    "country": "호주",
+    "difficulty": "쉬움",
+    "user_count": 100000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Pro", "price": 13, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Character.AI",
+    "logo_url": "https://character.ai/favicon.ico",
+    "official_url": "https://character.ai",
+    "description": "AI 캐릭터와 대화하는 플랫폼. 창작 캐릭터와 역할극",
+    "category": "엔터테인먼트",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 2000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Replika",
+    "logo_url": "https://replika.ai/favicon.ico",
+    "official_url": "https://replika.ai",
+    "description": "개인화된 AI 친구. 대화를 통해 학습하는 AI 어시스턴트",
+    "category": "엔터테인먼트",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 10000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Pro", "price": 10, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Otter.ai",
+    "logo_url": "https://otter.ai/favicon.ico",
+    "official_url": "https://otter.ai",
+    "description": "AI 음성 녹음 및 전사. 회의, 강의, 인터뷰 자동 전사",
+    "category": "음성처리",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 3000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Pro", "price": 10, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Microsoft Copilot",
+    "logo_url": "https://www.microsoft.com/favicon.ico",
+    "official_url": "https://copilot.microsoft.com",
+    "description": "Microsoft의 AI 어시스턴트. Windows 11에 통합, 웹 검색 기능",
+    "category": "생성형AI",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 50000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Writesonic",
+    "logo_url": "https://writesonic.com/favicon.ico",
+    "official_url": "https://writesonic.com",
+    "description": "AI 콘텐츠 작성 플랫폼. 블로그, 광고, 이메일 자동 생성",
+    "category": "콘텐츠생성",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 1000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Pro", "price": 19, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "QuillBot",
+    "logo_url": "https://quillbot.com/favicon.ico",
+    "official_url": "https://quillbot.com",
+    "description": "AI 문장 재작성 도구. 문체 개선 및 표절 검사",
+    "category": "쓰기보조",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 5000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Premium", "price": 12, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "Tome",
+    "logo_url": "https://tome.app/favicon.ico",
+    "official_url": "https://tome.app",
+    "description": "AI 프레젠테이션 빌더. 스토리텔링과 시각 디자인 자동화",
+    "category": "생산성",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 1000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Gamma",
+    "logo_url": "https://gamma.app/favicon.ico",
+    "official_url": "https://gamma.app",
+    "description": "AI 프레젠테이션 생성. 자동 슬라이드 제작과 디자인",
+    "category": "생산성",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 500000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Remove.bg",
+    "logo_url": "https://remove.bg/favicon.ico",
+    "official_url": "https://remove.bg",
+    "description": "AI 배경제거. 사진에서 자동으로 배경 제거",
+    "category": "이미지편집",
+    "country": "독일",
+    "difficulty": "쉬움",
+    "user_count": 100000000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "Pro", "price": 9.99, "currency": "USD", "billing_period": "monthly"}
+    ]
+  },
+  {
+    "name": "HuggingFace",
+    "logo_url": "https://huggingface.co/front/assets/huggingface_logo-noborder.svg",
+    "official_url": "https://huggingface.co",
+    "description": "오픈소스 AI 모델 허브. 수천 개의 사전학습 모델 제공",
+    "category": "AI플랫폼",
+    "country": "미국",
+    "difficulty": "어려움",
+    "user_count": 500000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "OpenRouter",
+    "logo_url": "https://openrouter.ai/favicon.ico",
+    "official_url": "https://openrouter.ai",
+    "description": "여러 AI 모델 통합 API. Claude, GPT-4 등 한곳에서 접근",
+    "category": "AI플랫폼",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 100000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "종량제", "price": 0, "currency": "USD", "billing_period": "pay_as_you_go"}
+    ]
+  },
+  {
+    "name": "Replicate",
+    "logo_url": "https://replicate.com/favicon.ico",
+    "official_url": "https://replicate.com",
+    "description": "오픈소스 AI 모델 호스팅. 간단한 API로 AI 모델 실행",
+    "category": "AI플랫폼",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 100000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Anthropic (Claude API)",
+    "logo_url": "https://www.anthropic.com/images/claude-logo.png",
+    "official_url": "https://console.anthropic.com",
+    "description": "Claude AI의 API 접근. 개발자를 위한 프로그래밍 인터페이스",
+    "category": "API",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 50000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "종량제", "price": 0, "currency": "USD", "billing_period": "pay_as_you_go"}
+    ]
+  },
+  {
+    "name": "OpenAI API",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg",
+    "official_url": "https://openai.com/api",
+    "description": "OpenAI 모델의 API. GPT-4, DALL-E, Whisper 등 접근",
+    "category": "API",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 100000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "종량제", "price": 0, "currency": "USD", "billing_period": "pay_as_you_go"}
+    ]
+  },
+  {
+    "name": "Google Cloud AI",
+    "logo_url": "https://www.gstatic.com/devrel-devsite/prod/v2210deb39920cd4a55bd580441aa58e853afc04b39a9d9ac4198e1cd7fbe04ef/cloud/images/favicons/onecloud/super_cloud.png",
+    "official_url": "https://cloud.google.com/products/ai",
+    "description": "Google의 AI 서비스. Vertex AI, Vision API, Natural Language API",
+    "category": "AI플랫폼",
+    "country": "미국",
+    "difficulty": "어려움",
+    "user_count": 100000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "종량제", "price": 0, "currency": "USD", "billing_period": "pay_as_you_go"}
+    ]
+  },
+  {
+    "name": "AWS AI Services",
+    "logo_url": "https://a0.awsstatic.com/libra-css/images/logos/aws_logo_smile_1200x630_white_bg.png",
+    "official_url": "https://aws.amazon.com/ai",
+    "description": "Amazon의 AI 서비스. SageMaker, Rekognition, Lex 등",
+    "category": "AI플랫폼",
+    "country": "미국",
+    "difficulty": "어려움",
+    "user_count": 100000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "종량제", "price": 0, "currency": "USD", "billing_period": "pay_as_you_go"}
+    ]
+  },
+  {
+    "name": "Azure AI Services",
+    "logo_url": "https://www.microsoft.com/favicon.ico",
+    "official_url": "https://azure.microsoft.com/en-us/products/ai-services",
+    "description": "Microsoft의 AI 서비스. Azure OpenAI, Cognitive Services 등",
+    "category": "AI플랫폼",
+    "country": "미국",
+    "difficulty": "어려움",
+    "user_count": 100000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "종량제", "price": 0, "currency": "USD", "billing_period": "pay_as_you_go"}
+    ]
+  },
+  {
+    "name": "Aleph Alpha",
+    "logo_url": "https://www.aleph-alpha.com/favicon.ico",
+    "official_url": "https://www.aleph-alpha.com",
+    "description": "유럽의 대형 언어 모델. 고급 분석과 기업용 솔루션",
+    "category": "생성형AI",
+    "country": "독일",
+    "difficulty": "어려움",
+    "user_count": 50000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "기업용", "price": 0, "currency": "USD", "billing_period": "custom"}
+    ]
+  },
+  {
+    "name": "Cohere",
+    "logo_url": "https://cohere.com/favicon.ico",
+    "official_url": "https://cohere.com",
+    "description": "기업용 대형 언어 모델. API 기반 NLP 솔루션",
+    "category": "AI플랫폼",
+    "country": "캐나다",
+    "difficulty": "보통",
+    "user_count": 50000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
+      {"plan_name": "기업용", "price": 0, "currency": "USD", "billing_period": "custom"}
+    ]
+  },
+  {
+    "name": "Together AI",
+    "logo_url": "https://www.together.ai/favicon.ico",
+    "official_url": "https://www.together.ai",
+    "description": "오픈소스 모델 호스팅 플랫폼. LLama, Falcon 등 지원",
+    "category": "AI플랫폼",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 50000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "종량제", "price": 0, "currency": "USD", "billing_period": "pay_as_you_go"}
+    ]
+  },
+  {
+    "name": "LangChain",
+    "logo_url": "https://langchain.com/favicon.ico",
+    "official_url": "https://langchain.com",
+    "description": "LLM 앱 개발 프레임워크. 여러 AI 모델을 체인으로 연결",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "어려움",
+    "user_count": 200000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Llama 2",
+    "logo_url": "https://www.meta.com/favicon.ico",
+    "official_url": "https://ai.meta.com/llama",
+    "description": "Meta의 오픈소스 대형 언어 모델. 상업 이용 가능",
+    "category": "생성형AI",
+    "country": "미국",
+    "difficulty": "어려움",
+    "user_count": 500000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Mistral AI",
+    "logo_url": "https://mistral.ai/favicon.ico",
+    "official_url": "https://mistral.ai",
+    "description": "프랑스의 오픈소스 LLM 회사. 효율적인 작은 모델",
+    "category": "생성형AI",
+    "country": "프랑스",
+    "difficulty": "보통",
+    "user_count": 100000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "GPT4All",
+    "logo_url": "https://www.nomic.ai/favicon.ico",
+    "official_url": "https://gpt4all.io",
+    "description": "로컬에서 실행 가능한 오픈소스 LLM. 인터넷 연결 불필요",
+    "category": "생성형AI",
+    "country": "미국",
+    "difficulty": "어려움",
+    "user_count": 100000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Orca",
+    "logo_url": "https://www.microsoft.com/favicon.ico",
+    "official_url": "https://huggingface.co/microsoft/Orca-2-7b",
+    "description": "Microsoft의 소형 LLM. GPT-4로 학습한 경량 모델",
+    "category": "생성형AI",
+    "country": "미국",
+    "difficulty": "어려움",
+    "user_count": 50000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Vicuna",
+    "logo_url": "https://lmsys.org/favicon.ico",
+    "official_url": "https://lmsys.org",
+    "description": "오픈소스 채팅 모델. LLama를 기반으로 미세조정",
+    "category": "생성형AI",
+    "country": "미국",
+    "difficulty": "어려움",
+    "user_count": 100000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Alpaca",
+    "logo_url": "https://www.stanford.edu/favicon.ico",
+    "official_url": "https://github.com/tatsu-lab/alpaca",
+    "description": "Stanford의 오픈소스 채팅 모델. 경량이고 효율적",
+    "category": "생성형AI",
+    "country": "미국",
+    "difficulty": "어려움",
+    "user_count": 50000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Falcon",
+    "logo_url": "https://falconllm.tii.ae/favicon.ico",
+    "official_url": "https://falconllm.tii.ae",
+    "description": "UAE의 오픈소스 LLM. 성능 좋은 경량 모델",
+    "category": "생성형AI",
+    "country": "UAE",
+    "difficulty": "보통",
+    "user_count": 50000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "MPT (Mosaic)",
+    "logo_url": "https://www.mosaicml.com/favicon.ico",
+    "official_url": "https://www.mosaicml.com/mpt",
+    "description": "Mosaic의 오픈소스 모델. 상업 이용 가능",
+    "category": "생성형AI",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 50000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Cerebras",
+    "logo_url": "https://cerebras.net/favicon.ico",
+    "official_url": "https://cerebras.net",
+    "description": "AI 칩 및 클라우드 서비스. 초고속 AI 훈련",
+    "category": "AI플랫폼",
+    "country": "미국",
+    "difficulty": "어려움",
+    "user_count": 10000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "기업용", "price": 0, "currency": "USD", "billing_period": "custom"}
+    ]
+  },
+  {
+    "name": "Scale AI",
+    "logo_url": "https://scale.com/favicon.ico",
+    "official_url": "https://scale.com",
+    "description": "AI 데이터 라벨링 서비스. 모델 훈련용 고품질 데이터",
+    "category": "데이터서비스",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 50000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "기업용", "price": 0, "currency": "USD", "billing_period": "custom"}
+    ]
+  },
+  {
+    "name": "Labelbox",
+    "logo_url": "https://labelbox.com/favicon.ico",
+    "official_url": "https://labelbox.com",
+    "description": "AI 데이터 라벨링 플랫폼. 협업 기반 데이터 준비",
+    "category": "데이터서비스",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 20000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "기업용", "price": 0, "currency": "USD", "billing_period": "custom"}
+    ]
+  },
+  {
+    "name": "Hugging Face Spaces",
+    "logo_url": "https://huggingface.co/front/assets/huggingface_logo-noborder.svg",
+    "official_url": "https://huggingface.co/spaces",
+    "description": "AI 모델 배포 플랫폼. 간단하게 모델 공유 및 실행",
+    "category": "AI플랫폼",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 100000,
+    "user_count_source": "공식발표",
+    "pricing": [
+      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Gradio",
+    "logo_url": "https://www.gradio.app/favicon.ico",
+    "official_url": "https://www.gradio.app",
+    "description": "ML 모델 웹 인터페이스 생성 라이브러리. 빠르게 데모 만들기",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 100000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Streamlit",
+    "logo_url": "https://streamlit.io/favicon.ico",
+    "official_url": "https://streamlit.io",
+    "description": "ML 앱 개발 프레임워크. Python으로 빠르게 웹앱 만들기",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 500000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "TensorFlow",
+    "logo_url": "https://www.tensorflow.org/favicon.ico",
+    "official_url": "https://www.tensorflow.org",
+    "description": "Google의 오픈소스 머신러닝 프레임워크. 신경망 훈련",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "어려움",
+    "user_count": 500000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "PyTorch",
+    "logo_url": "https://pytorch.org/favicon.ico",
+    "official_url": "https://pytorch.org",
+    "description": "Meta의 오픈소스 머신러닝 프레임워크. 유연한 신경망 개발",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "어려움",
+    "user_count": 500000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Keras",
+    "logo_url": "https://keras.io/favicon.ico",
+    "official_url": "https://keras.io",
+    "description": "고수준 신경망 API. TensorFlow와 통합",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 200000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Scikit-learn",
+    "logo_url": "https://scikit-learn.org/stable/_static/favicon.ico",
+    "official_url": "https://scikit-learn.org",
+    "description": "머신러닝 라이브러리. 분류, 회귀, 클러스터링",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 500000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "XGBoost",
+    "logo_url": "https://xgboost.readthedocs.io/en/stable/_static/favicon.ico",
+    "official_url": "https://xgboost.readthedocs.io",
+    "description": "그래디언트 부스팅 라이브러리. 고성능 머신러닝",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 200000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "LightGBM",
+    "logo_url": "https://lightgbm.readthedocs.io/en/latest/_static/favicon.ico",
+    "official_url": "https://lightgbm.readthedocs.io",
+    "description": "경량 그래디언트 부스팅. 빠르고 효율적",
+    "category": "개발도구",
+    "country": "중국",
+    "difficulty": "보통",
+    "user_count": 100000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Pandas",
+    "logo_url": "https://pandas.pydata.org/static/favicon.ico",
+    "official_url": "https://pandas.pydata.org",
+    "description": "데이터 분석 라이브러리. 데이터 처리 및 분석",
+    "category": "데이터분석",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 1000000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "NumPy",
+    "logo_url": "https://numpy.org/favicon.ico",
+    "official_url": "https://numpy.org",
+    "description": "수치 계산 라이브러리. 과학 컴퓨팅의 기초",
+    "category": "데이터분석",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 500000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Matplotlib",
+    "logo_url": "https://matplotlib.org/stable/_static/favicon.ico",
+    "official_url": "https://matplotlib.org",
+    "description": "데이터 시각화 라이브러리. 그래프 및 차트 생성",
+    "category": "데이터분석",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 500000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Jupyter",
+    "logo_url": "https://jupyter.org/favicon.ico",
+    "official_url": "https://jupyter.org",
+    "description": "인터랙티브 노트북. 데이터 분석 및 시각화",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 500000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "JupyterLab",
+    "logo_url": "https://jupyter.org/favicon.ico",
+    "official_url": "https://jupyterlab.readthedocs.io",
+    "description": "Jupyter의 차세대 IDE. 향상된 개발 환경",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "쉬움",
+    "user_count": 300000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "MONAI",
+    "logo_url": "https://monai.io/favicon.ico",
+    "official_url": "https://monai.io",
+    "description": "의료 이미지 AI 프레임워크. 의료 영상 처리",
+    "category": "특수목적",
+    "country": "미국",
+    "difficulty": "어려움",
+    "user_count": 50000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "MediaPipe",
+    "logo_url": "https://mediapipe.dev/favicon.ico",
+    "official_url": "https://mediapipe.dev",
+    "description": "Google의 멀티미디어 처리 프레임워크. 포즈, 손 인식 등",
+    "category": "컴퓨터비전",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 100000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "OpenCV",
+    "logo_url": "https://opencv.org/favicon.ico",
+    "official_url": "https://opencv.org",
+    "description": "컴퓨터 비전 라이브러리. 이미지 처리 및 분석",
+    "category": "컴퓨터비전",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 500000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Transformers (Hugging Face)",
+    "logo_url": "https://huggingface.co/front/assets/huggingface_logo-noborder.svg",
+    "official_url": "https://huggingface.co/transformers",
+    "description": "트랜스포머 모델 라이브러리. NLP 및 비전 모델",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 300000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "spaCy",
+    "logo_url": "https://spacy.io/favicon.ico",
+    "official_url": "https://spacy.io",
+    "description": "NLP 라이브러리. 자연어 처리 및 텍스트 분석",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 200000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "NLTK",
+    "logo_url": "https://www.nltk.org/favicon.ico",
+    "official_url": "https://www.nltk.org",
+    "description": "자연어 도구 키트. NLP 연구 및 교육용",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 100000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "FastText",
+    "logo_url": "https://fasttext.cc/favicon.ico",
+    "official_url": "https://fasttext.cc",
+    "description": "Facebook의 텍스트 분류 라이브러리. 빠르고 효율적",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 100000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Rasa",
+    "logo_url": "https://rasa.com/favicon.ico",
+    "official_url": "https://rasa.com",
+    "description": "챗봇 및 대화형 AI 프레임워크. 오픈소스 및 엔터프라이즈",
+    "category": "개발도구",
+    "country": "독일",
+    "difficulty": "보통",
+    "user_count": 100000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Ray",
+    "logo_url": "https://ray.io/favicon.ico",
+    "official_url": "https://ray.io",
+    "description": "분산 처리 프레임워크. 머신러닝 병렬 처리",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "어려움",
+    "user_count": 100000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Dask",
+    "logo_url": "https://dask.org/favicon.ico",
+    "official_url": "https://dask.org",
+    "description": "병렬 컴퓨팅 라이브러리. 대용량 데이터 처리",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "어려움",
+    "user_count": 100000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  },
+  {
+    "name": "Celery",
+    "logo_url": "https://docs.celeryproject.org/en/stable/_static/favicon.ico",
+    "official_url": "https://docs.celeryproject.org",
+    "description": "분산 작업 큐. 비동기 작업 처리",
+    "category": "개발도구",
+    "country": "미국",
+    "difficulty": "보통",
+    "user_count": 200000,
+    "user_count_source": "오픈소스",
+    "pricing": [
+      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+    ]
+  }
+]
