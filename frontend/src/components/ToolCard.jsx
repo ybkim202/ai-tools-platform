@@ -1,5 +1,7 @@
 import React from 'react';
 import { useUIStore } from '../stores/toolStore';
+import { formatUserCount } from '../utils/format';
+import { handleLogoError } from '../utils/logoFallback';
 import '../styles/ToolCard.css';
 
 const ToolCard = ({ tool }) => {
@@ -11,7 +13,7 @@ const ToolCard = ({ tool }) => {
     if (isSelected) {
       removeToolForCompare(tool.id);
     } else {
-      addToolForCompare(tool.id);
+      addToolForCompare(tool.id, tool.name);
     }
   };
 
@@ -19,7 +21,13 @@ const ToolCard = ({ tool }) => {
     <div className="tool-card">
       {/* 헤더 */}
       <div className="card-header">
-        <img src={tool.logo_url} alt={tool.name} className="card-logo" />
+        <img
+          src={tool.logo_url}
+          alt={tool.name}
+          className="card-logo"
+          loading="lazy"
+          onError={handleLogoError}
+        />
         <div className="card-title-info">
           <h3>{tool.name}</h3>
           <span className="category-badge">{tool.category}</span>
@@ -32,11 +40,11 @@ const ToolCard = ({ tool }) => {
 
         {/* 메타 정보 */}
         <div className="meta-info">
-          {tool.user_count && (
+          {formatUserCount(tool.user_count) && (
             <div className="meta-item">
               <span className="meta-label">사용자</span>
               <span className="meta-value">
-                {(tool.user_count / 1000000).toFixed(1)}M+
+                {formatUserCount(tool.user_count)}
               </span>
             </div>
           )}
@@ -52,6 +60,7 @@ const ToolCard = ({ tool }) => {
             <div className="meta-item">
               <span className="meta-label">난이도</span>
               <span className={`difficulty-badge ${tool.difficulty}`}>
+                <span className="difficulty-dot" aria-hidden="true">●</span>
                 {tool.difficulty}
               </span>
             </div>
