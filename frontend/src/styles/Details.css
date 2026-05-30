@@ -115,7 +115,7 @@
 
 .header-info .btn-primary {
   background-color: var(--color-primary-darker);
-  color: white;
+  color: var(--color-on-primary);
   border: none;
   box-shadow: var(--shadow-sm);
 }
@@ -142,7 +142,7 @@
 
 .header-info .btn-secondary.active {
   background-color: var(--color-primary-darker);
-  color: white;
+  color: var(--color-on-primary);
   border-color: var(--color-primary-darker);
 }
 

@@ -4,19 +4,22 @@
 
 :root {
   /* Colors */
-  --color-primary: #0EA5E9;
-  --color-primary-dark: #0284C7;
-  --color-primary-darker: #0369A1;
+  /* Ink (monochrome) accent — light theme: dark ink */
+  --color-primary: #111827;
+  --color-primary-dark: #0B1120;
+  --color-primary-darker: #030712;
   --color-success: #16A34A;
   --color-warning: #FB923C;
   --color-error: #EF4444;
   --color-error-dark: #DC2626;
   --color-error-surface: rgba(239, 68, 68, 0.05);
   --color-error-border: rgba(239, 68, 68, 0.2);
-  --color-primary-surface: rgba(14, 165, 233, 0.05);
-  --color-primary-surface-strong: rgba(14, 165, 233, 0.10);
-  --color-primary-border: rgba(14, 165, 233, 0.20);
-  --color-focus-ring: rgba(14, 165, 233, 0.2);
+  --color-primary-surface: rgba(17, 24, 39, 0.04);
+  --color-primary-surface-strong: rgba(17, 24, 39, 0.06);
+  --color-primary-border: rgba(17, 24, 39, 0.16);
+  --color-focus-ring: rgba(17, 24, 39, 0.28);
+  /* Text/icon color on solid ink-accent surfaces (CTA, active chip). Light: white on dark ink. */
+  --color-on-primary: #FFFFFF;
   --color-background: #FFFFFF;
   --color-surface: #F9FAFB;
   --color-border: #E5E7EB;
@@ -70,8 +73,16 @@
     --color-text-primary: #F1F5F9;
     --color-text-secondary: #CBD5E1;
     --color-text-tertiary: #94A3B8;
-    --color-primary-surface-strong: rgba(14, 165, 233, 0.18);
-    --color-primary-border: rgba(14, 165, 233, 0.30);
+    /* Ink accent inverts to light ink on dark canvas */
+    --color-primary: #F1F5F9;
+    --color-primary-dark: #E5E7EB;
+    --color-primary-darker: #CBD5E1;
+    --color-primary-surface: rgba(241, 245, 249, 0.06);
+    --color-primary-surface-strong: rgba(241, 245, 249, 0.10);
+    --color-primary-border: rgba(241, 245, 249, 0.22);
+    --color-focus-ring: rgba(241, 245, 249, 0.36);
+    /* Dark ink text on light-ink accent surface */
+    --color-on-primary: #0F172A;
   }
 }
 
@@ -83,8 +94,16 @@
   --color-text-primary: #F1F5F9;
   --color-text-secondary: #CBD5E1;
   --color-text-tertiary: #94A3B8;
-  --color-primary-surface-strong: rgba(14, 165, 233, 0.18);
-  --color-primary-border: rgba(14, 165, 233, 0.30);
+  /* Ink accent inverts to light ink on dark canvas */
+  --color-primary: #F1F5F9;
+  --color-primary-dark: #E5E7EB;
+  --color-primary-darker: #CBD5E1;
+  --color-primary-surface: rgba(241, 245, 249, 0.06);
+  --color-primary-surface-strong: rgba(241, 245, 249, 0.10);
+  --color-primary-border: rgba(241, 245, 249, 0.22);
+  --color-focus-ring: rgba(241, 245, 249, 0.36);
+  /* Dark ink text on light-ink accent surface */
+  --color-on-primary: #0F172A;
 }
 
 /* ========================================
@@ -182,7 +201,7 @@ body {
   gap: var(--spacing-md);
   padding: var(--spacing-lg) var(--spacing-2xl);
   background-color: var(--color-primary-darker);
-  color: white;
+  color: var(--color-on-primary);
   border: none;
   border-radius: var(--radius-lg);
   font-size: var(--font-size-lg);
@@ -299,7 +318,7 @@ body {
 .filter-btn.active {
   background-color: var(--color-primary-darker);
   border-color: var(--color-primary-darker);
-  color: white;
+  color: var(--color-on-primary);
   box-shadow: 0 0 0 3px var(--color-primary-surface-strong);
 }
 
@@ -439,7 +458,7 @@ body {
 .reset-button {
   padding: var(--spacing-sm) var(--spacing-lg);
   background-color: var(--color-primary-darker);
-  color: white;
+  color: var(--color-on-primary);
   border: none;
   border-radius: var(--radius-md);
   font-weight: 600;
@@ -495,7 +514,7 @@ body {
 
 .btn-primary {
   background-color: var(--color-primary-darker);
-  color: white;
+  color: var(--color-on-primary);
   box-shadow: var(--shadow-md);
 }
 
