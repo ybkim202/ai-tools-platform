@@ -46,6 +46,7 @@ def register_exception_handlers(app: FastAPI):
             status_code=exc.status_code,
             content={
                 "success": False,
+                "data": None,
                 "error": {
                     "code": exc.code,
                     "message": exc.message
@@ -67,6 +68,7 @@ def register_exception_handlers(app: FastAPI):
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             content={
                 "success": False,
+                "data": None,
                 "error": {
                     "code": "VALIDATION_ERROR",
                     "message": "요청 데이터 검증 실패",
@@ -82,6 +84,7 @@ def register_exception_handlers(app: FastAPI):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
                 "success": False,
+                "data": None,
                 "error": {
                     "code": "INTERNAL_ERROR",
                     "message": "서버 내부 오류가 발생했습니다."

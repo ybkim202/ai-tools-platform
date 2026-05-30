@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { toolsAPI, handleApiError } from '../services/api';
 import ToolCard from '../components/ToolCard';
+import { LoadingState, EmptyFilteredState, ErrorState } from '../components/states/StateViews';
 import '../styles/Home.css';
 
 const Home = () => {
@@ -11,8 +12,41 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const categories = ['전체', '이미지생성', '영상생성', '텍스트생성', '데이터분석', '코딩'];
-  const difficulties = ['전체', '쉬움', '보통', '어려움'];
+  // 카테고리/난이도는 실제 DB 메타에서 동적으로 채운다(하드코딩 목록 금지).
+  // 메타 로드 실패 시에만 '전체' 단일 칩으로 폴백.
+  const [categories, setCategories] = useState(['전체']);
+  const [difficulties, setDifficulties] = useState(['전체']);
+
+  const isFiltered =
+    searchQuery !== '' || selectedCategory !== '전체' || selectedDifficulty !== '전체';
+
+  useEffect(() => {
+    let active = true;
+    toolsAPI
+      .getMeta()
+      .then((res) => {
+        if (!active) return;
+        const meta = res?.data?.data || {};
+        if (Array.isArray(meta.categories) && meta.categories.length > 0) {
+          setCategories(['전체', ...meta.categories]);
+        }
+        if (Array.isArray(meta.difficulties) && meta.difficulties.length > 0) {
+          setDifficulties(['전체', ...meta.difficulties]);
+        }
+      })
+      .catch(() => {
+        // 메타 로드 실패: '전체'만 유지(과한 스켈레톤 회피).
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const resetFilters = () => {
+    setSearchQuery('');
+    setSelectedCategory('전체');
+    setSelectedDifficulty('전체');
+  };
 
   const fetchTools = useCallback(async () => {
     setLoading(true);
@@ -127,28 +161,11 @@ const Home = () => {
       <section className="tools-section">
         <div className="container">
           {/* Loading State */}
-          {loading && (
-            <div className="state-container">
-              <div className="loading-spinner">
-                <div className="spinner"></div>
-              </div>
-              <p className="state-text">도구를 불러오는 중...</p>
-            </div>
-          )}
+          {loading && <LoadingState message="도구를 불러오는 중..." />}
 
           {/* Error State */}
           {error && !loading && (
-            <div className="state-container">
-              <div className="error-box">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-                  <path d="M12 8v4m0 4v.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-                <p className="error-title">서버에 연결할 수 없습니다</p>
-                <p className="error-message">{error}</p>
-                <button onClick={fetchTools} className="retry-button">다시 시도</button>
-              </div>
-            </div>
+            <ErrorState message={error} onRetry={fetchTools} />
           )}
 
           {/* Tools Grid */}
@@ -166,27 +183,13 @@ const Home = () => {
             </>
           )}
 
-          {/* Empty State */}
+          {/* Empty State — Home은 전체 도구가 적재되므로 항상 EmptyFiltered */}
           {!loading && !error && tools.length === 0 && (
-            <div className="state-container">
-              <div className="empty-state">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" fill="currentColor" />
-                </svg>
-                <p className="empty-title">검색 결과가 없습니다</p>
-                <p className="empty-message">필터를 변경하고 다시 시도해보세요</p>
-                <button 
-                  onClick={() => {
-                    setSearchQuery('');
-                    setSelectedCategory('전체');
-                    setSelectedDifficulty('전체');
-                  }} 
-                  className="reset-button"
-                >
-                  필터 초기화
-                </button>
-              </div>
-            </div>
+            <EmptyFilteredState
+              title={isFiltered ? '조건에 맞는 결과가 없습니다' : '표시할 도구가 없습니다'}
+              message="필터나 검색어를 바꿔보세요"
+              onReset={isFiltered ? resetFilters : undefined}
+            />
           )}
         </div>
       </section>

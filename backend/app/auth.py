@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import APIKeyHeader
 import os
 from dotenv import load_dotenv
@@ -6,11 +6,36 @@ from dotenv import load_dotenv
 # 환경변수 로드
 load_dotenv()
 
-# API Key 설정
-API_KEYS = [
-    "***REMOVED-API-KEY***",  # 테스트 키
-    os.getenv("API_KEY", "your-secret-api-key")  # 환경변수에서 읽기
-]
+
+def _load_api_keys() -> set:
+    """
+    유효한 API Key 목록을 환경변수에서만 로드한다.
+
+    - ``API_KEYS``: 콤마로 구분된 키 목록 (권장)
+    - ``API_KEY``: 단일 키 (하위 호환)
+
+    소스에 키 리터럴을 하드코딩하지 않으며, 환경변수가 비어 있으면
+    유효 키가 존재하지 않는다(폴백 기본값 없음).
+
+    주의: 과거 소스에 하드코딩되어 노출되었던 키는 반드시 폐기(rotate)해야 한다.
+    """
+    keys: set = set()
+
+    raw_multi = os.getenv("API_KEYS", "")
+    for key in raw_multi.split(","):
+        key = key.strip()
+        if key:
+            keys.add(key)
+
+    single = (os.getenv("API_KEY") or "").strip()
+    if single:
+        keys.add(single)
+
+    return keys
+
+
+# 유효한 API Key 집합 (환경변수 미설정 시 빈 집합)
+API_KEYS = _load_api_keys()
 
 # API Key 헤더 정의
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
@@ -91,7 +116,7 @@ def check_rate_limit(api_key: str = None):
     # 오래된 요청 제거
     request_counts[key] = [
         req_time for req_time in request_counts[key]
-        if (now - req_time).seconds < RATE_LIMIT_PERIOD
+        if (now - req_time).total_seconds() < RATE_LIMIT_PERIOD
     ]
     
     # 한도 초과 확인
@@ -109,5 +134,25 @@ def check_rate_limit(api_key: str = None):
     
     # 현재 요청 기록
     request_counts[key].append(now)
-    
+
+    return True
+
+
+async def rate_limit_dependency(
+    request: Request,
+    api_key: str = Depends(api_key_header),
+):
+    """
+    IP(또는 API Key) 기준 인메모리 레이트 리미팅 의존성.
+
+    무인증 공개 엔드포인트를 깨지 않도록 키가 있으면 키, 없으면 클라이언트 IP를
+    식별자로 사용한다. 한도 초과 시 429 를 반환한다.
+
+    한계: 인메모리 카운터이므로 다중 워커/다중 인스턴스 환경에서는 워커별로
+    독립 집계된다(정확한 전역 제한 아님). 정밀 제한이 필요하면 Redis 등 외부
+    저장소로 이전해야 한다.
+    """
+    client_host = request.client.host if request.client else "unknown"
+    identifier = api_key or f"ip:{client_host}"
+    check_rate_limit(identifier)
     return True
