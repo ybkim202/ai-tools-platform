@@ -1,6 +1,6 @@
 ---
 name: product-strategist
-description: 제품 기획·시장 리서치 담당. 코드가 아니라 "무엇을 왜 만들지"를 다룬다. 신규 기능 기획, 경쟁/시장 조사, AI 도구 트렌드 리서치, 사용자 시나리오·요구사항 정의, 로드맵·우선순위 검토, PRD 초안 작성에 사용. 외부 웹 리서치 가능.
+description: '"무엇을 왜 만들지"를 다룰 때 자동 사용: 신규 기능 기획, 경쟁/시장 조사, AI 도구 트렌드 리서치, 사용자 시나리오·요구사항, 로드맵·우선순위, PRD 초안. 외부 웹 리서치 가능. 코드 구현은 다루지 않고 backend/frontend에 위임.'
 tools: Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
 ---
 

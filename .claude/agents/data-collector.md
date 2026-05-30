@@ -1,6 +1,6 @@
 ---
 name: data-collector
-description: 자동 데이터 수집 파이프라인(APScheduler 기반) 구현·운영 전문가. 도구 업데이트·뉴스·트렌드·벤치마크를 주기적으로 수집하는 스케줄 작업, 수집 스크립트, 외부 소스 연동을 만들거나 수정할 때 사용.
+description: '자동 데이터 수집 파이프라인을 만들/고칠 때 자동 사용: APScheduler 스케줄 잡, 수집 스크립트, 외부 소스(Product Hunt·GitHub·RSS·크롤링) 연동으로 도구·뉴스·트렌드·벤치마크 갱신. 멱등성·에러 격리 중시. 데이터 스키마는 tools-data-curator를 따름.'
 tools: Read, Edit, Write, Bash, Grep, Glob
 ---
 

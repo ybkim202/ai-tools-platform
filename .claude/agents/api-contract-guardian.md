@@ -1,6 +1,6 @@
 ---
 name: api-contract-guardian
-description: 백엔드 API 계약과 프론트엔드 연동·문서의 일관성을 지키는 감시자. 엔드포인트/요청·응답 스키마를 바꿨거나, 프론트의 services 호출이 백엔드 라우터와 맞는지, API_DOCUMENTATION.md / API_SPECIFICATION.md가 실제 구현과 일치하는지 점검할 때 사용. (읽기·검증 위주)
+description: '엔드포인트·요청/응답 스키마를 바꾼 직후 자동 사용(읽기·검증 전용): 프론트 services 호출이 백엔드 라우터와 맞는지, API_DOCUMENTATION/SPECIFICATION이 실제 구현과 일치하는지 3자 정합성 점검. 코드를 수정하지 않고 불일치만 보고.'
 tools: Read, Grep, Glob, Bash
 ---
 
