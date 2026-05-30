@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import tools, recommendations, compare, news, benchmarks
 from app.exceptions import register_exception_handlers
-from app.auth import verify_api_key, check_rate_limit
+from app.auth import verify_api_key, rate_limit_dependency
 import os
 from dotenv import load_dotenv
 
@@ -17,10 +17,20 @@ app = FastAPI(
 )
 
 # ==================== CORS 설정 ====================
+# 허용 오리진은 환경변수 ALLOWED_ORIGINS(콤마 구분)로 주입한다.
+# 미설정 시 로컬 개발 기본값을 사용한다. 와일드카드("*")는 사용하지 않는다.
+_default_origins = "http://localhost:3000,http://127.0.0.1:3000"
+allowed_origins = [
+    origin.strip()
+    for origin in os.getenv("ALLOWED_ORIGINS", _default_origins).split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 모든 도메인 허용 (프로덕션에선 구체적으로 설정)
-    allow_credentials=True,
+    allow_origins=allowed_origins,
+    # 프론트는 쿠키/크레덴셜을 사용하지 않으므로 False 로 둔다.
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -29,11 +39,14 @@ app.add_middleware(
 register_exception_handlers(app)
 
 # ==================== 라우터 등록 ====================
-app.include_router(tools.router)
-app.include_router(recommendations.router)
-app.include_router(compare.router)
-app.include_router(news.router)
-app.include_router(benchmarks.router)
+# 공개(무인증) 엔드포인트지만 IP 기준 레이트 리미팅을 적용한다.
+# (인메모리 방식이므로 다중 워커 환경에서는 워커별 독립 집계 — 정밀 제한 아님)
+_rate_limit = [Depends(rate_limit_dependency)]
+app.include_router(tools.router, dependencies=_rate_limit)
+app.include_router(recommendations.router, dependencies=_rate_limit)
+app.include_router(compare.router, dependencies=_rate_limit)
+app.include_router(news.router, dependencies=_rate_limit)
+app.include_router(benchmarks.router, dependencies=_rate_limit)
 
 # ==================== 루트 엔드포인트 ====================
 @app.get("/")
