@@ -91,23 +91,30 @@ const Recommendations = () => {
 
   return (
     <div className="recommendations-page">
-      <div className="recommendations-header">
-        <h1>🎁 맞춤 추천</h1>
-        <p>당신의 업무와 직업에 맞는 AI 도구를 추천받으세요</p>
+      <div className="page-header">
+        <p className="page-eyebrow">맞춤 추천</p>
+        <h1 className="page-title">나에게 맞는 AI 도구</h1>
+        <p className="page-subtitle">당신의 업무와 직업에 맞는 AI 도구를 추천받으세요</p>
       </div>
 
-      <div className="recommendation-tabs">
+      <div className="recommendation-tabs" role="tablist">
         <button
+          type="button"
+          role="tab"
+          aria-selected={selectedTab === 'task'}
           className={`tab ${selectedTab === 'task' ? 'active' : ''}`}
           onClick={() => handleTabChange('task')}
         >
-          📋 업무별
+          업무별
         </button>
         <button
+          type="button"
+          role="tab"
+          aria-selected={selectedTab === 'profession'}
           className={`tab ${selectedTab === 'profession' ? 'active' : ''}`}
           onClick={() => handleTabChange('profession')}
         >
-          👔 직업별
+          직업별
         </button>
       </div>
 
@@ -119,6 +126,8 @@ const Recommendations = () => {
               {options.map((opt) => (
                 <button
                   key={opt}
+                  type="button"
+                  aria-pressed={selectedValue === opt}
                   className={`option-btn ${selectedValue === opt ? 'active' : ''}`}
                   onClick={() => handleSelect(opt)}
                 >

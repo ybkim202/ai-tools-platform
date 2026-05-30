@@ -112,10 +112,12 @@ const Details = () => {
       <div className="details-header">
         <img src={selectedTool.logo_url} alt={selectedTool.name} className="logo" />
         <div className="header-info">
-          <h1>{selectedTool.name}</h1>
+          {selectedTool.category && (
+            <p className="page-eyebrow">{selectedTool.category}</p>
+          )}
+          <h1 className="page-title">{selectedTool.name}</h1>
           <p className="description">{selectedTool.description}</p>
           <div className="meta">
-            <span className="category">{selectedTool.category}</span>
             <span className="country">{selectedTool.country}</span>
             <span className="difficulty">{selectedTool.difficulty}</span>
           </div>
@@ -129,7 +131,7 @@ const Details = () => {
         {/* 가격 */}
         {selectedTool.pricing && selectedTool.pricing.length > 0 && (
           <section className="pricing-section">
-            <h2>💰 가격</h2>
+            <h2>가격</h2>
             <div className="pricing-grid">
               {selectedTool.pricing.map((price) => (
                 <div key={price.id} className="pricing-card">
@@ -146,7 +148,7 @@ const Details = () => {
 
         {/* 벤치마크 — 항상 섹션 렌더(숨김 금지) */}
         <section className="benchmark-section">
-          <h2>📊 성능 벤치마크</h2>
+          <h2>성능 벤치마크</h2>
           {benchLoading ? (
             <LoadingState message="벤치마크를 불러오는 중..." />
           ) : benchError ? (
@@ -178,7 +180,7 @@ const Details = () => {
 
         {/* 뉴스 — 항상 섹션 렌더(숨김 금지) */}
         <section className="news-section">
-          <h2>📰 최신 뉴스</h2>
+          <h2>최신 뉴스</h2>
           {newsLoading ? (
             <LoadingState message="뉴스를 불러오는 중..." />
           ) : newsError ? (

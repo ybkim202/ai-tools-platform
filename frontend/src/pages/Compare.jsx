@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { useUIStore } from '../stores/toolStore';
 import { compareAPI, handleApiError } from '../services/api';
+import { formatUserCount } from '../utils/format';
+import { handleLogoError } from '../utils/logoFallback';
 import {
   LoadingState,
   EmptyNoDataState,
@@ -11,7 +13,8 @@ import { SearchEmptyIcon } from '../components/states/StateIcons';
 import '../styles/Compare.css';
 
 const Compare = () => {
-  const { selectedToolsForCompare, clearCompareList } = useUIStore();
+  const { selectedToolsForCompare, compareNamesById, clearCompareList } =
+    useUIStore();
   const [comparisonData, setComparisonData] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
@@ -38,6 +41,15 @@ const Compare = () => {
     }
   }, [selectedToolsForCompare, fetchComparison]);
 
+  // 일부 누락 시 빠진 도구의 이름 산출(반환 결과의 id 집합과 선택 id를 diff).
+  // 이름은 선택 시점 store 캐시(compareNamesById)에서 읽음 — 추가 API 호출 없음.
+  const returnedIds = new Set(
+    (comparisonData ?? []).map((tool) => tool?.id)
+  );
+  const missingToolNames = selectedToolsForCompare
+    .filter((id) => !returnedIds.has(id))
+    .map((id) => compareNamesById[id] || `#${id}`);
+
   if (selectedToolsForCompare.length === 0) {
     return (
       <div className="compare-page">
@@ -55,12 +67,24 @@ const Compare = () => {
 
   return (
     <div className="compare-page">
-      <div className="compare-header">
-        <h1>⚖️ 도구 비교</h1>
-        <p>{selectedToolsForCompare.length}개의 도구를 비교하고 있습니다</p>
-        <button className="btn btn-secondary" onClick={clearCompareList}>
-          초기화
-        </button>
+      <div className="page-header">
+        <p className="page-eyebrow">비교</p>
+        <h1 className="page-title">AI 도구 비교</h1>
+        <p className="page-subtitle">
+          {selectedToolsForCompare.length}개의 도구를 나란히 비교하고 있습니다
+        </p>
+        <div className="page-header-actions">
+          <span className="counter-pill" aria-live="polite">
+            선택 {selectedToolsForCompare.length} / 5
+          </span>
+          <button
+            type="button"
+            className="ghost-button"
+            onClick={clearCompareList}
+          >
+            초기화
+          </button>
+        </div>
       </div>
 
       {loading && <LoadingState message="비교 정보를 불러오는 중..." />}
@@ -83,10 +107,20 @@ const Compare = () => {
         comparisonData.length < selectedToolsForCompare.length && (
         <p className="compare-partial-notice" role="status" aria-live="polite">
           선택한 {selectedToolsForCompare.length}개 중 {comparisonData.length}개의 정보만 표시됩니다.
+          {missingToolNames.length > 0 && (
+            <>
+              {' '}
+              <strong className="compare-missing-names">
+                {missingToolNames.join(', ')}
+              </strong>{' '}
+              정보를 불러오지 못했습니다.
+            </>
+          )}
         </p>
       )}
 
       {!loading && !error && comparisonData && comparisonData.length > 0 && (
+        <>
         <div
           className="comparison-table"
           aria-live="polite"
@@ -100,7 +134,13 @@ const Compare = () => {
                 <th>항목</th>
                 {comparisonData.map((tool) => (
                   <th key={tool.id}>
-                    <img src={tool.logo_url} alt={tool.name} className="table-logo" />
+                    <img
+                      src={tool.logo_url}
+                      alt={tool.name}
+                      className="table-logo"
+                      loading="lazy"
+                      onError={handleLogoError}
+                    />
                     <span>{tool.name}</span>
                   </th>
                 ))}
@@ -127,7 +167,7 @@ const Compare = () => {
                 <td className="label">사용자 수</td>
                 {comparisonData.map((tool) => (
                   <td key={tool.id}>
-                    {tool.user_count ? `${(tool.user_count / 1000000).toFixed(1)}M+` : '-'}
+                    {formatUserCount(tool.user_count) ?? '-'}
                   </td>
                 ))}
               </tr>
@@ -135,7 +175,7 @@ const Compare = () => {
                 <td className="label">가격</td>
                 {comparisonData.map((tool) => (
                   <td key={tool.id}>
-                    {tool.pricing.length > 0 ? (
+                    {tool.pricing?.length > 0 ? (
                       <div className="pricing-list">
                         {tool.pricing.map((price, idx) => (
                           <div key={idx} className="price-item">
@@ -156,7 +196,7 @@ const Compare = () => {
                 <td className="label">벤치마크</td>
                 {comparisonData.map((tool) => (
                   <td key={tool.id}>
-                    {Object.keys(tool.benchmarks).length > 0 ? (
+                    {tool.benchmarks && Object.keys(tool.benchmarks).length > 0 ? (
                       <div className="benchmark-list">
                         {Object.entries(tool.benchmarks).map(([type, score]) => (
                           <div key={type} className="benchmark-item">
@@ -184,6 +224,97 @@ const Compare = () => {
             </tbody>
           </table>
         </div>
+
+        {/* 모바일 전용: 도구별 세로 카드 스택. 테이블 헤더가 사라지므로
+            각 항목 라벨을 카드 안에 명시(접근성). CSS @media로 토글. */}
+        <div className="comparison-cards" role="list">
+          {comparisonData.map((tool) => (
+            <article key={tool.id} className="comparison-card" role="listitem">
+              <header className="comparison-card-header">
+                <img
+                  src={tool.logo_url}
+                  alt={tool.name}
+                  className="table-logo"
+                  loading="lazy"
+                  onError={handleLogoError}
+                />
+                <span className="comparison-card-name">{tool.name}</span>
+              </header>
+
+              <dl className="comparison-card-rows">
+                <div className="comparison-card-row">
+                  <dt>카테고리</dt>
+                  <dd>{tool.category}</dd>
+                </div>
+                <div className="comparison-card-row">
+                  <dt>난이도</dt>
+                  <dd>
+                    <span className={`difficulty ${tool.difficulty}`}>
+                      {tool.difficulty}
+                    </span>
+                  </dd>
+                </div>
+                <div className="comparison-card-row">
+                  <dt>사용자 수</dt>
+                  <dd>{formatUserCount(tool.user_count) ?? '-'}</dd>
+                </div>
+                <div className="comparison-card-row">
+                  <dt>가격</dt>
+                  <dd>
+                    {tool.pricing?.length > 0 ? (
+                      <div className="pricing-list">
+                        {tool.pricing.map((price, idx) => (
+                          <div key={idx} className="price-item">
+                            <span className="plan">{price.plan}</span>
+                            <span className="price">
+                              {price.price === 0 ? '무료' : `$${price.price}`}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      '-'
+                    )}
+                  </dd>
+                </div>
+                <div className="comparison-card-row">
+                  <dt>벤치마크</dt>
+                  <dd>
+                    {tool.benchmarks &&
+                    Object.keys(tool.benchmarks).length > 0 ? (
+                      <div className="benchmark-list">
+                        {Object.entries(tool.benchmarks).map(
+                          ([type, score]) => (
+                            <div key={type} className="benchmark-item">
+                              <span className="type">{type}</span>
+                              <span className="score">{score}/100</span>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    ) : (
+                      <span className="cell-coming-soon">준비 중</span>
+                    )}
+                  </dd>
+                </div>
+                <div className="comparison-card-row">
+                  <dt>링크</dt>
+                  <dd>
+                    <a
+                      href={tool.official_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-small"
+                    >
+                      방문 →
+                    </a>
+                  </dd>
+                </div>
+              </dl>
+            </article>
+          ))}
+        </div>
+        </>
       )}
     </div>
   );
