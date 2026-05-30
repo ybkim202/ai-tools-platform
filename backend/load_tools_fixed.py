@@ -9,7 +9,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # PostgreSQL 연결정보
-DATABASE_URL = os.getenv("DATABASE_URL", "***REMOVED-DB-URL***")
+# NEVER: 접속 문자열(비밀번호 포함)을 소스에 하드코딩하지 않는다(헌법 G9).
+# 과거 이 줄에 노출됐던 크리덴셜은 폐기(rotate) 필요. 반드시 환경변수로만 주입한다.
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
+if not DATABASE_URL:
+    raise SystemExit(
+        "환경변수 DATABASE_URL 이 설정되지 않았습니다. "
+        "예) DATABASE_URL=postgresql://USER:PASSWORD@HOST/DB python load_tools_fixed.py"
+    )
 
 # JSON 파일 로드
 def load_tools_from_json(filename='tools_data.json'):
