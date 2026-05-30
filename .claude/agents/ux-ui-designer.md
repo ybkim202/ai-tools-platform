@@ -1,6 +1,6 @@
 ---
 name: ux-ui-designer
-description: UX/UI 디자인 전문가. 세련되고 현대적인 인터페이스 설계, 사용자 흐름·정보구조(IA) 설계, 디자인 시스템(Linear) 유지·확장, 컴포넌트 비주얼 스펙, 접근성, Figma 연동 작업에 사용. "예쁘게/현대적으로/UX 개선" 류의 요청에 적합. (구현 디테일은 frontend-react에 위임)
+description: 'UX/UI를 설계·개선할 때 자동 사용: "예쁘게/현대적으로/UX 개선/레이아웃/디자인" 요청, 새 화면 흐름·정보구조(IA), 디자인 시스템(Linear) 확장, 컴포넌트 비주얼 스펙(토큰값), 접근성, Figma 연동. 토큰값까지 스펙을 산출하고 코드 구현은 frontend-react에 위임.'
 tools: Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
 ---
 

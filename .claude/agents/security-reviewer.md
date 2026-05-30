@@ -1,6 +1,6 @@
 ---
 name: security-reviewer
-description: 이 풀스택 플랫폼의 보안 검토 전문가(읽기·분석 위주). API 인증, 레이트 리미팅, SQL Injection, CORS, 비밀정보 노출, 입력 검증 등을 점검할 때 사용. 변경 전후 디프 보안 리뷰나 배포 전 점검에 적합.
+description: '보안 점검이 필요할 때 자동 사용(읽기·분석 전용): 인증, 레이트리밋, SQL Injection, CORS, 비밀정보(키·DB 비번) 노출, 입력 검증. 배포 전 점검이나 변경 디프 보안 리뷰에 적합. 패치는 backend/frontend에 위임하고 발견·권고만 보고.'
 tools: Read, Grep, Glob, Bash
 ---
 
