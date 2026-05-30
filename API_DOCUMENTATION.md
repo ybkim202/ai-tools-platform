@@ -261,6 +261,8 @@ curl "http://localhost:8000/api/tools/meta"
     "category": "생성형AI",
     "country": "미국",
     "user_count": 100000000,
+    "tasks": ["콘텐츠작성", "코딩"],
+    "professions": ["개발자", "마케터"],
     "benchmarks": [
       {
         "id": 1,
@@ -301,6 +303,9 @@ curl "http://localhost:8000/api/tools/meta"
 }
 ```
 
+- `tasks`: 해당 도구의 `tags.type='task'` 태그 이름 배열 (없으면 `[]`).
+- `professions`: 해당 도구의 `tags.type='profession'` 태그 이름 배열 (없으면 `[]`).
+
 **예시**
 
 ```bash
@@ -338,7 +343,8 @@ curl "http://localhost:8000/api/tools/4"
       "category": "생성형AI",
       "user_count": 100000000,
       "difficulty": "쉬움",
-      "reason": "현재 가장 인기 있는 도구입니다."
+      "reason": "'콘텐츠작성' 작업에 최적화된 도구입니다.",
+      "matched_tags": ["콘텐츠작성", "코딩"]
     }
   ],
   "meta": {
@@ -352,6 +358,10 @@ curl "http://localhost:8000/api/tools/4"
 }
 ```
 
+- `matched_tags`: 매칭 근거 태그 이름 배열.
+  - `task` 추천: 각 도구가 가진 `type='task'` 태그 이름들(요청한 task 포함).
+  - `profession` 추천: 각 도구가 가진 `type='profession'` 태그 이름들(요청한 profession 포함).
+  - 인기 도구 폴백(파라미터 없음)은 매칭 근거가 없어 `matched_tags`를 포함하지 않는다.
 - `meta.feature_status`:
   - `"ready"`: 정상 동작. task/profession 없이 인기 도구를 반환하는 경로는 항상 `"ready"`.
   - `"coming_soon"`: task/profession 추천에 필요한 태그 데이터(tags·tool_tags)가 DB에

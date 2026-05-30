@@ -221,6 +221,24 @@ def get_tool_detail(tool_id: int, db: Session = Depends(get_db)):
             "user_count_date": str(tool_row[10]) if tool_row[10] else None,
         }
         
+        # 태그 조회 (task / profession 분류)
+        # tool_tags ⨝ tags 를 tool_id 한 번으로 조회 후 type 별로 분류.
+        tag_query = """
+        SELECT tg.name, tg.type
+        FROM tool_tags tt
+        INNER JOIN tags tg ON tt.tag_id = tg.id
+        WHERE tt.tool_id = :tool_id
+        ORDER BY tg.name
+        """
+        tag_result = db.execute(text(tag_query), {"tool_id": tool_id})
+        tasks = []
+        professions = []
+        for tag_name, tag_type in tag_result.fetchall():
+            if tag_type == "task":
+                tasks.append(tag_name)
+            elif tag_type == "profession":
+                professions.append(tag_name)
+
         # 벤치마크 조회
         benchmark_query = "SELECT id, benchmark_type, score, source, collected_date FROM benchmarks WHERE tool_id = :tool_id"
         benchmark_result = db.execute(text(benchmark_query), {"tool_id": tool_id})
@@ -268,6 +286,8 @@ def get_tool_detail(tool_id: int, db: Session = Depends(get_db)):
             "success": True,
             "data": {
                 **tool,
+                "tasks": tasks,
+                "professions": professions,
                 "benchmarks": benchmarks,
                 "pricing": pricing,
                 "recent_news": news

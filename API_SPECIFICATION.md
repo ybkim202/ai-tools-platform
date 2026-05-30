@@ -138,6 +138,8 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
     "user_count": 100000000,
     "user_count_source": "공식블로그",
     "user_count_date": "2024-05-20T00:00:00Z",
+    "tasks": ["콘텐츠작성", "코딩"],
+    "professions": ["개발자", "마케터"],
     "benchmarks": [
       {
         "id": 1,
@@ -292,7 +294,8 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
       "category": "생성형AI",
       "user_count": 100000000,
       "difficulty": "쉬움",
-      "reason": "'콘텐츠작성' 작업에 최적화된 도구입니다."
+      "reason": "'콘텐츠작성' 작업에 최적화된 도구입니다.",
+      "matched_tags": ["콘텐츠작성", "코딩"]
     }
   ],
   "meta": {
@@ -306,7 +309,9 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
 }
 ```
 
-- `data[]` 필드: `id`, `name`, `category`, `user_count`, `difficulty`, `reason` (점수 필드 없음).
+- `data[]` 필드: `id`, `name`, `category`, `user_count`, `difficulty`, `reason`, `matched_tags` (점수 필드 없음).
+- `matched_tags`: 매칭 근거 태그 이름 배열. task 추천은 도구의 `type='task'` 태그(요청 task 포함),
+  profession 추천은 `type='profession'` 태그(요청 profession 포함). 인기 도구 폴백에는 포함되지 않는다.
 - `meta.feature_status`:
   - `"ready"`: 정상 동작. task/profession 없는 인기 도구 경로는 항상 `"ready"`.
   - `"coming_soon"`: task/profession 추천에 필요한 태그 데이터(tags·tool_tags) 미적재.
