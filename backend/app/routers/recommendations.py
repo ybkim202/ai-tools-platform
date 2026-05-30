@@ -1,7 +1,7 @@
 import logging
 
 from fastapi import APIRouter, Query, Depends
-from sqlalchemy import text
+from sqlalchemy import text, bindparam
 from sqlalchemy.orm import Session
 from ..database import get_db
 
@@ -38,6 +38,38 @@ def get_recommendations(
             ).scalar()
             return bool(tags_count) and bool(mapping_count)
 
+        def _matched_tags_by_tool(tool_ids: list, tag_type: str) -> dict:
+            """주어진 도구들에 대해 지정한 type 의 태그 이름 목록을 도구 id별로 매핑.
+
+            N+1 을 피하기 위해 tool_id IN (...) 으로 한 번에 조회한다.
+
+            Args:
+                tool_ids: 태그를 조회할 도구 id 목록.
+                tag_type: 'task' | 'profession'. 매칭 근거로 노출할 태그 종류.
+
+            Returns:
+                {tool_id: [tag_name, ...]} 형태의 딕셔너리. 비면 빈 dict.
+            """
+            if not tool_ids:
+                return {}
+            tag_query = """
+            SELECT tt.tool_id, tg.name
+            FROM tool_tags tt
+            INNER JOIN tags tg ON tt.tag_id = tg.id
+            WHERE tt.tool_id IN :tool_ids AND tg.type = :tag_type
+            ORDER BY tg.name
+            """
+            tag_result = db.execute(
+                text(tag_query).bindparams(
+                    bindparam("tool_ids", expanding=True)
+                ),
+                {"tool_ids": tool_ids, "tag_type": tag_type},
+            )
+            mapping: dict = {}
+            for tool_id_val, tag_name in tag_result.fetchall():
+                mapping.setdefault(tool_id_val, []).append(tag_name)
+            return mapping
+
         # 태그 기반 추천(task/profession)은 태그 데이터 적재 여부에 따라 상태가 갈린다.
         # 인기 도구 폴백 경로는 태그에 의존하지 않으므로 항상 "ready".
         if task or profession:
@@ -57,6 +89,9 @@ def get_recommendations(
             LIMIT :limit
             """
             result = db.execute(text(query), {"task": task, "limit": limit})
+            rows = result.fetchall()
+            # 매칭 근거: 각 도구가 가진 task 타입 태그 이름들(요청 task 포함).
+            tag_map = _matched_tags_by_tool([row[0] for row in rows], "task")
             tools = [
                 {
                     "id": row[0],
@@ -64,9 +99,10 @@ def get_recommendations(
                     "category": row[2],
                     "user_count": row[3],
                     "difficulty": row[4],
-                    "reason": f"'{task}' 작업에 최적화된 도구입니다."
+                    "reason": f"'{task}' 작업에 최적화된 도구입니다.",
+                    "matched_tags": tag_map.get(row[0], [])
                 }
-                for row in result.fetchall()
+                for row in rows
             ]
         
         # 직업별 추천
@@ -81,6 +117,9 @@ def get_recommendations(
             LIMIT :limit
             """
             result = db.execute(text(query), {"profession": profession, "limit": limit})
+            rows = result.fetchall()
+            # 매칭 근거: 각 도구가 가진 profession 타입 태그 이름들(요청 profession 포함).
+            tag_map = _matched_tags_by_tool([row[0] for row in rows], "profession")
             tools = [
                 {
                     "id": row[0],
@@ -88,9 +127,10 @@ def get_recommendations(
                     "category": row[2],
                     "user_count": row[3],
                     "difficulty": row[4],
-                    "reason": f"{profession}들이 많이 사용하는 도구입니다."
+                    "reason": f"{profession}들이 많이 사용하는 도구입니다.",
+                    "matched_tags": tag_map.get(row[0], [])
                 }
-                for row in result.fetchall()
+                for row in rows
             ]
         
         # 둘 다 없으면 인기 도구 반환
