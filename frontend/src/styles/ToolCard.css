@@ -15,6 +15,27 @@
   box-shadow: var(--shadow-md);
 }
 
+/* ==================== 상세 진입 링크 (C1) ==================== */
+.tool-card-link {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+}
+
+.tool-card-link:hover .card-title-info h3 {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.tool-card-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  border-radius: var(--radius-md);
+}
+
 /* ==================== 카드 헤더 ==================== */
 .card-header {
   display: flex;
@@ -48,7 +69,7 @@
   display: inline-block;
   padding: var(--spacing-xs) var(--spacing-md);
   background-color: var(--color-primary-surface);
-  color: var(--color-primary);
+  color: var(--color-primary-darker);
   border-radius: var(--radius-full);
   font-size: var(--font-size-sm);
   font-weight: 600;
@@ -167,21 +188,35 @@
   box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: auto;
+}
+
+.btn-secondary:disabled:hover {
+  background-color: transparent;
+}
+
 .btn-primary {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary-darker);
   color: white;
   box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary);
   box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
 }
 
+.btn-primary:active {
+  background-color: var(--color-primary-dark);
+}
+
 .btn-secondary {
   background-color: transparent;
-  color: var(--color-primary);
+  color: var(--color-primary-darker);
   border: 1px solid var(--color-primary);
 }
 
@@ -190,9 +225,43 @@
 }
 
 .btn-secondary.active {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary-darker);
   color: white;
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-darker);
+}
+
+/* ==================== 매칭 근거 (C4) ==================== */
+.match-reason {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--spacing-sm);
+}
+
+.match-reason-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+.match-reason .status-badge {
+  margin-left: var(--spacing-xs);
+}
+
+/* 재사용 태그/배지(중립) — C4/C6 공용 */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-md);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: 600;
 }
 
 /* ==================== 상태별 스타일 ==================== */

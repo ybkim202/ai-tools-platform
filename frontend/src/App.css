@@ -123,7 +123,7 @@ textarea {
   min-width: 20px;
   height: 20px;
   padding: 0 var(--spacing-xs);
-  background-color: var(--color-primary);
+  background-color: var(--color-primary-darker);
   color: white;
   border-radius: var(--radius-full);
   font-size: var(--font-size-sm);
