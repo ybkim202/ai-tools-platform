@@ -35,7 +35,7 @@
 
 .recommendation-tabs .tab.active {
   background-color: var(--color-primary-darker);
-  color: white;
+  color: var(--color-on-primary);
   border-color: var(--color-primary-darker);
   box-shadow: 0 0 0 3px var(--color-primary-surface-strong);
 }
@@ -89,7 +89,7 @@
 
 .option-btn.active {
   background-color: var(--color-primary-darker);
-  color: white;
+  color: var(--color-on-primary);
   border-color: var(--color-primary-darker);
   box-shadow: 0 0 0 3px var(--color-primary-surface-strong);
 }
