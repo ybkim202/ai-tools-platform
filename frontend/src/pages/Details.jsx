@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useToolStore } from '../stores/toolStore';
-import { benchmarksAPI, newsAPI } from '../services/api';
+import { useToolStore, useUIStore } from '../stores/toolStore';
+import { benchmarksAPI, newsAPI, toolsAPI } from '../services/api';
+import ToolCard from '../components/ToolCard';
 import {
   LoadingState,
   EmptyNoDataState,
@@ -13,6 +14,15 @@ const Details = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { fetchToolDetail, selectedTool, loading, detailError } = useToolStore();
+  const {
+    selectedToolsForCompare,
+    addToolForCompare,
+    removeToolForCompare,
+  } = useUIStore();
+
+  const [relatedTools, setRelatedTools] = React.useState([]);
+  const [relatedLoading, setRelatedLoading] = React.useState(false);
+  const [relatedError, setRelatedError] = React.useState(false);
 
   const [benchmarks, setBenchmarks] = React.useState(null);
   const [benchLoading, setBenchLoading] = React.useState(false);
@@ -64,6 +74,47 @@ const Details = () => {
     fetchNews();
   }, [id, fetchToolDetail, fetchBenchmarks, fetchNews]);
 
+  // 관련 도구: 같은 카테고리에서 자기 제외 후 최대 6개(추가 전용 엔드포인트 없음 → 목록 필터).
+  const relatedCategory = selectedTool?.category;
+  const fetchRelated = React.useCallback(() => {
+    if (!relatedCategory) {
+      setRelatedTools([]);
+      setRelatedError(false);
+      setRelatedLoading(false);
+      return;
+    }
+    setRelatedLoading(true);
+    setRelatedError(false);
+    toolsAPI
+      .getTools({ category: relatedCategory, limit: 12 })
+      .then((res) => {
+        const list = res?.data?.data || [];
+        setRelatedTools(
+          list.filter((t) => String(t.id) !== String(id)).slice(0, 6)
+        );
+      })
+      .catch(() => {
+        setRelatedTools([]);
+        setRelatedError(true);
+      })
+      .finally(() => {
+        setRelatedLoading(false);
+      });
+  }, [relatedCategory, id]);
+
+  useEffect(() => {
+    fetchRelated();
+  }, [fetchRelated]);
+
+  // 뒤로가기: 히스토리 있으면 -1, 직접 진입(히스토리 없음)이면 홈 폴백.
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
+
   // 헤더 상태 3분기: 로딩 / 실패 / 404
   if (loading) {
     return (
@@ -103,9 +154,25 @@ const Details = () => {
     benchmarks.benchmarks &&
     Object.keys(benchmarks.benchmarks).length > 0;
 
+  const isInCompare = selectedToolsForCompare.includes(selectedTool.id);
+  const handleCompareToggle = () => {
+    if (isInCompare) {
+      removeToolForCompare(selectedTool.id);
+    } else {
+      addToolForCompare(selectedTool.id, selectedTool.name);
+    }
+  };
+
+  // task/profession 태그 노출(있을 때만). 백엔드 필드명 변형 대비 안전 추출.
+  const detailTags = [
+    ...(Array.isArray(selectedTool.tasks) ? selectedTool.tasks : []),
+    ...(Array.isArray(selectedTool.professions) ? selectedTool.professions : []),
+    ...(Array.isArray(selectedTool.tags) ? selectedTool.tags : []),
+  ];
+
   return (
     <div className="details-page">
-      <button className="back-btn" onClick={() => navigate('/')}>
+      <button className="back-btn" onClick={handleBack}>
         ← 뒤로가기
       </button>
 
@@ -121,9 +188,30 @@ const Details = () => {
             <span className="country">{selectedTool.country}</span>
             <span className="difficulty">{selectedTool.difficulty}</span>
           </div>
-          <a href={selectedTool.official_url} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
-            공식 사이트 방문 →
-          </a>
+
+          {detailTags.length > 0 && (
+            <div className="detail-tags">
+              {detailTags.map((tag) => (
+                <span key={tag} className="status-badge">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="header-actions">
+            <a href={selectedTool.official_url} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+              공식 사이트 방문 →
+            </a>
+            <button
+              type="button"
+              className={`btn btn-secondary ${isInCompare ? 'active' : ''}`}
+              onClick={handleCompareToggle}
+              aria-pressed={isInCompare}
+            >
+              {isInCompare ? '✓ 비교함' : '비교에 추가'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -210,6 +298,34 @@ const Details = () => {
             />
           )}
         </section>
+
+        {/* 관련 도구 — 같은 카테고리(자기 제외). 항상 섹션 렌더 + 상태뷰(레이아웃 점프/증발 방지) */}
+        {relatedCategory && (
+          <section className="related-section">
+            <h2>관련 도구</h2>
+            {relatedLoading ? (
+              <LoadingState message="관련 도구를 불러오는 중..." />
+            ) : relatedError ? (
+              <ErrorState
+                title="관련 도구를 불러오지 못했습니다"
+                onRetry={fetchRelated}
+              />
+            ) : relatedTools.length > 0 ? (
+              <div className="tools-grid">
+                {relatedTools.map((tool) => (
+                  <ToolCard key={tool.id} tool={tool} />
+                ))}
+              </div>
+            ) : (
+              <EmptyNoDataState
+                inline
+                badge={null}
+                title="관련 도구 없음"
+                message="같은 카테고리의 다른 도구가 아직 없습니다."
+              />
+            )}
+          </section>
+        )}
       </div>
     </div>
   );

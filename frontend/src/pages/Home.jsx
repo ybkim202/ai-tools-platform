@@ -1,10 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { toolsAPI, handleApiError } from '../services/api';
+import { useUIStore } from '../stores/toolStore';
 import ToolCard from '../components/ToolCard';
 import { LoadingState, EmptyFilteredState, ErrorState } from '../components/states/StateViews';
 import '../styles/Home.css';
 
 const Home = () => {
+  const { selectedToolsForCompare, clearCompareList } = useUIStore();
+  const compareCount = selectedToolsForCompare.length;
   const [tools, setTools] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('전체');
@@ -47,6 +51,33 @@ const Home = () => {
     setSelectedCategory('전체');
     setSelectedDifficulty('전체');
   };
+
+  // 활성 필터 칩 목록(라벨 텍스트 항상 포함 — 색 단독 의미전달 금지).
+  const activeFilters = [];
+  if (searchQuery !== '') {
+    activeFilters.push({
+      key: 'search',
+      label: '검색',
+      value: searchQuery,
+      onRemove: () => setSearchQuery(''),
+    });
+  }
+  if (selectedCategory !== '전체') {
+    activeFilters.push({
+      key: 'category',
+      label: '카테고리',
+      value: selectedCategory,
+      onRemove: () => setSelectedCategory('전체'),
+    });
+  }
+  if (selectedDifficulty !== '전체') {
+    activeFilters.push({
+      key: 'difficulty',
+      label: '난이도',
+      value: selectedDifficulty,
+      onRemove: () => setSelectedDifficulty('전체'),
+    });
+  }
 
   const fetchTools = useCallback(async () => {
     setLoading(true);
@@ -158,8 +189,57 @@ const Home = () => {
       </section>
 
       {/* Tools Section */}
-      <section className="tools-section">
+      <section className={`tools-section ${compareCount > 0 ? 'has-compare-tray' : ''}`}>
         <div className="container">
+          {/* Compare Tray (C2) — 선택 도구 있을 때만 */}
+          {compareCount > 0 && (
+            <div className="compare-tray">
+              <div className="compare-tray-left">
+                <span className="counter-pill" aria-live="polite">
+                  비교함 {compareCount} / 5
+                </span>
+              </div>
+              <div className="compare-tray-actions">
+                <Link to="/compare" className="btn btn-primary">
+                  비교하기 →
+                </Link>
+                <button
+                  type="button"
+                  className="ghost-button"
+                  onClick={clearCompareList}
+                >
+                  비우기
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Active Filter Chips (C3) */}
+          {activeFilters.length > 0 && (
+            <div className="active-filters" role="status" aria-live="polite">
+              {activeFilters.map((f) => (
+                <span key={f.key} className="active-filter-chip">
+                  {f.label}: {f.value}
+                  <button
+                    type="button"
+                    className="chip-remove"
+                    onClick={f.onRemove}
+                    aria-label={`${f.label} 필터 제거`}
+                  >
+                    <span aria-hidden="true">×</span>
+                  </button>
+                </span>
+              ))}
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={resetFilters}
+              >
+                모두 지우기
+              </button>
+            </div>
+          )}
+
           {/* Loading State */}
           {loading && <LoadingState message="도구를 불러오는 중..." />}
 
@@ -173,7 +253,7 @@ const Home = () => {
             <>
               <div className="tools-header">
                 <h2 className="tools-title">발견한 도구</h2>
-                <p className="tools-count">{tools.length}개의 AI 도구</p>
+                <p className="tools-count" aria-live="polite">{tools.length}개의 AI 도구</p>
               </div>
               <div className="tools-grid">
                 {tools.map((tool) => (

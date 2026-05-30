@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useUIStore } from '../stores/toolStore';
 import { compareAPI, handleApiError } from '../services/api';
 import { formatUserCount } from '../utils/format';
@@ -134,14 +135,20 @@ const Compare = () => {
                 <th>항목</th>
                 {comparisonData.map((tool) => (
                   <th key={tool.id}>
-                    <img
-                      src={tool.logo_url}
-                      alt={tool.name}
-                      className="table-logo"
-                      loading="lazy"
-                      onError={handleLogoError}
-                    />
-                    <span>{tool.name}</span>
+                    <Link
+                      to={`/details/${tool.id}`}
+                      className="compare-tool-link"
+                      aria-label={`${tool.name} 상세 보기`}
+                    >
+                      <img
+                        src={tool.logo_url}
+                        alt={tool.name}
+                        className="table-logo"
+                        loading="lazy"
+                        onError={handleLogoError}
+                      />
+                      <span>{tool.name}</span>
+                    </Link>
                   </th>
                 ))}
               </tr>
@@ -231,14 +238,20 @@ const Compare = () => {
           {comparisonData.map((tool) => (
             <article key={tool.id} className="comparison-card" role="listitem">
               <header className="comparison-card-header">
-                <img
-                  src={tool.logo_url}
-                  alt={tool.name}
-                  className="table-logo"
-                  loading="lazy"
-                  onError={handleLogoError}
-                />
-                <span className="comparison-card-name">{tool.name}</span>
+                <Link
+                  to={`/details/${tool.id}`}
+                  className="compare-tool-link"
+                  aria-label={`${tool.name} 상세 보기`}
+                >
+                  <img
+                    src={tool.logo_url}
+                    alt={tool.name}
+                    className="table-logo"
+                    loading="lazy"
+                    onError={handleLogoError}
+                  />
+                  <span className="comparison-card-name">{tool.name}</span>
+                </Link>
               </header>
 
               <dl className="comparison-card-rows">

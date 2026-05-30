@@ -4,17 +4,19 @@
 
 :root {
   /* Colors */
-  --color-primary: #5E5CE6;
-  --color-primary-dark: #5250d6;
-  --color-primary-darker: #4a47bf;
+  --color-primary: #0EA5E9;
+  --color-primary-dark: #0284C7;
+  --color-primary-darker: #0369A1;
   --color-success: #16A34A;
   --color-warning: #FB923C;
   --color-error: #EF4444;
   --color-error-dark: #DC2626;
   --color-error-surface: rgba(239, 68, 68, 0.05);
   --color-error-border: rgba(239, 68, 68, 0.2);
-  --color-primary-surface: rgba(94, 92, 230, 0.05);
-  --color-focus-ring: rgba(94, 92, 230, 0.2);
+  --color-primary-surface: rgba(14, 165, 233, 0.05);
+  --color-primary-surface-strong: rgba(14, 165, 233, 0.10);
+  --color-primary-border: rgba(14, 165, 233, 0.20);
+  --color-focus-ring: rgba(14, 165, 233, 0.2);
   --color-background: #FFFFFF;
   --color-surface: #F9FAFB;
   --color-border: #E5E7EB;
@@ -68,6 +70,8 @@
     --color-text-primary: #F1F5F9;
     --color-text-secondary: #CBD5E1;
     --color-text-tertiary: #94A3B8;
+    --color-primary-surface-strong: rgba(14, 165, 233, 0.18);
+    --color-primary-border: rgba(14, 165, 233, 0.30);
   }
 }
 
@@ -79,6 +83,8 @@
   --color-text-primary: #F1F5F9;
   --color-text-secondary: #CBD5E1;
   --color-text-tertiary: #94A3B8;
+  --color-primary-surface-strong: rgba(14, 165, 233, 0.18);
+  --color-primary-border: rgba(14, 165, 233, 0.30);
 }
 
 /* ========================================
@@ -131,7 +137,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #5E5CE6 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-darker) 100%);
   opacity: 0.05;
   z-index: -1;
 }
@@ -145,10 +151,10 @@ body {
 .hero-badge {
   display: inline-block;
   padding: var(--spacing-sm) var(--spacing-lg);
-  background-color: rgba(94, 92, 230, 0.1);
-  border: 1px solid rgba(94, 92, 230, 0.2);
+  background-color: var(--color-primary-surface-strong);
+  border: 1px solid var(--color-primary-border);
   border-radius: var(--radius-full);
-  color: var(--color-primary);
+  color: var(--color-primary-darker);
   font-size: var(--font-size-sm);
   font-weight: 600;
   margin-bottom: var(--spacing-xl);
@@ -175,7 +181,7 @@ body {
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--spacing-lg) var(--spacing-2xl);
-  background-color: var(--color-primary);
+  background-color: var(--color-primary-darker);
   color: white;
   border: none;
   border-radius: var(--radius-lg);
@@ -188,13 +194,13 @@ body {
 }
 
 .cta-button:hover {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary);
   box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
 }
 
 .cta-button:active {
-  background-color: var(--color-primary-darker);
+  background-color: var(--color-primary-dark);
   transform: translateY(0);
 }
 
@@ -242,7 +248,7 @@ body {
 .search-input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: inset 0 0 0 2px rgba(94, 92, 230, 0.1), 0 0 0 3px rgba(94, 92, 230, 0.2);
+  box-shadow: inset 0 0 0 2px var(--color-primary-surface-strong), 0 0 0 3px var(--color-focus-ring);
 }
 
 /* Filters */
@@ -291,10 +297,10 @@ body {
 }
 
 .filter-btn.active {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
+  background-color: var(--color-primary-darker);
+  border-color: var(--color-primary-darker);
   color: white;
-  box-shadow: 0 0 0 3px rgba(94, 92, 230, 0.1);
+  box-shadow: 0 0 0 3px var(--color-primary-surface-strong);
 }
 
 /* ========================================
@@ -432,7 +438,7 @@ body {
 
 .reset-button {
   padding: var(--spacing-sm) var(--spacing-lg);
-  background-color: var(--color-primary);
+  background-color: var(--color-primary-darker);
   color: white;
   border: none;
   border-radius: var(--radius-md);
@@ -442,7 +448,7 @@ body {
 }
 
 .reset-button:hover {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary);
 }
 
 /* ========================================
@@ -451,7 +457,7 @@ body {
 
 .footer-cta {
   padding: var(--spacing-3xl) var(--spacing-lg);
-  background: linear-gradient(135deg, rgba(94, 92, 230, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  background: linear-gradient(135deg, var(--color-primary-surface) 0%, var(--color-primary-surface) 100%);
   border-top: 1px solid var(--color-border);
   text-align: center;
 }
@@ -488,15 +494,19 @@ body {
 }
 
 .btn-primary {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary-darker);
   color: white;
   box-shadow: var(--shadow-md);
 }
 
 .btn-primary:hover {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary);
   box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
+}
+
+.btn-primary:active {
+  background-color: var(--color-primary-dark);
 }
 
 .btn-secondary {
@@ -508,7 +518,109 @@ body {
 .btn-secondary:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
-  background-color: rgba(94, 92, 230, 0.05);
+  background-color: var(--color-primary-surface);
+}
+
+/* ========================================
+   COMPARE TRAY (C2)
+   ======================================== */
+
+.compare-tray {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  position: sticky;
+  top: var(--spacing-lg);
+  z-index: 10;
+  animation: fadeIn var(--transition-normal) both;
+}
+
+.compare-tray-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.compare-tray-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* 트레이 내 카운터는 sky 틴트로 강조(전역 .counter-pill 위에 덧입힘) */
+.compare-tray .counter-pill {
+  background-color: var(--color-primary-surface-strong);
+  border-color: var(--color-primary-border);
+  color: var(--color-primary-darker);
+}
+
+.compare-tray .btn-primary,
+.compare-tray .ghost-button {
+  padding: var(--spacing-sm) var(--spacing-lg);
+}
+
+/* ========================================
+   ACTIVE FILTER CHIPS (C3)
+   ======================================== */
+
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) 0;
+}
+
+.active-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
+  background-color: var(--color-primary-surface-strong);
+  border: 1px solid var(--color-primary-border);
+  color: var(--color-primary-darker);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  min-height: 28px;
+}
+
+.active-filter-chip .chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  color: var(--color-primary-darker);
+  font-size: var(--font-size-base);
+  line-height: 1;
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  transition: color var(--transition-fast);
+}
+
+.active-filter-chip .chip-remove:hover {
+  color: var(--color-error);
+}
+
+.active-filter-chip .chip-remove:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}
+
+.active-filters .ghost-button {
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: var(--font-size-sm);
 }
 
 /* ========================================
@@ -538,6 +650,19 @@ body {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* 모션 감소 설정 존중(전역): fadeIn/fadeInUp/hover transform 등 모든 모션 억제.
+   StateViews.css의 국소 규칙을 전역으로 확장(접근성). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -577,6 +702,28 @@ body {
 
   .btn {
     width: 100%;
+  }
+
+  /* 비교 트레이: 하단 고정 + safe-area (C2/D) */
+  .compare-tray {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin-bottom: 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    z-index: 50;
+    padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom));
+  }
+
+  /* 마지막 카드가 하단 고정 트레이에 가리지 않도록 여백 */
+  .tools-section.has-compare-tray {
+    padding-bottom: 120px;
+  }
+
+  .active-filter-chip {
+    min-height: 44px;
   }
 }
 

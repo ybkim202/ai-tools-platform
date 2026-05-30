@@ -151,10 +151,23 @@ const Recommendations = () => {
 
       {!loading && !error && recommendations.length > 0 && (
         <div className="results-section" role="region" aria-live="polite">
-          <h2>추천 결과</h2>
+          <h2 className="results-heading">
+            <span className="results-context">'{selectedValue}'</span>
+            에게 추천하는 도구 {recommendations.length}개
+          </h2>
           <div className="tools-grid">
             {recommendations.map((tool) => (
-              <ToolCard key={tool.id} tool={tool} />
+              <ToolCard
+                key={tool.id}
+                tool={tool}
+                reasonTags={
+                  // 백엔드가 실제 매칭 태그를 줄 때만 근거 표시.
+                  // matched_tags가 없으면 선택값으로 대체하지 않는다(동어반복=허위 근거 방지).
+                  Array.isArray(tool.matched_tags) && tool.matched_tags.length > 0
+                    ? tool.matched_tags
+                    : undefined
+                }
+              />
             ))}
           </div>
         </div>

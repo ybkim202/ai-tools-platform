@@ -34,10 +34,10 @@
 }
 
 .recommendation-tabs .tab.active {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary-darker);
   color: white;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  border-color: var(--color-primary-darker);
+  box-shadow: 0 0 0 3px var(--color-primary-surface-strong);
 }
 
 .recommendation-tabs .tab:focus-visible {
@@ -88,10 +88,10 @@
 }
 
 .option-btn.active {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary-darker);
   color: white;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  border-color: var(--color-primary-darker);
+  box-shadow: 0 0 0 3px var(--color-primary-surface-strong);
 }
 
 .option-btn:focus-visible {
@@ -110,6 +110,11 @@
   font-size: var(--font-size-2xl);
   margin-bottom: var(--spacing-xl);
   text-align: center;
+}
+
+.results-heading .results-context {
+  color: var(--color-primary-darker);
+  font-weight: 700;
 }
 
 .tools-grid {

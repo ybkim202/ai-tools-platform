@@ -9,13 +9,13 @@
 
 AITools는 Linear의 절제된 시스템 미감을 **라이트 캔버스**에서 구현한다. Linear가 다크 캔버스 위에 제품 스크린샷을 주인공으로 세우고, Apple이 사진 위에 UI를 숨긴다면, AITools의 주인공은 **데이터** — 78개+ AI 도구의 카드, 비교 테이블, 벤치마크 점수다. 따라서 우리 시스템은 사진이 아니라 **스캔 가능성(scannability)**과 **정보 위계**를 위해 설계된다.
 
-캔버스는 순백 `{colors.background}` (#FFFFFF), 그 위에 한 단계 들린 `{colors.surface}` (#F9FAFB)가 카드·패널·입력의 바탕이 된다. 깊이는 그림자가 아니라 **1px 헤어라인 `{colors.border}` (#E5E7EB) + 미묘한 surface 상승**으로 만든다. 단 하나의 채도 높은 강조색은 **Linear lavender** `{colors.primary}` (#5E5CE6) — CTA, 포커스 링, 활성 필터, 링크 강조에만 인색하게 쓴다.
+캔버스는 순백 `{colors.background}` (#FFFFFF), 그 위에 한 단계 들린 `{colors.surface}` (#F9FAFB)가 카드·패널·입력의 바탕이 된다. 깊이는 그림자가 아니라 **1px 헤어라인 `{colors.border}` (#E5E7EB) + 미묘한 surface 상승**으로 만든다. 단 하나의 채도 높은 강조색은 **단일 Sky Cyan** `{colors.primary}` (#0EA5E9) — CTA, 포커스 링, 활성 필터, 링크 강조에만 인색하게 쓴다. 흰 텍스트가 올라가는 1차 버튼/CTA/활성칩 배경은 AA 대비를 위해 한 단계 진한 `{colors.primary-darker}` (#0369A1)를 쓴다.
 
 타이포그래피는 **Inter** 한 가족으로 display부터 caption까지 한 목소리를 낸다(가중치 400/500/600/700). 페이지 리듬은 Linear/Apple처럼 풀블리드 섹션 교차가 아니라, **카드 그리드 + 비교 테이블 + 필터 칩**이라는 SaaS형 밀도다. 다크모드는 `prefers-color-scheme`로 토큰 레벨에서 자동 전환된다 — 두 레퍼런스가 단일 테마만 가진 것과 달리, 우리는 **라이트가 기본이되 다크를 1급으로 지원**한다.
 
 **Key Characteristics:**
 - **라이트-캔버스 데이터 시스템** — `{colors.background}` (#FFFFFF)가 앵커, `{colors.surface}` (#F9FAFB)가 한 단계 위.
-- **단일 lavender 강조** (`{colors.primary}` #5E5CE6) — CTA·포커스·활성 상태·링크에만 인색하게.
+- **단일 Sky Cyan 강조** (`{colors.primary}` #0EA5E9) — CTA·포커스·활성 상태·링크에만 인색하게. 흰 텍스트 배경은 `{colors.primary-darker}` #0369A1(AA).
 - **그림자 최소, 헤어라인 중심** — 깊이는 `{colors.border}` 1px + surface 상승. `{shadow.md}`는 호버/들린 카드에만.
 - **데이터가 주인공** — 도구 카드 그리드와 비교 테이블의 스캔 가능성이 최우선. 장식 크롬 없음.
 - **Inter 단일 보이스** — display 700 → body 400, 한 가족. 음수 자간은 큰 헤드라인에만 가볍게.
@@ -30,11 +30,14 @@ AITools는 Linear의 절제된 시스템 미감을 **라이트 캔버스**에서
 > 정본: [Home.css:5-66](../frontend/src/styles/Home.css#L5-L66). 라이트가 기본, 다크는 `@media (prefers-color-scheme: dark)`에서 surface/border/text 토큰만 재정의된다.
 
 ### Brand & Accent
-- **Lavender** (`{colors.primary}` — #5E5CE6): 시그니처 강조. 1차 CTA, 활성 필터, 포커스 링 루트, 링크 강조, 비교 테이블의 "최고값" 강조.
-- **Lavender Dark** (`{colors.primary-dark}` — #5250d6): 호버 상태 — CTA 호버 시 배경.
-- **Lavender Darker** (`{colors.primary-darker}` — #4a47bf): 프레스(active) 상태.
-- **Lavender Tint 6%** (`rgba(94,92,230,0.06)`): 비교 테이블 최고값 셀 배경 등 극히 옅은 강조 바탕.
-- **Lavender Tint 10%** (`rgba(94,92,230,0.1)`): 활성 필터 포커스 글로우, hero badge 배경.
+- **Sky Cyan** (`{colors.primary}` — #0EA5E9): 시그니처 강조. 링크, 포커스 링 루트, 테두리·아이콘 강조, 1차 버튼 **호버** 배경(명도 상승). 흰 배경 위 본문 텍스트로는 쓰지 않는다(대비 ≈2.8:1).
+- **Sky Cyan Dark** (`{colors.primary-dark}` — #0284C7): 1차 버튼/CTA 프레스(active) 상태.
+- **Sky Cyan Darker** (`{colors.primary-darker}` — #0369A1): **흰 텍스트 1차 버튼·CTA·활성 필터칩·배지의 기본 배경**(흰텍스트 ≈4.9:1 AA), 활성칩/링크 컨텍스트 텍스트색.
+- **Sky Tint 5%** (`{colors.primary-surface}` — `rgba(14,165,233,0.05)`): btn-secondary 호버, footer-cta 단색 그라데이션, category-badge 바탕.
+- **Sky Tint Strong** (`{colors.primary-surface-strong}` — light `rgba(14,165,233,0.10)` / dark `0.18`): 활성 필터칩·트레이 카운터·hero badge 배경, 활성 글로우.
+- **Sky Border** (`{colors.primary-border}` — light `rgba(14,165,233,0.20)` / dark `0.30`): sky 틴트 면의 1px 테두리(칩·badge·카운터).
+
+> 신규 토큰 2종(`primary-surface-strong`/`primary-border`)은 `:root` + 다크 2블록에 각각 정의되며, 다크에서는 캔버스(#0F172A) 대비 인지 강도 보존을 위해 알파를 상향한다.
 
 ### Surface
 - **Background** (`{colors.background}` — #FFFFFF / dark #0F172A): 기본 페이지 캔버스.
@@ -122,14 +125,14 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 | 2 (소프트) | `{shadow.sm}` (`0 1px 2px rgba(0,0,0,0.05)`) | 정적 들린 타일 |
 | 3 (호버) | `{shadow.md}` (`0 4px 6px / 0 2px 4px`) + `translateY(-2px)` | 카드 호버, 1차 버튼 |
 | 4 (강조) | `{shadow.lg}` (`0 10px 15px / 0 4px 6px`) | 1차 버튼 호버, 모달 |
-| Focus | 포커스 링: `box-shadow: 0 0 0 3px rgba(94,92,230,0.2)` (+ 입력은 inset 2px) | 포커스된 입력/버튼/필터 |
+| Focus | 포커스 링: `box-shadow: 0 0 0 3px {colors.focus-ring}` (`rgba(14,165,233,0.2)`) (+ 입력은 inset 2px sky-tint-strong) | 포커스된 입력/버튼/필터 |
 
 깊이는 **헤어라인 + surface**가 1차, 그림자는 인터랙션 피드백(호버/들림)에만. 정적 카드에 무거운 그림자를 깔지 않는다(Linear 정신). 다크모드에선 그림자가 약하므로 헤어라인(`{colors.border}` #334155)이 위계를 진다.
 
 ### Decorative Depth
 - **데이터 카드와 비교 테이블**이 시각적 주인공. 사진·일러스트 의존 없음.
-- 분위기 그라데이션 없음. **예외 1곳**: 히어로 배경 lavender 그라데이션을 **opacity 0.05**로 극히 옅게([Home.css:112-121](../frontend/src/styles/Home.css#L112-L121)). 그 외 어떤 면에도 그라데이션 금지.
-- 스포트라이트 카드·네온 글로우 없음. 강조는 lavender 틴트 + 가중치로만.
+- 분위기 그라데이션 없음. **예외 1곳**: 히어로 배경 그라데이션을 **opacity 0.05**로 극히 옅게. **단일 sky**(`primary → primary-darker`)만 쓰며, 기존 2차 보라(#764ba2)는 제거했다. footer-cta도 2차 보라를 제거하고 sky 5% 단색으로 평면화. 그 외 어떤 면에도 그라데이션 금지.
+- 스포트라이트 카드·네온 글로우 없음. 강조는 sky 틴트 + 가중치로만.
 
 ---
 
@@ -160,22 +163,22 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 
 ### Buttons
 
-**`button-primary`** — 1차 lavender CTA. 정본 [Home.css:474-484](../frontend/src/styles/Home.css#L474-L484).
-- 배경 `{colors.primary}`, 텍스트 white, 타입 `{type.button}`, 패딩 `{spacing.md} {spacing.xl}`, 라운드 `{rounded.md}`, `{shadow.md}`.
-- 호버: 배경 `{colors.primary-dark}` + `{shadow.lg}` + `translateY(-2px)`.
-- 프레스: 배경 `{colors.primary-darker}` + `translateY(0)`.
+**`button-primary`** — 1차 sky CTA(흰 텍스트, AA).
+- 배경 **`{colors.primary-darker}`**(#0369A1, 흰텍스트 ≈4.9:1 AA), 텍스트 white, 타입 `{type.button}`, 패딩 `{spacing.md} {spacing.xl}`, 라운드 `{rounded.md}`, `{shadow.md}`.
+- 호버: 배경 `{colors.primary}`(#0EA5E9, **명도 상승** = 들림 신호) + `{shadow.lg}` + `translateY(-2px)`.
+- 프레스: 배경 `{colors.primary-dark}`(#0284C7).
 
-**`cta-button`** — 대형 히어로 CTA. 같은 lavender, `{type.body-lg}`, 패딩 `{spacing.lg} {spacing.2xl}`, 라운드 `{rounded.lg}`, 아이콘 갭 `{spacing.md}`. ([Home.css:157-183](../frontend/src/styles/Home.css#L157-L183))
+**`cta-button`** — 대형 히어로 CTA. 같은 색 단계(기본 `{colors.primary-darker}` → 호버 `{colors.primary}` → press `{colors.primary-dark}`), `{type.body-lg}`, 패딩 `{spacing.lg} {spacing.2xl}`, 라운드 `{rounded.lg}`, 아이콘 갭 `{spacing.md}`.
 
-**`button-secondary`** — 보조 버튼. 배경 transparent, 1px `{colors.border}`, 텍스트 `{colors.text-primary}`. 호버 시 테두리·텍스트 `{colors.primary}` + lavender 5% 배경. ([Home.css:486-496](../frontend/src/styles/Home.css#L486-L496))
+**`button-secondary`** — 보조 버튼. 배경 transparent, 1px `{colors.border}`, 텍스트 `{colors.text-primary}`. 호버 시 테두리·텍스트 `{colors.primary}` + sky 5%(`{colors.primary-surface}`) 배경. 활성(`.active`) 상태는 배경 `{colors.primary-darker}` + 흰 텍스트(AA).
 
 **`button-small`** — 테이블 "방문 →" 등. 패딩 `{spacing.sm} {spacing.lg}`, 타입 `{type.caption}`~`{type.button}`, 라운드 `{rounded.md}`.
 
 ### Filters
 
 **`filter-btn`** + **`filter-btn-active`** — 카테고리/난이도 필터 칩. 정본 [Home.css:259-282](../frontend/src/styles/Home.css#L259-L282).
-- 기본: 배경 transparent, 1px `{colors.border}`, 텍스트 `{colors.text-primary}`, 가중치 500, 라운드 `{rounded.md}`, 패딩 `{spacing.sm} {spacing.lg}`. 호버 시 lavender 테두리·텍스트.
-- 활성: 배경 `{colors.primary}`, 텍스트 white, lavender 10% 글로우(`0 0 0 3px`).
+- 기본: 배경 transparent, 1px `{colors.border}`, 텍스트 `{colors.text-primary}`, 가중치 500, 라운드 `{rounded.md}`, 패딩 `{spacing.sm} {spacing.lg}`. 호버 시 sky 테두리·텍스트.
+- 활성: 배경 `{colors.primary-darker}`(흰텍스트 AA), 텍스트 white, sky tint-strong 글로우(`0 0 0 3px {colors.primary-surface-strong}`).
 - **`filter-label`**: 그룹 라벨 — `{type.eyebrow}` (12px/600, uppercase, +0.5px 자간), `{colors.text-secondary}`.
 
 ### Cards & Containers
@@ -184,13 +187,17 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 - 배경 `{colors.surface}`, 1px `{colors.border}`, 라운드 `{rounded.lg}`, 패딩 `{spacing.xl}`. 호버: `{shadow.md}` + `translateY(-2px)`.
 
 **`comparison-table`** — 비교 테이블 컨테이너. 배경 `{colors.surface}`, 1px `{colors.border}`, 라운드 `{rounded.xl}`, `{shadow.md}`, `overflow-x: auto`. 헤더 sticky-top, 첫 열 sticky-left. 셀 패딩 `{spacing.lg}`, 1px `{colors.border}` 하단 라인. ([UX_Compare_Page_Redesign.md](./UX_Compare_Page_Redesign.md) 스펙)
-- **`cell-best`**: 행별 최고값 강조 — 배경 lavender 6%, 텍스트 `{colors.primary}`, 가중치 700, 🏆 prefix.
+**`recommendation-card`** — 맞춤 추천 결과 카드. tool-card 구조 재사용 + 매칭 근거(`{match-reason}`) 라인 추가(체크 아이콘 + "…태그 일치").
 
-**`recommendation-card`** — 맞춤 추천 결과 카드. tool-card 구조 재사용 + 추천 사유/점수 라인 추가.
+**`tool-card-link`** — tool-card 본문(헤더+바디)을 감싸는 상세 진입 링크(`/details/:id`). 호버 시 도구명 `{colors.primary}` + 밑줄, focus-visible 포커스 링. 푸터 액션 버튼은 링크 **바깥**(중첩 회피).
 
-**`hero-badge`** — 히어로 상단 pill 배지. 배경 lavender 10%, 1px lavender 20%, 텍스트 `{colors.primary}`, `{type.caption}`/600, 라운드 `{rounded.full}`, backdrop-blur. ([Home.css:129-140](../frontend/src/styles/Home.css#L129-L140))
+**`compare-tray`** — 비교 담기 트레이. 배경 `{colors.surface}`, 1px `{colors.border}`, 라운드 `{rounded.lg}`, `{shadow.md}`. 데스크톱 상단 sticky, 모바일(≤768px) 하단 fixed + safe-area. 좌측 카운터 pill(sky tint-strong) + 우측 "비교하기"(button-primary)/"비우기"(ghost-button).
 
-**`counter-pill`** — 비교 선택 카운터("3 / 5"). 배경 `{colors.surface}`, 1px `{colors.border}`, `{type.caption}`/600, `{colors.text-secondary}`, 라운드 `{rounded.full}`.
+**`active-filter-chip`** — 활성 필터 칩. 배경 `{colors.primary-surface-strong}`, 1px `{colors.primary-border}`, 텍스트 `{colors.primary-darker}`(#0369A1 AA), `{type.caption}`/600, 라운드 `{rounded.full}`. 형식 `[라벨: 값 ×]` — 라벨 텍스트 항상 포함(색 단독 의미전달 금지). × 제거 버튼은 별도 클릭영역, 호버 시 `{colors.error}`.
+
+**`hero-badge`** — 히어로 상단 pill 배지. 배경 `{colors.primary-surface-strong}`, 1px `{colors.primary-border}`, 텍스트 `{colors.primary-darker}`(AA), `{type.caption}`/600, 라운드 `{rounded.full}`, backdrop-blur.
+
+**`counter-pill`** — 비교 선택 카운터("3 / 5"). 전역 기본은 배경 `{colors.surface}`, 1px `{colors.border}`, `{colors.text-secondary}`. 비교 트레이 안(`.compare-tray .counter-pill`)에서는 sky 틴트(`{colors.primary-surface-strong}` + `{colors.primary-border}` + `{colors.primary-darker}`)로 강조.
 
 ### Badges
 
@@ -203,7 +210,7 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 
 **`search-input`** + **`search-input-focused`** — 검색 입력. 정본 [Home.css:214-230](../frontend/src/styles/Home.css#L214-L230).
 - 배경 `{colors.background}`, 1px `{colors.border}`, 텍스트 `{colors.text-primary}`, 라운드 `{rounded.md}`, 패딩 `{spacing.lg}` (좌측 아이콘 폭 가산). 좌측 아이콘 `{colors.text-tertiary}`.
-- 포커스: 테두리 `{colors.primary}` + `inset 0 0 0 2px rgba(94,92,230,0.1), 0 0 0 3px rgba(94,92,230,0.2)`.
+- 포커스: 테두리 `{colors.primary}` + `inset 0 0 0 2px {colors.primary-surface-strong}, 0 0 0 3px {colors.focus-ring}`.
 - 모바일에서 폰트 16px로 키워 iOS 줌 방지([Home.css:584-586](../frontend/src/styles/Home.css#L584-L586)).
 
 ### State Containers
@@ -212,7 +219,7 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 
 **`error-state`** — error 5% 배경, 1px error 20%, 아이콘 + `{type.body-lg}`/600 제목 + `{colors.text-secondary}` 메시지 + 재시도 버튼(`{colors.error}`). ([Home.css:347-389](../frontend/src/styles/Home.css#L347-L389))
 
-**`empty-state`** — 중앙 정렬, 50% 불투명 아이콘 + 제목 + 메시지 + lavender CTA. ([Home.css:391-430](../frontend/src/styles/Home.css#L391-L430))
+**`empty-state`** — 중앙 정렬, 50% 불투명 아이콘 + 제목 + 메시지 + sky CTA(`{colors.primary-darker}` 배경). ([Home.css:391-430](../frontend/src/styles/Home.css#L391-L430))
 
 > 모든 페이지(Compare/Recommendations/Details)는 이 3종 상태 컨테이너를 **동일 패턴**으로 재사용한다. 페이지마다 다른 로딩/에러 UI를 만들지 않는다.
 
@@ -226,17 +233,17 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 
 ### Do
 - `{colors.background}` #FFFFFF를 앵커 캔버스로, `{colors.surface}` #F9FAFB를 한 단계 위 면으로 사용한다.
-- `{colors.primary}` lavender는 **CTA·포커스·활성 필터·링크·최고값 강조**에만 인색하게 쓴다.
+- `{colors.primary}` sky는 **CTA·포커스·활성 필터·링크 강조**에만 인색하게 쓴다. 흰 텍스트 배경은 `{colors.primary-darker}`(AA).
 - 깊이는 **헤어라인 `{colors.border}` 1px + surface 상승**으로. 그림자는 호버/들림 피드백에만.
 - 모든 색·간격·라운드를 **토큰으로** 쓴다 — 다크모드가 무료로 따라온다.
 - 헤드라인 700 / 타이틀·버튼 600 / 본문 400. 기본 본문은 14px.
-- 버튼은 `{rounded.md}` 6px 또는 `{rounded.lg}` 8px. CTA는 lavender.
+- 버튼은 `{rounded.md}` 6px 또는 `{rounded.lg}` 8px. CTA는 sky(`{colors.primary-darker}` 배경, `{colors.primary}` 호버).
 - 난이도·상태는 **색 + 점/아이콘 + 텍스트**를 함께 써 접근성을 지킨다.
 - 모든 페이지에서 loading/error/empty 3종 상태 컨테이너를 동일 패턴으로 재사용한다.
 
 ### Don't
 - **버튼을 pill(`{rounded.full}`)로 만들지 않는다** — pill은 배지·카운터 전용.
-- lavender를 섹션 배경이나 카드 바탕으로 깔지 않는다(히어로 0.05 틴트 1곳 예외).
+- sky를 섹션 배경이나 카드 바탕으로 깔지 않는다(히어로 0.05 틴트 1곳 예외).
 - 2차 채도색(주황/분홍/청록 등)을 브랜드 강조로 도입하지 않는다 — 시맨틱 색은 배지에만.
 - 분위기 그라데이션·스포트라이트 카드·네온 글로우를 추가하지 않는다.
 - 정적 카드에 무거운 그림자를 깔지 않는다(`{shadow.lg}`는 호버/모달만).
@@ -281,8 +288,8 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 3. **인라인 hex 금지** — 항상 `{token}` 참조. 토큰에 없는 값이 필요하면 먼저 Home.css `:root`에 토큰을 추가한다.
 4. 새 섹션은 먼저 **어느 surface(background/surface)에 얹을지** 정한다.
 5. 기본 본문은 `{type.body}` 14px/400. 헤드라인은 700, 타이틀·버튼은 600.
-6. lavender는 희소 자원: CTA·포커스·활성·링크·최고값 강조에만.
-7. 강조가 필요하면 **lavender 틴트 + 가중치 + 헤어라인**을 먼저 쓰고, 그림자·새 색은 마지막 수단.
+6. sky는 희소 자원: CTA·포커스·활성·링크 강조에만. 흰 텍스트 배경은 `{colors.primary-darker}`(AA).
+7. 강조가 필요하면 **sky 틴트 + 가중치 + 헤어라인**을 먼저 쓰고, 그림자·새 색은 마지막 수단.
 8. 모든 토큰 사용은 다크모드를 자동 통과해야 한다 — 하드코딩 색을 남기지 않는다.
 
 ---

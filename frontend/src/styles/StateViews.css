@@ -113,7 +113,7 @@
 /* CTA buttons */
 .state-cta-primary {
   padding: var(--spacing-md) var(--spacing-xl);
-  background-color: var(--color-primary);
+  background-color: var(--color-primary-darker);
   color: white;
   border: none;
   border-radius: var(--radius-md);
@@ -129,7 +129,7 @@
 }
 
 .state-cta-primary:hover {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary);
 }
 
 .state-cta-secondary {

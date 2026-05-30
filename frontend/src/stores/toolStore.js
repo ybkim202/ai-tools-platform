@@ -152,16 +152,50 @@ const writeStoredTheme = (value) => {
   }
 };
 
+// 비교 선택은 새로고침 후에도 동선이 유지되도록 sessionStorage에 영속화한다.
+// (탭 범위 한정: 탭 닫으면 초기화 — 장기 영속 불필요.) 접근 실패는 가드.
+const COMPARE_STORAGE_KEY = 'compareSelection';
+const MAX_COMPARE = 5;
+
+const readStoredCompare = () => {
+  try {
+    const raw = window.sessionStorage.getItem(COMPARE_STORAGE_KEY);
+    if (!raw) return { ids: [], names: {} };
+    const parsed = JSON.parse(raw);
+    const ids = Array.isArray(parsed?.ids)
+      ? parsed.ids.slice(0, MAX_COMPARE)
+      : [];
+    const names =
+      parsed?.names && typeof parsed.names === 'object' ? parsed.names : {};
+    return { ids, names };
+  } catch {
+    return { ids: [], names: {} };
+  }
+};
+
+const writeStoredCompare = (ids, names) => {
+  try {
+    window.sessionStorage.setItem(
+      COMPARE_STORAGE_KEY,
+      JSON.stringify({ ids, names })
+    );
+  } catch {
+    /* no-op: 영속화 실패해도 세션 내 동작은 유지 */
+  }
+};
+
+const storedCompare = readStoredCompare();
+
 export const useUIStore = create((set) => ({
   // 상태
   sidebarOpen: false,
   // 'light' | 'dark' | null(시스템 따름)
   theme: readStoredTheme(),
   compareMode: false,
-  selectedToolsForCompare: [],
+  selectedToolsForCompare: storedCompare.ids,
   // 비교 선택 도구의 id->name 캐시. 선택 시점(ToolCard)에 이름을 함께 보관해
   // 비교 결과 일부 누락 시 "어떤 도구가 빠졌는지" 표시하는 데 사용(추가 API 호출 없음).
-  compareNamesById: {},
+  compareNamesById: storedCompare.names,
 
   // 액션
   toggleSidebar: () =>
@@ -191,18 +225,21 @@ export const useUIStore = create((set) => ({
   // toolName 옵션: 전달되면 id->name 캐시에 보관(누락 도구 이름 안내용).
   addToolForCompare: (toolId, toolName) =>
     set((state) => {
-      if (state.selectedToolsForCompare.length >= 5) {
+      if (state.selectedToolsForCompare.length >= MAX_COMPARE) {
         return state; // 최대 5개까지만
       }
       if (state.selectedToolsForCompare.includes(toolId)) {
         return state; // 이미 추가됨
       }
+      const nextIds = [...state.selectedToolsForCompare, toolId];
+      const nextNames =
+        toolName != null
+          ? { ...state.compareNamesById, [toolId]: toolName }
+          : state.compareNamesById;
+      writeStoredCompare(nextIds, nextNames);
       return {
-        selectedToolsForCompare: [...state.selectedToolsForCompare, toolId],
-        compareNamesById:
-          toolName != null
-            ? { ...state.compareNamesById, [toolId]: toolName }
-            : state.compareNamesById,
+        selectedToolsForCompare: nextIds,
+        compareNamesById: nextNames,
       };
     }),
 
@@ -210,20 +247,24 @@ export const useUIStore = create((set) => ({
     set((state) => {
       const restNames = { ...state.compareNamesById };
       delete restNames[toolId];
+      const nextIds = state.selectedToolsForCompare.filter(
+        (id) => id !== toolId
+      );
+      writeStoredCompare(nextIds, restNames);
       return {
-        selectedToolsForCompare: state.selectedToolsForCompare.filter(
-          (id) => id !== toolId
-        ),
+        selectedToolsForCompare: nextIds,
         compareNamesById: restNames,
       };
     }),
 
-  clearCompareList: () =>
+  clearCompareList: () => {
+    writeStoredCompare([], {});
     set({
       selectedToolsForCompare: [],
       compareNamesById: {},
       compareMode: false,
-    }),
+    });
+  },
 
   closeSidebar: () =>
     set({
