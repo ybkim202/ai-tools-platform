@@ -64,6 +64,7 @@
 | [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md) | 현 상태 진단·갭(G1~G13)·개선 로드맵 |
 | [API_DOCUMENTATION.md](API_DOCUMENTATION.md) | API 계약 (단, 코드 라우터와 대조 필요) |
 | [DATA_COLLECTION_PLAN.md](DATA_COLLECTION_PLAN.md) | 자동 수집 설계(미구현) |
+| [backend/README.md](backend/README.md) | DB 부트스트랩 절차(schema.sql·bootstrap.py·검증) 정본 |
 | `.claude/agents/*.md` | 각 에이전트 지시문 |
 
 > 충돌 시 우선순위: **실제 코드 > PROJECT_OVERVIEW(진단) > 기타 문서**. README/ARCHITECTURE는 스택 정정 필요(별도 작업).
