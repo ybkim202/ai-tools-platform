@@ -1,6 +1,6 @@
 ---
 name: tools-data-curator
-description: AI 도구 데이터셋(tools_data.json) 및 벤치마크/뉴스 데이터의 품질·일관성을 관리. 새 도구 추가, 필드 스키마 검증, 중복·결측·형식 오류 점검, 로더 스크립트(load_tools_fixed.py) 동작 확인이 필요할 때 사용.
+description: 'tools_data.json·벤치마크·뉴스 데이터를 다룰 때 자동 사용: 새 도구 추가, 필드 스키마 검증, 중복·결측·형식 오류, 카테고리/태그 정합성, 로더(load_tools_fixed.py) 확인. 데이터 품질이 핵심. DB 마이그레이션 실행은 backend-fastapi에 위임.'
 tools: Read, Edit, Write, Bash, Grep, Glob
 ---
 
