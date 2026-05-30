@@ -1,335 +1,179 @@
-# 🤖 AITools - AI 도구 비교 플랫폼
+# AITools — AI 도구 탐색·비교·추천 플랫폼
 
-[![Status](https://img.shields.io/badge/Status-Complete-brightgreen)](https://github.com)
-[![Version](https://img.shields.io/badge/Version-1.0.0-blue)](https://github.com)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+> AI 도구를 **탐색**하고, **나란히 비교**하고, 업무·직군에 맞춰 **추천**받는 풀스택 웹 플랫폼.
 
-> **AI 도구들을 벤치마크로 비교하고, 트렌드를 자동 수집하고, 맞춤 추천받는 플랫폼**
-
-[🌐 데모](#) | [📖 문서](#) | [💬 이슈](#) | [🤝 기여](#)
+이 README는 **실제 코드 기준**으로 작성됐다. (프로젝트 헌법: [CLAUDE.md](./CLAUDE.md) — "문서-코드 충돌 시 코드가 사실이다")
 
 ---
 
-## 📸 **스크린샷**
+## 현재 상태 (정직한 진단)
 
-```
-Coming Soon - 프론트엔드 개발 중
-```
+| 기능 | 상태 |
+|---|---|
+| 도구 탐색·검색·필터 | ✅ 동작 |
+| 도구 비교 (2~5개) | ✅ 동작 |
+| 맞춤 추천 (업무/직군) | ✅ 동작 (태그 데이터 적재 완료) |
+| 벤치마크 | ⏳ 테이블만 존재, **데이터 미적재(준비 중)** |
+| 뉴스/트렌드 | ⏳ 테이블만 존재, **데이터 미적재(준비 중)** |
+| 자동 데이터 수집 (APScheduler) | ❌ 미구현 (설계만: [DATA_COLLECTION_PLAN.md](./DATA_COLLECTION_PLAN.md)) |
 
----
-
-## ✨ **주요 기능**
-
-### 🔍 **도구 탐색 & 검색**
-- 78개+ AI 도구 데이터베이스
-- 고급 필터링: 카테고리, 가격, 난이도, 사용자 수
-- 실시간 검색
-
-### ⚖️ **성능 기반 비교**
-- 2~5개 도구를 나란히 비교
-- 가격, 사용자 수, 벤치마크 점수 비교
-- 비교 결과 내보내기
-
-### 🎁 **맞춤 추천**
-- 업무별 추천 (콘텐츠 작성, 이미지 생성 등)
-- 직업별 추천 (개발자, 디자이너 등)
-- 로그인 없이 즉시 사용
-
-### 📊 **벤치마크 분석**
-- 도구별 성능 점수 (속도, 정확도, 비용효율)
-- 벤치마크 비교 및 요약
-- 공신력 있는 출처 표시
-
-### 📰 **트렌드 & 뉴스**
-- 각 도구의 최신 업데이트 자동 수집
-- 트렌딩 도구 추적
-- 변화 감지
+진단 정본: [docs/PROJECT_OVERVIEW.md](./docs/PROJECT_OVERVIEW.md)
 
 ---
 
-## 🚀 **빠른 시작**
+## 기술 스택 (fact 기준)
 
-### **1. 필수 요구사항**
+### Backend
+- **Python 3.11** · **FastAPI** · **Uvicorn/Gunicorn**
+- **PostgreSQL** + **raw SQL** — SQLAlchemy `text()`의 `:name` 파라미터 바인딩 사용. **ORM 모델 없음.** 데이터 로더는 `psycopg2`.
+- 구조: `backend/app/{main,database,auth,exceptions}.py` + `routers/`
 
+### Frontend
+- **React 19** · **CRA (react-scripts 5)** · **순수 CSS(디자인 토큰)** · **Zustand** · **Axios** · **react-router-dom v7**
+- 디자인: **무채색 캔버스 + 잉크(검정 계열) 단일 강조**, 다크모드 1급 지원. 정본 [docs/DESIGN.md](./docs/DESIGN.md) (토큰 최종 정본은 `frontend/src/styles/Home.css`의 `:root`)
+
+### Deployment
+- **백엔드 → Railway** (Dockerfile)
+- **DB → Render** (PostgreSQL)
+- **프론트 → Vercel**
+- 백엔드↔DB는 교차 프로바이더라 DB 접속은 **External URL** 사용, CORS는 `ALLOWED_ORIGINS` 환경변수 필수.
+
+> ⚠️ 일부 옛 문서(ARCHITECTURE 등)는 TS·Tailwind·Vite를 주장하나 **실제와 다르다**. 코드가 사실이다.
+
+---
+
+## 빠른 시작 (로컬)
+
+### 사전 요구
 ```
-Python 3.9+
-PostgreSQL 15+
-Node.js 16+ (프론트엔드)
+Python 3.11+ · Node.js 18+ · PostgreSQL 14+ (또는 원격 DB URL)
 ```
 
-### **2. 백엔드 설정**
-
+### 1) 백엔드 + DB 부트스트랩
 ```bash
-# 리포지토리 클론
-git clone https://github.com/yourusername/ai-tools-platform.git
-cd ai-tools-platform/backend
-
-# 가상환경
-python3 -m venv venv
-source venv/bin/activate
-
-# 설치
+cd backend
 pip install -r requirements.txt
 
-# 환경변수
-cp .env.example .env
-# .env에 DATABASE_URL 추가
+# DB 스키마 + 도구(78개) + 추천 태그를 한 번에 적재 (멱등)
+DATABASE_URL='postgresql://USER:PASSWORD@HOST/DB' python bootstrap.py
 
-# 서버 시작
-python3 -m uvicorn app.main:app --reload
+# 개발 서버
+DATABASE_URL='postgresql://...' uvicorn app.main:app --reload
 ```
+- 부트스트랩 상세·검증 절차: [backend/README.md](./backend/README.md)
+- 비밀정보는 **환경변수로만** 주입(소스 하드코딩 금지).
 
-### **3. API 확인**
-
+### 2) 프론트엔드
 ```bash
-# 헬스 체크
-curl http://localhost:8000/health
-
-# Swagger UI
-http://localhost:8000/docs
-```
-
-### **4. 프론트엔드 설정** (예정)
-
-```bash
-cd ../frontend
+cd frontend
 npm install
-npm start
+
+# 백엔드 주소를 빌드 변수로 주입
+REACT_APP_API_URL='http://localhost:8000/api' npm start
+# 프로덕션 빌드
+CI=true npm run build
+```
+미설정 시 기본값은 `http://localhost:8000/api`.
+
+### 3) 확인
+```bash
+curl http://localhost:8000/api/tools?limit=3      # 도구 목록
+open http://localhost:8000/docs                   # Swagger UI
 ```
 
 ---
 
-## 📡 **API 엔드포인트**
+## 환경변수
 
-### **Tools**
-```
-GET    /api/tools              도구 목록
-GET    /api/tools/{id}         도구 상세
-```
-
-### **Recommendations**
-```
-GET    /api/recommendations    맞춤 추천
-```
-
-### **Compare**
-```
-GET    /api/compare            도구 비교
-```
-
-### **News**
-```
-GET    /api/news               뉴스 조회
-GET    /api/news/trending      트렌딩 뉴스
-```
-
-### **Benchmarks**
-```
-GET    /api/benchmarks         벤치마크 조회
-GET    /api/benchmarks/summary/{id}  요약
-GET    /api/benchmarks/types   벤치마크 종류
-```
+| 변수 | 위치 | 설명 |
+|---|---|---|
+| `DATABASE_URL` | 백엔드 | PostgreSQL 접속 문자열 (필수) |
+| `ALLOWED_ORIGINS` | 백엔드 | CORS 허용 오리진(콤마 구분). 미설정 시 `localhost:3000`만 허용 |
+| `API_KEY` / `API_KEYS` | 백엔드 | (선택) `X-API-Key` 인증용. 미설정 시 인증 없이 공개 |
+| `REACT_APP_API_URL` | 프론트(빌드) | 백엔드 API 베이스 URL (`.../api`) |
 
 ---
 
-## 📚 **문서**
+## API 개요
 
-| 문서 | 설명 |
-|------|------|
-| [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) | **완전한 API 문서** ⭐ |
-| [API_SPECIFICATION.md](./docs/API_SPECIFICATION.md) | API 명세 (간단한 버전) |
-| [DATA_COLLECTION_PLAN.md](./docs/DATA_COLLECTION_PLAN.md) | 데이터 수집 계획 |
-| [ARCHITECTURE.md](./docs/ARCHITECTURE.md) | 시스템 아키텍처 |
-| [FIGMA_Design_Guide.md](./docs/FIGMA_Design_Guide.md) | UI/UX 디자인 가이드 |
+응답은 모두 `{ "success": bool, "data": ..., "error": ... }` 포맷. 인증은 선택적 `X-API-Key`(미설정 시 공개), 레이트리밋은 인메모리(IP/키 기준).
 
----
+| 메서드 · 경로 | 설명 |
+|---|---|
+| `GET /api/tools` | 도구 목록 (검색·필터·페이징) |
+| `GET /api/tools/meta` | 필터 옵션값(카테고리·태그·난이도) |
+| `GET /api/tools/{id}` | 도구 상세 (가격·태그·벤치/뉴스) |
+| `GET /api/recommendations` | 업무(`task`)/직군(`profession`) 추천 |
+| `GET /api/compare?ids=` | 도구 비교 (2~5개) |
+| `GET /api/news`, `/api/news/trending` | 뉴스 (데이터 미적재 시 빈 결과) |
+| `GET /api/benchmarks`, `/summary/{id}`, `/types` | 벤치마크 (데이터 미적재 시 빈 결과) |
 
-## 🛠️ **기술 스택**
-
-### **Backend**
-- **Runtime**: Python 3.9+
-- **Framework**: FastAPI
-- **Database**: PostgreSQL 15
-- **Hosting**: Render
-- **ORM**: SQLAlchemy
-
-### **Frontend** (개발 중)
-- **Framework**: React 18
-- **Styling**: Tailwind CSS
-- **HTTP**: Axios
-- **State**: Zustand
-- **Hosting**: Vercel
-
-### **DevOps**
-- **VCS**: GitHub
-- **Container**: Docker (예정)
+계약 정본: [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) · [API_SPECIFICATION.md](./API_SPECIFICATION.md)
 
 ---
 
-## 📊 **프로젝트 현황**
+## 보안
 
-### **완료 ✅**
-
-- [x] 데이터베이스 설계 & 구축
-- [x] FastAPI 백엔드 개발
-- [x] 8개 API 엔드포인트
-- [x] 78개 도구 데이터 로드
-- [x] API Key 인증
-- [x] 레이트 리미팅
-- [x] 에러 처리
-- [x] API 문서화
-
-### **진행 중 🔄**
-
-- [ ] 프론트엔드 개발
-- [ ] Docker 컨테이너화
-- [ ] CI/CD 파이프라인
-
-### **계획 중 📋**
-
-- [ ] 자동 데이터 수집 (APScheduler)
-- [ ] 고급 맞춤 추천 알고리즘
-- [ ] 커뮤니티 기능
-- [ ] Chrome 확장
-- [ ] 모바일 앱
+- ✅ **파라미터라이즈드 SQL** (`:name` 바인딩) — SQL Injection 방지
+- ✅ **비밀정보 환경변수 전용** (소스/커밋 하드코딩 금지)
+- ✅ **CORS 화이트리스트** (`ALLOWED_ORIGINS`, 와일드카드 미사용)
+- ✅ **에러 메시지 새니타이즈** (DB/스택 미노출, 서버 로그만)
+- ✅ 선택적 `X-API-Key` 인증
+- ⚠️ **레이트리밋은 인메모리** — 다중 워커/인스턴스에서는 정밀 제한 아님(향후 Redis 이전 권장)
 
 ---
 
-## 📈 **성능 지표**
+## 문서 맵
 
-| 항목 | 값 |
-|------|-----|
-| **API 응답 시간** | < 200ms |
-| **DB 쿼리 시간** | < 50ms |
-| **동시 사용자** | 100+ |
-| **가용성** | 99.9% |
-| **저장된 도구** | 78개 |
-| **지원 벤치마크 타입** | 0개* |
-
-*현재 벤치마크 데이터 구축 중
-
----
-
-## 🔐 **보안**
-
-- ✅ API Key 기반 선택적 인증
-- ✅ CORS 설정
-- ✅ Rate Limiting (분당 100개 요청)
-- ✅ SQL Injection 방지 (Parameterized Queries)
-- ✅ 에러 메시지 최소화
-- 🔄 HTTPS (프로덕션)
-- 🔄 JWT 토큰 (향후 추가)
+| 문서 | 정본 내용 |
+|---|---|
+| [CLAUDE.md](./CLAUDE.md) | 프로젝트 원칙·하드룰·에이전트 라우팅 |
+| [docs/GOVERNANCE.md](./docs/GOVERNANCE.md) | 거버넌스·컨벤션·체크리스트 |
+| [docs/PROJECT_OVERVIEW.md](./docs/PROJECT_OVERVIEW.md) | 현 상태 진단·갭·로드맵 |
+| [docs/DESIGN.md](./docs/DESIGN.md) | 디자인 시스템(무채색+잉크 토큰) |
+| [docs/PRODUCT_PLAN.md](./docs/PRODUCT_PLAN.md) · [docs/DESIGN_SECTIONS.md](./docs/DESIGN_SECTIONS.md) | 4페이지 기획·섹션 디자인 스펙 |
+| [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) · [API_SPECIFICATION.md](./API_SPECIFICATION.md) | API 계약 |
+| [backend/README.md](./backend/README.md) | DB 부트스트랩 절차 |
+| [DATA_COLLECTION_PLAN.md](./DATA_COLLECTION_PLAN.md) | 자동 수집 설계(미구현) |
 
 ---
 
-## 🤝 **기여하기**
-
-우리는 모든 기여를 환영합니다! 🎉
-
-### **기여 방법**
-
-1. **Fork**하기
-2. **Feature Branch** 생성 (`git checkout -b feature/amazing-feature`)
-3. **Commit** (`git commit -m 'Add amazing feature'`)
-4. **Push** (`git push origin feature/amazing-feature`)
-5. **Pull Request** 생성
-
-### **코드 스타일**
-
-- PEP 8 준수
-- 함수/클래스 주석 필수
-- 타입 힌팅 사용
-
----
-
-## 🐛 **버그 리포트**
-
-[GitHub Issues](https://github.com/yourusername/ai-tools-platform/issues)에서:
-
-1. 버그 제목 명확하게
-2. 재현 방법 설명
-3. 에러 메시지 포함
-4. 환경 정보 (OS, Python 버전 등)
-
----
-
-## 💡 **기능 제안**
-
-[GitHub Discussions](https://github.com/yourusername/ai-tools-platform/discussions)에서:
-
-1. 어떤 문제를 해결하나?
-2. 왜 필요한가?
-3. 어떻게 구현할까?
-
----
-
-## 📄 **라이선스**
-
-이 프로젝트는 [MIT License](LICENSE) 하에 배포됩니다.
-
----
-
-## 🙏 **감사의 말**
-
-- **PostgreSQL** - 강력한 데이터베이스
-- **FastAPI** - 현대적인 웹 프레임워크
-- **Render** - 무료 호스팅
-- **오픈소스 커뮤니티** - 지속적인 지원
-
----
-
-## 📞 **연락하기**
-
-- 📧 이메일: your-email@example.com
-- 🐦 Twitter: [@aitools](https://twitter.com)
-- 💬 Discord: [서버 링크](#)
-
----
-
-## 🗺️ **로드맵**
+## 프로젝트 구조
 
 ```
-Q2 2026: MVP 완성 ✅
-Q3 2026: 프론트엔드 출시
-Q4 2026: 커뮤니티 기능
-2027: 모바일 앱 & 확장
+ai-tools-platform/
+├── backend/
+│   ├── app/
+│   │   ├── main.py            # FastAPI 앱 · CORS · 라우터 등록
+│   │   ├── database.py        # DATABASE_URL 엔진/세션
+│   │   ├── auth.py            # 선택적 API Key · 레이트리밋
+│   │   ├── exceptions.py      # 표준 에러 핸들러
+│   │   └── routers/           # tools · recommendations · compare · news · benchmarks
+│   ├── schema.sql             # 6개 테이블 정본 DDL
+│   ├── init_db.py             # schema.sql 실행 러너
+│   ├── load_tools_fixed.py    # tools/pricing 적재 (tools_data.json)
+│   ├── seed_tags.py           # tags/tool_tags 적재 (추천)
+│   └── bootstrap.py           # 위 3단계 원샷 진입점
+└── frontend/
+    └── src/
+        ├── pages/             # Home · Compare · Recommendations · Details
+        ├── components/        # ToolCard · 상태뷰 등
+        ├── stores/            # Zustand
+        ├── services/api.js    # 모든 서버 호출 단일 경유
+        └── styles/            # 디자인 토큰(:root) · 페이지 CSS
 ```
 
 ---
 
-## ⭐ **스타 주기**
+## 기여
 
-이 프로젝트가 도움이 되셨다면 ⭐를 눌러주세요!
+1. 브랜치 생성 → 변경 → PR (기본 브랜치 직접 커밋 금지)
+2. PR 전 체크: `cd frontend && CI=true npm run build` 통과 · 시크릿 없음 · 문서/계약 동기화
+3. 백엔드 PEP8·타입힌팅·docstring, 프론트 ESLint(react-app) 통과·빌드 경고 0
+4. 모든 DB 접근은 `:name` 바인딩, API 응답은 `{success, data, error}` 유지
 
-```
-fork & star = 개발자의 큰 힘 💪
-```
-
----
-
-<div align="center">
-
-**[🌐 웹사이트](#) • [📖 문서](#) • [💬 커뮤니티](#)**
-
-Made with ❤️ by AITools Team
-
-</div>
+세부 규약: [docs/GOVERNANCE.md](./docs/GOVERNANCE.md)
 
 ---
 
-## 🎓 **학습 자료**
-
-이 프로젝트는 다음 기술을 배울 수 있습니다:
-
-- FastAPI로 REST API 구축
-- SQLAlchemy로 ORM 사용
-- PostgreSQL 데이터베이스 설계
-- API 인증 & 보안
-- React로 프론트엔드 개발
-- 전체 풀스택 개발
-
----
-
-**Last Updated**: 2026-05-24  
-**Maintained by**: Your Name  
-**Contributors**: [보기](CONTRIBUTORS.md)
+> 라이선스 미설정(LICENSE 파일 없음). 사용 전 저장소 소유자에게 문의.
