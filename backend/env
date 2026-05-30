@@ -1,5 +1,0 @@
-# PostgreSQL 연결
-DATABASE_URL="***REMOVED-DB-URL***"
-
-# 개발 설정
-DEBUG=True

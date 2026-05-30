@@ -13,3 +13,5 @@ __pycache__/
 .env
 .env.*
 !.env.example
+# backend/env 는 비밀번호를 담을 수 있는 env 파일 — 추적 금지(템플릿도 커밋하지 않는다)
+backend/env
