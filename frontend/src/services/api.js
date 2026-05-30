@@ -30,6 +30,13 @@ export const toolsAPI = {
       params: { search: searchQuery, ...params },
     });
   },
+
+  // 메타데이터(필터 옵션 소스) 조회
+  // GET /api/tools/meta -> { success, data: { categories, tags, difficulties }, error }
+  // 응답값으로 필터 옵션을 채운다(하드코딩 금지). 실패 시 호출부에서 최소 폴백.
+  getMeta: () => {
+    return apiClient.get('/tools/meta');
+  },
 };
 
 // ==================== Recommendations API ====================

@@ -1,7 +1,11 @@
+import logging
+
 from fastapi import APIRouter, Query, Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from ..database import get_db
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/news", tags=["news"])
 
@@ -18,36 +22,42 @@ def get_news(
     최신 뉴스와 업데이트 조회
     """
     try:
-        # 쿼리 빌드
-        query = f"""
+        # 쿼리 빌드 (INTERVAL 은 :days 정수 바인딩으로 계산)
+        query = """
         SELECT n.id, n.tool_id, t.name, n.title, n.content, n.news_date, n.source_url
         FROM news n
         INNER JOIN tools t ON n.tool_id = t.id
-        WHERE n.collected_date >= NOW() - INTERVAL '{days} days'
+        WHERE n.collected_date >= NOW() - (:days * INTERVAL '1 day')
         """
-        params = {}
-        
+        params = {"days": days}
+
+        # 전체 개수 조회용 파라미터 (페이징 파라미터 제외)
+        count_params = {"days": days}
+
         # 특정 도구 필터링
         if tool_id:
-            query += " AND n.tool_id = %(tool_id)s"
+            query += " AND n.tool_id = :tool_id"
             params["tool_id"] = tool_id
-        
+            count_params["tool_id"] = tool_id
+
         # 정렬 및 페이징
         query += " ORDER BY n.news_date DESC"
-        query += f" LIMIT {limit} OFFSET {offset}"
-        
+        query += " LIMIT :limit OFFSET :offset"
+        params["limit"] = limit
+        params["offset"] = offset
+
         # 전체 개수 조회
-        count_query = f"""
+        count_query = """
         SELECT COUNT(*)
         FROM news n
-        WHERE n.collected_date >= NOW() - INTERVAL '{days} days'
+        WHERE n.collected_date >= NOW() - (:days * INTERVAL '1 day')
         """
         if tool_id:
-            count_query += " AND n.tool_id = %(tool_id)s"
-        
-        total_result = db.execute(text(count_query), params)
+            count_query += " AND n.tool_id = :tool_id"
+
+        total_result = db.execute(text(count_query), count_params)
         total = total_result.scalar()
-        
+
         # 뉴스 조회
         result = db.execute(text(query), params)
         news = [
@@ -74,12 +84,13 @@ def get_news(
             }
         }
     
-    except Exception as e:
+    except Exception:
+        logger.exception("뉴스 조회 중 오류 발생")
         return {
             "success": False,
             "error": {
                 "code": "DATABASE_ERROR",
-                "message": str(e)
+                "message": "데이터베이스 조회 중 오류가 발생했습니다."
             }
         }
 
@@ -94,17 +105,17 @@ def get_trending_news(
     최근 가장 업데이트가 많은 도구들의 뉴스 조회 (트렌딩)
     """
     try:
-        query = f"""
+        query = """
         SELECT n.id, n.tool_id, t.name, n.title, n.content, n.news_date, COUNT(*) as update_count
         FROM news n
         INNER JOIN tools t ON n.tool_id = t.id
-        WHERE n.collected_date >= NOW() - INTERVAL '{days} days'
+        WHERE n.collected_date >= NOW() - (:days * INTERVAL '1 day')
         GROUP BY n.tool_id, t.name, n.id
         ORDER BY update_count DESC, n.news_date DESC
-        LIMIT {limit}
+        LIMIT :limit
         """
-        
-        result = db.execute(text(query))
+
+        result = db.execute(text(query), {"days": days, "limit": limit})
         news = [
             {
                 "id": row[0],
@@ -124,11 +135,12 @@ def get_trending_news(
             "period_days": days
         }
     
-    except Exception as e:
+    except Exception:
+        logger.exception("뉴스 조회 중 오류 발생")
         return {
             "success": False,
             "error": {
                 "code": "DATABASE_ERROR",
-                "message": str(e)
+                "message": "데이터베이스 조회 중 오류가 발생했습니다."
             }
         }

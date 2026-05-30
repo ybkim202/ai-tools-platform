@@ -10,6 +10,11 @@
   --color-success: #16A34A;
   --color-warning: #FB923C;
   --color-error: #EF4444;
+  --color-error-dark: #DC2626;
+  --color-error-surface: rgba(239, 68, 68, 0.05);
+  --color-error-border: rgba(239, 68, 68, 0.2);
+  --color-primary-surface: rgba(94, 92, 230, 0.05);
+  --color-focus-ring: rgba(94, 92, 230, 0.2);
   --color-background: #FFFFFF;
   --color-surface: #F9FAFB;
   --color-border: #E5E7EB;

@@ -8,6 +8,7 @@ export const useToolStore = create((set, get) => ({
   selectedTool: null,
   loading: false,
   error: null,
+  detailError: null,
   pagination: {
     total: 0,
     limit: 20,
@@ -41,7 +42,7 @@ export const useToolStore = create((set, get) => ({
 
   // 도구 상세 조회
   fetchToolDetail: async (toolId) => {
-    set({ loading: true, error: null });
+    set({ loading: true, error: null, detailError: null, selectedTool: null });
     try {
       const response = await toolsAPI.getToolDetail(toolId);
       set({
@@ -50,7 +51,13 @@ export const useToolStore = create((set, get) => ({
       });
     } catch (err) {
       const error = handleApiError(err);
-      set({ error: error.message, loading: false });
+      // 404(찾을 수 없음)는 빈상태로, 그 외(네트워크/5xx)는 detailError로 분리.
+      const isNotFound = error.status === 404;
+      set({
+        detailError: isNotFound ? null : error.message,
+        selectedTool: null,
+        loading: false,
+      });
     }
   },
 

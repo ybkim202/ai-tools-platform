@@ -1,8 +1,13 @@
+import logging
+
 from fastapi import APIRouter, Query, Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import datetime
 from ..database import get_db
+from ..exceptions import ToolNotFound
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/tools", tags=["tools"])
 
@@ -30,35 +35,35 @@ def get_tools(
         
         # 필터링
         if search:
-            query += " AND name ILIKE %(search)s"
+            query += " AND name ILIKE :search"
             params["search"] = f"%{search}%"
-        
+
         if category:
-            query += " AND category = %(category)s"
+            query += " AND category = :category"
             params["category"] = category
-        
+
         if country:
-            query += " AND country = %(country)s"
+            query += " AND country = :country"
             params["country"] = country
-        
+
         if difficulty:
-            query += " AND difficulty = %(difficulty)s"
+            query += " AND difficulty = :difficulty"
             params["difficulty"] = difficulty
-        
+
         if min_price is not None:
-            query += " AND (SELECT MIN(price) FROM pricing WHERE tool_id = tools.id) >= %(min_price)s"
+            query += " AND (SELECT MIN(price) FROM pricing WHERE tool_id = tools.id) >= :min_price"
             params["min_price"] = min_price
-        
+
         if max_price is not None:
-            query += " AND (SELECT MAX(price) FROM pricing WHERE tool_id = tools.id) <= %(max_price)s"
+            query += " AND (SELECT MAX(price) FROM pricing WHERE tool_id = tools.id) <= :max_price"
             params["max_price"] = max_price
-        
+
         if min_users is not None:
-            query += " AND user_count >= %(min_users)s"
+            query += " AND user_count >= :min_users"
             params["min_users"] = min_users
-        
+
         if max_users is not None:
-            query += " AND user_count <= %(max_users)s"
+            query += " AND user_count <= :max_users"
             params["max_users"] = max_users
         
         # 정렬
@@ -75,8 +80,10 @@ def get_tools(
         total = total_result.scalar()
         
         # 페이징 적용
-        query += f" LIMIT {limit} OFFSET {offset}"
-        
+        query += " LIMIT :limit OFFSET :offset"
+        params["limit"] = limit
+        params["offset"] = offset
+
         # 도구 조회
         result = db.execute(text(query), params)
         tools = [
@@ -109,14 +116,82 @@ def get_tools(
             }
         }
     
-    except Exception as e:
+    except Exception:
+        logger.exception("도구 조회 중 오류 발생")
         return {
             "success": False,
             "error": {
                 "code": "DATABASE_ERROR",
-                "message": str(e)
+                "message": "데이터베이스 조회 중 오류가 발생했습니다."
             }
         }
+
+# ==================== Tools 메타 (필터 옵션) ====================
+# 주의: 경로 매칭 우선순위 때문에 반드시 "/{tool_id}" 보다 위에 등록한다.
+# 그렇지 않으면 "meta" 가 tool_id 로 파싱되어 422/404 가 발생한다.
+@router.get("/meta")
+def get_tools_meta(db: Session = Depends(get_db)):
+    """
+    필터 옵션 메타데이터 조회.
+
+    프론트(Home/Recommendations)의 필터 옵션값을 DB 실제값과 동기화하기 위한
+    distinct 목록을 반환한다. 하드코딩된 옵션 목록 제거 근거.
+
+    Returns:
+        {success, data: {categories, tags, difficulties}, error}
+        - categories: tools.category 의 distinct (null 제외, 정렬)
+        - tags: tags.name 의 distinct (tags 테이블, null 제외, 정렬)
+        - difficulties: tools.difficulty 의 distinct (null 제외, 정렬)
+    """
+    try:
+        category_rows = db.execute(
+            text(
+                "SELECT DISTINCT category FROM tools "
+                "WHERE category IS NOT NULL AND category <> '' "
+                "ORDER BY category"
+            )
+        ).fetchall()
+        categories = [row[0] for row in category_rows]
+
+        difficulty_rows = db.execute(
+            text(
+                "SELECT DISTINCT difficulty FROM tools "
+                "WHERE difficulty IS NOT NULL AND difficulty <> '' "
+                "ORDER BY difficulty"
+            )
+        ).fetchall()
+        difficulties = [row[0] for row in difficulty_rows]
+
+        tag_rows = db.execute(
+            text(
+                "SELECT DISTINCT name FROM tags "
+                "WHERE name IS NOT NULL AND name <> '' "
+                "ORDER BY name"
+            )
+        ).fetchall()
+        tags = [row[0] for row in tag_rows]
+
+        return {
+            "success": True,
+            "data": {
+                "categories": categories,
+                "tags": tags,
+                "difficulties": difficulties,
+            },
+            "error": None,
+        }
+
+    except Exception:
+        logger.exception("메타데이터 조회 중 오류 발생")
+        return {
+            "success": False,
+            "data": None,
+            "error": {
+                "code": "DATABASE_ERROR",
+                "message": "데이터베이스 조회 중 오류가 발생했습니다.",
+            },
+        }
+
 
 # ==================== Tools 상세 조회 ====================
 @router.get("/{tool_id}")
@@ -124,19 +199,14 @@ def get_tool_detail(tool_id: int, db: Session = Depends(get_db)):
     """특정 도구의 상세 정보 조회"""
     try:
         # 도구 정보 조회
-        tool_query = "SELECT * FROM tools WHERE id = %(tool_id)s"
+        tool_query = "SELECT * FROM tools WHERE id = :tool_id"
         tool_result = db.execute(text(tool_query), {"tool_id": tool_id})
         tool_row = tool_result.fetchone()
         
         if not tool_row:
-            return {
-                "success": False,
-                "error": {
-                    "code": "TOOL_NOT_FOUND",
-                    "message": "요청한 도구를 찾을 수 없습니다."
-                }
-            }
-        
+            # HTTP 404 로 통일 (예외 핸들러가 {success:false, data:null, error:{...}} 로 변환)
+            raise ToolNotFound()
+
         tool = {
             "id": tool_row[0],
             "name": tool_row[1],
@@ -152,7 +222,7 @@ def get_tool_detail(tool_id: int, db: Session = Depends(get_db)):
         }
         
         # 벤치마크 조회
-        benchmark_query = "SELECT id, benchmark_type, score, source, collected_date FROM benchmarks WHERE tool_id = %(tool_id)s"
+        benchmark_query = "SELECT id, benchmark_type, score, source, collected_date FROM benchmarks WHERE tool_id = :tool_id"
         benchmark_result = db.execute(text(benchmark_query), {"tool_id": tool_id})
         benchmarks = [
             {
@@ -166,7 +236,7 @@ def get_tool_detail(tool_id: int, db: Session = Depends(get_db)):
         ]
         
         # 가격 조회
-        pricing_query = "SELECT id, plan_name, price, currency, billing_period, description FROM pricing WHERE tool_id = %(tool_id)s"
+        pricing_query = "SELECT id, plan_name, price, currency, billing_period, description FROM pricing WHERE tool_id = :tool_id"
         pricing_result = db.execute(text(pricing_query), {"tool_id": tool_id})
         pricing = [
             {
@@ -181,7 +251,7 @@ def get_tool_detail(tool_id: int, db: Session = Depends(get_db)):
         ]
         
         # 뉴스 조회
-        news_query = "SELECT id, title, content, news_date, source_url FROM news WHERE tool_id = %(tool_id)s ORDER BY news_date DESC LIMIT 5"
+        news_query = "SELECT id, title, content, news_date, source_url FROM news WHERE tool_id = :tool_id ORDER BY news_date DESC LIMIT 5"
         news_result = db.execute(text(news_query), {"tool_id": tool_id})
         news = [
             {
@@ -203,12 +273,16 @@ def get_tool_detail(tool_id: int, db: Session = Depends(get_db)):
                 "recent_news": news
             }
         }
-    
-    except Exception as e:
+
+    except ToolNotFound:
+        # 커스텀 예외는 핸들러(HTTP 404)로 전달되도록 재발생
+        raise
+    except Exception:
+        logger.exception("도구 조회 중 오류 발생")
         return {
             "success": False,
             "error": {
                 "code": "DATABASE_ERROR",
-                "message": str(e)
+                "message": "데이터베이스 조회 중 오류가 발생했습니다."
             }
         }

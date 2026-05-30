@@ -1,0 +1,224 @@
+/* ========================================
+   SHARED STATE COMPONENTS
+   Spec: standardized Loading / EmptyFiltered / EmptyNoData / Error
+   All values use Home.css :root tokens only (no inline hex).
+   ======================================== */
+
+/* Shared centered wrapper.
+   Note: base .state-container lives in Home.css; this refines/extends it. */
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--spacing-lg);
+  min-height: 320px;
+  padding: var(--spacing-4xl) var(--spacing-lg);
+}
+
+.state-icon {
+  display: block;
+}
+
+.state-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.state-message {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  max-width: 420px;
+}
+
+/* Loading */
+.state-loading .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+/* EmptyFiltered — neutral, tertiary icon */
+.empty-filtered .state-icon {
+  color: var(--color-text-tertiary);
+}
+
+/* EmptyNoData — neutral surface, NOT error red */
+.empty-nodata .state-icon {
+  color: var(--color-text-tertiary);
+}
+
+.coming-soon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+/* Inline variant for in-page sections (Details benchmark/news) */
+.empty-nodata--inline {
+  min-height: auto;
+  padding: var(--spacing-2xl);
+  gap: var(--spacing-md);
+}
+
+.empty-nodata--inline .state-icon {
+  width: 32px;
+  height: 32px;
+}
+
+/* Error */
+.state-error .error-box {
+  text-align: center;
+  padding: var(--spacing-xl);
+  background-color: var(--color-error-surface);
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.state-error .error-icon {
+  color: var(--color-error);
+}
+
+.state-error .error-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.state-error .error-message {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  max-width: 420px;
+  margin: 0;
+}
+
+/* CTA buttons */
+.state-cta-primary {
+  padding: var(--spacing-md) var(--spacing-xl);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-normal);
+}
+
+.state-cta-primary:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.state-cta-secondary {
+  padding: var(--spacing-md) var(--spacing-xl);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.state-cta-secondary:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: var(--color-primary-surface);
+}
+
+.state-cta-error {
+  padding: var(--spacing-md) var(--spacing-xl);
+  background-color: var(--color-error);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.state-cta-error:hover {
+  background-color: var(--color-error-dark);
+}
+
+.state-cta-primary:focus-visible,
+.state-cta-secondary:focus-visible,
+.state-cta-error:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+/* Compare cell inline "coming soon" */
+.cell-coming-soon {
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+/* Recommendations disabled option chips */
+.option-btn--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .state-container {
+    padding: var(--spacing-3xl) var(--spacing-lg);
+  }
+
+  .state-message {
+    max-width: 90vw;
+  }
+
+  .state-cta-primary,
+  .state-cta-secondary,
+  .state-cta-error {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .state-container {
+    padding: var(--spacing-2xl) var(--spacing-lg);
+  }
+
+  .state-icon {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Reduced motion: stop spinner rotation */
+@media (prefers-reduced-motion: reduce) {
+  .state-loading .spinner {
+    animation: none;
+  }
+}

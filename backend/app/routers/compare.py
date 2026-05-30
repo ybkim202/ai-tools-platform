@@ -1,7 +1,12 @@
+import logging
+
 from fastapi import APIRouter, Query, Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from ..database import get_db
+from ..exceptions import ToolNotFound
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/compare", tags=["compare"])
 
@@ -21,6 +26,7 @@ def compare_tools(
         except ValueError:
             return {
                 "success": False,
+                "data": None,
                 "error": {
                     "code": "INVALID_IDS",
                     "message": "ID는 숫자여야 하며 쉼표로 구분해야 합니다."
@@ -30,6 +36,7 @@ def compare_tools(
         if len(tool_ids) == 0 or len(tool_ids) > 5:
             return {
                 "success": False,
+                "data": None,
                 "error": {
                     "code": "INVALID_COUNT",
                     "message": "1개 이상 5개 이하의 도구를 비교할 수 있습니다."
@@ -80,25 +87,28 @@ def compare_tools(
             })
         
         if not comparison:
-            return {
-                "success": False,
-                "error": {
-                    "code": "TOOLS_NOT_FOUND",
-                    "message": "요청한 도구를 찾을 수 없습니다."
-                }
-            }
-        
+            # HTTP 404 로 통일 (예외 핸들러가 표준 본문으로 변환)
+            raise ToolNotFound("요청한 도구를 찾을 수 없습니다.")
+
         return {
             "success": True,
-            "comparison": comparison,
-            "total_tools": len(comparison)
+            "data": {
+                "comparison": comparison,
+                "total_tools": len(comparison),
+            },
+            "error": None,
         }
-    
-    except Exception as e:
+
+    except ToolNotFound:
+        # 커스텀 예외는 핸들러(HTTP 404)로 전달되도록 재발생
+        raise
+    except Exception:
+        logger.exception("도구 비교 중 오류 발생")
         return {
             "success": False,
+            "data": None,
             "error": {
                 "code": "DATABASE_ERROR",
-                "message": str(e)
+                "message": "데이터베이스 조회 중 오류가 발생했습니다."
             }
         }

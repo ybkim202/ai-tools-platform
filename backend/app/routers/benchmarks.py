@@ -1,7 +1,11 @@
+import logging
+
 from fastapi import APIRouter, Query, Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from ..database import get_db
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/benchmarks", tags=["benchmarks"])
 
@@ -46,7 +50,7 @@ def get_benchmarks(
             query += " ORDER BY b.score DESC"
         
         # 전체 개수 조회
-        count_query = f"""
+        count_query = """
         SELECT COUNT(*)
         FROM benchmarks b
         WHERE 1=1
@@ -60,8 +64,10 @@ def get_benchmarks(
         total = total_result.scalar()
         
         # 페이징 적용
-        query += f" LIMIT {limit} OFFSET {offset}"
-        
+        query += " LIMIT :limit OFFSET :offset"
+        params["limit"] = limit
+        params["offset"] = offset
+
         # 벤치마크 조회
         result = db.execute(text(query), params)
         benchmarks = [
@@ -88,12 +94,13 @@ def get_benchmarks(
             }
         }
     
-    except Exception as e:
+    except Exception:
+        logger.exception("벤치마크 조회 중 오류 발생")
         return {
             "success": False,
             "error": {
                 "code": "DATABASE_ERROR",
-                "message": str(e)
+                "message": "데이터베이스 조회 중 오류가 발생했습니다."
             }
         }
 
@@ -156,12 +163,13 @@ def get_benchmark_summary(
             }
         }
     
-    except Exception as e:
+    except Exception:
+        logger.exception("벤치마크 조회 중 오류 발생")
         return {
             "success": False,
             "error": {
                 "code": "DATABASE_ERROR",
-                "message": str(e)
+                "message": "데이터베이스 조회 중 오류가 발생했습니다."
             }
         }
 
@@ -193,11 +201,12 @@ def get_benchmark_types(db: Session = Depends(get_db)):
             "data": types
         }
     
-    except Exception as e:
+    except Exception:
+        logger.exception("벤치마크 조회 중 오류 발생")
         return {
             "success": False,
             "error": {
                 "code": "DATABASE_ERROR",
-                "message": str(e)
+                "message": "데이터베이스 조회 중 오류가 발생했습니다."
             }
         }

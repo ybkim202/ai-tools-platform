@@ -75,15 +75,20 @@ curl "http://localhost:8000/api/tools"
 curl -H "X-API-Key: your-api-key" "http://localhost:8000/api/tools"
 ```
 
-### **API Key 발급**
+### **API Key 설정**
 
-테스트용 키: `test-key-12345`
+유효 키는 환경변수에서만 로드됩니다. 소스에 하드코딩된 키는 없습니다.
 
-프로덕션 환경에서는 `.env` 파일의 `API_KEY` 변수를 수정하세요.
+- `API_KEYS`: 콤마로 구분된 키 목록 (권장)
+- `API_KEY`: 단일 키 (하위 호환)
+
+환경변수가 비어 있으면 유효 키가 존재하지 않으며, 이 경우 X-API-Key 헤더 없이 모든
+요청이 통과합니다(선택적 인증). 헤더가 있으나 유효 키 집합에 없으면 401
+(`INVALID_API_KEY`)을 반환합니다.
 
 ### **필수 인증이 필요한 엔드포인트**
 
-현재는 모두 선택적 인증입니다. 향후 추가될 수 있습니다.
+현재 공개 엔드포인트는 모두 선택적 인증입니다. 향후 추가될 수 있습니다.
 
 ---
 
@@ -91,11 +96,12 @@ curl -H "X-API-Key: your-api-key" "http://localhost:8000/api/tools"
 
 ### **응답 형식**
 
-모든 에러는 일관된 형식으로 반환됩니다:
+모든 에러는 일관된 형식으로 반환됩니다(`data`는 항상 `null`):
 
 ```json
 {
   "success": false,
+  "data": null,
   "error": {
     "code": "ERROR_CODE",
     "message": "에러 메시지"
@@ -200,6 +206,39 @@ curl "http://localhost:8000/api/tools?min_price=0&max_price=50"
 
 ---
 
+### **GET /api/tools/meta**
+
+필터 옵션 메타데이터를 조회합니다. 프론트(Home/Recommendations)의 필터 옵션값을
+DB 실제값과 동기화하기 위한 distinct 목록을 반환합니다. 인증 불필요.
+
+**파라미터**: 없음
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "data": {
+    "categories": ["생성형AI", "이미지생성"],
+    "tags": ["개발자", "콘텐츠작성"],
+    "difficulties": ["보통", "쉬움", "어려움"]
+  },
+  "error": null
+}
+```
+
+- `categories`: `tools.category` distinct (null/빈값 제외, 정렬)
+- `tags`: `tags.name` distinct (tags 테이블, null/빈값 제외, 정렬)
+- `difficulties`: `tools.difficulty` distinct (null/빈값 제외, 정렬)
+
+**예시**
+
+```bash
+curl "http://localhost:8000/api/tools/meta"
+```
+
+---
+
 ### **GET /api/tools/{tool_id}**
 
 특정 도구의 상세 정보를 조회합니다.
@@ -292,10 +331,6 @@ curl "http://localhost:8000/api/tools/4"
 ```json
 {
   "success": true,
-  "query": {
-    "task": null,
-    "profession": null
-  },
   "data": [
     {
       "id": 4,
@@ -305,9 +340,22 @@ curl "http://localhost:8000/api/tools/4"
       "difficulty": "쉬움",
       "reason": "현재 가장 인기 있는 도구입니다."
     }
-  ]
+  ],
+  "meta": {
+    "feature_status": "ready",
+    "query": {
+      "task": null,
+      "profession": null
+    }
+  },
+  "error": null
 }
 ```
+
+- `meta.feature_status`:
+  - `"ready"`: 정상 동작. task/profession 없이 인기 도구를 반환하는 경로는 항상 `"ready"`.
+  - `"coming_soon"`: task/profession 추천에 필요한 태그 데이터(tags·tool_tags)가 DB에
+    미적재. 이 경우 `data`는 빈 배열이며 프론트는 "준비 중" 안내를 표시한다.
 
 **예시**
 
@@ -343,28 +391,33 @@ curl "http://localhost:8000/api/recommendations"
 ```json
 {
   "success": true,
-  "comparison": [
-    {
-      "id": 4,
-      "name": "ChatGPT",
-      "category": "생성형AI",
-      "user_count": 100000000,
-      "difficulty": "쉬움",
-      "official_url": "https://openai.com/chatgpt",
-      "pricing": [
-        {
-          "plan": "무료",
-          "price": 0,
-          "currency": "USD",
-          "billing_period": "free"
-        }
-      ],
-      "benchmarks": {}
-    }
-  ],
-  "total_tools": 3
+  "data": {
+    "comparison": [
+      {
+        "id": 4,
+        "name": "ChatGPT",
+        "category": "생성형AI",
+        "user_count": 100000000,
+        "difficulty": "쉬움",
+        "official_url": "https://openai.com/chatgpt",
+        "pricing": [
+          {
+            "plan": "무료",
+            "price": 0,
+            "currency": "USD",
+            "billing_period": "free"
+          }
+        ],
+        "benchmarks": {}
+      }
+    ],
+    "total_tools": 3
+  },
+  "error": null
 }
 ```
+
+> 비교 대상 ID가 모두 존재하지 않으면 HTTP 404 (`TOOL_NOT_FOUND`)를 반환합니다.
 
 **예시**
 
@@ -572,8 +625,11 @@ curl "http://localhost:8000/api/benchmarks?benchmark_type=속도&sort_by=score_d
 ### **한도**
 
 - **분당 요청 수**: 100개
-- **제한 대상**: API Key별 (없으면 anonymous)
-- **초과 시 응답**: HTTP 429
+- **제한 대상**: API Key 기준, 키가 없으면 클라이언트 IP 기준
+- **초과 시 응답**: HTTP 429 (`RATE_LIMIT_EXCEEDED`)
+- **구현 한계**: 인메모리 카운터이므로 다중 워커/인스턴스 환경에서는 워커별로 독립
+  집계됩니다(정확한 전역 제한 아님). 정밀 제한이 필요하면 Redis 등 외부 저장소로
+  이전해야 합니다.
 
 ### **예시**
 
@@ -604,7 +660,7 @@ tools = response.json()["data"]
 
 # 비교
 response = requests.get(f"{BASE_URL}/compare", params={"ids": "4,5,6"})
-comparison = response.json()["comparison"]
+comparison = response.json()["data"]["comparison"]
 ```
 
 ### **JavaScript**
@@ -631,5 +687,5 @@ const comparison = await compareResponse.json();
 
 ---
 
-**Last Updated**: 2026-05-24  
+**Last Updated**: 2026-05-31  
 **Version**: 1.0.0
