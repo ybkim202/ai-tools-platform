@@ -1,3 +1,15 @@
 
 # Claude Code 개인 설정(알림 hook 등)
 .claude/settings.local.json
+
+# Python 컴파일 캐시 (히스토리에 키가 박혀 노출됐던 원인 — 절대 커밋 금지)
+__pycache__/
+*.pyc
+
+# OS / 에디터 부산물
+.DS_Store
+
+# 환경변수(시크릿)
+.env
+.env.*
+!.env.example
