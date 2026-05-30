@@ -1,6 +1,6 @@
 ---
 name: frontend-react
-description: React 19 + Zustand + Axios 프론트엔드 전문가. 페이지/컴포넌트 추가·수정, 상태관리(stores), API 연동(services), 스타일링, 라우팅(react-router-dom v7) 작업에 사용. Linear Design System을 따르는 UI 구현에도 적합.
+description: 'frontend/src 변경이 필요할 때 자동 사용: 페이지·컴포넌트 추가/수정, Zustand 상태, services API 연동, CSS 스타일링, react-router 라우팅, Linear 디자인 토큰 구현. "화면/UI가 안 보여요/버튼/스타일 깨짐" 류에도. 디자인 스펙 결정은 ux-ui-designer에 위임.'
 tools: Read, Edit, Write, Bash, Grep, Glob
 ---
 

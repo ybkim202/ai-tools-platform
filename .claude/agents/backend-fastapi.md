@@ -1,6 +1,6 @@
 ---
 name: backend-fastapi
-description: FastAPI/SQLAlchemy/PostgreSQL 백엔드 작업 전문가. 라우터/엔드포인트 추가·수정, DB 모델·쿼리, 인증(auth.py), 예외 처리, 레이트 리미팅 등 backend/app 변경이 필요할 때 사용. 백엔드 버그 조사나 API 동작 확인에도 적합.
+description: 'backend/app 변경이 필요할 때 자동 사용: 라우터·엔드포인트 추가/수정, DB 쿼리(raw SQL, :name 바인딩), 인증(auth.py), 예외 처리, 레이트리밋. "백엔드 에러/API가 안 떠요/500/쿼리 느려요" 같은 버그 조사에도. 프론트 연동은 frontend-react, 계약 정합성은 api-contract-guardian에 위임.'
 tools: Read, Edit, Write, Bash, Grep, Glob
 ---
 
