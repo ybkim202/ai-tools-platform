@@ -14,6 +14,7 @@ router = APIRouter(prefix="/api/news", tags=["news"])
 def get_news(
     tool_id: int = Query(None, description="특정 도구의 뉴스만 조회"),
     days: int = Query(30, ge=1, le=365, description="최근 N일 이내"),
+    search: str = Query(None, description="제목/내용/도구명 검색어"),
     limit: int = Query(20, ge=1, le=100, description="최대 결과 수"),
     offset: int = Query(0, ge=0, description="오프셋"),
     db: Session = Depends(get_db)
@@ -41,20 +42,35 @@ def get_news(
             params["tool_id"] = tool_id
             count_params["tool_id"] = tool_id
 
+        # 검색어 필터링 (공백 trim 후 비어있지 않은 경우만 적용)
+        # 검색어는 :search 바인딩으로만 전달하고 ILIKE 패턴의 % 는 파라미터 값에 포함한다.
+        search_term = search.strip() if search else ""
+        search_clause = (
+            " AND (n.title ILIKE :search OR n.content ILIKE :search"
+            " OR n.title_ko ILIKE :search OR t.name ILIKE :search)"
+        )
+        if search_term:
+            query += search_clause
+            params["search"] = f"%{search_term}%"
+            count_params["search"] = f"%{search_term}%"
+
         # 정렬 및 페이징
         query += " ORDER BY n.news_date DESC"
         query += " LIMIT :limit OFFSET :offset"
         params["limit"] = limit
         params["offset"] = offset
 
-        # 전체 개수 조회
+        # 전체 개수 조회 (메인 쿼리와 동일한 조인·조건을 유지해 결과 수를 일치시킨다)
         count_query = """
         SELECT COUNT(*)
         FROM news n
+        INNER JOIN tools t ON n.tool_id = t.id
         WHERE n.collected_date >= NOW() - (:days * INTERVAL '1 day')
         """
         if tool_id:
             count_query += " AND n.tool_id = :tool_id"
+        if search_term:
+            count_query += search_clause
 
         total_result = db.execute(text(count_query), count_params)
         total = total_result.scalar()

@@ -457,6 +457,7 @@ curl "http://localhost:8000/api/compare?ids=4,5,6"
 |---------|------|------|------|
 | `tool_id` | number | ❌ | 특정 도구의 뉴스만 |
 | `days` | number | ❌ | 최근 N일 (1-365, 기본: 30) |
+| `search` | string | ❌ | 제목/내용/도구명 검색어 (부분 일치, 대소문자 무시) |
 | `limit` | number | ❌ | 결과 수 (기본: 20) |
 | `offset` | number | ❌ | 오프셋 |
 
@@ -530,6 +531,7 @@ curl "http://localhost:8000/api/news?limit=10"
 
 # 특정 도구 뉴스
 curl "http://localhost:8000/api/news?tool_id=4"
+curl "http://localhost:8000/api/news?search=gpt"
 
 # 트렌딩
 curl "http://localhost:8000/api/news/trending"
