@@ -139,26 +139,59 @@ function App() {
         {/* 푸터 */}
         <footer className="footer">
           <div className="footer-content">
-            <p>&copy; 2026 AITools. 모든 AI 도구를 한곳에서 비교하고 추천받으세요.</p>
-            <div className="footer-links">
-              {/* 미연결 항목: 죽은 href 대신 비활성 placeholder로 노출(SR에 '링크'로 오인되지 않도록) */}
-              <span className="footer-link-disabled" aria-disabled="true">
-                문서
-              </span>
-              <span className="footer-link-disabled" aria-disabled="true">
-                API
-              </span>
+            {/* 블록1: 브랜드 */}
+            <div className="footer-brand">
+              <Link to="/" className="footer-brand-title">
+                AITools
+              </Link>
+              <p className="footer-tagline">
+                모든 AI 도구를 한곳에서 비교하고 추천받으세요.
+              </p>
+            </div>
+
+            {/* 블록2: 탐색 */}
+            <nav className="footer-nav" aria-label="푸터 탐색">
+              <Link to="/compare" className="footer-link">
+                비교
+              </Link>
+              <Link to="/recommendations" className="footer-link">
+                추천
+              </Link>
+              <Link to="/news" className="footer-link">
+                뉴스
+              </Link>
+              <Link to="/benchmarks" className="footer-link">
+                벤치마크
+              </Link>
               <a
+                className="footer-link footer-link-external"
                 href="https://github.com/ybkim202/ai-tools-platform"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 GitHub
+                {/* 외부/새 창: 색 외 수단(아이콘) + SR 안내 */}
+                <svg
+                  className="footer-external-icon"
+                  aria-hidden="true"
+                  focusable="false"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M7 17 17 7M9 7h8v8" />
+                </svg>
+                <span className="sr-only">(새 창에서 열림)</span>
               </a>
-              <span className="footer-link-disabled" aria-disabled="true">
-                문의
-              </span>
-            </div>
+            </nav>
+
+            {/* 블록3: 카피라이트 */}
+            <p className="footer-copyright">&copy; 2026 AITools</p>
           </div>
         </footer>
       </div>
