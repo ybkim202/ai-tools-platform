@@ -1,0 +1,44 @@
+name: 자동 데이터 수집
+
+# 뉴스/릴리스 자동 수집(collect.py)을 주기 실행한다.
+# - 추가 인프라 0(Railway 스케줄러·멀티워커 이슈 회피).
+# - DATABASE_URL 은 GitHub Secret 으로만 주입(소스 하드코딩 금지).
+#   Settings → Secrets and variables → Actions 에 DATABASE_URL 추가 시 활성화.
+#   (선택) GITHUB_API_TOKEN / PRODUCT_HUNT_TOKEN 을 추가하면 GitHub·Product Hunt 소스도 수집.
+# - DATABASE_URL 미설정이면 잡은 명확한 안내 후 종료(에러로 떨어지지 않음).
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # 매일 00:00 UTC (1일 1회)
+  workflow_dispatch: {}    # 수동 실행 버튼
+
+# 동시 실행 방지(주기+수동 겹침 방지)
+concurrency:
+  group: collect-news
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: 수집 실행
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # GitHub Actions 자동 제공 토큰 → GitHub 릴리스 소스가 인증 호출(rate limit 5000/h). 별도 설정 불필요.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 선택: 추가하면 Product Hunt 소스도 수집(미설정 시 조용히 skip)
+          PRODUCT_HUNT_TOKEN: ${{ secrets.PRODUCT_HUNT_TOKEN }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::warning::DATABASE_URL secret 미설정 — 수집을 건너뜁니다. (Settings→Secrets→Actions 에 추가하세요)"
+            exit 0
+          fi
+          python collect.py
