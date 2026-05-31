@@ -18,5 +18,13 @@
 """
 
 from .base import ACTIVE_COLLECTORS, backfill_translations, collect_all
+from .github_trending import (
+    backfill_translations as backfill_trends_translations,
+)
 
-__all__ = ["ACTIVE_COLLECTORS", "backfill_translations", "collect_all"]
+__all__ = [
+    "ACTIVE_COLLECTORS",
+    "backfill_translations",
+    "backfill_trends_translations",
+    "collect_all",
+]

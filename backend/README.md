@@ -107,7 +107,7 @@ UNION ALL SELECT 'github_trending', COUNT(*) FROM github_trending;  -- 0 예상(
 | `collectors/github_trending.py` | GitHub Search 로 트렌딩 레포 수집 → **독립 `github_trending` 테이블**을 period 별 멱등 교체(`GITHUB_TOKEN` 선택). `/api/trends/github` 의 소스 |
 | `app/trends_themes.py` | 깃헙 트렌드 주제(테마) 매핑 단일 정본 — `routers/trends.py` 전용 |
 | `scheduler.py` | APScheduler(BackgroundScheduler), 가드/시작/종료 |
-| `collect.py` | 스케줄러 없이 **수동 1회** 전체 수집(초기 적재·테스트·외부 cron 용) |
+| `collect.py` | 스케줄러 없이 **수동 1회** 전체 수집(초기 적재·테스트·외부 cron 용). `--backfill-translations`(뉴스), `--backfill-trends-translations`(github_trending) 백필 플래그 포함 |
 
 ### 환경변수
 
@@ -118,8 +118,9 @@ UNION ALL SELECT 'github_trending', COUNT(*) FROM github_trending;  -- 0 예상(
 | `COLLECT_INTERVAL_HOURS` | `24` | 수집 주기(시간). |
 | `GITHUB_TOKEN` | (선택) | 있으면 GitHub 인증 호출(릴리스+Search 레이트↑). 없으면 무토큰. |
 | `PRODUCT_HUNT_TOKEN` | (선택) | 있어야 Product Hunt 소스 활성. 없으면 조용히 skip. |
-| `GITHUB_TRENDING_MIN_STARS_WEEKLY` | `10` | 주간 트렌딩 별점 임계값. |
-| `GITHUB_TRENDING_MIN_STARS_MONTHLY` | `50` | 월간 트렌딩 별점 임계값. |
+| `GITHUB_TRENDING_MIN_STARS_WEEKLY` | `25` | 주간 트렌딩 별점 임계값(품질 필터 중간 강도로 상향). |
+| `GITHUB_TRENDING_MIN_STARS_MONTHLY` | `100` | 월간 트렌딩 별점 임계값(품질 필터 중간 강도로 상향). |
+| `MYMEMORY_EMAIL` | (선택) | 번역 무료 일일 단어한도 확대용 이메일(키 아님). 대량 번역/백필 시 **권장**. |
 
 > 비밀정보(토큰)는 환경변수로만 주입하며 코드/로그에 남기지 않는다(헌법 G9).
 
@@ -133,6 +134,18 @@ DATABASE_URL='postgresql://USER:PASSWORD@HOST/DB' python collect.py
 ```
 
 멱등하므로 여러 번 실행해도 중복 행이 생기지 않는다(같은 `source_url` 또는 `(tool_id, title)` skip).
+
+### 한글 번역 백필(재수집 없음, 멱등)
+
+```bash
+cd backend
+# 뉴스: title_ko 가 NULL 인 행 번역
+DATABASE_URL='...' python collect.py --backfill-translations --limit 50
+# GitHub Trending: description_ko 가 NULL 인 행 번역(과거 429 로 빈 행 채우기, 120행이면 --limit 200)
+DATABASE_URL='...' MYMEMORY_EMAIL='you@example.com' python collect.py --backfill-trends-translations --limit 200
+```
+
+번역 모듈에 요청 간 throttle(약 1.1초)·429 점증 backoff 재시도가 내장돼 무더기 429 를 예방한다. 일시 실패 행은 원문을 유지한 채 남아 다음 실행에서 재시도된다. `MYMEMORY_EMAIL` 설정 시 일일 단어한도가 완화돼 권장.
 
 ### 자동 스케줄러 켜는 법
 
