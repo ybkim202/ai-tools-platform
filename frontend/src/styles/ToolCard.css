@@ -19,6 +19,9 @@
 .tool-card-link {
   display: flex;
   flex-direction: column;
+  /* 카드(세로 flex)의 남는 높이를 링크가 채워, 뒤따르는 .card-footer 버튼이
+     설명/메타 길이와 무관하게 항상 카드 하단에 정렬되도록 한다(행 내 버튼 라인 정렬). */
+  flex: 1;
   text-decoration: none;
   color: inherit;
   cursor: pointer;
