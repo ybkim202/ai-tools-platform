@@ -28,6 +28,7 @@ DATABASE_URL='postgresql://USER:PASSWORD@HOST/DB' python bootstrap.py
 | 1 | [`init_db.py`](init_db.py) | `schema.sql` 실행 → 6개 테이블/인덱스 생성 |
 | 2 | [`load_tools_fixed.py`](load_tools_fixed.py) | `tools_data.json`(78개) → `tools` / `pricing` 적재 |
 | 3 | [`seed_tags.py`](seed_tags.py) | `tags_seed.json` → `tags` / `tool_tags` 적재(추천 활성화) |
+| 4 | [`seed_benchmarks.py`](seed_benchmarks.py) | `benchmarks_data.json` → `benchmarks` 적재(벤치마크 활성화, LLM 9개·24행) |
 
 ### 개별 실행도 가능
 
@@ -35,6 +36,7 @@ DATABASE_URL='postgresql://USER:PASSWORD@HOST/DB' python bootstrap.py
 DATABASE_URL='...' python init_db.py            # 스키마만
 DATABASE_URL='...' python load_tools_fixed.py   # 도구/가격만
 DATABASE_URL='...' python seed_tags.py          # 태그만
+DATABASE_URL='...' python seed_benchmarks.py    # 벤치마크만(도구 적재 후)
 ```
 
 > **알려진 한계**: `load_tools_fixed.py` 는 도구가 이미 존재하면 UPDATE 만 하고
@@ -56,10 +58,10 @@ SELECT 'tools' AS t, COUNT(*) FROM tools
 UNION ALL SELECT 'pricing',    COUNT(*) FROM pricing
 UNION ALL SELECT 'tags',       COUNT(*) FROM tags
 UNION ALL SELECT 'tool_tags',  COUNT(*) FROM tool_tags
-UNION ALL SELECT 'benchmarks', COUNT(*) FROM benchmarks   -- 0 예상(시드 없음)
+UNION ALL SELECT 'benchmarks', COUNT(*) FROM benchmarks   -- 24 예상(LLM 9개)
 UNION ALL SELECT 'news',       COUNT(*) FROM news;        -- 0 예상
 ```
-기대: `tools=78`, `pricing>0`, `tags=19`, `tool_tags=312`, `benchmarks=news=0`.
+기대: `tools=78`, `pricing>0`, `tags=19`, `tool_tags=312`, `benchmarks=24`, `news=0`.
 
 ### 추천 활성화
 `GET /api/recommendations?task=<시드에 존재하는 task명>` →

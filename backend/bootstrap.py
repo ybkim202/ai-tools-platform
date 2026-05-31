@@ -54,22 +54,25 @@ def _run_step(label: str, func) -> None:
 
 
 def main() -> None:
-    """스키마 → 도구/가격 → 태그를 순서대로 적재한다."""
+    """스키마 → 도구/가격 → 태그 → 벤치마크를 순서대로 적재한다."""
     # cwd 고정 후 import(모듈 로드 시 DATABASE_URL 검사가 통과하도록 위 선검사 선행).
     import init_db
     import load_tools_fixed
     import seed_tags
+    import seed_benchmarks
 
     print("=" * 60)
     print("🚀 AITools DB 부트스트랩 시작")
     print("=" * 60)
 
-    _run_step("1/3 스키마 초기화 (init_db)", init_db.main)
-    _run_step("2/3 도구 · 가격 적재 (load_tools_fixed)", load_tools_fixed.main)
-    _run_step("3/3 추천 태그 적재 (seed_tags)", seed_tags.main)
+    _run_step("1/4 스키마 초기화 (init_db)", init_db.main)
+    _run_step("2/4 도구 · 가격 적재 (load_tools_fixed)", load_tools_fixed.main)
+    _run_step("3/4 추천 태그 적재 (seed_tags)", seed_tags.main)
+    # 벤치마크는 tools 적재 이후여야 FK 매칭 성공.
+    _run_step("4/4 벤치마크 적재 (seed_benchmarks)", seed_benchmarks.main)
 
     print("\n" + "=" * 60)
-    print("✅ 부트스트랩 완료! 탐색 · 비교 · 추천이 동작할 준비가 됐습니다.")
+    print("✅ 부트스트랩 완료! 탐색 · 비교 · 추천 · 벤치마크가 동작할 준비가 됐습니다.")
     print("   검증: backend/README.md 의 '검증' 절을 참고하세요.")
     print("=" * 60)
 
