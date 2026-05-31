@@ -10,15 +10,16 @@
 기존 뉴스 한글 번역 백필
 ------------------------
     cd backend
-    ANTHROPIC_API_KEY='sk-ant-...' DATABASE_URL='...' \
-        python collect.py --backfill-translations [--limit N]
-  title_ko 가 NULL 인 기존 뉴스를 Claude 로 번역해 채운다(멱등, 기본 limit=50).
-  ANTHROPIC_API_KEY 미설정이면 0 건으로 조용히 종료한다(에러 아님).
+    DATABASE_URL='...' python collect.py --backfill-translations [--limit N]
+  title_ko 가 NULL 인 기존 뉴스를 무료 MyMemory 번역 API 로 번역해 채운다
+  (멱등, 기본 limit=50, 키 불필요). 네트워크/쿼터 실패 행은 원문을 유지한 채
+  남아 다음 실행에서 재시도된다. requests 미설치 시 0 건으로 조용히 종료(에러 아님).
 
 선택 환경변수(없으면 해당 소스만 비활성, 잡은 정상)
   - GITHUB_TOKEN        : GitHub 인증 호출(없으면 무토큰 공개 호출)
   - PRODUCT_HUNT_TOKEN  : Product Hunt 활성(없으면 조용히 skip)
-  - ANTHROPIC_API_KEY   : 뉴스 한글 번역 활성(없으면 원문만 저장)
+  - MYMEMORY_EMAIL      : (선택) 번역 무료 일일 한도 확대용 이메일(키 아님,
+                          미설정이면 익명 호출. 네트워크 실패 시 원문 유지)
 
 이 스크립트는 ENABLE_SCHEDULER/SCHEDULER_WORKER 와 무관하게 항상 1회 실행한다
 (스케줄러 가드는 자동 주기 실행에만 적용된다).
