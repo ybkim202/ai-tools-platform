@@ -15,12 +15,13 @@ export const useToolStore = create((set, get) => ({
     offset: 0,
     pages: 0,
   },
+  // 정렬은 Home의 로컬 state(클라이언트 파생)로 처리하므로 store에 두지 않는다.
+  // (과거 sort_by 필드는 아무도 읽지 않는 잔재라 제거 — G8 잔재 정리.)
   filters: {
     search: '',
     category: null,
     country: null,
     difficulty: null,
-    sort_by: 'popularity',
   },
 
   // 액션

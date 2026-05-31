@@ -366,7 +366,70 @@ body {
 }
 
 .tools-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
   margin-bottom: var(--spacing-2xl);
+}
+
+/* 정렬 셀렉터 (단일 선택 — 필터칩 그룹과 위계 분리) */
+.tools-sort {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.tools-sort-label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.tools-sort-control {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tools-sort-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: var(--spacing-sm) var(--spacing-2xl) var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  line-height: 1.2;
+  min-height: 36px;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.tools-sort-select:hover {
+  border-color: var(--color-primary);
+}
+
+.tools-sort-select:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+/* chevron: 토큰 색 유지 위해 SVG 오버레이(배경 data-uri hex 회피) */
+.tools-sort-chevron {
+  position: absolute;
+  right: var(--spacing-md);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-tertiary);
+  pointer-events: none;
 }
 
 .tools-title {
@@ -800,6 +863,22 @@ body {
 
   .search-input {
     font-size: 16px;
+  }
+
+  /* 좁은 폭에서 정렬 컨트롤이 줄바꿈되면 폭 전체를 차지하도록 정렬 */
+  .tools-sort {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .tools-sort-control {
+    flex: 1;
+  }
+
+  /* iOS 자동 줌 방지(검색 입력과 동일 규칙) + 줄바꿈 시 폭 채움 */
+  .tools-sort-select {
+    width: 100%;
+    font-size: var(--font-size-lg);
   }
 
   .filters-section {
