@@ -30,3 +30,28 @@ export function difficultyDot(difficulty) {
   if (!difficulty) return FALLBACK_DOT;
   return DIFFICULTY_DOTS[difficulty] ?? FALLBACK_DOT;
 }
+
+// 정렬용 난이도 rank 매핑(한/영 enum 양쪽 지원).
+// difficultyDot과 동일 단일 출처 원칙: 인라인 매핑 금지.
+//   쉬움/easy = 0, 보통/medium = 1, 어려움/hard = 2
+// 미매핑 값은 맨 뒤로 보내기 위해 큰 값을 반환한다.
+const DIFFICULTY_RANKS = {
+  쉬움: 0,
+  easy: 0,
+  보통: 1,
+  medium: 1,
+  어려움: 2,
+  hard: 2,
+};
+
+const FALLBACK_RANK = 99;
+
+/**
+ * 난이도 값에 대응하는 정렬 rank를 반환한다(쉬움→어려움 오름차순).
+ * @param {string} difficulty - 난이도 enum(한글 또는 영문)
+ * @returns {number} 정렬 rank(미매핑은 맨 뒤)
+ */
+export function difficultyRank(difficulty) {
+  if (!difficulty) return FALLBACK_RANK;
+  return DIFFICULTY_RANKS[difficulty] ?? FALLBACK_RANK;
+}

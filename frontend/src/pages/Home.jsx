@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { toolsAPI, handleApiError } from '../services/api';
+import { difficultyRank } from '../utils/difficulty';
 import { useUIStore } from '../stores/toolStore';
 import ToolCard from '../components/ToolCard';
 import { LoadingState, EmptyFilteredState, ErrorState } from '../components/states/StateViews';
@@ -13,6 +14,10 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [selectedDifficulty, setSelectedDifficulty] = useState('전체');
+  // 정렬은 클라이언트 파생값(렌더 시점). 필터/검색과 독립 state로 보존.
+  const [sortBy, setSortBy] = useState('popularity');
+  // 정렬 옵션 라벨(단일 출처). aria-live 카운트 텍스트와 select 옵션이 공유.
+  const SORT_LABELS = { popularity: '인기순', name: '이름순', difficulty: '난이도순' };
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -112,6 +117,24 @@ const Home = () => {
     fetchTools();
   }, [fetchTools]);
 
+  // 정렬은 원본 tools 불변 유지하며 렌더 시점 파생값으로 처리(fetch 재호출 없음).
+  const sortedTools = useMemo(() => {
+    const byName = (a, b) => (a.name || '').localeCompare(b.name || '', 'ko');
+    return [...tools].sort((a, b) => {
+      if (sortBy === 'name') {
+        return byName(a, b);
+      }
+      if (sortBy === 'difficulty') {
+        const diff = difficultyRank(a.difficulty) - difficultyRank(b.difficulty);
+        return diff !== 0 ? diff : byName(a, b);
+      }
+      // popularity(기본): user_count 내림차순, null은 맨 뒤.
+      const ac = typeof a.user_count === 'number' ? a.user_count : -Infinity;
+      const bc = typeof b.user_count === 'number' ? b.user_count : -Infinity;
+      return bc - ac || byName(a, b);
+    });
+  }, [tools, sortBy]);
+
   return (
     <div className="home">
       {/* Hero Section */}
@@ -161,6 +184,7 @@ const Home = () => {
                   <button
                     key={cat}
                     className={`filter-btn ${selectedCategory === cat ? 'active' : ''}`}
+                    aria-pressed={selectedCategory === cat}
                     onClick={() => setSelectedCategory(cat)}
                   >
                     {cat}
@@ -177,6 +201,7 @@ const Home = () => {
                   <button
                     key={diff}
                     className={`filter-btn ${selectedDifficulty === diff ? 'active' : ''}`}
+                    aria-pressed={selectedDifficulty === diff}
                     onClick={() => setSelectedDifficulty(diff)}
                   >
                     {diff}
@@ -252,11 +277,40 @@ const Home = () => {
           {!loading && !error && tools.length > 0 && (
             <>
               <div className="tools-header">
-                <h2 className="tools-title">발견한 도구</h2>
-                <p className="tools-count" aria-live="polite">{tools.length}개의 AI 도구</p>
+                <div className="tools-header-text">
+                  <h2 className="tools-title">발견한 도구</h2>
+                  <p className="tools-count" aria-live="polite">
+                    {sortedTools.length}개의 AI 도구 · {SORT_LABELS[sortBy]}
+                  </p>
+                </div>
+                <div className="tools-sort">
+                  <label htmlFor="tools-sort-select" className="tools-sort-label">정렬</label>
+                  <div className="tools-sort-control">
+                    <select
+                      id="tools-sort-select"
+                      className="tools-sort-select"
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                    >
+                      <option value="popularity">{SORT_LABELS.popularity}</option>
+                      <option value="name">{SORT_LABELS.name}</option>
+                      <option value="difficulty">{SORT_LABELS.difficulty}</option>
+                    </select>
+                    <svg
+                      className="tools-sort-chevron"
+                      aria-hidden="true"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                    >
+                      <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                </div>
               </div>
               <div className="tools-grid">
-                {tools.map((tool) => (
+                {sortedTools.map((tool) => (
                   <ToolCard key={tool.id} tool={tool} />
                 ))}
               </div>
@@ -281,8 +335,8 @@ const Home = () => {
             <h2>더 많은 기능을 원하신가요?</h2>
             <p>도구 비교, 맞춤 추천 등 더 많은 기능을 지금 바로 사용해보세요</p>
             <div className="cta-buttons">
-              <a href="/compare" className="btn btn-primary">도구 비교</a>
-              <a href="/recommendations" className="btn btn-secondary">맞춤 추천</a>
+              <Link to="/compare" className="btn btn-primary">도구 비교</Link>
+              <Link to="/recommendations" className="btn btn-secondary">맞춤 추천</Link>
             </div>
           </div>
         </section>
