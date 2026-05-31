@@ -24,7 +24,7 @@ def get_news(
     try:
         # 쿼리 빌드 (INTERVAL 은 :days 정수 바인딩으로 계산)
         query = """
-        SELECT n.id, n.tool_id, t.name, n.title, n.content, n.news_date, n.source_url
+        SELECT n.id, n.tool_id, t.name, n.title, n.content, n.news_date, n.source_url, n.collected_date
         FROM news n
         INNER JOIN tools t ON n.tool_id = t.id
         WHERE n.collected_date >= NOW() - (:days * INTERVAL '1 day')
@@ -68,7 +68,8 @@ def get_news(
                 "title": row[3],
                 "content": row[4],
                 "news_date": str(row[5]) if row[5] else None,
-                "source_url": row[6]
+                "source_url": row[6],
+                "collected_date": str(row[7]) if row[7] else None
             }
             for row in result.fetchall()
         ]
@@ -105,26 +106,26 @@ def get_trending_news(
     최근 가장 업데이트가 많은 도구들의 뉴스 조회 (트렌딩)
     """
     try:
+        # 도구 단위 집계: 최근 N일간 업데이트(뉴스)가 많은 도구 순.
+        # GROUP BY 는 도구 식별자(n.tool_id, t.name)로만 묶어 도구당 1행이 되도록 한다.
+        # 대표 뉴스의 최신 일자는 MAX(n.news_date) 로 가져온다(집계 외 컬럼은 SELECT 하지 않음).
         query = """
-        SELECT n.id, n.tool_id, t.name, n.title, n.content, n.news_date, COUNT(*) as update_count
+        SELECT n.tool_id, t.name, COUNT(*) as update_count, MAX(n.news_date) as latest_news_date
         FROM news n
         INNER JOIN tools t ON n.tool_id = t.id
         WHERE n.collected_date >= NOW() - (:days * INTERVAL '1 day')
-        GROUP BY n.tool_id, t.name, n.id
-        ORDER BY update_count DESC, n.news_date DESC
+        GROUP BY n.tool_id, t.name
+        ORDER BY update_count DESC, latest_news_date DESC
         LIMIT :limit
         """
 
         result = db.execute(text(query), {"days": days, "limit": limit})
         news = [
             {
-                "id": row[0],
-                "tool_id": row[1],
-                "tool_name": row[2],
-                "title": row[3],
-                "content": row[4],
-                "news_date": str(row[5]) if row[5] else None,
-                "update_count": row[6]
+                "tool_id": row[0],
+                "tool_name": row[1],
+                "update_count": row[2],
+                "latest_news_date": str(row[3]) if row[3] else None
             }
             for row in result.fetchall()
         ]

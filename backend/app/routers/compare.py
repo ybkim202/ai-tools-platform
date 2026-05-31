@@ -4,7 +4,7 @@ from fastapi import APIRouter, Query, Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from ..database import get_db
-from ..exceptions import ToolNotFound
+from ..exceptions import AIToolsException, ToolNotFound, InvalidParameters
 
 logger = logging.getLogger(__name__)
 
@@ -20,29 +20,15 @@ def compare_tools(
     여러 도구를 비교합니다
     """
     try:
-        # ID 파싱
+        # ID 파싱 (잘못된 파라미터는 HTTP 400 으로 통일)
         try:
             tool_ids = [int(id.strip()) for id in ids.split(',')]
         except ValueError:
-            return {
-                "success": False,
-                "data": None,
-                "error": {
-                    "code": "INVALID_IDS",
-                    "message": "ID는 숫자여야 하며 쉼표로 구분해야 합니다."
-                }
-            }
-        
+            raise InvalidParameters("ID는 숫자여야 하며 쉼표로 구분해야 합니다.")
+
         # 비교는 의미상 최소 2개 이상이어야 한다(문서 계약: 2~5개).
         if len(tool_ids) < 2 or len(tool_ids) > 5:
-            return {
-                "success": False,
-                "data": None,
-                "error": {
-                    "code": "INVALID_PARAMETERS",
-                    "message": "비교는 2~5개의 도구를 지정해야 합니다."
-                }
-            }
+            raise InvalidParameters("비교는 2~5개의 도구를 지정해야 합니다.")
         
         # 각 ID별로 도구 조회
         comparison = []
@@ -100,8 +86,9 @@ def compare_tools(
             "error": None,
         }
 
-    except ToolNotFound:
-        # 커스텀 예외는 핸들러(HTTP 404)로 전달되도록 재발생
+    except AIToolsException:
+        # 커스텀 예외(ToolNotFound→404, InvalidParameters→400)는
+        # 표준 예외 핸들러로 전달되도록 그대로 재발생한다.
         raise
     except Exception:
         logger.exception("도구 비교 중 오류 발생")
