@@ -73,11 +73,27 @@ def get_tools(
             params["max_users"] = max_users
         
         # 정렬
+        #
+        # 불변식(MUST 준수): sort_by 는 사용자 자유 입력이므로 ORDER BY 절에 절대
+        # 직접 보간하지 않는다. 아래 if/elif 분기는 화이트리스트로 동작하며 각
+        # 분기에서 고정된 정적 문자열만 query 에 누적한다. 정의되지 않은 값은
+        # 기본값(popularity)으로 폴백한다. (CASE 문도 고정 리터럴만 사용)
         if sort_by == "price":
             query += " ORDER BY (SELECT AVG(price) FROM pricing WHERE tool_id = tools.id)"
         elif sort_by == "recent":
             query += " ORDER BY updated_at DESC"
+        elif sort_by == "name":
+            query += " ORDER BY tools.name ASC"
+        elif sort_by == "difficulty":
+            query += (
+                " ORDER BY CASE difficulty"
+                " WHEN '쉬움' THEN 1"
+                " WHEN '보통' THEN 2"
+                " WHEN '어려움' THEN 3"
+                " ELSE 4 END, user_count DESC"
+            )
         else:
+            # popularity(기본) 및 정의되지 않은 모든 값
             query += " ORDER BY user_count DESC"
         
         # 전체 개수 조회

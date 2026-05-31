@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { toolsAPI, handleApiError } from '../services/api';
-import { difficultyRank } from '../utils/difficulty';
 import { useUIStore } from '../stores/toolStore';
 import ToolCard from '../components/ToolCard';
 import { LoadingState, EmptyFilteredState, ErrorState } from '../components/states/StateViews';
@@ -14,10 +13,19 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [selectedDifficulty, setSelectedDifficulty] = useState('전체');
-  // 정렬은 클라이언트 파생값(렌더 시점). 필터/검색과 독립 state로 보존.
-  const [sortBy, setSortBy] = useState('popularity');
-  // 정렬 옵션 라벨(단일 출처). aria-live 카운트 텍스트와 select 옵션이 공유.
+  // 정렬은 서버 ORDER BY로 위임(sort_by 파라미터). sessionStorage로 영속화.
+  // 초기값: 저장값 → 없으면 'popularity'. (theme/compare의 try/catch 가드 패턴 재사용)
+  const [sortBy, setSortBy] = useState(() => {
+    try {
+      return sessionStorage.getItem('home-sort-by') || 'popularity';
+    } catch {
+      return 'popularity';
+    }
+  });
+  // 정렬 옵션 라벨(단일 출처). aria-live 카운트 텍스트와 정렬 칩이 공유.
   const SORT_LABELS = { popularity: '인기순', name: '이름순', difficulty: '난이도순' };
+  // 칩 렌더 순서 보존용 키 목록.
+  const SORT_OPTIONS = ['popularity', 'name', 'difficulty'];
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -28,6 +36,25 @@ const Home = () => {
 
   const isFiltered =
     searchQuery !== '' || selectedCategory !== '전체' || selectedDifficulty !== '전체';
+
+  // 난이도 필터가 활성이면 "난이도순" 정렬은 의미 없음 → 비활성 대상.
+  const difficultySortDisabled = selectedDifficulty !== '전체';
+
+  // 정렬값 영속화(저장). 복원은 초기 state에서 처리.
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('home-sort-by', sortBy);
+    } catch {
+      // 저장 불가(프라이빗 모드 등): 영속화만 생략, 동작은 유지.
+    }
+  }, [sortBy]);
+
+  // 난이도순이던 중 난이도 필터가 켜지면 인기순으로 폴백(중복 의미 제거).
+  useEffect(() => {
+    if (difficultySortDisabled && sortBy === 'difficulty') {
+      setSortBy('popularity');
+    }
+  }, [difficultySortDisabled, sortBy]);
 
   useEffect(() => {
     let active = true;
@@ -92,7 +119,8 @@ const Home = () => {
         search: searchQuery || undefined,
         category: selectedCategory !== '전체' ? selectedCategory : undefined,
         difficulty: selectedDifficulty !== '전체' ? selectedDifficulty : undefined,
-        limit: 100,
+        // 정렬은 서버 ORDER BY로 위임 — 클라 슬라이스/재정렬 없이 응답 순서를 그대로 렌더.
+        sort_by: sortBy,
       };
 
       const response = await toolsAPI.getTools(params);
@@ -111,29 +139,11 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, selectedCategory, selectedDifficulty]);
+  }, [searchQuery, selectedCategory, selectedDifficulty, sortBy]);
 
   useEffect(() => {
     fetchTools();
   }, [fetchTools]);
-
-  // 정렬은 원본 tools 불변 유지하며 렌더 시점 파생값으로 처리(fetch 재호출 없음).
-  const sortedTools = useMemo(() => {
-    const byName = (a, b) => (a.name || '').localeCompare(b.name || '', 'ko');
-    return [...tools].sort((a, b) => {
-      if (sortBy === 'name') {
-        return byName(a, b);
-      }
-      if (sortBy === 'difficulty') {
-        const diff = difficultyRank(a.difficulty) - difficultyRank(b.difficulty);
-        return diff !== 0 ? diff : byName(a, b);
-      }
-      // popularity(기본): user_count 내림차순, null은 맨 뒤.
-      const ac = typeof a.user_count === 'number' ? a.user_count : -Infinity;
-      const bc = typeof b.user_count === 'number' ? b.user_count : -Infinity;
-      return bc - ac || byName(a, b);
-    });
-  }, [tools, sortBy]);
 
   return (
     <div className="home">
@@ -280,37 +290,41 @@ const Home = () => {
                 <div className="tools-header-text">
                   <h2 className="tools-title">발견한 도구</h2>
                   <p className="tools-count" aria-live="polite">
-                    {sortedTools.length}개의 AI 도구 · {SORT_LABELS[sortBy]}
+                    {tools.length}개의 AI 도구 · {SORT_LABELS[sortBy]}
                   </p>
                 </div>
                 <div className="tools-sort">
-                  <label htmlFor="tools-sort-select" className="tools-sort-label">정렬</label>
-                  <div className="tools-sort-control">
-                    <select
-                      id="tools-sort-select"
-                      className="tools-sort-select"
-                      value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
-                    >
-                      <option value="popularity">{SORT_LABELS.popularity}</option>
-                      <option value="name">{SORT_LABELS.name}</option>
-                      <option value="difficulty">{SORT_LABELS.difficulty}</option>
-                    </select>
-                    <svg
-                      className="tools-sort-chevron"
-                      aria-hidden="true"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                    >
-                      <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                  <span className="filter-label" id="tools-sort-label">정렬</span>
+                  <div
+                    className="filter-buttons tools-sort-chips"
+                    role="group"
+                    aria-labelledby="tools-sort-label"
+                  >
+                    {SORT_OPTIONS.map((key) => {
+                      const disabled = key === 'difficulty' && difficultySortDisabled;
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          className={`filter-btn ${sortBy === key ? 'active' : ''}`}
+                          aria-pressed={sortBy === key}
+                          disabled={disabled}
+                          title={
+                            disabled
+                              ? '난이도로 필터 중에는 난이도순 정렬이 의미 없습니다'
+                              : undefined
+                          }
+                          onClick={() => setSortBy(key)}
+                        >
+                          {SORT_LABELS[key]}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
               <div className="tools-grid">
-                {sortedTools.map((tool) => (
+                {tools.map((tool) => (
                   <ToolCard key={tool.id} tool={tool} />
                 ))}
               </div>
