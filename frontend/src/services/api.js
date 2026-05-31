@@ -12,6 +12,26 @@ const apiClient = axios.create({
   },
 });
 
+// 응답 인터셉터
+// 백엔드는 DB 에러 등을 HTTP 200 + { success:false, error } 로 반환할 수 있다.
+// axios는 이를 성공으로 처리하므로 catch가 트리거되지 않아 호출부가 빈 상태로 위장된다.
+// 여기서 success:false 를 reject로 승격해 각 페이지의 ErrorState 경로로 흐르게 한다.
+apiClient.interceptors.response.use(
+  (response) => {
+    const body = response.data;
+    if (body && typeof body === 'object' && body.success === false) {
+      const apiError = new Error(
+        body.error?.message || '요청 처리 중 오류가 발생했습니다.'
+      );
+      apiError.response = response;
+      apiError.code = body.error?.code || 'API_ERROR';
+      return Promise.reject(apiError);
+    }
+    return response;
+  },
+  (error) => Promise.reject(error)
+);
+
 // ==================== Tools API ====================
 export const toolsAPI = {
   // 도구 목록 조회

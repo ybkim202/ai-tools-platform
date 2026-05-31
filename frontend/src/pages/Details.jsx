@@ -149,7 +149,7 @@ const Details = () => {
           message="요청하신 도구가 없거나 삭제되었어요."
           badge={null}
           ctaLabel="전체 도구 보기"
-          ctaHref="/"
+          ctaTo="/"
         />
       </div>
     );

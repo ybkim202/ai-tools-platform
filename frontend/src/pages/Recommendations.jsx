@@ -210,7 +210,7 @@ const Recommendations = () => {
           <EmptyNoDataState
             message="추천에 필요한 도구 분류 데이터를 준비하고 있어요."
             ctaLabel="도구 탐색하기"
-            ctaHref="/"
+            ctaTo="/"
           />
         ) : (
           <EmptyFilteredState

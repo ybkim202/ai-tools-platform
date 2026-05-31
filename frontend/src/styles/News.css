@@ -1,0 +1,203 @@
+/* ========================================
+   NEWS / TRENDS PAGE (/news)
+   토큰만 사용(인라인 hex 금지). 페이지 헤더는 App.css 전역 재사용.
+   ======================================== */
+
+.news-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xl);
+}
+
+.news-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* ---- 섹션1: 트렌딩 ---- */
+.trending-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.trending-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  text-decoration: none;
+  transition: box-shadow var(--transition-fast),
+    transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.trending-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.trending-card:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.trending-card-name {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.trending-card:hover .trending-card-name {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.trending-card-meta {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* ---- 섹션2: 최근 뉴스 ---- */
+.news-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.news-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg) var(--spacing-xl);
+}
+
+.news-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.news-card-tool {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.news-card-tool:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.news-card-tool:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+.news-card-title {
+  margin: var(--spacing-xs) 0 0;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.news-card-content {
+  margin: var(--spacing-sm) 0 0;
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.news-source-link {
+  align-self: flex-start;
+  margin-top: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.news-source-link:hover {
+  text-decoration: underline;
+}
+
+.news-source-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+/* ---- 더보기 ---- */
+.news-more-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--spacing-xl);
+}
+
+.news-more {
+  padding: var(--spacing-md) var(--spacing-xl);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.news-more:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: var(--color-primary-surface);
+}
+
+.news-more:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.news-more:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+/* ---- 반응형 ---- */
+@media (max-width: 768px) {
+  .news-container {
+    gap: var(--spacing-2xl);
+  }
+
+  .news-card {
+    padding: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 640px) {
+  .news-more {
+    width: 100%;
+  }
+}
