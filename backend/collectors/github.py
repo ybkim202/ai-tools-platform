@@ -37,7 +37,7 @@ REPOS = [
     ("Hugging Face", "huggingface/transformers"),
     ("LangChain", "langchain-ai/langchain"),
     ("Ollama", "ollama/ollama"),
-    ("Stable Diffusion", "Stability-AI/stablediffusion"),
+    ("Stable Diffusion", "Stability-AI/generative-models"),
     ("AutoGPT", "Significant-Gravitas/AutoGPT"),
 ]
 
