@@ -125,10 +125,23 @@ def upsert_news_item(cursor, item: NewsItem, tool_index: dict) -> bool:
     if cursor.fetchone() is not None:
         return False
 
+    # 한글 번역(ANTHROPIC_API_KEY 가 있을 때만). 키 없거나 실패 시 (None, None)
+    # 이므로 원문만 NULL 한글로 저장된다. 번역 자체가 예외를 던지지 않게 모듈이
+    # 흡수하지만, 방어적으로 한 번 더 격리해 번역 실패가 삽입을 막지 않게 한다.
+    title_ko = None
+    summary_ko = None
+    try:
+        from .translate import translate_to_korean
+
+        title_ko, summary_ko = translate_to_korean(title, item.content)
+    except Exception as e:
+        logger.warning("번역 단계 예외(원문만 저장): %s", e)
+
     cursor.execute(
-        "INSERT INTO news (tool_id, title, content, news_date, source_url) "
-        "VALUES (%s, %s, %s, %s, %s)",
-        (tool_id, title, item.content, item.news_date, source_url),
+        "INSERT INTO news (tool_id, title, content, news_date, source_url, "
+        "title_ko, summary_ko) "
+        "VALUES (%s, %s, %s, %s, %s, %s, %s)",
+        (tool_id, title, item.content, item.news_date, source_url, title_ko, summary_ko),
     )
     return True
 
@@ -291,3 +304,70 @@ def collect_all(conn=None) -> int:
 
     logger.info("전체 수집 종료: 총 신규 %d 건", total)
     return total
+
+
+# ==================== 번역 백필 ====================
+def backfill_translations(conn=None, limit: int = 50) -> int:
+    """title_ko 가 NULL 인 기존 뉴스를 번역해 UPDATE 한다. 번역한 행수 반환.
+
+    멱등: title_ko IS NULL 행만 대상으로 하므로 이미 번역된 건은 skip.
+    재실행하면 아직 미번역인 다음 limit 건을 이어서 처리한다.
+
+    ANTHROPIC_API_KEY 미설정이면 0 을 반환하고 조용히 종료(에러 아님).
+    항목별 try/except 로 격리 — 한 건 실패가 전체 백필을 막지 않는다.
+
+    Args:
+        conn: 재사용할 psycopg2 연결. None 이면 내부에서 열고 닫는다.
+        limit: 한 번에 처리할 최대 행수(API 호출 폭주 방지).
+    """
+    from .translate import is_enabled, translate_to_korean
+
+    if not is_enabled():
+        logger.info("ANTHROPIC_API_KEY 미설정 — 번역 백필 건너뜀(원문 유지).")
+        return 0
+
+    own_conn = conn is None
+    if own_conn:
+        conn = get_connection()
+
+    updated = 0
+    try:
+        cursor = conn.cursor()
+        try:
+            cursor.execute(
+                "SELECT id, title, content FROM news "
+                "WHERE title_ko IS NULL "
+                "ORDER BY collected_date DESC LIMIT %s",
+                (limit,),
+            )
+            rows = cursor.fetchall()
+        finally:
+            cursor.close()
+
+        logger.info("번역 백필 대상: %d 건(limit=%d)", len(rows), limit)
+
+        for news_id, title, content in rows:
+            cursor = conn.cursor()
+            try:
+                title_ko, summary_ko = translate_to_korean(title, content)
+                if title_ko is None and summary_ko is None:
+                    # 번역 실패(키 일시오류 등) — 이 행은 다음 실행에서 재시도.
+                    conn.rollback()
+                    continue
+                cursor.execute(
+                    "UPDATE news SET title_ko = %s, summary_ko = %s WHERE id = %s",
+                    (title_ko, summary_ko, news_id),
+                )
+                conn.commit()
+                updated += 1
+            except Exception as e:
+                conn.rollback()
+                logger.warning("번역 백필 항목 실패(skip) id=%s: %s", news_id, e)
+            finally:
+                cursor.close()
+    finally:
+        if own_conn:
+            conn.close()
+
+    logger.info("번역 백필 완료: %d 건 업데이트", updated)
+    return updated

@@ -8,6 +8,20 @@ import {
 } from '../components/states/StateViews';
 import '../styles/Benchmarks.css';
 
+// 벤치마크 종류별 한국어 1줄 설명(모듈 상수, 백엔드 호출 없음).
+// 키는 benchmark_type 표기. 케이스 변형에 안전하도록 소문자 정규화 조회를 쓴다.
+const BENCHMARK_DESCRIPTIONS = {
+  mmlu: '57개 분야 객관식으로 지식과 추론의 폭을 측정',
+  humaneval: '파이썬 함수 코드 생성의 기능 정확도를 측정',
+  gsm8k: '초등 수준 수학 문장제의 다단계 추론을 평가',
+  gpqa: '전문가도 어려운 대학원 수준 과학 난문을 평가',
+  math: '경시대회 수준의 수학 문제 해결 능력을 측정',
+  mmmu: '이미지와 텍스트를 결합한 대학 수준 멀티모달 추론을 평가',
+};
+
+const getBenchmarkDescription = (type) =>
+  type ? BENCHMARK_DESCRIPTIONS[type.toLowerCase()] : undefined;
+
 const Benchmarks = () => {
   // 종류 칩
   const [types, setTypes] = useState([]);
@@ -83,6 +97,9 @@ const Benchmarks = () => {
       ? Math.max(0, (score / maxScore) * 100)
       : 0;
 
+  // 선택된 벤치마크의 1줄 설명(파생값). 없으면 미렌더(시프트 0).
+  const selectedDesc = getBenchmarkDescription(selectedType);
+
   return (
     <div className="benchmarks-page">
       <div className="page-header">
@@ -136,6 +153,16 @@ const Benchmarks = () => {
                 })}
               </div>
             </div>
+
+            {/* 라이브 리전은 항상 DOM에 상주시켜 칩 전환 시 SR이 안정적으로
+                announce하도록 한다. 설명이 없으면 빈 채로 두어 레이아웃 시프트
+                없이(텍스트 미점유) 유지한다. */}
+            <p
+              className={`benchmark-desc${selectedDesc ? '' : ' is-empty'}`}
+              aria-live="polite"
+            >
+              {selectedDesc || ''}
+            </p>
 
             <p className="leaderboard-caption">
               막대 길이는 현재 목록 내 상대값입니다. 비교 기준은 점수 숫자입니다.

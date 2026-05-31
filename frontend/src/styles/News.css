@@ -118,6 +118,19 @@
   overflow: hidden;
 }
 
+/* 한글 제목 아래 원문(영어) 제목 — 작고 보조 톤 */
+.news-card-original {
+  margin: var(--spacing-xs) 0 0;
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--color-text-tertiary);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .news-card-content {
   margin: var(--spacing-sm) 0 0;
   font-size: var(--font-size-base);

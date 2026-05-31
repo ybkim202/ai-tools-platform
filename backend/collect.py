@@ -7,9 +7,18 @@
     cd backend
     DATABASE_URL='postgresql://USER:PASSWORD@HOST/DB' python collect.py
 
+기존 뉴스 한글 번역 백필
+------------------------
+    cd backend
+    ANTHROPIC_API_KEY='sk-ant-...' DATABASE_URL='...' \
+        python collect.py --backfill-translations [--limit N]
+  title_ko 가 NULL 인 기존 뉴스를 Claude 로 번역해 채운다(멱등, 기본 limit=50).
+  ANTHROPIC_API_KEY 미설정이면 0 건으로 조용히 종료한다(에러 아님).
+
 선택 환경변수(없으면 해당 소스만 비활성, 잡은 정상)
   - GITHUB_TOKEN        : GitHub 인증 호출(없으면 무토큰 공개 호출)
   - PRODUCT_HUNT_TOKEN  : Product Hunt 활성(없으면 조용히 skip)
+  - ANTHROPIC_API_KEY   : 뉴스 한글 번역 활성(없으면 원문만 저장)
 
 이 스크립트는 ENABLE_SCHEDULER/SCHEDULER_WORKER 와 무관하게 항상 1회 실행한다
 (스케줄러 가드는 자동 주기 실행에만 적용된다).
@@ -22,6 +31,7 @@
 
 from __future__ import annotations
 
+import argparse
 import logging
 import os
 import sys
@@ -38,13 +48,38 @@ logging.basicConfig(
 logger = logging.getLogger("collect")
 
 
-def main() -> int:
-    """전체 소스를 1회 수집한다. 반환값은 프로세스 종료코드(0=성공)."""
+def main(argv=None) -> int:
+    """전체 소스를 1회 수집한다. 반환값은 프로세스 종료코드(0=성공).
+
+    --backfill-translations 가 주어지면 수집 대신 기존 뉴스의 한글 번역만 백필한다.
+    """
+    parser = argparse.ArgumentParser(description="AITools 수동 수집/번역 백필")
+    parser.add_argument(
+        "--backfill-translations",
+        action="store_true",
+        help="title_ko 가 NULL 인 기존 뉴스를 한글 번역해 채운다(수집은 하지 않음).",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=50,
+        help="번역 백필 1회 처리 최대 행수(기본 50).",
+    )
+    args = parser.parse_args(argv)
+
     if not os.getenv("DATABASE_URL", "").strip():
         raise SystemExit(
             "환경변수 DATABASE_URL 이 설정되지 않았습니다. "
             "예) DATABASE_URL=postgresql://USER:PASSWORD@HOST/DB python collect.py"
         )
+
+    if args.backfill_translations:
+        from collectors import backfill_translations
+
+        logger.info("=== 번역 백필 시작 (limit=%d) ===", args.limit)
+        n = backfill_translations(limit=args.limit)
+        logger.info("=== 번역 백필 완료: %d 건 ===", n)
+        return 0
 
     from collectors import collect_all
 

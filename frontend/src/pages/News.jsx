@@ -190,9 +190,18 @@ const News = () => {
                           </>
                         )}
                       </div>
-                      <h3 className="news-card-title">{item.title}</h3>
-                      {item.content && (
-                        <p className="news-card-content">{item.content}</p>
+                      <h3 className="news-card-title">
+                        {item.title_ko || item.title}
+                      </h3>
+                      {item.title_ko && item.title_ko !== item.title && (
+                        <p className="news-card-original" lang="en">
+                          {item.title}
+                        </p>
+                      )}
+                      {(item.summary_ko || item.content) && (
+                        <p className="news-card-content">
+                          {item.summary_ko || item.content}
+                        </p>
                       )}
                       {sourceUrl && (
                         <a

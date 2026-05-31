@@ -17,6 +17,6 @@
 - SQL: psycopg2 %s 파라미터 바인딩만 사용(f-string 값 삽입 금지).
 """
 
-from .base import ACTIVE_COLLECTORS, collect_all
+from .base import ACTIVE_COLLECTORS, backfill_translations, collect_all
 
-__all__ = ["ACTIVE_COLLECTORS", "collect_all"]
+__all__ = ["ACTIVE_COLLECTORS", "backfill_translations", "collect_all"]

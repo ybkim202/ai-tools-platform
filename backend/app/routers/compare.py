@@ -35,7 +35,7 @@ def compare_tools(
         
         for tool_id in tool_ids:
             # 도구 정보 조회
-            tool_query = "SELECT id, name, category, user_count, difficulty, official_url FROM tools WHERE id = :tool_id"
+            tool_query = "SELECT id, name, category, user_count, difficulty, official_url, logo_url FROM tools WHERE id = :tool_id"
             tool_result = db.execute(text(tool_query), {"tool_id": tool_id})
             tool_row = tool_result.fetchone()
             
@@ -69,6 +69,7 @@ def compare_tools(
                 "user_count": tool_row[3],
                 "difficulty": tool_row[4],
                 "official_url": tool_row[5],
+                "logo_url": tool_row[6],
                 "pricing": pricing,
                 "benchmarks": benchmarks
             })
