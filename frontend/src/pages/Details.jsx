@@ -3,7 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useToolStore, useUIStore } from '../stores/toolStore';
 import { benchmarksAPI, newsAPI, toolsAPI } from '../services/api';
 import ToolCard from '../components/ToolCard';
+import ExternalLinkIcon from '../components/ExternalLinkIcon';
 import { handleLogoError, resolveLogoSrc } from '../utils/logoFallback';
+import { formatPrice, formatDate, formatScore, displayLabel } from '../utils/format';
+import { safeHttpUrl } from '../utils/url';
 import {
   LoadingState,
   EmptyNoDataState,
@@ -213,9 +216,18 @@ const Details = () => {
           )}
 
           <div className="header-actions">
-            <a href={selectedTool.official_url} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
-              공식 사이트 방문 →
-            </a>
+            {safeHttpUrl(selectedTool.official_url) && (
+              <a
+                href={safeHttpUrl(selectedTool.official_url)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-primary"
+              >
+                공식 사이트 방문
+                <ExternalLinkIcon />
+                <span className="sr-only">(새 창에서 열림)</span>
+              </a>
+            )}
             <button
               type="button"
               className={`btn btn-secondary ${isInCompare ? 'active' : ''}`}
@@ -236,11 +248,15 @@ const Details = () => {
             <div className="pricing-grid">
               {selectedTool.pricing.map((price) => (
                 <div key={price.id} className="pricing-card">
-                  <h3>{price.plan_name}</h3>
+                  <h3>{displayLabel(price.plan_name)}</h3>
                   <div className="price">
-                    {price.price === 0 ? '무료' : `$${price.price}/${price.billing_period}`}
+                    {formatPrice(price.price, {
+                      billingPeriod: price.billing_period,
+                    })}
                   </div>
-                  <p>{price.description}</p>
+                  {price.description && price.description.trim() !== '' && (
+                    <p>{price.description}</p>
+                  )}
                 </div>
               ))}
             </div>
@@ -263,12 +279,12 @@ const Details = () => {
                 {Object.entries(benchmarks.benchmarks).map(([type, data]) => (
                   <div key={type} className="benchmark-card">
                     <h3>{type}</h3>
-                    <div className="score">{data.score}/100</div>
+                    <div className="score">{formatScore(data.score)}</div>
                     <p className="source">{data.source}</p>
                   </div>
                 ))}
               </div>
-              <p className="average">평균 점수: {benchmarks.average_score}/100</p>
+              <p className="average">평균 점수: {formatScore(benchmarks.average_score)}</p>
             </>
           ) : (
             <EmptyNoDataState
@@ -291,17 +307,44 @@ const Details = () => {
             />
           ) : news && news.length > 0 ? (
             <div className="news-list">
-              {news.map((item) => (
-                <div key={item.id} className="news-card">
-                  <h3>{item.title}</h3>
-                  <p>{item.content}</p>
-                  {item.source_url && (
-                    <a href={item.source_url} target="_blank" rel="noopener noreferrer" className="source-link">
-                      원문 보기 →
-                    </a>
-                  )}
-                </div>
-              ))}
+              {news.map((item) => {
+                const dateLabel = formatDate(item.news_date);
+                const sourceUrl = safeHttpUrl(item.source_url);
+                return (
+                  <div key={item.id} className="news-card">
+                    {dateLabel && (
+                      <div className="news-card-meta">
+                        <span>{dateLabel}</span>
+                      </div>
+                    )}
+                    <h3 className="news-card-title">
+                      {item.title_ko || item.title}
+                    </h3>
+                    {item.title_ko && item.title_ko !== item.title && (
+                      <p className="news-card-original" lang="en">
+                        {item.title}
+                      </p>
+                    )}
+                    {(item.summary_ko || item.content) && (
+                      <p className="news-card-content">
+                        {item.summary_ko || item.content}
+                      </p>
+                    )}
+                    {sourceUrl && (
+                      <a
+                        href={sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="source-link"
+                      >
+                        원문 보기
+                        <ExternalLinkIcon />
+                        <span className="sr-only">(새 창에서 열림)</span>
+                      </a>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <EmptyNoDataState

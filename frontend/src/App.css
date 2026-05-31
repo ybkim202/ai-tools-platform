@@ -93,6 +93,13 @@ textarea {
 
 .navbar-menu {
   display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+/* 링크 그룹: 데스크톱은 한 줄 flex, 좁은 화면에서 가로 스크롤 컨테이너로 전환 */
+.nav-links {
+  display: flex;
   gap: var(--spacing-md);
   align-items: center;
 }
@@ -148,6 +155,8 @@ textarea {
 .nav-button {
   width: 40px;
   height: 40px;
+  /* 스크롤 영역 밖 고정: 좁은 화면에서도 항상 우측에 가시 */
+  flex-shrink: 0;
   border: 1px solid var(--color-border);
   background-color: transparent;
   color: var(--color-text-primary);
@@ -239,17 +248,37 @@ main {
   color: var(--color-primary);
 }
 
-/* 외부 링크 아이콘 (장식 — 의미는 텍스트/sr-only가 전달) */
-.footer-external-icon {
+/* 외부 링크 아이콘 (장식 — 의미는 텍스트/sr-only가 전달). 모든 외부 링크 공용 */
+.external-icon {
   flex-shrink: 0;
   /* 외부 링크 표식 — non-text contrast(WCAG 1.4.11, 3:1) 충족 위해 secondary 사용
      (tertiary는 흰 배경 ~2.6:1로 미달) */
   color: var(--color-text-secondary);
 }
 
-.footer-link-external:hover .footer-external-icon,
-.footer-link-external:focus-visible .footer-external-icon {
+a:hover .external-icon,
+a:focus-visible .external-icon {
   color: var(--color-primary);
+}
+
+/* 색 채운 버튼 안의 외부 아이콘: 버튼 텍스트색을 따른다(대비 보존) + 인라인 정렬.
+   버튼은 inline-block 유지(레이아웃 보존) → 아이콘은 margin/vertical-align로 정렬 */
+/* 텍스트 링크(비-flex) 안의 외부 아이콘 정렬 여백 */
+.news-source-link .external-icon,
+.source-link .external-icon {
+  margin-left: var(--spacing-xs);
+  vertical-align: middle;
+}
+
+.btn .external-icon,
+.btn-small .external-icon,
+.btn:hover .external-icon,
+.btn-small:hover .external-icon,
+.btn:focus-visible .external-icon,
+.btn-small:focus-visible .external-icon {
+  color: currentColor;
+  margin-left: var(--spacing-xs);
+  vertical-align: middle;
 }
 
 /* 블록3 카피라이트 */
@@ -292,6 +321,30 @@ main {
 
   .navbar-menu {
     gap: var(--spacing-sm);
+    /* 토글 고정 + 링크 그룹만 스크롤되도록 메뉴는 폭을 점유하되 넘치지 않게 */
+    min-width: 0;
+  }
+
+  /* 좁은 화면: 링크 그룹을 가로 스크롤(스와이프). 줄바꿈은 sticky 점프 유발 → 미채택 */
+  .nav-links {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: var(--spacing-sm);
+    /* 스크롤바 숨김(밀도 유지) */
+    scrollbar-width: none;
+    /* 마지막 링크 잘림 인지 보조 여백 */
+    padding-right: var(--spacing-sm);
+  }
+
+  .nav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-link {
+    /* 압축 금지: 폭은 콘텐츠 보존, 텍스트 줄바꿈 없음 */
+    flex-shrink: 0;
+    white-space: nowrap;
   }
 
   .footer-content {
@@ -310,12 +363,13 @@ main {
 }
 
 @media (max-width: 480px) {
-  .navbar-menu {
-    gap: var(--spacing-sm);
+  /* 컨테이너 여백만 축소해 스크롤 영역 확보(터치타겟·패딩은 보존) */
+  .navbar-container {
+    padding: 0 var(--spacing-md);
   }
 
-  .nav-link {
-    padding: var(--spacing-sm);
+  .navbar-menu {
+    gap: var(--spacing-sm);
   }
 
   .footer {
