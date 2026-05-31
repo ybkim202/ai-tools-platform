@@ -61,7 +61,8 @@
 }
 
 .card-title-info h3 {
-  margin: 0 0 var(--spacing-sm);
+  /* 도구명↔카테고리 배지 간격을 더 좁게(sm 8px → xs 4px) */
+  margin: 0 0 var(--spacing-xs);
   font-size: var(--font-size-xl);
   letter-spacing: -0.2px;
   color: var(--color-text-primary);
