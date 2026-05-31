@@ -212,6 +212,27 @@
   font-weight: 700;
 }
 
+/* 비교 화면 내 "도구 더 추가" 진입점 — 홈으로 안내 */
+.compare-add-more {
+  max-width: 1200px;
+  margin: var(--spacing-xl) auto 0;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  background-color: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.compare-add-more-text {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+}
+
 /* ==================== 모바일 세로 카드 스택 ==================== */
 /* 기본(데스크톱): 카드 숨김, 테이블만 노출 */
 .comparison-cards {

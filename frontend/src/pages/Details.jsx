@@ -106,9 +106,15 @@ const Details = () => {
     fetchRelated();
   }, [fetchRelated]);
 
+  // 진입 시점의 히스토리 유무를 1회 캡처(라벨 안정화). 외부에서 바로 상세로
+  // 진입(히스토리 없음)했는지에 따라 동작/라벨을 맥락에 맞게 분기한다.
+  const [hasHistory] = React.useState(
+    () => typeof window !== 'undefined' && window.history.length > 1
+  );
+
   // 뒤로가기: 히스토리 있으면 -1, 직접 진입(히스토리 없음)이면 홈 폴백.
   const handleBack = () => {
-    if (window.history.length > 1) {
+    if (hasHistory) {
       navigate(-1);
     } else {
       navigate('/');
@@ -173,7 +179,7 @@ const Details = () => {
   return (
     <div className="details-page">
       <button className="back-btn" onClick={handleBack}>
-        ← 뒤로가기
+        ← {hasHistory ? '뒤로' : '전체 도구 보기'}
       </button>
 
       <div className="details-header">

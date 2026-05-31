@@ -334,6 +334,18 @@ const Compare = () => {
             </article>
           ))}
         </div>
+
+        {/* 5개 미만이면 비교 화면 안에서 도구를 더 담는 동선 제공(과설계 X: 홈으로 안내). */}
+        {selectedToolsForCompare.length < 5 && (
+          <div className="compare-add-more" role="note">
+            <p className="compare-add-more-text">
+              최대 5개까지 비교할 수 있어요. 도구를 더 담아 비교해보세요.
+            </p>
+            <Link to="/" className="btn btn-small">
+              홈에서 도구 더 담기 →
+            </Link>
+          </div>
+        )}
         </>
       )}
     </div>
