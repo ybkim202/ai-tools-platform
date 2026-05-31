@@ -4,19 +4,32 @@ import {
   formatDate,
   displayLabel,
   FALLBACK_DASH,
+  PRICE_UNKNOWN,
 } from './format';
 
 describe('formatPrice', () => {
   test('0은 무료', () => {
     expect(formatPrice(0)).toBe('무료');
   });
-  test('양수는 $N, billingPeriod 옵션 시 $N/기간', () => {
+  test('양수는 $N, billingPeriod 코드값은 한글 접미사', () => {
     expect(formatPrice(20)).toBe('$20');
-    expect(formatPrice(20, { billingPeriod: 'month' })).toBe('$20/month');
+    expect(formatPrice(20, { billingPeriod: 'monthly' })).toBe('$20/월');
+    expect(formatPrice(120, { billingPeriod: 'annual' })).toBe('$120/년');
+    expect(formatPrice(50, { billingPeriod: 'onetime' })).toBe('$50/1회');
   });
-  test('음수/비정상은 폴백', () => {
-    expect(formatPrice(-1)).toBe(FALLBACK_DASH);
-    expect(formatPrice('abc')).toBe(FALLBACK_DASH);
+  test('free 또는 미지의 billingPeriod는 접미사 없음', () => {
+    expect(formatPrice(20, { billingPeriod: 'free' })).toBe('$20');
+    expect(formatPrice(20, { billingPeriod: 'weird' })).toBe('$20');
+  });
+  test('null/undefined/빈문자열은 미상(0=무료와 구분)', () => {
+    expect(formatPrice(null)).toBe(PRICE_UNKNOWN);
+    expect(formatPrice(undefined)).toBe(PRICE_UNKNOWN);
+    expect(formatPrice('')).toBe(PRICE_UNKNOWN);
+    expect(formatPrice('   ')).toBe(PRICE_UNKNOWN);
+  });
+  test('음수/비정상은 미상', () => {
+    expect(formatPrice(-1)).toBe(PRICE_UNKNOWN);
+    expect(formatPrice('abc')).toBe(PRICE_UNKNOWN);
   });
 });
 
