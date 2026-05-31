@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/benchmarks", tags=["benchmarks"])
 @router.get("")
 def get_benchmarks(
     tool_id: int = Query(None, description="특정 도구의 벤치마크만 조회"),
-    benchmark_type: str = Query(None, description="벤치마크 종류 (속도, 정확도, 비용효율, 사용성)"),
+    benchmark_type: str = Query(None, description="벤치마크 종류 (예: MMLU, HumanEval, GSM8K, GPQA, MATH, MMMU). 전체 목록은 GET /api/benchmarks/types"),
     sort_by: str = Query("score_desc", description="정렬 기준 (score_desc, score_asc, recent)"),
     limit: int = Query(20, ge=1, le=100, description="최대 결과 수"),
     offset: int = Query(0, ge=0, description="오프셋"),
