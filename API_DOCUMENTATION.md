@@ -156,7 +156,7 @@ curl -H "X-API-Key: your-api-key" "http://localhost:8000/api/tools"
 | `max_price` | number | ❌ | 최대 가격 | `100` |
 | `min_users` | number | ❌ | 최소 사용자 수 | `1000000` |
 | `max_users` | number | ❌ | 최대 사용자 수 | `100000000` |
-| `sort_by` | string | ❌ | 정렬 (popularity/price/recent) | `popularity` |
+| `sort_by` | string | ❌ | 정렬 (popularity/name/difficulty/price/recent) | `popularity` |
 | `limit` | number | ❌ | 결과 수 (1-100, 기본: 20) | `10` |
 | `offset` | number | ❌ | 오프셋 (페이징) | `0` |
 

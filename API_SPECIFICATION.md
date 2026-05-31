@@ -40,7 +40,7 @@
 | `max_price` | number | ❌ | 최대 가격 | `100` |
 | `min_users` | number | ❌ | 최소 사용자 수 | `1000000` |
 | `max_users` | number | ❌ | 최대 사용자 수 | `10000000` |
-| `sort_by` | string | ❌ | 정렬 기준 (기본값: popularity) | `popularity`, `price`, `recent` |
+| `sort_by` | string | ❌ | 정렬 기준 (기본값: popularity) | `popularity`, `name`, `difficulty`, `price`, `recent` |
 | `limit` | number | ❌ | 페이지당 결과 수 (기본값: 20) | `10` |
 | `offset` | number | ❌ | 오프셋 (페이징) | `0` |
 | `search` | string | ❌ | 검색어 | `ChatGPT` |
