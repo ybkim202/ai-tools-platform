@@ -30,6 +30,12 @@ def get_tools(
     """도구 목록 조회 (필터링, 정렬, 페이징 지원)"""
     try:
         # 쿼리 빌드
+        #
+        # 불변식(MUST 준수): `query` 문자열에는 정적 SQL 조각만 누적한다.
+        # 사용자 입력은 절대 query 에 직접 보간하지 않고 오직 `params` 의
+        # `:name` 바인딩으로만 전달한다. 아래 count_query 가 `query` 를 서브쿼리로
+        # 감싸므로(f-string), query 에 값이 직접 삽입되면 SQL Injection 회귀가
+        # 발생할 수 있다. 새 필터/정렬 추가 시 반드시 바인딩만 사용할 것.
         query = "SELECT * FROM tools WHERE 1=1"
         params = {}
         
@@ -75,6 +81,10 @@ def get_tools(
             query += " ORDER BY user_count DESC"
         
         # 전체 개수 조회
+        # f-string 으로 `query` 를 서브쿼리로 감싸지만, 위 불변식에 따라 `query` 는
+        # 정적 조각만 포함하고 사용자 입력은 전부 `params` 바인딩으로 들어간다.
+        # 따라서 보간되는 문자열에는 값이 없어 SQL Injection 위험이 없다.
+        # (정렬/페이징 절은 이 시점 이후에 query 에 추가되므로 count 대상에서 제외됨)
         count_query = f"SELECT COUNT(*) FROM ({query}) as counted"
         total_result = db.execute(text(count_query), params)
         total = total_result.scalar()
