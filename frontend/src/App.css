@@ -180,7 +180,6 @@ main {
 .footer {
   background-color: var(--color-surface);
   border-top: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
   padding: var(--spacing-3xl) var(--spacing-lg);
   margin-top: var(--spacing-4xl);
 }
@@ -188,44 +187,101 @@ main {
 .footer-content {
   max-width: 1200px;
   margin: 0 auto;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2xl);
+  flex-wrap: wrap;
 }
 
-.footer-content p {
-  margin-bottom: var(--spacing-lg);
+/* 블록1 브랜드 */
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+
+.footer-brand-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.footer-brand-title:hover {
+  color: var(--color-primary);
+}
+
+.footer-tagline {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
+  margin: 0;
 }
 
-.footer-links {
+/* 블록2 nav */
+.footer-nav {
   display: flex;
-  justify-content: center;
+  align-items: center;
   gap: var(--spacing-xl);
   flex-wrap: wrap;
 }
 
-.footer-links a {
-  color: var(--color-text-tertiary);
-  font-size: var(--font-size-sm);
+.footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
   transition: color var(--transition-fast);
 }
 
-.footer-links a:hover {
+.footer-link:hover {
   color: var(--color-primary);
 }
 
-.footer-links a:focus-visible {
+/* 외부 링크 아이콘 (장식 — 의미는 텍스트/sr-only가 전달) */
+.footer-external-icon {
+  flex-shrink: 0;
+  /* 외부 링크 표식 — non-text contrast(WCAG 1.4.11, 3:1) 충족 위해 secondary 사용
+     (tertiary는 흰 배경 ~2.6:1로 미달) */
+  color: var(--color-text-secondary);
+}
+
+.footer-link-external:hover .footer-external-icon,
+.footer-link-external:focus-visible .footer-external-icon {
+  color: var(--color-primary);
+}
+
+/* 블록3 카피라이트 */
+.footer-copyright {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  width: 100%;
+  text-align: center;
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+/* 포커스 링: 기존 패턴 재사용 */
+.footer-brand-title:focus-visible,
+.footer-link:focus-visible {
   outline: none;
   border-radius: var(--radius-sm);
   box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
-/* 미연결(비활성) 푸터 항목: 링크가 아님을 시각·의미 양쪽으로 표시 */
-.footer-link-disabled {
-  color: var(--color-text-tertiary);
-  font-size: var(--font-size-sm);
-  opacity: 0.6;
-  cursor: default;
+/* sr-only 유틸 (전역에 없어 1회 추가) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ==================== 반응형 디자인 ==================== */
@@ -238,8 +294,18 @@ main {
     gap: var(--spacing-sm);
   }
 
-  .footer-links {
-    gap: var(--spacing-md);
+  .footer-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xl);
+  }
+
+  .footer-nav {
+    gap: var(--spacing-lg);
+  }
+
+  .footer-copyright {
+    text-align: left;
   }
 }
 
@@ -250,6 +316,16 @@ main {
 
   .nav-link {
     padding: var(--spacing-sm);
+  }
+
+  .footer {
+    padding: var(--spacing-2xl) var(--spacing-md);
+  }
+
+  .footer-nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
   }
 }
 
