@@ -397,7 +397,10 @@ function App() {
                 aria-label={isDark ? '라이트 모드로 전환' : '다크 모드로 전환'}
                 aria-pressed={isDark}
               >
-                <span aria-hidden="true">{isDark ? '☀️' : '🌙'}</span>
+                <span
+                  aria-hidden="true"
+                  className={`theme-icon ${isDark ? 'theme-icon--sun' : 'theme-icon--moon'}`}
+                />
               </button>
             </div>
           </div>
