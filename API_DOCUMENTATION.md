@@ -116,11 +116,11 @@ curl -H "X-API-Key: your-api-key" "http://localhost:8000/api/tools"
 | `TOOL_NOT_FOUND` | 404 | 도구를 찾을 수 없음 |
 | `INVALID_PARAMETERS` | 400 | 잘못된 파라미터 |
 | `DATABASE_ERROR` | 500 | 데이터베이스 오류 |
-| `AUTHENTICATION_ERROR` | 401 | 인증 실패 |
 | `INVALID_API_KEY` | 401 | 유효하지 않은 API Key |
 | `MISSING_API_KEY` | 401 | API Key 누락 |
 | `RATE_LIMIT_EXCEEDED` | 429 | 요청 한도 초과 |
-| `VALIDATION_ERROR` | 422 | 데이터 검증 실패 |
+| `VALIDATION_ERROR` | 422 | 요청 데이터 검증 실패 (FastAPI 422) |
+| `AUTHENTICATION_ERROR` | 401 | 인증 실패 (예약 — 현재 코드 미발화) |
 
 ### **예시**
 
@@ -266,8 +266,8 @@ curl "http://localhost:8000/api/tools/meta"
     "benchmarks": [
       {
         "id": 1,
-        "benchmark_type": "속도",
-        "score": 85,
+        "benchmark_type": "MMLU",
+        "score": 86.4,
         "source": "공식벤치마크",
         "collected_date": "2026-05-15T00:00:00"
       }
@@ -428,7 +428,7 @@ curl "http://localhost:8000/api/recommendations"
 ```
 
 > 비교 대상 ID가 모두 존재하지 않으면 HTTP 404 (`TOOL_NOT_FOUND`)를 반환합니다.
-> 비교 도구 개수가 2개 미만이거나 5개 초과면 `INVALID_PARAMETERS`를 반환합니다.
+> 비교 도구 개수가 2개 미만이거나 5개 초과면, 또는 ID가 숫자가 아니면 HTTP 400 (`INVALID_PARAMETERS`)를 반환합니다.
 
 **예시**
 
@@ -469,7 +469,8 @@ curl "http://localhost:8000/api/compare?ids=4,5,6"
       "title": "GPT-4 Turbo 업데이트",
       "content": "새로운 기능들이 추가되었습니다...",
       "news_date": "2026-05-20T00:00:00",
-      "source_url": "https://openai.com/..."
+      "source_url": "https://openai.com/...",
+      "collected_date": "2026-05-20T00:00:00"
     }
   ],
   "pagination": {
@@ -483,13 +484,13 @@ curl "http://localhost:8000/api/compare?ids=4,5,6"
 
 ### **GET /api/news/trending**
 
-최근 가장 업데이트가 많은 도구들의 뉴스
+최근 N일간 업데이트(뉴스)가 가장 많은 **도구 단위** 집계 (도구당 1행)
 
 **파라미터**
 
 | 파라미터 | 타입 | 필수 | 설명 |
 |---------|------|------|------|
-| `days` | number | ❌ | 최근 N일 (기본: 7) |
+| `days` | number | ❌ | 최근 N일 (1-30, 기본: 7) |
 | `limit` | number | ❌ | 결과 수 (기본: 10) |
 
 **응답 (200 OK)**
@@ -499,13 +500,10 @@ curl "http://localhost:8000/api/compare?ids=4,5,6"
   "success": true,
   "data": [
     {
-      "id": 1,
       "tool_id": 4,
       "tool_name": "ChatGPT",
-      "title": "GPT-4 Turbo 업데이트",
-      "content": "...",
-      "news_date": "2026-05-20T00:00:00",
-      "update_count": 5
+      "update_count": 5,
+      "latest_news_date": "2026-05-20T00:00:00"
     }
   ],
   "period_days": 7
@@ -540,7 +538,7 @@ curl "http://localhost:8000/api/news/trending"
 | 파라미터 | 타입 | 필수 | 설명 |
 |---------|------|------|------|
 | `tool_id` | number | ❌ | 특정 도구만 |
-| `benchmark_type` | string | ❌ | 벤치마크 종류 |
+| `benchmark_type` | string | ❌ | 벤치마크 종류 (MMLU, HumanEval, GSM8K, GPQA, MATH, MMMU). 전체 목록은 `GET /api/benchmarks/types` |
 | `sort_by` | string | ❌ | 정렬 (score_desc/score_asc/recent) |
 | `limit` | number | ❌ | 결과 수 (기본: 20) |
 | `offset` | number | ❌ | 오프셋 |
@@ -555,8 +553,8 @@ curl "http://localhost:8000/api/news/trending"
       "id": 1,
       "tool_id": 4,
       "tool_name": "ChatGPT",
-      "benchmark_type": "속도",
-      "score": 85,
+      "benchmark_type": "MMLU",
+      "score": 86.4,
       "source": "공식벤치마크",
       "collected_date": "2026-05-15T00:00:00"
     }
@@ -583,13 +581,13 @@ curl "http://localhost:8000/api/news/trending"
     "tool_id": 4,
     "tool_name": "ChatGPT",
     "benchmarks": {
-      "속도": {
-        "score": 85,
+      "MMLU": {
+        "score": 86.4,
         "source": "공식벤치마크",
         "collected_date": "2026-05-15T00:00:00"
       }
     },
-    "average_score": 85
+    "average_score": 86.4
   }
 }
 ```
@@ -605,11 +603,11 @@ curl "http://localhost:8000/api/news/trending"
   "success": true,
   "data": [
     {
-      "type": "속도",
+      "type": "GSM8K",
       "count": 5
     },
     {
-      "type": "정확도",
+      "type": "MMLU",
       "count": 3
     }
   ]
@@ -625,8 +623,8 @@ curl "http://localhost:8000/api/benchmarks/types"
 # 특정 도구 요약
 curl "http://localhost:8000/api/benchmarks/summary/4"
 
-# 속도 벤치마크 정렬
-curl "http://localhost:8000/api/benchmarks?benchmark_type=속도&sort_by=score_desc"
+# MMLU 벤치마크 정렬
+curl "http://localhost:8000/api/benchmarks?benchmark_type=MMLU&sort_by=score_desc"
 ```
 
 ---

@@ -33,7 +33,7 @@ class AuthenticationError(AIToolsException):
 class RateLimitError(AIToolsException):
     """요청 한도 초과"""
     def __init__(self, message: str = "요청 한도를 초과했습니다."):
-        super().__init__("RATE_LIMIT_ERROR", message, 429)
+        super().__init__("RATE_LIMIT_EXCEEDED", message, 429)
 
 # ==================== 예외 핸들러 등록 ====================
 def register_exception_handlers(app: FastAPI):

@@ -143,14 +143,14 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
     "benchmarks": [
       {
         "id": 1,
-        "benchmark_type": "속도",
-        "score": 85,
+        "benchmark_type": "MMLU",
+        "score": 86.4,
         "source": "공식벤치마크",
         "collected_date": "2024-05-15T00:00:00Z"
       },
       {
         "id": 2,
-        "benchmark_type": "정확도",
+        "benchmark_type": "HumanEval",
         "score": 92,
         "source": "커뮤니티",
         "collected_date": "2024-05-10T00:00:00Z"
@@ -200,8 +200,10 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
 | 파라미터 | 타입 | 필수 | 설명 |
 |---------|------|------|------|
 | `tool_id` | number | ❌ | 특정 도구의 벤치마크만 |
-| `benchmark_type` | string | ❌ | 벤치마크 종류 (속도, 정확도, 비용효율, 사용성) |
+| `benchmark_type` | string | ❌ | 벤치마크 종류 (MMLU, HumanEval, GSM8K, GPQA, MATH, MMMU). 전체 목록은 `GET /benchmarks/types` |
 | `sort_by` | string | ❌ | 정렬 기준 (`score_desc`, `score_asc`, `recent`) |
+| `limit` | number | ❌ | 최대 결과 수 (1~100, 기본 20) |
+| `offset` | number | ❌ | 오프셋 (기본 0) |
 
 **응답 (200 OK)**
 
@@ -213,8 +215,8 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
       "id": 1,
       "tool_id": 1,
       "tool_name": "ChatGPT",
-      "benchmark_type": "속도",
-      "score": 85,
+      "benchmark_type": "MMLU",
+      "score": 86.4,
       "source": "공식벤치마크",
       "collected_date": "2024-05-15T00:00:00Z"
     }
@@ -246,7 +248,7 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
     "tool_id": 1,
     "tool_name": "ChatGPT",
     "benchmarks": {
-      "속도": { "score": 85, "source": "공식벤치마크", "collected_date": "2024-05-15T00:00:00Z" }
+      "MMLU": { "score": 86.4, "source": "공식벤치마크", "collected_date": "2024-05-15T00:00:00Z" }
     },
     "average_score": 85.0
   }
@@ -269,8 +271,8 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
 {
   "success": true,
   "data": [
-    { "type": "속도", "count": 12 },
-    { "type": "정확도", "count": 9 }
+    { "type": "GSM8K", "count": 12 },
+    { "type": "MMLU", "count": 9 }
   ]
 }
 ```
@@ -296,8 +298,9 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
 | 파라미터 | 타입 | 필수 | 설명 |
 |---------|------|------|------|
 | `tool_id` | number | ❌ | 특정 도구의 뉴스만 |
-| `days` | number | ❌ | 최근 N일 이내 (기본값: 30) |
-| `limit` | number | ❌ | 최대 결과 수 (기본값: 20) |
+| `days` | number | ❌ | 최근 N일 이내 (1~365, 기본값: 30) |
+| `limit` | number | ❌ | 최대 결과 수 (1~100, 기본값: 20) |
+| `offset` | number | ❌ | 오프셋 (기본값: 0) |
 
 **응답 (200 OK)**
 
@@ -326,7 +329,7 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
 
 ### **GET /news/trending**
 
-최근 N일 내 업데이트가 많은 도구들의 뉴스(트렌딩)를 조회합니다.
+최근 N일 내 업데이트(뉴스)가 많은 **도구 단위** 집계를 조회합니다(도구당 1행).
 
 **요청 파라미터**
 
@@ -342,13 +345,10 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
   "success": true,
   "data": [
     {
-      "id": 1,
       "tool_id": 1,
       "tool_name": "ChatGPT",
-      "title": "GPT-4 Turbo 업데이트",
-      "content": "새로운 기능들이 추가되었습니다...",
-      "news_date": "2024-05-20T00:00:00Z",
-      "update_count": 3
+      "update_count": 3,
+      "latest_news_date": "2024-05-20T00:00:00Z"
     }
   ],
   "period_days": 7
@@ -449,8 +449,8 @@ curl "http://localhost:8000/api/recommendations?task=콘텐츠작성&limit=10"
           }
         ],
         "benchmarks": {
-          "속도": 85,
-          "정확도": 92
+          "MMLU": 86.4,
+          "HumanEval": 92
         }
       }
     ],
@@ -462,8 +462,9 @@ curl "http://localhost:8000/api/recommendations?task=콘텐츠작성&limit=10"
 
 - 각 도구의 `pricing[]` 항목 필드: `plan`, `price`, `currency`, `billing_period`.
 - `benchmarks`는 `{ benchmark_type: score }` 형태의 객체이며 데이터가 없으면 `{}`.
-- 비교 대상 ID가 모두 존재하지 않으면 HTTP 404(`TOOL_NOT_FOUND`). ID 파싱 실패 시
-  `INVALID_IDS`, 개수 위반(2개 미만 또는 5개 초과) 시 `INVALID_PARAMETERS`를 반환합니다.
+- 비교 대상 ID가 모두 존재하지 않으면 HTTP 404(`TOOL_NOT_FOUND`).
+- ID 파싱 실패(숫자/쉼표 형식 아님) 또는 개수 위반(2개 미만 또는 5개 초과) 시
+  HTTP 400(`INVALID_PARAMETERS`)을 반환합니다.
 
 **예시 요청**
 
@@ -494,16 +495,17 @@ curl "http://localhost:8000/api/compare?ids=1,2,3"
 
 | 상태코드 | 에러코드 | 설명 |
 |---------|---------|------|
-| 400 | `INVALID_PARAMETERS` | 잘못된 파라미터 (compare: 비교 도구 개수 위반 2~5개 포함) |
-| 400 | `INVALID_IDS` | compare: ID가 숫자/쉼표 형식이 아님 |
+| 400 | `INVALID_PARAMETERS` | 잘못된 파라미터 (compare: ID 형식 오류 및 비교 도구 개수 위반 2~5개 포함) |
 | 401 | `INVALID_API_KEY` | 유효하지 않은 API Key |
 | 401 | `MISSING_API_KEY` | API Key 누락(필수 인증 경로) |
-| 401 | `AUTHENTICATION_ERROR` | 인증 실패 |
 | 404 | `TOOL_NOT_FOUND` | 도구를 찾을 수 없음 (HTTP 404 status) |
-| 422 | `VALIDATION_ERROR` | 요청 데이터 검증 실패 |
+| 422 | `VALIDATION_ERROR` | 요청 데이터 검증 실패 (FastAPI 422) |
 | 429 | `RATE_LIMIT_EXCEEDED` | 요청 한도 초과 |
 | 500 | `DATABASE_ERROR` | 데이터베이스 오류 |
 | 500 | `INTERNAL_ERROR` | 서버 내부 오류 |
+
+> `AUTHENTICATION_ERROR`(401)는 `exceptions.py`에 정의되어 있으나 현재 어떤 라우터/의존성에서도
+> 발화하지 않습니다(예약). 인증 실패는 실제로는 `INVALID_API_KEY`/`MISSING_API_KEY`로 응답합니다.
 
 ---
 
@@ -533,7 +535,7 @@ curl "http://localhost:8000/api/compare?ids=1,2,3"
 {
   id: number
   tool_id: number
-  benchmark_type: "속도" | "정확도" | "비용효율" | "사용성"
+  benchmark_type: "MMLU" | "HumanEval" | "GSM8K" | "GPQA" | "MATH" | "MMMU"
   score: number (0-100)
   source: string
   collected_date: ISO8601
