@@ -235,7 +235,8 @@ const News = () => {
             ) : (
               <EmptyNoDataState
                 title="아직 수집된 뉴스가 없습니다"
-                message="자동 수집을 준비 중이에요."
+                badge="매일 수집 중 · Coming soon"
+                message="수집 파이프라인이 매일 새 데이터를 모으고 있어요. 곧 지금 뜨는 도구를 여기서 확인할 수 있습니다."
                 ctaLabel="도구 탐색하기"
                 ctaTo="/"
               />

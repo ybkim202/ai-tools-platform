@@ -158,14 +158,17 @@
 }
 
 /* ==================== 카드 푸터 ==================== */
+/* 액션 버튼은 세로 스택 + 각 풀폭: '방문하기'(주 액션)를 위에 풀폭으로,
+   '비교'를 그 아래 풀폭으로 배치(좌우 분할 대신 카드 폭에 가운데 정렬 효과). */
 .card-footer {
   display: flex;
+  flex-direction: column;
   gap: var(--spacing-sm);
   margin-top: var(--spacing-lg);
 }
 
 .btn {
-  flex: 1;
+  width: 100%;
   padding: var(--spacing-md) var(--spacing-lg);
   border: none;
   border-radius: var(--radius-md);
@@ -275,13 +278,4 @@
   box-shadow: 0 0 0 1px var(--color-primary);
 }
 
-/* ==================== 반응형 디자인 ==================== */
-@media (max-width: 480px) {
-  .card-footer {
-    flex-direction: column;
-  }
-
-  .btn {
-    width: 100%;
-  }
-}
+/* 반응형: 카드 푸터는 기본이 이미 세로 풀폭 스택이라 별도 분기 불필요. */

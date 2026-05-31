@@ -258,6 +258,41 @@ body {
   transform: translateY(0);
 }
 
+/* Hero CTA 그룹(F5): 1차 1개 + 보조 2개. 중앙 정렬, 좁으면 wrap. */
+.hero-cta-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  justify-content: center;
+}
+
+/* 보조 CTA(F5): 1차 .cta-button 크기를 상속하되 색만 btn-secondary 패턴으로 override.
+   투명 배경 + 헤어라인, 정적(그림자 없음). pill 금지(radius-lg = 1차와 동일). */
+.cta-button-secondary {
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  box-shadow: none;
+}
+
+.cta-button-secondary:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: var(--color-primary-surface);
+  box-shadow: none;
+  transform: translateY(-2px);
+}
+
+.cta-button-secondary:active {
+  background-color: var(--color-primary-surface);
+  transform: translateY(0);
+}
+
+.cta-button-secondary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
 /* ========================================
    SEARCH & FILTER SECTION
    ======================================== */
@@ -805,6 +840,16 @@ body {
 
   .btn {
     width: 100%;
+  }
+
+  /* Hero CTA 풀폭(F5): 1차 → 트렌드 → 비교 순서 유지 */
+  .hero-cta-group {
+    flex-direction: column;
+  }
+
+  .hero-cta-group .cta-button {
+    width: 100%;
+    justify-content: center;
   }
 
   /* 비교 트레이: 하단 고정 + safe-area (C2/D) */

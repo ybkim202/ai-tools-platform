@@ -1,8 +1,8 @@
 # 🏗️ 시스템 아키텍처
 
 **작성일**: 2024-05-21  
-**버전**: 1.0  
-**상태**: 설계 완료, 구현 예정
+**버전**: 2.0 (코드 정합 정정)  
+**상태**: 구현 반영 (코드가 정본 — 과거 설계 의도와 다른 부분 정정)
 
 ---
 
@@ -26,60 +26,63 @@
                        │
                        ▼
 ┌──────────────────────────────────────────────────────────────┐
-│                    프론트엔드 (React)                          │
-│  - 도구 탐색, 필터링, 비교                                    │
-│  - 맞춤 추천                                                  │
-│  - 뉴스 피드                                                  │
+│              프론트엔드 (React 19 · CRA · 순수 CSS)            │
+│  - 7화면: 홈/비교/추천/뉴스/깃헙트렌드/벤치마크/상세           │
+│  - 전역 검색(타입어헤드), 비교 트레이                          │
+│  - Zustand 상태 · services/api.js 경유 호출                   │
 └────────────────┬─────────────────────────────────────────────┘
                  │ (HTTP/HTTPS)
                  ▼
 ┌──────────────────────────────────────────────────────────────┐
-│            백엔드 (FastAPI)                                   │
+│       백엔드 (FastAPI · raw SQL, ORM 모델 없음 · Railway)     │
 │  ┌────────────────────────────────────────────────────────┐ │
-│  │ API Routers                                            │ │
-│  │ - /api/tools (GET, POST)                              │ │
-│  │ - /api/benchmarks (GET)                               │ │
-│  │ - /api/pricing (GET)                                  │ │
-│  │ - /api/news (GET)                                     │ │
-│  │ - /api/recommendations (GET)                          │ │
-│  │ - /api/compare (GET)                                  │ │
+│  │ API Routers (app/routers/)                             │ │
+│  │ - /api/tools                                           │ │
+│  │ - /api/recommendations                                 │ │
+│  │ - /api/compare                                         │ │
+│  │ - /api/news                                            │ │
+│  │ - /api/benchmarks                                      │ │
+│  │ - /api/trends (깃헙 트렌딩)                            │ │
 │  └────────────────────────────────────────────────────────┘ │
 │  ┌────────────────────────────────────────────────────────┐ │
-│  │ Business Logic                                         │ │
-│  │ - Tool Management                                      │ │
-│  │ - Recommendation Engine                               │ │
-│  │ - Data Validation                                      │ │
+│  │ app/{main,database,auth,exceptions}.py                 │ │
+│  │ - SQLAlchemy text() :name 파라미터 바인딩              │ │
+│  │ - 인메모리 레이트리밋 · CORS(ALLOWED_ORIGINS)         │ │
+│  │ - 응답 포맷 {success, data, error}                     │ │
 │  └────────────────────────────────────────────────────────┘ │
 └────────────────┬─────────────────────────────────────────────┘
-                 │ (SQL)
+                 │ (raw SQL)
                  ▼
 ┌──────────────────────────────────────────────────────────────┐
 │            PostgreSQL Database (Render)                       │
 │  ┌────────────────────────────────────────────────────────┐ │
-│  │ Tables                                                 │ │
-│  │ - tools                                                │ │
-│  │ - tags                                                 │ │
-│  │ - tool_tags                                            │ │
-│  │ - benchmarks                                           │ │
-│  │ - pricing                                              │ │
-│  │ - news                                                 │ │
+│  │ Tables (7개)                                           │ │
+│  │ - tools           (78행)                               │ │
+│  │ - pricing         (>0)                                 │ │
+│  │ - tags            (19: task 11·profession 8)           │ │
+│  │ - tool_tags       (≈312)                               │ │
+│  │ - benchmarks      (24: LLM 9개)                        │ │
+│  │ - news            (0행 시작 → cron 수집 점등)          │ │
+│  │ - github_trending (0행 시작 → cron 수집 점등)          │ │
 │  └────────────────────────────────────────────────────────┘ │
 └──────────────────────────────────────────────────────────────┘
 
 ┌──────────────────────────────────────────────────────────────┐
-│        데이터 수집 (Automated Scripts)                         │
+│        데이터 수집 (collectors/ + collect.py)                  │
 │  ┌────────────────────────────────────────────────────────┐ │
-│  │ Python Scripts (APScheduler)                           │ │
-│  │ - Product Hunt Collector                              │ │
-│  │ - GitHub Collector                                     │ │
-│  │ - Web Scraper                                          │ │
-│  │ - RSS Feed Aggregator                                  │ │
+│  │ collectors/                                            │ │
+│  │ - base.py            (공용 기반)                       │ │
+│  │ - rss.py             (뉴스 RSS)                        │ │
+│  │ - github.py          (리포 통계)                       │ │
+│  │ - producthunt.py     (Product Hunt)                    │ │
+│  │ - github_trending.py (깃헙 트렌딩)                     │ │
+│  │ - translate.py       (MyMemory 무료 번역 백필)         │ │
 │  └────────────────────────────────────────────────────────┘ │
 │  ┌────────────────────────────────────────────────────────┐ │
-│  │ External APIs                                          │ │
-│  │ - Product Hunt API                                     │ │
-│  │ - GitHub API                                           │ │
-│  │ - Official Websites                                    │ │
+│  │ 실행                                                   │ │
+│  │ - collect.py (엔트리, --backfill-translations 옵션)    │ │
+│  │ - .github/workflows/collect.yml (매일 0 0 * * * cron)  │ │
+│  │ - scheduler.py (APScheduler, 기본 비활성)              │ │
 │  └────────────────────────────────────────────────────────┘ │
 └──────────────────────────────────────────────────────────────┘
 ```
@@ -93,16 +96,17 @@
 **역할**: 사용자 인터페이스 제공
 
 **주요 기능**:
-- 도구 검색 & 필터링
-- 비교 기능
-- 맞춤 추천
-- 뉴스 피드
+- 7화면: 홈 / 비교 / 추천 / 뉴스 / 깃헙트렌드(/trends/github) / 벤치마크 / 상세(/details/:id)
+- 전역 검색(헤더 타입어헤드, 300ms 디바운스) · 공용 비교 트레이
+- 도구 검색 & 필터링, 비교, 맞춤 추천, 뉴스/트렌드 피드
 
 **기술**:
-- React 18
-- Tailwind CSS
+- React 19
+- CRA (react-scripts)
+- 순수 CSS (Tailwind 아님)
 - Zustand (상태관리)
-- Axios (HTTP 클라이언트)
+- Axios (HTTP 클라이언트, services/api.js 경유)
+- react-router-dom v7
 
 **배포**:
 - Vercel (자동 배포)
@@ -116,39 +120,38 @@
 
 **구조**:
 
+> 실제 구조는 raw SQL 기반이다. ORM 모델(models/) · Pydantic 스키마(schemas/) · 서비스 계층(services/) · config.py 는 없다.
+
 ```
-app/
-├── main.py              # FastAPI 앱 정의
-├── config.py            # 설정 (DB URL, API KEY 등)
-├── models/
-│   ├── tool.py
-│   ├── benchmark.py
-│   ├── pricing.py
-│   └── news.py          # SQLAlchemy ORM 모델
-├── schemas/
-│   ├── tool.py
-│   ├── benchmark.py
-│   └── ...              # Pydantic 검증 스키마
-├── routers/
-│   ├── tools.py         # /api/tools
-│   ├── benchmarks.py    # /api/benchmarks
-│   ├── pricing.py       # /api/pricing
-│   ├── news.py          # /api/news
-│   ├── recommendations.py # /api/recommendations
-│   └── compare.py       # /api/compare
-├── services/
-│   ├── tool_service.py
-│   ├── recommendation_service.py
-│   └── comparison_service.py
-└── database.py          # 데이터베이스 연결
+backend/
+├── app/
+│   ├── main.py            # FastAPI 앱 정의 · CORS · 레이트리밋 · 라우터 등록
+│   ├── database.py        # DB 연결 (SQLAlchemy text() raw SQL)
+│   ├── auth.py            # 인증
+│   ├── exceptions.py      # 공용 예외 패턴
+│   ├── trends_themes.py   # 트렌드 테마 보조
+│   └── routers/
+│       ├── tools.py           # /api/tools
+│       ├── recommendations.py # /api/recommendations
+│       ├── compare.py         # /api/compare
+│       ├── news.py            # /api/news
+│       ├── benchmarks.py      # /api/benchmarks
+│       └── trends.py          # /api/trends (깃헙 트렌딩)
+├── collectors/            # 수집 파이프라인 (base/rss/github/producthunt/github_trending/translate)
+├── collect.py             # 수집 엔트리
+├── scheduler.py           # APScheduler (기본 비활성)
+├── bootstrap.py           # 멱등 부트스트랩 오케스트레이터
+├── init_db.py             # schema.sql 적용
+├── load_tools_fixed.py    # 도구 적재
+├── seed_tags.py           # tags + tool_tags 적재
+└── seed_benchmarks.py     # benchmarks 적재
 ```
 
 **주요 기능**:
-- RESTful API 제공
-- 데이터 검증 (Pydantic)
-- 데이터베이스 ORM (SQLAlchemy)
-- 에러 처리
-- 로깅
+- RESTful API 제공 (응답 포맷 `{success, data, error}`)
+- raw SQL 접근 (SQLAlchemy `text()` + `:name` 파라미터 바인딩, ORM 모델 없음)
+- 빈 데이터는 `success:true` + 빈 배열로 graceful, 도구 미존재는 404
+- 에러 처리(exceptions.py) · 로깅
 
 **특징**:
 - 자동 문서화 (Swagger UI)
@@ -167,9 +170,13 @@ app/
 tools (1)
 ├─── tool_tags (N) ──── tags
 ├─── benchmarks (N)
-├─── pricing (N)
-└─── news (N)
+└─── pricing (N)
+
+news              # 도구와 독립 (수집 적재)
+github_trending   # 도구와 독립 (수집 적재)
 ```
+
+**테이블 7개**: tools · pricing · benchmarks · tags · tool_tags · news · github_trending
 
 **특징**:
 - 정규화된 스키마
@@ -180,83 +187,86 @@ tools (1)
 
 ### **4. 데이터 수집 (Data Collection Layer)**
 
-**역할**: 외부 소스에서 자동으로 데이터 수집
+**역할**: 외부 소스에서 자동으로 데이터 수집. 초기 0행 → 수집 실행 시 점등.
 
-**주요 컴포넌트**:
+**주요 컴포넌트** (`backend/collectors/`):
 
-#### **Product Hunt Collector**
+#### **RSS Collector (rss.py)**
 ```
-Product Hunt API
+뉴스 RSS 피드
         ↓
-    GraphQL Query
+  파싱 / 정규화
         ↓
-    Extract Data
+  news 테이블 insert
+```
+
+#### **GitHub Collector (github.py)**
+```
+GitHub API
+        ↓
+  리포 통계 fetch
+        ↓
+  도구 메타 보강
+```
+
+#### **GitHub Trending Collector (github_trending.py)**
+```
+GitHub Trending
+        ↓
+  품질 필터
+        ↓
+  github_trending 테이블 insert
+```
+
+#### **Product Hunt Collector (producthunt.py)**
+```
+Product Hunt
+        ↓
+  Extract Data
         ↓
   Database Insert/Update
 ```
 
-#### **GitHub Collector**
+#### **번역 백필 (translate.py)**
 ```
-GitHub API
+title / description
         ↓
-  Fetch Repo Stats
+  MyMemory (무료) 번역
         ↓
-  Extract Stars, Last Commit
-        ↓
-  Update Benchmarks
-```
-
-#### **Web Scraper**
-```
-Official Websites
-        ↓
-  BeautifulSoup Parse
-        ↓
-  Extract Pricing, User Count
-        ↓
-  Database Update
-```
-
-#### **RSS Feed Aggregator**
-```
-Tool Blog RSS Feeds
-        ↓
-  feedparser Parse
-        ↓
-  Extract News
-        ↓
-  Insert into news table
+  title_ko / description_ko 백필
+  (collect.py --backfill-translations)
 ```
 
 **실행 스케줄**:
-- 주 1회 (매주 월요일 00:00 UTC)
-- APScheduler로 자동 실행
+- `.github/workflows/collect.yml` GitHub Actions cron `0 0 * * *` (매일 00:00 UTC)
+- `scheduler.py`(APScheduler)는 존재하나 기본 비활성
 
 ---
 
 ## 🔄 **데이터 흐름**
 
-### **1. 초기 데이터 로드**
+### **1. 초기 데이터 로드 (부트스트랩 — 멱등)**
 
 ```
-[Day 1]
-1. Product Hunt에서 상위 100개 도구 수집
-2. GitHub에서 관련 리포 정보 수집
-3. 공식 웹사이트에서 가격/사용자수 크롤링
-4. 벤치마크 데이터 수집
-5. DB에 저장
+backend/bootstrap.py 순서:
+1. init_db.py           → schema.sql 적용 (7개 테이블)
+2. load_tools_fixed.py  → tools 78행 + pricing
+3. seed_tags.py         → tags 19 + tool_tags ≈312 (tags_seed.json)
+4. seed_benchmarks.py   → benchmarks 24 (benchmarks_data.json, LLM 9개)
+
+검증 기대치:
+tools=78, pricing>0, tags=19, tool_tags=312,
+benchmarks=24, news=0, github_trending=0
 ```
 
-### **2. 주간 업데이트**
+### **2. 정기 수집 업데이트**
 
 ```
-[매주 월요일 00:00]
-1. 기존 100개 도구 정보 갱신
-2. 새로운 도구 감지 (Product Hunt)
-3. 벤치마크 업데이트
-4. 뉴스/트렌드 수집
-5. DB 업데이트
-6. Slack 알림
+[매일 00:00 UTC — GitHub Actions cron]
+1. collect.py 실행 (collectors/ 호출)
+2. 뉴스(RSS) → news 테이블
+3. 깃헙 트렌딩 → github_trending 테이블
+4. (옵션) --backfill-translations 로 한국어 백필
 ```
 
 ### **3. 사용자 요청 처리**
@@ -277,43 +287,44 @@ Tool Blog RSS Feeds
 ### **Frontend**
 | 계층 | 기술 | 용도 |
 |------|------|------|
-| 언어 | TypeScript | 타입 안정성 |
-| 프레임워크 | React 18 | UI 구축 |
-| 스타일 | Tailwind CSS | 디자인 |
+| 언어 | JavaScript (TS 아님) | UI 로직 |
+| 프레임워크 | React 19 | UI 구축 |
+| 빌드 | CRA (react-scripts, Vite 아님) | 빌드 |
+| 스타일 | 순수 CSS (Tailwind 아님) | 디자인 |
 | 상태관리 | Zustand | 전역 상태 |
-| HTTP | Axios | API 통신 |
-| 빌드 | Vite | 빠른 개발 |
+| HTTP | Axios (services/api.js 경유) | API 통신 |
+| 라우팅 | react-router-dom v7 | 페이지 전환 |
 
 ### **Backend**
 | 계층 | 기술 | 용도 |
 |------|------|------|
 | 언어 | Python 3.9+ | 서버 |
 | 프레임워크 | FastAPI | API 개발 |
-| ORM | SQLAlchemy | DB 객체 매핑 |
-| 검증 | Pydantic | 데이터 검증 |
+| DB 접근 | SQLAlchemy `text()` raw SQL (ORM 모델 없음) | 쿼리 |
+| 바인딩 | `:name` 파라미터 (SQLi 방지) | 안전 쿼리 |
 | 비동기 | asyncio | 비동기 처리 |
 
 ### **Data Collection**
 | 라이브러리 | 용도 |
 |-----------|------|
 | requests | HTTP 요청 |
-| BeautifulSoup4 | HTML 파싱 |
 | feedparser | RSS 파싱 |
-| APScheduler | 스케줄링 |
+| MyMemory (무료 번역) | title_ko/description_ko 백필 |
+| APScheduler | 스케줄링 (기본 비활성, 운영은 Actions cron) |
 
 ### **Database**
 | 기술 | 용도 |
 |------|------|
-| PostgreSQL 15 | 관계형 DB |
-| SQLAlchemy | ORM |
+| PostgreSQL | 관계형 DB |
 | psycopg2 | DB 드라이버 |
 
 ### **DevOps & Hosting**
 | 서비스 | 용도 |
 |--------|------|
-| Render | Backend 호스팅 |
+| Railway | Backend 호스팅 |
+| Render | PostgreSQL 호스팅 |
 | Vercel | Frontend 호스팅 |
-| GitHub | VCS & CI/CD |
+| GitHub Actions | CI(ci.yml) · 수집 cron(collect.yml) |
 
 ---
 
@@ -331,22 +342,20 @@ Local Machine
 ### **Production 환경**
 
 ```
-┌─────────────────────────────────────────────┐
-│          CloudFlare (CDN + DNS)              │
-└────────────┬────────────────────────────────┘
-             │
-    ┌────────┴────────┐
-    ▼                 ▼
-┌─────────────┐   ┌──────────────┐
-│  Vercel     │   │  Render      │
-│ (Frontend)  │   │ (Backend)    │
-│ React App   │   │ FastAPI App  │
-└─────────────┘   └──────┬───────┘
-                         │
-                    ┌────▼─────┐
-                    │PostgreSQL │
-                    │(Render)   │
-                    └───────────┘
+┌─────────────┐        ┌──────────────┐
+│  Vercel     │  HTTP  │  Railway     │
+│ (Frontend)  │ ─────▶ │  (Backend)   │
+│ React 19    │        │  FastAPI App │
+└─────────────┘        └──────┬───────┘
+                              │ (raw SQL)
+                         ┌────▼─────┐
+                         │PostgreSQL │
+                         │ (Render)  │
+                         └───────────┘
+
+GitHub Actions (collect.yml, 매일 cron) ──▶ Railway/DB 수집 적재
+
+CORS: ALLOWED_ORIGINS 화이트리스트, allow_credentials=False
 ```
 
 ### **배포 프로세스**
@@ -360,14 +369,14 @@ Local Machine
 
 [Backend]
 1. GitHub commit
-2. Render 자동 감지
-3. Build & Deploy
+2. Railway 자동 감지
+3. Build & Deploy (모듈은 app/ 안 + 상대 import — top-level import는 기동 크래시)
 4. Live in 2-3 분
 
 [Database]
-1. Migration needed?
-2. Render CLI: render migration
-3. Schema 업데이트
+1. PostgreSQL은 Render 호스팅
+2. 스키마/데이터: bootstrap.py 멱등 실행
+   (init_db → load_tools_fixed → seed_tags → seed_benchmarks)
 ```
 
 ---
@@ -418,10 +427,10 @@ API Gateway
 ## 🔒 **보안**
 
 ### **백엔드**
-- CORS 설정 (프론트엔드만 허용)
-- Rate Limiting (API 남용 방지)
-- 환경변수로 민감 정보 관리
-- SQL Injection 방지 (Parameterized Query)
+- CORS: ALLOWED_ORIGINS 화이트리스트(와일드카드 아님), allow_credentials=False
+- Rate Limiting: 인메모리 적용 (다중 워커 환경 한계 잔존)
+- 환경변수로 민감 정보 관리 (하드코딩 시크릿 없음)
+- SQL Injection 방지: SQLAlchemy `text()` + `:name` 파라미터 바인딩
 
 ### **데이터**
 - HTTPS 암호화
@@ -431,7 +440,6 @@ API Gateway
 ### **모니터링**
 - 로깅 및 에러 추적
 - Sentry (선택사항)
-- Slack 알림
 
 ---
 
@@ -445,12 +453,11 @@ API Gateway
        │ (Git Push)
        ▼
 ┌──────────────────┐
-│  GitHub Actions  │ (예정)
+│  GitHub Actions  │ (.github/workflows/)
 ├──────────────────┤
-│ 1. Lint & Format │
-│ 2. Tests         │
-│ 3. Build         │
-│ 4. Deploy        │
+│ ci.yml: 검증     │
+│ collect.yml:     │
+│   매일 수집 cron │
 └──────┬───────────┘
        │
        ▼
@@ -490,5 +497,7 @@ API Gateway
 
 ---
 
-**마지막 업데이트**: 2024-05-21  
+**마지막 업데이트**: 2026-05-31 (코드 정합 정정 — 스택/구조/데이터/배포 토폴로지)  
 **리뷰 주기**: 매달
+
+> 미확정: 운영(Render) DB가 실제로 bootstrap 됐는지는 라이브 확인 필요(세션로그상 점등 정황). news/github_trending은 0행 시작이라 cron 수집 후 점등.

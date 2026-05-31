@@ -118,7 +118,8 @@ const Benchmarks = () => {
         ) : types.length === 0 ? (
           <EmptyNoDataState
             title="아직 등록된 벤치마크가 없습니다"
-            message="벤치마크 데이터를 준비 중이에요."
+            badge="매일 수집 중 · Coming soon"
+            message="수집 파이프라인이 매일 새 데이터를 모으고 있어요. 곧 지금 뜨는 도구를 여기서 확인할 수 있습니다."
             ctaLabel="도구 탐색하기"
             ctaTo="/"
           />

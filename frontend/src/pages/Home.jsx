@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { toolsAPI, handleApiError } from '../services/api';
 import { useUIStore } from '../stores/toolStore';
 import ToolCard from '../components/ToolCard';
+import CompareTray from '../components/CompareTray';
 import Pagination from '../components/Pagination';
 import { LoadingState, EmptyFilteredState, ErrorState } from '../components/states/StateViews';
 import '../styles/Home.css';
@@ -10,16 +11,28 @@ import '../styles/Home.css';
 // 페이지당 도구 수(서버 limit 기본값과 일치).
 // 그리드가 한 행에 3개씩 → 3의 배수(21 = 3×7)로 두어 마지막 행이 꽉 차게 한다.
 const PAGE_SIZE = 21;
+// 검색 디바운스(ms): 입력 멈춤 후 호출. News 패턴과 동일.
+const SEARCH_DEBOUNCE_MS = 300;
 
 const Home = () => {
-  const { selectedToolsForCompare, clearCompareList } = useUIStore();
-  const compareCount = selectedToolsForCompare.length;
+  const compareCount = useUIStore(
+    (state) => state.selectedToolsForCompare.length
+  );
+  // GlobalSearch(F3)의 Enter → /?search=q 진입을 초기 입력값으로 1회 흡수.
+  const [searchParams] = useSearchParams();
   const [tools, setTools] = useState([]);
   // 페이지네이션: 1-indexed. totalPages/totalCount는 서버 pagination에서 채운다.
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [searchQuery, setSearchQuery] = useState('');
+  // 검색: searchInput은 입력값(즉시), search는 디바운스된 적용값(쿼리에 사용).
+  // /?search=q 로 진입한 경우 그 값을 초기값으로 흡수(이후 입력은 자유, URL 동기화는 비범위).
+  const [searchInput, setSearchInput] = useState(
+    () => searchParams.get('search') || ''
+  );
+  const [search, setSearch] = useState(
+    () => searchParams.get('search') || ''
+  );
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [selectedDifficulty, setSelectedDifficulty] = useState('전체');
   // 정렬은 서버 ORDER BY로 위임(sort_by 파라미터). sessionStorage로 영속화.
@@ -44,7 +57,7 @@ const Home = () => {
   const [difficulties, setDifficulties] = useState(['전체']);
 
   const isFiltered =
-    searchQuery !== '' || selectedCategory !== '전체' || selectedDifficulty !== '전체';
+    search !== '' || selectedCategory !== '전체' || selectedDifficulty !== '전체';
 
   // 난이도 필터가 활성이면 "난이도순" 정렬은 의미 없음 → 비활성 대상.
   const difficultySortDisabled = selectedDifficulty !== '전체';
@@ -89,22 +102,38 @@ const Home = () => {
     };
   }, []);
 
+  // 검색어 디바운스: 입력 멈춤 후 적용값(search)을 갱신 + 1페이지로 리셋.
+  // 같은 effect에서 batch → 더블 fetch 방지(News 패턴 동일).
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setSearch((prev) => {
+        if (prev === searchInput) return prev;
+        setCurrentPage(1);
+        return searchInput;
+      });
+    }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(id);
+  }, [searchInput]);
+
   const resetFilters = () => {
-    setSearchQuery('');
+    setSearchInput('');
+    setSearch('');
     setSelectedCategory('전체');
     setSelectedDifficulty('전체');
     setCurrentPage(1);
   };
 
   // 활성 필터 칩 목록(라벨 텍스트 항상 포함 — 색 단독 의미전달 금지).
+  // 검색 칩은 디바운스 적용값(search)을 표시(입력 중 미반영 — 의도된 동작).
   const activeFilters = [];
-  if (searchQuery !== '') {
+  if (search !== '') {
     activeFilters.push({
       key: 'search',
       label: '검색',
-      value: searchQuery,
+      value: search,
       onRemove: () => {
-        setSearchQuery('');
+        setSearchInput('');
+        setSearch('');
         setCurrentPage(1);
       },
     });
@@ -137,7 +166,7 @@ const Home = () => {
     setError(null);
     try {
       const params = {
-        search: searchQuery || undefined,
+        search: search || undefined,
         category: selectedCategory !== '전체' ? selectedCategory : undefined,
         difficulty: selectedDifficulty !== '전체' ? selectedDifficulty : undefined,
         // 정렬은 서버 ORDER BY로 위임 — 클라 슬라이스/재정렬 없이 응답 순서를 그대로 렌더.
@@ -176,7 +205,7 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, selectedCategory, selectedDifficulty, sortBy, currentPage]);
+  }, [search, selectedCategory, selectedDifficulty, sortBy, currentPage]);
 
   useEffect(() => {
     fetchTools();
@@ -196,17 +225,28 @@ const Home = () => {
       {/* Hero Section */}
       <section className="hero">
         <div className="hero-content">
-          <div className="hero-badge">AI Tools Discovery Platform</div>
+          <div className="hero-badge">매일 업데이트되는 AI 도구 · 트렌드</div>
           <h1 className="hero-title">모든 AI 도구를<br />한곳에서 발견하세요</h1>
           <p className="hero-subtitle">
-            최신 AI 도구를 발견하고, 비교하고, 당신에게 맞는 도구를 추천받으세요
+            빠르게 바뀌는 AI를 한곳에서. 지금 뜨는 도구를 발견하고, 비교하고, 나에게 맞는 걸 추천받으세요
           </p>
-          <a href="#tools" className="cta-button">
-            도구 탐색하기
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M10 4v12m0 0l-4-4m4 4l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </a>
+          <div className="hero-cta-group">
+            <a href="#tools" className="cta-button">
+              도구 탐색하기
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M10 4v12m0 0l-4-4m4 4l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </a>
+            <Link to="/trends/github" className="cta-button cta-button-secondary">
+              지금 뜨는 AI 보기
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M3 17l6-6 4 4 7-7m0 0h-5m5 0v5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
+            <Link to="/compare" className="cta-button cta-button-secondary">
+              도구 비교
+            </Link>
+          </div>
         </div>
         <div className="hero-gradient"></div>
       </section>
@@ -223,12 +263,10 @@ const Home = () => {
               <input
                 type="text"
                 placeholder="도구 이름, 기능으로 검색..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1);
-                }}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
                 className="search-input"
+                aria-label="도구 검색"
               />
             </div>
           </div>
@@ -281,28 +319,8 @@ const Home = () => {
       {/* Tools Section */}
       <section className={`tools-section ${compareCount > 0 ? 'has-compare-tray' : ''}`}>
         <div className="container">
-          {/* Compare Tray (C2) — 선택 도구 있을 때만 */}
-          {compareCount > 0 && (
-            <div className="compare-tray">
-              <div className="compare-tray-left">
-                <span className="counter-pill" aria-live="polite">
-                  비교함 {compareCount} / 5
-                </span>
-              </div>
-              <div className="compare-tray-actions">
-                <Link to="/compare" className="btn btn-primary">
-                  비교하기 →
-                </Link>
-                <button
-                  type="button"
-                  className="ghost-button"
-                  onClick={clearCompareList}
-                >
-                  비우기
-                </button>
-              </div>
-            </div>
-          )}
+          {/* Compare Tray (C2/F4) — store 자립 구독, 선택 도구 있을 때만 렌더 */}
+          <CompareTray />
 
           {/* Active Filter Chips (C3) */}
           {activeFilters.length > 0 && (
@@ -412,8 +430,8 @@ const Home = () => {
       {!loading && tools.length > 0 && (
         <section className="footer-cta">
           <div className="container">
-            <h2>더 많은 기능을 원하신가요?</h2>
-            <p>도구 비교, 맞춤 추천 등 더 많은 기능을 지금 바로 사용해보세요</p>
+            <h2>AI는 매주 바뀝니다. 계속 따라잡으세요</h2>
+            <p>지금 뜨는 도구, 벤치마크, 맞춤 추천까지 한곳에서 확인하세요</p>
             <div className="cta-buttons">
               <Link to="/compare" className="btn btn-primary">도구 비교</Link>
               <Link to="/recommendations" className="btn btn-secondary">맞춤 추천</Link>

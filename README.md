@@ -12,10 +12,10 @@
 |---|---|
 | 도구 탐색·검색·필터 | ✅ 동작 |
 | 도구 비교 (2~5개) | ✅ 동작 |
-| 맞춤 추천 (업무/직군) | ✅ 동작 (태그 데이터 적재 완료) |
-| 벤치마크 | ⏳ 테이블만 존재, **데이터 미적재(준비 중)** |
-| 뉴스/트렌드 | ⏳ 테이블만 존재, **데이터 미적재(준비 중)** |
-| 자동 데이터 수집 (APScheduler) | ❌ 미구현 (설계만: [DATA_COLLECTION_PLAN.md](./DATA_COLLECTION_PLAN.md)) |
+| 맞춤 추천 (업무/직군) | ✅ 동작 (태그 19개 · `tool_tags` ≈312행 적재) |
+| 벤치마크 | ✅ 동작 (`benchmarks` 24행 · LLM 9개 적재) |
+| 뉴스/깃헙 트렌드 | ⏳ 수집 파이프라인 완비, **0행 시작 → cron 수집 후 점등** |
+| 자동 데이터 수집 (collectors + GitHub Actions cron) | ⏳ 구현됨, 상시 자동 실행은 아님 (APScheduler 기본 비활성 · 매일 `0 0 * * *` cron) |
 
 진단 정본: [docs/PROJECT_OVERVIEW.md](./docs/PROJECT_OVERVIEW.md)
 
@@ -54,7 +54,8 @@ Python 3.11+ · Node.js 18+ · PostgreSQL 14+ (또는 원격 DB URL)
 cd backend
 pip install -r requirements.txt
 
-# DB 스키마 + 도구(78개) + 추천 태그를 한 번에 적재 (멱등)
+# DB 스키마 + 도구(78개) + 추천 태그(19) + 벤치마크(24)를 한 번에 적재 (멱등)
+# bootstrap.py 가 init_db.py(schema.sql)→load_tools_fixed.py→seed_tags.py→seed_benchmarks.py 순 실행
 DATABASE_URL='postgresql://USER:PASSWORD@HOST/DB' python bootstrap.py
 
 # 개발 서버
@@ -105,8 +106,9 @@ open http://localhost:8000/docs                   # Swagger UI
 | `GET /api/tools/{id}` | 도구 상세 (가격·태그·벤치/뉴스) |
 | `GET /api/recommendations` | 업무(`task`)/직군(`profession`) 추천 |
 | `GET /api/compare?ids=` | 도구 비교 (2~5개) |
-| `GET /api/news`, `/api/news/trending` | 뉴스 (데이터 미적재 시 빈 결과) |
-| `GET /api/benchmarks`, `/summary/{id}`, `/types` | 벤치마크 (데이터 미적재 시 빈 결과) |
+| `GET /api/news`, `/api/news/trending` | 뉴스 (0행 시작 — 수집 전엔 빈 결과) |
+| `GET /api/benchmarks`, `/summary/{id}`, `/types` | 벤치마크 (24행 적재) |
+| `GET /api/trends/github` | 깃헙 트렌드 (0행 시작 — 수집 전엔 빈 결과) |
 
 계약 정본: [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) · [API_SPECIFICATION.md](./API_SPECIFICATION.md)
 
@@ -134,7 +136,7 @@ open http://localhost:8000/docs                   # Swagger UI
 | [docs/PRODUCT_PLAN.md](./docs/PRODUCT_PLAN.md) · [docs/DESIGN_SECTIONS.md](./docs/DESIGN_SECTIONS.md) | 4페이지 기획·섹션 디자인 스펙 |
 | [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) · [API_SPECIFICATION.md](./API_SPECIFICATION.md) | API 계약 |
 | [backend/README.md](./backend/README.md) | DB 부트스트랩 절차 |
-| [DATA_COLLECTION_PLAN.md](./DATA_COLLECTION_PLAN.md) | 자동 수집 설계(미구현) |
+| [DATA_COLLECTION_PLAN.md](./DATA_COLLECTION_PLAN.md) | 자동 수집 설계안 (구현은 `collectors/`·`collect.py`·`scheduler.py`로 완료) |
 
 ---
 
@@ -148,16 +150,20 @@ ai-tools-platform/
 │   │   ├── database.py        # DATABASE_URL 엔진/세션
 │   │   ├── auth.py            # 선택적 API Key · 레이트리밋
 │   │   ├── exceptions.py      # 표준 에러 핸들러
-│   │   └── routers/           # tools · recommendations · compare · news · benchmarks
-│   ├── schema.sql             # 6개 테이블 정본 DDL
+│   │   └── routers/           # tools · recommendations · compare · news · benchmarks · trends
+│   ├── collectors/            # 수집 파이프라인 (base · rss · github · producthunt · github_trending)
+│   ├── collect.py             # 수집 진입점 (--backfill-translations: MyMemory 무료 번역 백필)
+│   ├── scheduler.py           # APScheduler (기본 비활성)
+│   ├── schema.sql             # 테이블 정본 DDL
 │   ├── init_db.py             # schema.sql 실행 러너
 │   ├── load_tools_fixed.py    # tools/pricing 적재 (tools_data.json)
 │   ├── seed_tags.py           # tags/tool_tags 적재 (추천)
-│   └── bootstrap.py           # 위 3단계 원샷 진입점
+│   ├── seed_benchmarks.py     # benchmarks 적재 (benchmarks_data.json)
+│   └── bootstrap.py           # 위 적재 단계 원샷 진입점 (멱등)
 └── frontend/
     └── src/
-        ├── pages/             # Home · Compare · Recommendations · Details
-        ├── components/        # ToolCard · 상태뷰 등
+        ├── pages/             # Home · Compare · Recommendations · News · Trends(GitHub) · Benchmarks · Details
+        ├── components/        # ToolCard · GlobalSearch · CompareTray · 상태뷰 등
         ├── stores/            # Zustand
         ├── services/api.js    # 모든 서버 호출 단일 경유
         └── styles/            # 디자인 토큰(:root) · 페이지 CSS

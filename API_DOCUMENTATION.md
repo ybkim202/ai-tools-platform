@@ -91,6 +91,12 @@ curl -H "X-API-Key: your-api-key" "http://localhost:8000/api/tools"
 
 현재 공개 엔드포인트는 모두 선택적 인증입니다. 향후 추가될 수 있습니다.
 
+### **레이트리밋 적용 범위**
+
+API Key 유무와 무관하게, 모든 공개 라우터(`tools`/`recommendations`/`compare`/`news`/`benchmarks`/`trends`)에
+레이트리밋이 일괄 적용됩니다(`main.py` 의 `Depends(rate_limit_dependency)`). 식별 기준은 API Key가 있으면
+키, 없으면 클라이언트 IP입니다. 한도·초과 응답·구현 한계는 [Rate Limiting](#rate-limiting) 절을 참조하세요.
+
 ---
 
 ## ❌ **에러 처리**
