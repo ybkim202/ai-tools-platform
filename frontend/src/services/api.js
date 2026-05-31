@@ -107,6 +107,34 @@ export const newsAPI = {
   },
 };
 
+// ==================== Trending API ====================
+export const trendingAPI = {
+  // 깃헙 트렌딩 레포 조회 (/trends/github 페이지 데이터 소스).
+  // params: { period('weekly'|'monthly'), theme(군집 키, 'all'이면 미전달), limit, offset }
+  // 가정 응답 계약: {
+  //   success,
+  //   data: {
+  //     repos: [{ id, owner, repo, name, avatar_url, html_url,
+  //               description, description_ko, stars, language,
+  //               topics: string[] }],
+  //     themes: [{ key, label, count }],   // 'all' 포함, count 0 테마는 미포함 권장
+  //     total,                              // 현재 범위/필터 총 개수
+  //     collected_at                        // 신선도(수집일) ISO 문자열
+  //   },
+  //   pagination: { total, limit, offset, pages },
+  //   error
+  // }
+  // ⚠ 백엔드 미확정: backend-fastapi/api-contract-guardian 가 GET /api/trends/github 및
+  //   위 응답 스키마를 확정해야 실제 동작. (현재 빈 결과 시 EmptyNoDataState로 graceful)
+  getGithubTrending: (params = {}) => {
+    const { theme, ...rest } = params;
+    // 'all' 또는 빈 테마는 서버에 전달하지 않는다(전체 = 필터 없음).
+    const query =
+      theme && theme !== 'all' ? { theme, ...rest } : { ...rest };
+    return apiClient.get('/trends/github', { params: query });
+  },
+};
+
 // ==================== Benchmarks API ====================
 export const benchmarksAPI = {
   // 벤치마크 조회

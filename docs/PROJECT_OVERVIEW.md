@@ -67,6 +67,7 @@
 | 도구 비교 (1~5개) | `GET /api/compare` | `routers/compare.py:9` | 구현됨 |
 | 벤치마크 조회/요약/타입 | `GET /api/benchmarks*` | `routers/benchmarks.py` | 구현됨, **데이터 없음** |
 | 뉴스/트렌딩 | `GET /api/news*` | `routers/news.py` | 구현됨, **데이터 없음** |
+| 깃헙 트렌드 | `GET /api/trends/github` | `routers/trends.py` + `collectors/github_trending.py` | 구현됨(수집기·테마 매핑·라우터). 데이터는 수집 실행 후 점등(`github_trending` 테이블 선적용 필요) |
 | 헬스/루트 | `GET /health`, `GET /` | `main.py:39-68` | 구현됨 |
 
 프론트엔드 페이지 (`frontend/src/App.js:50-55`):
@@ -196,6 +197,7 @@ erDiagram
 | G11 | **호스팅 정의 혼재** — Render(`render.yaml`)·Railway(`Dockerfile`)·gunicorn(`Procfile`) 공존. `Procfile`은 `gunicorn app.main:app`인데 ASGI 앱에 uvicorn worker 미지정 → 그대로면 기동 실패 가능. | 배포 혼선 | `render.yaml`, `Dockerfile:5`, `Procfile` |
 | G12 | **문서-코드 불일치(5장 전체)** — README/ARCHITECTURE가 실제와 다른 스택(TS/Tailwind/Vite/Render)·구조(models/schemas/services) 기술. | 신규 합류자 혼란 | 5장 표 참조 |
 | G13 | **레이트리미팅 미적용** — `check_rate_limit`가 정의만 되고 라우터에 의존성으로 연결 안 됨. | README의 "분당 100요청 제한"은 실제 미작동 | `auth.py:84`, `main.py`에서 미사용 |
+| G14 | **깃헙 트렌드 데이터 미적재(수집 대기)** — `GET /api/trends/github` 라우터·수집기(`collectors/github_trending.py`)·테마 매핑(`trends_themes.py`)은 구현됐으나, `github_trending` 테이블이 비어 있으면 빈 결과. 운영 점등에는 (1) DB 에 테이블 선적용(`init_db.py`), (2) 수집 1회 실행(`collect.py`)이 필요. 테이블 미존재 시 코드 선참조로 깨지지 않게 라우터는 예외를 잡아 graceful 처리하지만, **테이블 선적용 순서를 지켜야 함**(과거 `news.title_ko` 사고 교훈). | 트렌드 기능은 데이터 적재 전까지 빈 화면(프론트는 EmptyState graceful) | `routers/trends.py`, `collectors/github_trending.py`, `schema.sql`(github_trending) |
 
 ---
 

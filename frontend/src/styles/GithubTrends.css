@@ -1,0 +1,426 @@
+/* ========================================
+   GITHUB TRENDS PAGE (/trends/github)
+   토큰만 사용(인라인 hex 금지). 페이지 헤더/StateViews/Pagination 재사용.
+   네비 드롭다운/그룹 CSS는 전역 App.css에 위치(네비는 전역).
+   ======================================== */
+
+.trends-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+/* ---- 헤더: title + info 툴팁 ---- */
+.trend-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.info-tip {
+  position: relative;
+  display: inline-flex;
+}
+
+.info-tip-btn {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  border-radius: var(--radius-full);
+}
+
+.info-tip-btn:hover {
+  color: var(--color-text-secondary);
+}
+
+.info-tip-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.info-tip-bubble {
+  position: absolute;
+  top: 100%;
+  margin-top: var(--spacing-xs);
+  left: 0;
+  width: max-content;
+  max-width: 280px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+  z-index: 40;
+}
+
+.info-tip-bubble[hidden] {
+  display: none;
+}
+
+/* ---- 세그먼트 토글: 주간 / 월간 (pill 금지 → radius-md) ---- */
+.segmented {
+  display: inline-flex;
+  padding: 2px;
+  gap: 2px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.segmented-item {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  min-height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.segmented-item:hover {
+  color: var(--color-text-primary);
+}
+
+.segmented-item.is-active {
+  background-color: var(--color-primary-darker);
+  color: var(--color-on-primary);
+  font-weight: 600;
+}
+
+.segmented-item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.trend-freshness {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+/* ---- 주제 군집 칩 (filter-btn 확장 + 카운트 배지) ---- */
+/* filter-btn 시각 규칙(App.css는 크기만 정의 → 페이지 독립 로드 대비) */
+.trends-page .filter-btn {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  cursor: pointer;
+  transition: color var(--transition-fast),
+    border-color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.trends-page .filter-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.trends-page .filter-btn.active {
+  background-color: var(--color-primary-darker);
+  border-color: var(--color-primary-darker);
+  color: var(--color-on-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-surface-strong);
+}
+
+.trends-page .filter-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.trends-page .filter-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.theme-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.theme-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.chip-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 var(--spacing-xs);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  line-height: 1;
+  background-color: var(--color-primary-surface-strong);
+  color: var(--color-text-secondary);
+}
+
+.theme-chip.active .chip-count {
+  background-color: var(--color-primary-surface-strong);
+  color: var(--color-on-primary);
+}
+
+/* ---- 결과 영역 ---- */
+.trend-results {
+  display: flex;
+  flex-direction: column;
+}
+
+.trend-result-summary {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-lg);
+}
+
+.repo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-xl);
+}
+
+.repo-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  text-decoration: none;
+  transition: box-shadow var(--transition-fast),
+    transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+a.repo-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+a.repo-card:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.repo-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.repo-owner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  min-width: 0;
+}
+
+.repo-owner-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.repo-owner-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.repo-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.repo-stars .star-icon {
+  color: var(--color-text-tertiary);
+}
+
+.repo-name {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.2px;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+a.repo-card:hover .repo-name {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.repo-desc {
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+}
+
+.repo-desc-empty {
+  color: var(--color-text-tertiary);
+  font-style: italic;
+}
+
+.repo-desc-fallback {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.repo-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: auto;
+}
+
+.repo-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.repo-lang-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-text-tertiary);
+}
+
+.repo-topic {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: var(--spacing-xs) var(--spacing-md);
+}
+
+.repo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  align-self: flex-start;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a.repo-card:hover .repo-link {
+  text-decoration: underline;
+}
+
+/* ---- 페이지네이션(News와 동일 시각 규칙) ---- */
+.trends-page .pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-2xl);
+}
+
+.trends-page .pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--spacing-xs);
+  color: var(--color-text-tertiary);
+}
+
+/* ---- Reduced motion: transform/transition 제거(다른 페이지와 일관) ---- */
+@media (prefers-reduced-motion: reduce) {
+  .repo-card,
+  .segmented-item,
+  .trends-page .filter-btn {
+    transition: none;
+  }
+
+  a.repo-card:hover {
+    transform: none;
+  }
+}
+
+/* ---- 반응형 ---- */
+@media (max-width: 768px) {
+  .repo-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .segmented {
+    width: 100%;
+  }
+
+  .segmented-item {
+    flex: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .trends-container {
+    padding: 0 var(--spacing-md);
+  }
+
+  .repo-card {
+    padding: var(--spacing-lg);
+  }
+
+  .theme-filter {
+    gap: var(--spacing-xs);
+  }
+
+  /* 모바일에서 좌측 잘림 방지 */
+  .info-tip-bubble {
+    left: auto;
+    right: 0;
+  }
+}

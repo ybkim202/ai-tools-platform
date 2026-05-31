@@ -17,9 +17,10 @@
 2. [Benchmarks (벤치마크)](#benchmarks-벤치마크)
 3. [Pricing (가격)](#pricing-가격) — 미구현(도구 상세/비교 응답에 포함)
 4. [News (뉴스)](#news-뉴스)
-5. [Recommendations (추천)](#recommendations-추천)
-6. [Compare (비교)](#compare-비교)
-7. [에러 처리](#에러-처리)
+5. [Trends (트렌드)](#trends-트렌드)
+6. [Recommendations (추천)](#recommendations-추천)
+7. [Compare (비교)](#compare-비교)
+8. [에러 처리](#에러-처리)
 
 ---
 
@@ -359,6 +360,58 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
   "period_days": 7
 }
 ```
+
+---
+
+## 📈 **Trends (트렌드)**
+
+### **GET /trends/github**
+
+깃헙 트렌딩 오픈소스(최근 생성 + 고별점)를 기간·주제별로 조회합니다. 트렌딩 정의(v1) = 최근 생성(주간=7일/월간=30일 내 `created`) + 별점 내림차순. 주제(테마) 매핑은 서버에서 수행되어 응답 `themes[]` 에 임베드됩니다(별도 `/topics` 엔드포인트 없음).
+
+**요청 파라미터**
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|---------|------|------|------|
+| `period` | string | ❌ | `weekly`\|`monthly` (기본값: `weekly`) |
+| `theme` | string | ❌ | 주제 군집 key (`agent`/`rag`/`local-llm`/`image`/`voice`/`finetune`/`mlops`). 미지정/`all` 은 전체 |
+| `limit` | number | ❌ | 페이지당 레포 수 (1~100, 기본값: 12) |
+| `offset` | number | ❌ | 오프셋 (≥0) |
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "data": {
+    "repos": [
+      {
+        "id": 1,
+        "owner": "langchain-ai",
+        "repo": "langchain",
+        "name": "langchain",
+        "avatar_url": "https://avatars.githubusercontent.com/...",
+        "html_url": "https://github.com/langchain-ai/langchain",
+        "description": "Build context-aware reasoning applications",
+        "description_ko": "맥락 인식 추론 애플리케이션 구축",
+        "stars": 1234,
+        "language": "Python",
+        "topics": ["rag", "agents", "llm"]
+      }
+    ],
+    "themes": [
+      { "key": "all", "label": "전체", "count": 60 },
+      { "key": "rag", "label": "RAG", "count": 8 }
+    ],
+    "total": 60,
+    "collected_at": "2026-05-31T00:00:00+00:00"
+  },
+  "pagination": { "total": 60, "limit": 12, "offset": 0, "pages": 5 },
+  "error": null
+}
+```
+
+> `themes[]` 의 `all`(label `전체`) 은 항상 포함되고 count 0 테마는 제외됩니다. 카운트는 theme 필터 적용 전(period 전체) 기준이며 `total` 은 필터 후 개수입니다. `description_ko` 는 무료 MyMemory 번역(키 불필요)이며 실패 시 `null`(원문 유지). `collected_at` 은 해당 period `MAX(collected_date)`.
 
 ---
 

@@ -81,6 +81,36 @@ CREATE INDEX IF NOT EXISTS idx_news_tool_id_collected_date ON news(tool_id, coll
 ALTER TABLE news ADD COLUMN IF NOT EXISTS title_ko   TEXT;
 ALTER TABLE news ADD COLUMN IF NOT EXISTS summary_ko TEXT;
 
+-- ==================== github_trending (독립 트렌드 테이블) ====================
+-- GET /api/trends/github 의 데이터 소스. tools 와 무관한 독립 엔터티이므로 FK 없음.
+-- 수집기(collectors/github_trending.py)가 period(weekly/monthly)별로 멱등 교체한다.
+--   멱등 키: UNIQUE(repo_full_name, period) — 같은 레포/기간은 1행만 유지(upsert).
+-- topics 는 GitHub 가 준 토픽 배열을 JSONB 로 그대로 저장(라우터가 Python 에서
+--   테마 매핑에 사용). description_ko 는 무료 MyMemory 번역(키 불필요), 실패 시 NULL.
+-- rank 는 별점 내림차순 순위(1=최고). collected_date 는 신선도(라우터 collected_at).
+CREATE TABLE IF NOT EXISTS github_trending (
+    id              SERIAL PRIMARY KEY,
+    repo_full_name  VARCHAR(255) NOT NULL,
+    owner           VARCHAR(255),
+    repo            VARCHAR(255),
+    name            VARCHAR(255),
+    description     TEXT,
+    description_ko  TEXT,
+    html_url        VARCHAR(500),
+    avatar_url      VARCHAR(500),
+    stars           INTEGER,
+    forks           INTEGER,
+    language        VARCHAR(100),
+    topics          JSONB,
+    repo_created_at TIMESTAMP,
+    period          VARCHAR(10) NOT NULL,
+    rank            INTEGER,
+    collected_date  TIMESTAMP NOT NULL DEFAULT now(),
+    UNIQUE (repo_full_name, period)
+);
+CREATE INDEX IF NOT EXISTS idx_github_trending_period_rank ON github_trending(period, rank);
+CREATE INDEX IF NOT EXISTS idx_github_trending_period_collected ON github_trending(period, collected_date);
+
 -- ==================== tags / tool_tags (추천 기능) ====================
 -- 정본은 여기다. seed_tags.py 에도 동일 DDL 이 방어적으로 존재한다
 -- (seed_tags.py 단독 실행 보장용). 둘 중 하나를 바꾸면 반드시 양쪽을 동기화할 것.
