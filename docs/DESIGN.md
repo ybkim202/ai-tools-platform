@@ -9,13 +9,13 @@
 
 AITools는 Linear의 절제된 시스템 미감을 **라이트 캔버스**에서 구현한다. Linear가 다크 캔버스 위에 제품 스크린샷을 주인공으로 세우고, Apple이 사진 위에 UI를 숨긴다면, AITools의 주인공은 **데이터** — 78개+ AI 도구의 카드, 비교 테이블, 벤치마크 점수다. 따라서 우리 시스템은 사진이 아니라 **스캔 가능성(scannability)**과 **정보 위계**를 위해 설계된다.
 
-캔버스는 순백 `{colors.background}` (#FFFFFF), 그 위에 한 단계 들린 `{colors.surface}` (#F9FAFB)가 카드·패널·입력의 바탕이 된다. 깊이는 그림자가 아니라 **1px 헤어라인 `{colors.border}` (#E5E7EB) + 미묘한 surface 상승**으로 만든다. 시스템은 **무채색(monochrome) 캔버스 + 잉크(검정 계열 그레이) 단일 강조**로 운영한다 — 채도 높은 브랜드색은 없고, 유일한 강조는 잉크 `{colors.primary}` (라이트 #111827) 한 색으로 CTA, 포커스 링, 활성 필터, 링크 강조에만 인색하게 쓴다. 흰 텍스트가 올라가는 1차 버튼/CTA/활성칩 배경은 AA 대비를 위해 가장 진한 잉크 `{colors.primary-darker}` (라이트 #030712, 순흑 #000000은 금지)를 쓰고, 그 위 텍스트/아이콘은 `{colors.on-primary}` (라이트 #FFFFFF)다. 강조는 테마에 따라 **반전**된다: 라이트=어두운 잉크 강조, 다크=밝은 잉크 강조(다크 캔버스 #0F172A에서 어두운 잉크는 보이지 않으므로 `{colors.primary}`를 #F1F5F9 계열로 재정의하고 그 위 텍스트는 어두운 잉크 #0F172A). 시맨틱 색(success/warning/error)은 이 무채색 규칙의 **예외로 그대로 유지**되어 난이도(쉬움/보통/어려움)와 상태를 색+아이콘+텍스트로 함께 전달한다.
+캔버스는 순백 `{colors.background}` (#FFFFFF), 그 위에 한 단계 들린 `{colors.surface}` (#F9FAFB)가 카드·패널·입력의 바탕이 된다. 깊이는 그림자가 아니라 **1px 헤어라인 `{colors.border}` (#E5E7EB) + 미묘한 surface 상승**으로 만든다. 시스템은 **무채색(monochrome) 캔버스 + 잉크(검정 계열 그레이) 단일 강조**로 운영한다 — 채도 높은 브랜드색은 없고, 유일한 강조는 잉크 `{colors.primary}` (라이트 #111827) 한 색으로 CTA, 포커스 링, 활성 필터, 링크 강조에만 인색하게 쓴다. 흰 텍스트가 올라가는 1차 버튼/CTA/활성칩 배경은 AA 대비를 위해 가장 진한 잉크 `{colors.primary-darker}` (라이트 #030712, 순흑 #000000은 금지)를 쓰고, 그 위 텍스트/아이콘은 `{colors.on-primary}` (라이트 #FFFFFF)다. 강조는 테마에 따라 **반전**된다: 라이트=어두운 잉크 강조, 다크=밝은 잉크 강조(다크 캔버스 #0D1117에서 어두운 잉크는 보이지 않으므로 `{colors.primary}`를 #E6EDF3 계열로 재정의하고 그 위 텍스트는 어두운 잉크 #0D1117). 시맨틱 색(success/warning/error)은 이 무채색 규칙의 **예외로 그대로 유지**되어 난이도(쉬움/보통/어려움)와 상태를 색+아이콘+텍스트로 함께 전달한다.
 
 타이포그래피는 **Inter** 한 가족으로 display부터 caption까지 한 목소리를 낸다(가중치 400/500/600/700). 페이지 리듬은 Linear/Apple처럼 풀블리드 섹션 교차가 아니라, **카드 그리드 + 비교 테이블 + 필터 칩**이라는 SaaS형 밀도다. 다크모드는 `prefers-color-scheme`로 토큰 레벨에서 자동 전환된다 — 두 레퍼런스가 단일 테마만 가진 것과 달리, 우리는 **라이트가 기본이되 다크를 1급으로 지원**한다.
 
 **Key Characteristics:**
 - **라이트-캔버스 데이터 시스템** — `{colors.background}` (#FFFFFF)가 앵커, `{colors.surface}` (#F9FAFB)가 한 단계 위.
-- **무채색 + 단일 잉크 강조** (`{colors.primary}` — 라이트 #111827 / 다크 #F1F5F9) — CTA·포커스·활성 상태·링크에만 인색하게. 강조는 테마 반전(라이트=어두운 잉크 / 다크=밝은 잉크). 솔리드 배경은 `{colors.primary-darker}`(라이트 #030712 / 다크 #CBD5E1), 그 위 텍스트는 `{colors.on-primary}`(라이트 #FFFFFF / 다크 #0F172A)로 AA 확보. 채도 높은 브랜드 강조색 없음.
+- **무채색 + 단일 잉크 강조** (`{colors.primary}` — 라이트 #111827 / 다크 #E6EDF3) — CTA·포커스·활성 상태·링크에만 인색하게. 강조는 테마 반전(라이트=어두운 잉크 / 다크=밝은 잉크). 솔리드 배경은 `{colors.primary-darker}`(라이트 #030712 / 다크 #B6BFC9), 그 위 텍스트는 `{colors.on-primary}`(라이트 #FFFFFF / 다크 #0D1117)로 AA 확보. 채도 높은 브랜드 강조색 없음.
 - **그림자 최소, 헤어라인 중심** — 깊이는 `{colors.border}` 1px + surface 상승. `{shadow.md}`는 호버/들린 카드에만.
 - **데이터가 주인공** — 도구 카드 그리드와 비교 테이블의 스캔 가능성이 최우선. 장식 크롬 없음.
 - **Inter 단일 보이스** — display 700 → body 400, 한 가족. 음수 자간은 큰 헤드라인에만 가볍게.
@@ -33,27 +33,27 @@ AITools는 Linear의 절제된 시스템 미감을 **라이트 캔버스**에서
 
 강조는 **단일 잉크(검정 계열 그레이) 한 색**이며 테마에 따라 반전된다 — 라이트는 어두운 잉크, 다크는 밝은 잉크. 채도 높은 브랜드색은 없다. 순흑 #000000은 금지(가장 진한 값도 #030712).
 
-- **Ink** (`{colors.primary}` — 라이트 #111827 / 다크 #F1F5F9): 시그니처 강조. 링크, 포커스 링 루트, 테두리·아이콘 강조, 1차 버튼 **호버** 배경. 라이트에서 흰 배경 위 본문 텍스트로 써도 무방하나(잉크=텍스트 명도), 강조 의미로만 인색하게 쓴다.
+- **Ink** (`{colors.primary}` — 라이트 #111827 / 다크 #E6EDF3): 시그니처 강조. 링크, 포커스 링 루트, 테두리·아이콘 강조, 1차 버튼 **호버** 배경. 라이트에서 흰 배경 위 본문 텍스트로 써도 무방하나(잉크=텍스트 명도), 강조 의미로만 인색하게 쓴다.
 - **Ink Dark** (`{colors.primary-dark}` — 라이트 #0B1120 / 다크 #E5E7EB): 1차 버튼/CTA 프레스(active) 보조 단계.
-- **Ink Darker** (`{colors.primary-darker}` — 라이트 #030712 / 다크 #CBD5E1): **1차 버튼·CTA·활성 필터칩·배지의 솔리드 배경**. 그 위 텍스트/아이콘은 `{colors.on-primary}`.
-- **On Primary** (`{colors.on-primary}` — 라이트 #FFFFFF / 다크 #0F172A): 솔리드 잉크 배경 위 텍스트/아이콘 색. 라이트=흰텍스트 on 어두운 잉크, 다크=어두운 텍스트 on 밝은 잉크. 양쪽 AA 확보.
+- **Ink Darker** (`{colors.primary-darker}` — 라이트 #030712 / 다크 #B6BFC9): **1차 버튼·CTA·활성 필터칩·배지의 솔리드 배경**. 그 위 텍스트/아이콘은 `{colors.on-primary}`.
+- **On Primary** (`{colors.on-primary}` — 라이트 #FFFFFF / 다크 #0D1117): 솔리드 잉크 배경 위 텍스트/아이콘 색. 라이트=흰텍스트 on 어두운 잉크, 다크=어두운 텍스트 on 밝은 잉크. 양쪽 AA 확보.
 - **Ink Tint 4%** (`{colors.primary-surface}` — 라이트 `rgba(17,24,39,0.04)` / 다크 `rgba(241,245,249,0.06)`): btn-secondary 호버, footer-cta 단색 그라데이션, category-badge 바탕.
 - **Ink Tint Strong** (`{colors.primary-surface-strong}` — 라이트 `rgba(17,24,39,0.06)` / 다크 `rgba(241,245,249,0.10)`): 활성 필터칩·트레이 카운터·hero badge 배경, 활성 글로우.
 - **Ink Border** (`{colors.primary-border}` — 라이트 `rgba(17,24,39,0.16)` / 다크 `rgba(241,245,249,0.22)`): 잉크 틴트 면의 1px 테두리(칩·badge·카운터).
 
-> 강조 토큰 계열은 `:root`(라이트, 어두운 잉크)와 다크 2블록(`@media` + `[data-theme="dark"]`, 밝은 잉크)에 각각 정의된다. 다크에서는 캔버스(#0F172A) 대비 인지 강도 보존을 위해 색을 밝은 잉크로 반전하고 틴트 알파를 조정한다. 시맨틱 색(아래)은 무채색 규칙의 예외로 두 테마 모두 유지된다.
+> 강조 토큰 계열은 `:root`(라이트, 어두운 잉크)와 다크 2블록(`@media` + `[data-theme="dark"]`, 밝은 잉크)에 각각 정의된다. 다크에서는 캔버스(#0D1117) 대비 인지 강도 보존을 위해 색을 밝은 잉크로 반전하고 틴트 알파를 조정한다. 시맨틱 색(아래)은 무채색 규칙의 예외로 두 테마 모두 유지된다.
 
 ### Surface
-- **Background** (`{colors.background}` — #FFFFFF / dark #0F172A): 기본 페이지 캔버스.
-- **Surface** (`{colors.surface}` — #F9FAFB / dark #1E293B): 한 단계 위 — 카드, 입력, 비교 테이블, 검색/필터 섹션 바탕.
-- **Border** (`{colors.border}` — #E5E7EB / dark #334155): 1px 헤어라인 — 카드, 구분선, 입력 테두리, 테이블 셀 라인.
+- **Background** (`{colors.background}` — #FFFFFF / dark #0D1117): 기본 페이지 캔버스.
+- **Surface** (`{colors.surface}` — #F9FAFB / dark #161B22): 한 단계 위 — 카드, 입력, 비교 테이블, 검색/필터 섹션 바탕.
+- **Border** (`{colors.border}` — #E5E7EB / dark #2A2F37): 1px 헤어라인 — 카드, 구분선, 입력 테두리, 테이블 셀 라인.
 
 > Linear의 4단 surface 사다리와 달리 우리는 **background → surface 2단**이면 충분하다. 더 깊은 위계가 필요하면 헤어라인 강도(2px) 또는 `{shadow}`로 표현하고, 임의의 회색 단계를 새로 만들지 않는다.
 
 ### Text
-- **Ink** (`{colors.text-primary}` — #111827 / dark #F1F5F9): 모든 헤드라인·본문 강조.
-- **Ink Secondary** (`{colors.text-secondary}` — #6B7280 / dark #CBD5E1): 부가 설명, 메타, 카드 본문.
-- **Ink Tertiary** (`{colors.text-tertiary}` — #9CA3AF / dark #94A3B8): 플레이스홀더, 비활성, 각주.
+- **Ink** (`{colors.text-primary}` — #111827 / dark #E6EDF3): 모든 헤드라인·본문 강조.
+- **Ink Secondary** (`{colors.text-secondary}` — #6B7280 / dark #9198A1): 부가 설명, 메타, 카드 본문.
+- **Ink Tertiary** (`{colors.text-tertiary}` — #9CA3AF / dark #6E7681): 플레이스홀더, 비활성, 각주.
 
 ### Semantic
 - **Success** (`{colors.success}` — #16A34A): 난이도 "쉬움". *(무료 가격·성공 토스트는 계획 — 현재 미구현)*. 10% 틴트 배경과 함께 배지로.
@@ -62,10 +62,10 @@ AITools는 Linear의 절제된 시스템 미감을 **라이트 캔버스**에서
 
 > 시맨틱 색은 **배지·상태**에만. Linear처럼 마케팅 면에 무분별하게 뿌리지 않는다. 색만으로 의미를 전달하지 말고 항상 텍스트/아이콘을 동반한다(접근성).
 
-> **다크모드 = 완전 무채색 (채도 0).** 시맨틱 색(success/warning/error)도 다크에선 그레이스케일로 재정의된다(success #94A3B8, warning #CBD5E1, error #F1F5F9). 의미는 **명도 + 점 문자(○◐●) + 텍스트 라벨**로 전달한다.
+> **다크모드 = 저채도 중성 그레이 (명도↓·채도↓, GitHub 다크 계열).** 캔버스도 더 어둡고(`background` #0D1117 / `surface` #161B22 / `border` #2A2F37) 중성적이다. 시맨틱 색(success/warning/error)도 다크에선 그레이스케일로 재정의된다(success #9198A1, warning #C2C9D1, error #E6EDF3). 의미는 **명도 + 점 문자(○◐●) + 텍스트 라벨**로 전달한다.
 
 ### Note
-순흑(`#000000`)을 텍스트나 배경에 쓰지 않는다 — Ink는 #111827이다. 다크모드 캔버스도 순흑이 아닌 #0F172A(slate)다.
+순흑(`#000000`)을 텍스트나 배경에 쓰지 않는다 — Ink는 #111827이다. 다크모드 캔버스도 순흑이 아닌 #0D1117(slate)다.
 
 ---
 
@@ -133,7 +133,7 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 | 4 (강조) | `{shadow.lg}` (`0 10px 15px / 0 4px 6px`) | 1차 버튼 호버, 모달 |
 | Focus | 포커스 링: `box-shadow: 0 0 0 3px {colors.focus-ring}` (잉크 링 — 라이트 `rgba(17,24,39,0.28)` / 다크 `rgba(241,245,249,0.36)`) (+ 입력은 inset 2px ink-tint-strong) | 포커스된 입력/버튼/필터 |
 
-깊이는 **헤어라인 + surface**가 1차, 그림자는 인터랙션 피드백(호버/들림)에만. 정적 카드에 무거운 그림자를 깔지 않는다(Linear 정신). 다크모드에선 그림자가 약하므로 헤어라인(`{colors.border}` #334155)이 위계를 진다.
+깊이는 **헤어라인 + surface**가 1차, 그림자는 인터랙션 피드백(호버/들림)에만. 정적 카드에 무거운 그림자를 깔지 않는다(Linear 정신). 다크모드에선 그림자가 약하므로 헤어라인(`{colors.border}` #2A2F37)이 위계를 진다.
 
 ### Decorative Depth
 - **데이터 카드와 비교 테이블**이 시각적 주인공. 사진·일러스트 의존 없음.
@@ -170,8 +170,8 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 ### Buttons
 
 **`button-primary`** — 1차 잉크 CTA(`{colors.on-primary}` 텍스트, AA).
-- 배경 **`{colors.primary-darker}`**(라이트 #030712 / 다크 #CBD5E1), 텍스트 `{colors.on-primary}`(라이트 #FFFFFF / 다크 #0F172A, 양쪽 AA), 타입 `{type.button}`, 패딩 `{spacing.md} {spacing.xl}`, 라운드 `{rounded.md}`, `{shadow.md}`.
-- 호버: 배경 `{colors.primary}`(라이트 #111827 / 다크 #F1F5F9, **명도 이동** = 들림 신호) + `{shadow.lg}` + `translateY(-2px)`. 텍스트는 `{colors.on-primary}` 유지.
+- 배경 **`{colors.primary-darker}`**(라이트 #030712 / 다크 #B6BFC9), 텍스트 `{colors.on-primary}`(라이트 #FFFFFF / 다크 #0D1117, 양쪽 AA), 타입 `{type.button}`, 패딩 `{spacing.md} {spacing.xl}`, 라운드 `{rounded.md}`, `{shadow.md}`.
+- 호버: 배경 `{colors.primary}`(라이트 #111827 / 다크 #E6EDF3, **명도 이동** = 들림 신호) + `{shadow.lg}` + `translateY(-2px)`. 텍스트는 `{colors.on-primary}` 유지.
 - 프레스: 배경 `{colors.primary-dark}`(라이트 #0B1120 / 다크 #E5E7EB).
 
 **`cta-button`** — 대형 히어로 CTA. 같은 색 단계(기본 `{colors.primary-darker}` → 호버 `{colors.primary}` → press `{colors.primary-dark}`), `{type.body-lg}`, 패딩 `{spacing.lg} {spacing.2xl}`, 라운드 `{rounded.lg}`, 아이콘 갭 `{spacing.md}`.
@@ -199,7 +199,7 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 
 **`compare-tray`** — 비교 담기 트레이. 배경 `{colors.surface}`, 1px `{colors.border}`, 라운드 `{rounded.lg}`, `{shadow.md}`. 데스크톱 상단 sticky, 모바일(≤768px) 하단 fixed + safe-area. 좌측 카운터 pill(ink tint-strong) + 우측 "비교하기"(button-primary)/"비우기"(ghost-button).
 
-**`active-filter-chip`** — 활성 필터 칩. 배경 `{colors.primary-surface-strong}`(잉크 틴트), 1px `{colors.primary-border}`, 텍스트 `{colors.primary-darker}`(라이트 #030712 / 다크 #CBD5E1, 틴트 면 위 AA), `{type.caption}`/600, 라운드 `{rounded.full}`. 형식 `[라벨: 값 ×]` — 라벨 텍스트 항상 포함(색 단독 의미전달 금지). × 제거 버튼은 별도 클릭영역, 호버 시 `{colors.error}`.
+**`active-filter-chip`** — 활성 필터 칩. 배경 `{colors.primary-surface-strong}`(잉크 틴트), 1px `{colors.primary-border}`, 텍스트 `{colors.primary-darker}`(라이트 #030712 / 다크 #B6BFC9, 틴트 면 위 AA), `{type.caption}`/600, 라운드 `{rounded.full}`. 형식 `[라벨: 값 ×]` — 라벨 텍스트 항상 포함(색 단독 의미전달 금지). × 제거 버튼은 별도 클릭영역, 호버 시 `{colors.error}`.
 
 **`hero-badge`** — 히어로 상단 pill 배지. 배경 `{colors.primary-surface-strong}`, 1px `{colors.primary-border}`, 텍스트 `{colors.primary-darker}`(AA), `{type.caption}`/600, 라운드 `{rounded.full}`, backdrop-blur.
 
@@ -211,7 +211,7 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 - **점 문자는 난이도 3단계를 단조 증가하는 채움 정도로 표현한다**: 쉬움/easy `○`(빈 원) < 보통/medium `◐`(반 채움) < 어려움/hard `●`(꽉 채움). 매핑은 `utils/difficulty.js`(`difficultyDot`)가 단일 출처이며 한글/영문 enum 양쪽을 처리하고, 미매핑 값은 중립 점 `◌`로 폴백한다. 다크모드(채도 0)에서 색과 독립된 시각 채널 역할을 한다.
 - 배경/잉크는 `--difficulty-{easy,medium,hard}-{bg,ink}` 6종 토큰 경유(raw rgba 직접 사용 금지).
 - easy: `--difficulty-easy-bg`(라이트 success 10%) / `--difficulty-easy-ink`. medium: `--difficulty-medium-bg`(warning 12%) / `--difficulty-medium-ink`. hard: `--difficulty-hard-bg`(error 10%) / `--difficulty-hard-ink`.
-- **다크 예외**: 무채색 흰색(#F1F5F9) 저알파 틴트 배경(easy 5% / medium 9% / hard 13%)에 명도 단조 잉크(easy #94A3B8 < medium #CBD5E1 < hard #F1F5F9). 어려움이 가장 밝다(최고 강조).
+- **다크 예외**: 무채색 흰색(#E6EDF3) 저알파 틴트 배경(easy 5% / medium 9% / hard 13%)에 명도 단조 잉크(easy #9198A1 < medium #C2C9D1 < hard #E6EDF3). 어려움이 가장 밝다(최고 강조).
 
 **`status-badge`** — 일반 상태 pill. 배경 `{colors.surface}`, 텍스트 `{colors.text-secondary}`, `{type.caption}`, 라운드 `{rounded.full}`, 패딩 `{spacing.xs} {spacing.sm}`.
 
@@ -256,7 +256,7 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 - 2차 채도색(주황/분홍/청록 등)을 브랜드 강조로 도입하지 않는다 — 시맨틱 색은 배지에만.
 - 분위기 그라데이션·스포트라이트 카드·네온 글로우를 추가하지 않는다.
 - 정적 카드에 무거운 그림자를 깔지 않는다(`{shadow.lg}`는 호버/모달만).
-- 순흑 `#000000`을 텍스트/배경에 쓰지 않는다(Ink = #111827, 다크 캔버스 = #0F172A).
+- 순흑 `#000000`을 텍스트/배경에 쓰지 않는다(Ink = #111827, 다크 캔버스 = #0D1117).
 - 색만으로 의미를 전달하지 않는다(난이도·상태에 항상 텍스트 동반).
 - 페이지마다 제각각인 로딩/에러 UI를 만들지 않는다.
 
