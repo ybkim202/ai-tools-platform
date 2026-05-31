@@ -4,6 +4,7 @@ import { useUIStore } from '../stores/toolStore';
 import { compareAPI, handleApiError } from '../services/api';
 import { formatUserCount } from '../utils/format';
 import { handleLogoError } from '../utils/logoFallback';
+import { difficultyDot } from '../utils/difficulty';
 import {
   LoadingState,
   EmptyNoDataState,
@@ -165,6 +166,9 @@ const Compare = () => {
                 {comparisonData.map((tool) => (
                   <td key={tool.id}>
                     <span className={`difficulty ${tool.difficulty}`}>
+                      <span className="difficulty-dot" aria-hidden="true">
+                        {difficultyDot(tool.difficulty)}
+                      </span>
                       {tool.difficulty}
                     </span>
                   </td>
@@ -263,6 +267,9 @@ const Compare = () => {
                   <dt>난이도</dt>
                   <dd>
                     <span className={`difficulty ${tool.difficulty}`}>
+                      <span className="difficulty-dot" aria-hidden="true">
+                        {difficultyDot(tool.difficulty)}
+                      </span>
                       {tool.difficulty}
                     </span>
                   </dd>

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useUIStore } from '../stores/toolStore';
 import { formatUserCount } from '../utils/format';
 import { handleLogoError } from '../utils/logoFallback';
+import { difficultyDot } from '../utils/difficulty';
 import '../styles/ToolCard.css';
 
 const ToolCard = ({ tool, reasonTags }) => {
@@ -69,7 +70,9 @@ const ToolCard = ({ tool, reasonTags }) => {
               <div className="meta-item">
                 <span className="meta-label">난이도</span>
                 <span className={`difficulty-badge ${tool.difficulty}`}>
-                  <span className="difficulty-dot" aria-hidden="true">●</span>
+                  <span className="difficulty-dot" aria-hidden="true">
+                    {difficultyDot(tool.difficulty)}
+                  </span>
                   {tool.difficulty}
                 </span>
               </div>
