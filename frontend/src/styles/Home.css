@@ -125,8 +125,8 @@
   --color-focus-ring: rgba(241, 245, 249, 0.36);
   /* Dark ink text on light-ink accent surface */
   --color-on-primary: #0F172A;
-  /* Semantic → dark 완전 무채색 (채도 0, R=G=B). 의미는 명도+점+텍스트로 전달 */
-  --color-success: #94A3B8;
+  /* Semantic → dark 무채색 슬레이트 계열(다크 캔버스와 동일 톤, 유채색 제거). 의미는 명도+점(○◐●)+텍스트로 전달 */
+  --color-success: #A8B4C4;
   --color-warning: #CBD5E1;
   --color-error: #F1F5F9;
   --color-error-dark: #CBD5E1;
@@ -134,7 +134,7 @@
   --color-error-border: rgba(241, 245, 249, 0.22);
   /* Difficulty badge → dark 무채색. 명도 단조: hard > medium > easy */
   --difficulty-easy-bg: rgba(241, 245, 249, 0.05);
-  --difficulty-easy-ink: #94A3B8;
+  --difficulty-easy-ink: #A8B4C4;
   --difficulty-medium-bg: rgba(241, 245, 249, 0.09);
   --difficulty-medium-ink: #CBD5E1;
   --difficulty-hard-bg: rgba(241, 245, 249, 0.13);

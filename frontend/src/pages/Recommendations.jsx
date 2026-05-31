@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { recommendationsAPI, toolsAPI, handleApiError } from '../services/api';
 import ToolCard from '../components/ToolCard';
 import {
@@ -21,9 +21,13 @@ const Recommendations = () => {
   // 업무/직업 선택지는 실제 DB 태그(meta.tags)에서 채운다(하드코딩 목록 금지).
   // task/profession 모두 태그를 옵션 소스로 사용. 로드 실패 시 빈 목록 폴백.
   const [options, setOptions] = useState([]);
+  // 옵션(meta) 로드 상태: 0건 복구 동선("다시 시도") 구분용.
+  // 'loading' | 'ready' | 'error'
+  const [optionsStatus, setOptionsStatus] = useState('loading');
 
-  useEffect(() => {
+  const loadOptions = useCallback(() => {
     let active = true;
+    setOptionsStatus('loading');
     toolsAPI
       .getMeta()
       .then((res) => {
@@ -31,15 +35,26 @@ const Recommendations = () => {
         const tags = res?.data?.data?.tags;
         if (Array.isArray(tags) && tags.length > 0) {
           setOptions(tags);
+        } else {
+          setOptions([]);
         }
+        setOptionsStatus('ready');
       })
       .catch(() => {
-        // 메타 로드 실패: 옵션 없음(아래 빈 상태 안내로 처리).
+        // 메타 로드 실패: 옵션 없음 + 복구 동선("다시 시도") 노출.
+        if (!active) return;
+        setOptions([]);
+        setOptionsStatus('error');
       });
     return () => {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    const cleanup = loadOptions();
+    return cleanup;
+  }, [loadOptions]);
 
   const fetchRecommendations = async (type, value) => {
     setLoading(true);
@@ -135,9 +150,18 @@ const Recommendations = () => {
                 </button>
               ))}
             </div>
+          ) : optionsStatus === 'loading' ? (
+            <LoadingState message="선택지를 불러오는 중..." />
+          ) : optionsStatus === 'error' ? (
+            // meta 로드 실패로 옵션 0건: 침묵하지 않고 재시도 동선 제공.
+            <ErrorState
+              title="선택지를 불러오지 못했습니다"
+              message="네트워크를 확인한 뒤 다시 시도해주세요."
+              onRetry={loadOptions}
+            />
           ) : (
             <p className="state-message" role="status">
-              선택지를 불러오는 중이거나 준비된 분류가 없습니다.
+              준비된 분류가 아직 없습니다.
             </p>
           )}
         </div>
