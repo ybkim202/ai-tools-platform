@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { SearchEmptyIcon, ComingSoonIcon, ErrorIcon } from './StateIcons';
 import '../../styles/StateViews.css';
 
@@ -41,6 +42,7 @@ export const EmptyNoDataState = ({
   message,
   badge = '준비 중 · Coming soon',
   ctaLabel,
+  ctaTo,
   ctaHref,
   onCta,
   inline = false,
@@ -54,12 +56,18 @@ export const EmptyNoDataState = ({
     {badge && <span className="coming-soon-badge">{badge}</span>}
     <p className="state-title">{title}</p>
     {message && <p className="state-message">{message}</p>}
-    {ctaLabel && ctaHref && (
+    {/* 내부 경로는 SPA 라우팅 유지를 위해 Link 사용(전체 리로드 방지). */}
+    {ctaLabel && ctaTo && (
+      <Link className="state-cta-primary" to={ctaTo}>
+        {ctaLabel}
+      </Link>
+    )}
+    {ctaLabel && !ctaTo && ctaHref && (
       <a className="state-cta-primary" href={ctaHref}>
         {ctaLabel}
       </a>
     )}
-    {ctaLabel && !ctaHref && onCta && (
+    {ctaLabel && !ctaTo && !ctaHref && onCta && (
       <button type="button" className="state-cta-primary" onClick={onCta}>
         {ctaLabel}
       </button>

@@ -1,0 +1,200 @@
+/* ========================================
+   BENCHMARKS LEADERBOARD (/benchmarks)
+   토큰만 사용(인라인 hex 금지). 막대 width의 동적 %만 인라인 허용.
+   ======================================== */
+
+.benchmarks-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.benchmarks-types {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* 칩 내부 카운트 */
+.chip-count {
+  margin-left: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+.filter-btn.active .chip-count {
+  color: var(--color-on-primary);
+}
+
+.leaderboard-caption {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* ---- 데스크톱 테이블 ---- */
+.leaderboard {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  overflow-x: auto;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-base);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.leaderboard-table tbody tr:last-child th,
+.leaderboard-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.leaderboard-table thead th {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.col-rank {
+  width: 64px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.col-rank.rank-top {
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.col-score {
+  text-align: right;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+thead .col-score {
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.leaderboard-tool {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.leaderboard-tool:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.leaderboard-tool:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+.col-source {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- 점수 막대 (무채색, 장식 채널) ---- */
+.bar-track {
+  width: 100%;
+  min-width: 120px;
+  height: 8px;
+  background-color: var(--color-primary-surface);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 8px;
+  background-color: var(--color-text-tertiary);
+  border-radius: var(--radius-full);
+}
+
+/* ---- 모바일 카드 (기본 숨김) ---- */
+.leaderboard-cards {
+  display: none;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.leaderboard-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+}
+
+.leaderboard-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.leaderboard-card-rank {
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.leaderboard-card-rank.rank-top {
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.leaderboard-card-score-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.leaderboard-card-score {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.leaderboard-card-source {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* ---- 반응형: 테이블 → 카드 ---- */
+@media (max-width: 768px) {
+  .leaderboard {
+    display: none;
+  }
+
+  .leaderboard-cards {
+    display: flex;
+  }
+}

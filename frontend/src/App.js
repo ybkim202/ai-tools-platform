@@ -10,6 +10,8 @@ import Home from './pages/Home';
 import Compare from './pages/Compare';
 import Details from './pages/Details';
 import Recommendations from './pages/Recommendations';
+import News from './pages/News';
+import Benchmarks from './pages/Benchmarks';
 import { useUIStore } from './stores/toolStore';
 import './App.css';
 
@@ -93,6 +95,22 @@ function App() {
               >
                 추천
               </NavLink>
+              <NavLink
+                to="/news"
+                className={({ isActive }) =>
+                  `nav-link${isActive ? ' nav-link-active' : ''}`
+                }
+              >
+                뉴스
+              </NavLink>
+              <NavLink
+                to="/benchmarks"
+                className={({ isActive }) =>
+                  `nav-link${isActive ? ' nav-link-active' : ''}`
+                }
+              >
+                벤치마크
+              </NavLink>
               <button
                 type="button"
                 className="nav-button"
@@ -112,6 +130,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/recommendations" element={<Recommendations />} />
+            <Route path="/news" element={<News />} />
+            <Route path="/benchmarks" element={<Benchmarks />} />
             <Route path="/details/:id" element={<Details />} />
           </Routes>
         </main>

@@ -61,7 +61,7 @@ const Compare = () => {
           badge={null}
           icon={<SearchEmptyIcon />}
           ctaLabel="도구 탐색하기"
-          ctaHref="/"
+          ctaTo="/"
         />
       </div>
     );
