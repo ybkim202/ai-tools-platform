@@ -33,8 +33,9 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-# 테마 매핑 단일 정본(라우터/수집기 공용). backend/ 가 sys.path 에 있어 top-level import.
-import trends_themes
+# 테마 매핑 단일 정본. app 패키지 내부 모듈로 두어 패키지 상대 import 한다
+# (database 와 동일 방식 — top-level import 는 gunicorn/uvicorn 기동 시 sys.path 미포함으로 실패).
+from .. import trends_themes
 
 from ..database import get_db
 
