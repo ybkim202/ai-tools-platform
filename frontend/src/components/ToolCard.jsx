@@ -2,8 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useUIStore } from '../stores/toolStore';
 import { formatUserCount } from '../utils/format';
+import { safeHttpUrl } from '../utils/url';
 import { handleLogoError, resolveLogoSrc } from '../utils/logoFallback';
 import { difficultyDot } from '../utils/difficulty';
+import ExternalLinkIcon from './ExternalLinkIcon';
 import '../styles/ToolCard.css';
 
 const ToolCard = ({ tool, reasonTags }) => {
@@ -13,6 +15,8 @@ const ToolCard = ({ tool, reasonTags }) => {
   // (조용히 무시 → 사용자가 "고장났다"고 느끼는 문제 방지).
   const compareLimitReached = selectedToolsForCompare.length >= 5;
   const compareDisabled = !isSelected && compareLimitReached;
+
+  const officialUrl = safeHttpUrl(tool.official_url);
 
   const handleCompareToggle = () => {
     if (isSelected) {
@@ -101,14 +105,18 @@ const ToolCard = ({ tool, reasonTags }) => {
 
       {/* 액션 버튼 */}
       <div className="card-footer">
-        <a
-          href={tool.official_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn btn-primary"
-        >
-          방문하기 →
-        </a>
+        {officialUrl && (
+          <a
+            href={officialUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-primary"
+          >
+            방문하기
+            <ExternalLinkIcon />
+            <span className="sr-only">(새 창에서 열림)</span>
+          </a>
+        )}
         <button
           className={`btn btn-secondary ${isSelected ? 'active' : ''}`}
           onClick={handleCompareToggle}

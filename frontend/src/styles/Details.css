@@ -260,6 +260,26 @@
   margin-bottom: var(--spacing-md);
 }
 
+/* 뉴스 카드 번역 표현 통일(News 페이지 패턴 정렬) */
+.news-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* 한글 제목 아래 원문(영어) 제목 — 작고 보조 톤 */
+.news-card-original {
+  margin: calc(-1 * var(--spacing-sm)) 0 var(--spacing-md);
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--color-text-tertiary);
+}
+
 .source-link {
   color: var(--color-primary);
   font-weight: 600;

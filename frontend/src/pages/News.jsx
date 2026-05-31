@@ -7,40 +7,16 @@ import {
   EmptyFilteredState,
   ErrorState,
 } from '../components/states/StateViews';
+import Pagination from '../components/Pagination';
+import ExternalLinkIcon from '../components/ExternalLinkIcon';
+import { formatDate } from '../utils/format';
+import { safeHttpUrl } from '../utils/url';
 import '../styles/News.css';
 
 // 한 페이지당 뉴스 수.
 const NEWS_LIMIT = 10;
 // 검색 디바운스(ms): 입력 멈춤 후 호출.
 const SEARCH_DEBOUNCE_MS = 300;
-
-// 표시용 날짜 포맷: 'YYYY-MM-DD ...' 문자열에서 날짜 부분만 안전하게 취한다.
-// 누락/비정상 값이면 null(호출부에서 메타 점 생략).
-const formatDate = (value) => {
-  if (!value) return null;
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) {
-    // 파싱 실패 시 앞 10자(YYYY-MM-DD)만 폴백 노출.
-    return typeof value === 'string' ? value.slice(0, 10) : null;
-  }
-  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(
-    d.getDate()
-  ).padStart(2, '0')}`;
-};
-
-// 출처 URL 안전화: 자동 수집 데이터는 신뢰 불가하므로 http/https 스킴만 허용한다.
-// javascript: 등 비허용 스킴은 null 반환 → 호출부에서 링크 미표시(클릭 시 스크립트 실행 차단).
-const safeHttpUrl = (value) => {
-  if (!value || typeof value !== 'string') return null;
-  try {
-    const parsed = new URL(value, window.location.origin);
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
-      ? value
-      : null;
-  } catch {
-    return null;
-  }
-};
 
 const News = () => {
   // 섹션1: 트렌딩 (독립 상태)
@@ -134,26 +110,6 @@ const News = () => {
     setSearchInput('');
     setSearch('');
     setCurrentPage(1);
-  };
-
-  // 페이지 번호 목록: 7개 이하면 전부, 초과면 첫·현재±1·끝 + 말줄임(null).
-  // (Home.jsx buildPageItems 패턴 재사용.)
-  const buildPageItems = () => {
-    if (totalPages <= 7) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    }
-    const items = new Set([1, totalPages, currentPage]);
-    if (currentPage - 1 > 1) items.add(currentPage - 1);
-    if (currentPage + 1 < totalPages) items.add(currentPage + 1);
-    const sorted = Array.from(items).sort((a, b) => a - b);
-    const result = [];
-    let prev = 0;
-    for (const n of sorted) {
-      if (n - prev > 1) result.push(null);
-      result.push(n);
-      prev = n;
-    }
-    return result;
   };
 
   const isSearching = search !== '';
@@ -325,9 +281,10 @@ const News = () => {
                           href={sourceUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          aria-label="출처 열기(새 창)"
                         >
-                          출처 →
+                          출처
+                          <ExternalLinkIcon />
+                          <span className="sr-only">(새 창에서 열림)</span>
                         </a>
                       )}
                     </article>
@@ -335,52 +292,13 @@ const News = () => {
                 })}
               </div>
 
-              {/* 페이지네이션 — 페이지 2개 이상일 때만 (Home 패턴 재사용) */}
-              {totalPages > 1 && (
-                <nav
-                  className="pagination"
-                  role="group"
-                  aria-label="뉴스 페이지 네비게이션"
-                >
-                  <button
-                    type="button"
-                    className="filter-btn"
-                    disabled={currentPage <= 1}
-                    onClick={() => goToPage(currentPage - 1)}
-                  >
-                    이전
-                  </button>
-                  {buildPageItems().map((page, idx) =>
-                    page === null ? (
-                      <span
-                        key={`ellipsis-${idx}`}
-                        className="pagination-ellipsis"
-                        aria-hidden="true"
-                      >
-                        …
-                      </span>
-                    ) : (
-                      <button
-                        key={page}
-                        type="button"
-                        className={`filter-btn ${currentPage === page ? 'active' : ''}`}
-                        aria-current={currentPage === page ? 'page' : undefined}
-                        onClick={() => goToPage(page)}
-                      >
-                        {page}
-                      </button>
-                    )
-                  )}
-                  <button
-                    type="button"
-                    className="filter-btn"
-                    disabled={currentPage >= totalPages}
-                    onClick={() => goToPage(currentPage + 1)}
-                  >
-                    다음
-                  </button>
-                </nav>
-              )}
+              {/* 페이지네이션 — 페이지 2개 이상일 때만(컴포넌트가 가드) */}
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+                ariaLabel="뉴스 페이지 네비게이션"
+              />
             </>
           )}
         </section>

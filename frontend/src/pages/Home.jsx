@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { toolsAPI, handleApiError } from '../services/api';
 import { useUIStore } from '../stores/toolStore';
 import ToolCard from '../components/ToolCard';
+import Pagination from '../components/Pagination';
 import { LoadingState, EmptyFilteredState, ErrorState } from '../components/states/StateViews';
 import '../styles/Home.css';
 
@@ -187,26 +188,6 @@ const Home = () => {
     if (target) {
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  };
-
-  // 페이지 번호 목록: 7개 이하면 전부, 초과면 첫·현재±1·끝 + 말줄임(null).
-  const buildPageItems = () => {
-    if (totalPages <= 7) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    }
-    const items = new Set([1, totalPages, currentPage]);
-    if (currentPage - 1 > 1) items.add(currentPage - 1);
-    if (currentPage + 1 < totalPages) items.add(currentPage + 1);
-    const sorted = Array.from(items).sort((a, b) => a - b);
-    // 인접하지 않은 구간 사이에 말줄임(null) 삽입.
-    const result = [];
-    let prev = 0;
-    for (const n of sorted) {
-      if (n - prev > 1) result.push(null);
-      result.push(n);
-      prev = n;
-    }
-    return result;
   };
 
   return (
@@ -405,52 +386,13 @@ const Home = () => {
                 ))}
               </div>
 
-              {/* Pagination — 페이지 2개 이상일 때만 */}
-              {totalPages > 1 && (
-                <nav
-                  className="pagination"
-                  role="group"
-                  aria-label="페이지 네비게이션"
-                >
-                  <button
-                    type="button"
-                    className="filter-btn"
-                    disabled={currentPage <= 1}
-                    onClick={() => goToPage(currentPage - 1)}
-                  >
-                    이전
-                  </button>
-                  {buildPageItems().map((page, idx) =>
-                    page === null ? (
-                      <span
-                        key={`ellipsis-${idx}`}
-                        className="pagination-ellipsis"
-                        aria-hidden="true"
-                      >
-                        …
-                      </span>
-                    ) : (
-                      <button
-                        key={page}
-                        type="button"
-                        className={`filter-btn ${currentPage === page ? 'active' : ''}`}
-                        aria-current={currentPage === page ? 'page' : undefined}
-                        onClick={() => goToPage(page)}
-                      >
-                        {page}
-                      </button>
-                    )
-                  )}
-                  <button
-                    type="button"
-                    className="filter-btn"
-                    disabled={currentPage >= totalPages}
-                    onClick={() => goToPage(currentPage + 1)}
-                  >
-                    다음
-                  </button>
-                </nav>
-              )}
+              {/* Pagination — 페이지 2개 이상일 때만(컴포넌트가 가드) */}
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+                ariaLabel="페이지 네비게이션"
+              />
             </>
           )}
 

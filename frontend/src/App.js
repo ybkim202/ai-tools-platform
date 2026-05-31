@@ -13,6 +13,7 @@ import Recommendations from './pages/Recommendations';
 import News from './pages/News';
 import Benchmarks from './pages/Benchmarks';
 import { useUIStore } from './stores/toolStore';
+import ExternalLinkIcon from './components/ExternalLinkIcon';
 import './App.css';
 
 function App() {
@@ -62,55 +63,58 @@ function App() {
             </Link>
 
             <div className="navbar-menu">
-              <NavLink
-                to="/"
-                end
-                className={({ isActive }) =>
-                  `nav-link${isActive ? ' nav-link-active' : ''}`
-                }
-              >
-                홈
-              </NavLink>
-              <NavLink
-                to="/compare"
-                className={({ isActive }) =>
-                  `nav-link nav-link-compare${isActive ? ' nav-link-active' : ''}`
-                }
-              >
-                비교
-                {compareCount > 0 && (
-                  <span
-                    className="nav-badge"
-                    aria-label={`비교 담긴 도구 ${compareCount}개`}
-                  >
-                    {compareCount}
-                  </span>
-                )}
-              </NavLink>
-              <NavLink
-                to="/recommendations"
-                className={({ isActive }) =>
-                  `nav-link${isActive ? ' nav-link-active' : ''}`
-                }
-              >
-                추천
-              </NavLink>
-              <NavLink
-                to="/news"
-                className={({ isActive }) =>
-                  `nav-link${isActive ? ' nav-link-active' : ''}`
-                }
-              >
-                뉴스
-              </NavLink>
-              <NavLink
-                to="/benchmarks"
-                className={({ isActive }) =>
-                  `nav-link${isActive ? ' nav-link-active' : ''}`
-                }
-              >
-                벤치마크
-              </NavLink>
+              {/* 링크 그룹: 좁은 화면에서 가로 스크롤 컨테이너(토글은 바깥 고정) */}
+              <div className="nav-links">
+                <NavLink
+                  to="/"
+                  end
+                  className={({ isActive }) =>
+                    `nav-link${isActive ? ' nav-link-active' : ''}`
+                  }
+                >
+                  홈
+                </NavLink>
+                <NavLink
+                  to="/compare"
+                  className={({ isActive }) =>
+                    `nav-link nav-link-compare${isActive ? ' nav-link-active' : ''}`
+                  }
+                >
+                  비교
+                  {compareCount > 0 && (
+                    <span
+                      className="nav-badge"
+                      aria-label={`비교 담긴 도구 ${compareCount}개`}
+                    >
+                      {compareCount}
+                    </span>
+                  )}
+                </NavLink>
+                <NavLink
+                  to="/recommendations"
+                  className={({ isActive }) =>
+                    `nav-link${isActive ? ' nav-link-active' : ''}`
+                  }
+                >
+                  추천
+                </NavLink>
+                <NavLink
+                  to="/news"
+                  className={({ isActive }) =>
+                    `nav-link${isActive ? ' nav-link-active' : ''}`
+                  }
+                >
+                  뉴스
+                </NavLink>
+                <NavLink
+                  to="/benchmarks"
+                  className={({ isActive }) =>
+                    `nav-link${isActive ? ' nav-link-active' : ''}`
+                  }
+                >
+                  벤치마크
+                </NavLink>
+              </div>
               <button
                 type="button"
                 className="nav-button"
@@ -170,22 +174,8 @@ function App() {
                 rel="noopener noreferrer"
               >
                 GitHub
-                {/* 외부/새 창: 색 외 수단(아이콘) + SR 안내 */}
-                <svg
-                  className="footer-external-icon"
-                  aria-hidden="true"
-                  focusable="false"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M7 17 17 7M9 7h8v8" />
-                </svg>
+                {/* 외부/새 창: 색 외 수단(아이콘) + SR 안내 (공용 패턴) */}
+                <ExternalLinkIcon />
                 <span className="sr-only">(새 창에서 열림)</span>
               </a>
             </nav>

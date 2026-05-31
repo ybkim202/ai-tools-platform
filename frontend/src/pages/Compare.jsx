@@ -2,9 +2,11 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useUIStore } from '../stores/toolStore';
 import { compareAPI, handleApiError } from '../services/api';
-import { formatUserCount } from '../utils/format';
+import { formatUserCount, formatPrice, formatScore, displayLabel } from '../utils/format';
+import { safeHttpUrl } from '../utils/url';
 import { handleLogoError, resolveLogoSrc } from '../utils/logoFallback';
 import { difficultyDot } from '../utils/difficulty';
+import ExternalLinkIcon from '../components/ExternalLinkIcon';
 import {
   LoadingState,
   EmptyNoDataState,
@@ -190,9 +192,9 @@ const Compare = () => {
                       <div className="pricing-list">
                         {tool.pricing.map((price, idx) => (
                           <div key={idx} className="price-item">
-                            <span className="plan">{price.plan}</span>
+                            <span className="plan">{displayLabel(price.plan)}</span>
                             <span className="price">
-                              {price.price === 0 ? '무료' : `$${price.price}`}
+                              {formatPrice(price.price)}
                             </span>
                           </div>
                         ))}
@@ -212,7 +214,7 @@ const Compare = () => {
                         {Object.entries(tool.benchmarks).map(([type, score]) => (
                           <div key={type} className="benchmark-item">
                             <span className="type">{type}</span>
-                            <span className="score">{score}/100</span>
+                            <span className="score">{formatScore(score)}</span>
                           </div>
                         ))}
                       </div>
@@ -226,9 +228,20 @@ const Compare = () => {
                 <td className="label">링크</td>
                 {comparisonData.map((tool) => (
                   <td key={tool.id}>
-                    <a href={tool.official_url} target="_blank" rel="noopener noreferrer" className="btn btn-small">
-                      방문 →
-                    </a>
+                    {safeHttpUrl(tool.official_url) ? (
+                      <a
+                        href={safeHttpUrl(tool.official_url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-small"
+                      >
+                        방문
+                        <ExternalLinkIcon />
+                        <span className="sr-only">(새 창에서 열림)</span>
+                      </a>
+                    ) : (
+                      '-'
+                    )}
                   </td>
                 ))}
               </tr>
@@ -285,9 +298,9 @@ const Compare = () => {
                       <div className="pricing-list">
                         {tool.pricing.map((price, idx) => (
                           <div key={idx} className="price-item">
-                            <span className="plan">{price.plan}</span>
+                            <span className="plan">{displayLabel(price.plan)}</span>
                             <span className="price">
-                              {price.price === 0 ? '무료' : `$${price.price}`}
+                              {formatPrice(price.price)}
                             </span>
                           </div>
                         ))}
@@ -307,7 +320,7 @@ const Compare = () => {
                           ([type, score]) => (
                             <div key={type} className="benchmark-item">
                               <span className="type">{type}</span>
-                              <span className="score">{score}/100</span>
+                              <span className="score">{formatScore(score)}</span>
                             </div>
                           )
                         )}
@@ -320,14 +333,20 @@ const Compare = () => {
                 <div className="comparison-card-row">
                   <dt>링크</dt>
                   <dd>
-                    <a
-                      href={tool.official_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn btn-small"
-                    >
-                      방문 →
-                    </a>
+                    {safeHttpUrl(tool.official_url) ? (
+                      <a
+                        href={safeHttpUrl(tool.official_url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-small"
+                      >
+                        방문
+                        <ExternalLinkIcon />
+                        <span className="sr-only">(새 창에서 열림)</span>
+                      </a>
+                    ) : (
+                      '-'
+                    )}
                   </dd>
                 </div>
               </dl>
