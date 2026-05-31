@@ -652,7 +652,7 @@ curl "http://localhost:8000/api/benchmarks?benchmark_type=MMLU&sort_by=score_des
 
 급부상 오픈소스를 기간·주제별로 조회한다. 트렌딩 정의(v1) = 최근 생성(주간=7일/월간=30일 내 `created`) + 별점 내림차순. 오래된 인기 레포는 포함되지 않는다(velocity 는 v2).
 
-데이터 소스는 `github_trending` 테이블(수집기 `collectors/github_trending.py` 가 period 별로 멱등 교체). 주제(테마) 군집 매핑은 서버 파이썬(`trends_themes.py` 단일 정본)에서 수행되어 응답의 `themes[]` 에 임베드된다(별도 `/topics` 엔드포인트 없음).
+데이터 소스는 `github_trending` 테이블(수집기 `collectors/github_trending.py` 가 period 별로 멱등 교체). 주제(테마) 군집 매핑은 서버 파이썬(`app/trends_themes.py` 단일 정본)에서 수행되어 응답의 `themes[]` 에 임베드된다(별도 `/topics` 엔드포인트 없음).
 
 **파라미터**
 

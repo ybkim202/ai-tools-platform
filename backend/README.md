@@ -105,7 +105,7 @@ UNION ALL SELECT 'github_trending', COUNT(*) FROM github_trending;  -- 0 예상(
 | `collectors/github.py` | GitHub 릴리스 — `GITHUB_TOKEN` 있으면 인증, 없으면 무토큰 공개 호출 |
 | `collectors/producthunt.py` | Product Hunt 트렌딩 — `PRODUCT_HUNT_TOKEN` 없으면 조용히 skip |
 | `collectors/github_trending.py` | GitHub Search 로 트렌딩 레포 수집 → **독립 `github_trending` 테이블**을 period 별 멱등 교체(`GITHUB_TOKEN` 선택). `/api/trends/github` 의 소스 |
-| `trends_themes.py` | 깃헙 트렌드 주제(테마) 매핑 단일 정본 — 라우터/수집기 공용 |
+| `app/trends_themes.py` | 깃헙 트렌드 주제(테마) 매핑 단일 정본 — `routers/trends.py` 전용 |
 | `scheduler.py` | APScheduler(BackgroundScheduler), 가드/시작/종료 |
 | `collect.py` | 스케줄러 없이 **수동 1회** 전체 수집(초기 적재·테스트·외부 cron 용) |
 

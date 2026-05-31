@@ -309,7 +309,7 @@ class GitHubCollector:
 - `UNIQUE(repo_full_name, period)` 제약으로 같은 레포/기간은 1행만 유지.
 
 ### **주제(테마) 매핑**
-- `trends_themes.py`(단일 정본)가 GitHub `topics` → 큐레이션 테마(`agent`/`rag`/`local-llm`/`image`/`voice`/`finetune`/`mlops`)로 매핑. 라우터가 응답 `themes[]` 에 임베드(별도 엔드포인트 없음).
+- `app/trends_themes.py`(단일 정본)가 GitHub `topics` → 큐레이션 테마(`agent`/`rag`/`local-llm`/`image`/`voice`/`finetune`/`mlops`)로 매핑. 라우터가 응답 `themes[]` 에 임베드(별도 엔드포인트 없음).
 
 ### **등록/실행**
 - `collectors/base.py` 의 `_load_collectors()` 에 `github_trending` 등록 → `collect.py`(수동 1회)·`scheduler.py`(주기)에 자동 포함.
