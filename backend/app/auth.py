@@ -106,19 +106,49 @@ request_counts = defaultdict(list)
 RATE_LIMIT_REQUESTS = 100  # 분당 요청 수
 RATE_LIMIT_PERIOD = 60  # 초 단위
 
+# 신뢰하는 리버스 프록시 홉 수. Railway 등 단일 프록시 환경 = 1.
+# X-Forwarded-For 우측에서 이 수만큼은 신뢰 프록시가 채운 값이며, 실제 클라이언트는
+# 우측에서 이 번째 값이다(좌측 값은 클라이언트가 위조 가능). env 로 오버라이드.
+RATE_LIMIT_TRUSTED_PROXIES = max(1, int(os.getenv("RATE_LIMIT_TRUSTED_PROXIES", "1")))
+
+# 인메모리 버킷 무한 증가(위조 IP로 키 폭증 → 메모리 DoS) 방지용 주기적 스윕 간격.
+_RATE_LIMIT_SWEEP_EVERY = 500
+_requests_since_sweep = 0
+
+
+def _sweep_expired(now):
+    """만료된 요청 기록을 제거하고 빈 버킷을 삭제한다(인메모리 누수 방지)."""
+    stale_keys = []
+    for k, times in request_counts.items():
+        fresh = [t for t in times if (now - t).total_seconds() < RATE_LIMIT_PERIOD]
+        if fresh:
+            request_counts[k] = fresh
+        else:
+            stale_keys.append(k)
+    for k in stale_keys:
+        request_counts.pop(k, None)
+
+
 def check_rate_limit(api_key: str = None):
     """
     요청 횟수 제한 확인
     """
+    global _requests_since_sweep
     key = api_key or "anonymous"
     now = datetime.now()
-    
+
+    # 주기적 스윕: 일정 요청마다 만료 버킷을 일괄 정리해 메모리 증가를 제한한다.
+    _requests_since_sweep += 1
+    if _requests_since_sweep >= _RATE_LIMIT_SWEEP_EVERY:
+        _requests_since_sweep = 0
+        _sweep_expired(now)
+
     # 오래된 요청 제거
     request_counts[key] = [
         req_time for req_time in request_counts[key]
         if (now - req_time).total_seconds() < RATE_LIMIT_PERIOD
     ]
-    
+
     # 한도 초과 확인
     if len(request_counts[key]) >= RATE_LIMIT_REQUESTS:
         raise HTTPException(
@@ -154,10 +184,9 @@ async def rate_limit_dependency(
 
     클라이언트 IP 산출: Railway 등 리버스 프록시 뒤에서는 ``request.client.host``
     가 프록시 IP 로 뭉쳐 전체 사용자가 한 버킷에 묶인다. 이를 피하기 위해
-    ``X-Forwarded-For`` 헤더가 있으면 가장 왼쪽(left-most) IP 를 클라이언트로
-    사용하고, 없으면 ``request.client.host`` 로 폴백한다. 이는 보안 경계가 아니라
-    레이트리밋 식별 용도이며(스푸핑 가능), 신뢰할 수 있는 프록시가 헤더를 설정한다는
-    전제에 의존한다.
+    ``X-Forwarded-For`` 헤더를 쓰되, 좌측(left-most)은 클라이언트가 위조 가능하므로
+    신뢰 프록시가 채운 우측 값(``RATE_LIMIT_TRUSTED_PROXIES`` 번째)을 사용한다.
+    이는 보안 경계가 아니라 레이트리밋 버킷 식별 용도다.
     """
     client_host = _resolve_client_ip(request)
     identifier = api_key or f"ip:{client_host}"
@@ -167,18 +196,21 @@ async def rate_limit_dependency(
 
 def _resolve_client_ip(request: Request) -> str:
     """
-    레이트리밋용 클라이언트 IP 를 추정한다.
+    레이트리밋용 클라이언트 IP 를 추정한다(신뢰 경계 아님 — 버킷 분리 전용).
 
-    ``X-Forwarded-For`` 가 있으면 첫 번째(left-most) IP 를, 없으면
-    ``request.client.host`` 를 반환한다. 어느 쪽도 없으면 ``"unknown"``.
+    ``X-Forwarded-For`` 는 클라이언트가 좌측 값을 위조할 수 있다. 신뢰 프록시
+    (Railway)는 실제 연결 IP 를 헤더 **우측**에 덧붙이므로, 우측에서
+    ``RATE_LIMIT_TRUSTED_PROXIES`` 번째 값을 클라이언트로 채택해 좌측 위조를
+    무력화한다. 헤더가 없으면 ``request.client.host``, 그래도 없으면 ``"unknown"``.
 
-    주의: 이 값은 신뢰 경계가 아니다(클라이언트가 헤더를 위조 가능).
-    레이트리밋 버킷 분리 용도로만 사용한다.
+    예) XFF="<위조>, <실클라이언트>" + 신뢰홉 1 → 우측("<실클라이언트>") 채택.
     """
     forwarded_for = request.headers.get("x-forwarded-for")
     if forwarded_for:
-        first_ip = forwarded_for.split(",")[0].strip()
-        if first_ip:
-            return first_ip
+        parts = [p.strip() for p in forwarded_for.split(",") if p.strip()]
+        if parts:
+            # 우측에서 RATE_LIMIT_TRUSTED_PROXIES 번째(신뢰 프록시가 채운 경계).
+            idx = len(parts) - RATE_LIMIT_TRUSTED_PROXIES
+            return parts[idx if idx >= 0 else 0]
 
     return request.client.host if request.client else "unknown"
