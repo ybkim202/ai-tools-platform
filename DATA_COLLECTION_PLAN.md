@@ -298,10 +298,28 @@ class GitHubCollector:
 ### **수집 방식**
 - **엔드포인트**: `GET https://api.github.com/search/repositories?q=topic:{topic} created:>={기간시작} stars:>={임계값}&sort=stars&order=desc&per_page=N`
 - **토픽 다중 질의**: `ai, llm, machine-learning, generative-ai, agents, rag, stable-diffusion, deep-learning` 를 각각 질의하고 `repo_full_name` 기준으로 병합·중복제거(별점 큰 쪽 유지).
-- **별점 임계값**(env 오버라이드): `GITHUB_TRENDING_MIN_STARS_WEEKLY`(기본 10), `GITHUB_TRENDING_MIN_STARS_MONTHLY`(기본 50).
-- **적재 개수**: period 별 별점 상위 약 60개(`rank` 1=최고).
+- **별점 임계값**(env 오버라이드): `GITHUB_TRENDING_MIN_STARS_WEEKLY`(기본 25), `GITHUB_TRENDING_MIN_STARS_MONTHLY`(기본 100).
+- **적재 개수**: period 별 별점 상위 약 60개(`rank` 1=최고). 품질 필터로 60 미만이면 그대로.
 - **토큰**: `GITHUB_TOKEN` 있으면 인증(Search 레이트 10→30/min), 없어도 동작. 토큰은 로그에 남기지 않는다(헌법 G9).
-- **번역**: `description` → `description_ko`(무료 MyMemory, 키 불필요). 실패 시 `null`(원문 유지).
+- **번역**: `description` → `description_ko`(무료 MyMemory, 키 불필요). 실패 시 `null`(원문 유지). 번역 모듈에 요청 간 throttle 과 429 재시도 내장(아래 백필 참조).
+
+### **품질 필터(중간 강도)**
+적재 직전(parse 후)에 잡음 레포를 드롭한다. 드롭한 개수·사유는 INFO 로그로 남긴다(무음 절단 금지). 필터 후 별점순 `rank` 재부여. 기준(상수로 조정 가능, `collectors/github_trending.py`):
+1. **별점 임계값 상향**: weekly 10→25, monthly 50→100(위 env 오버라이드는 유지).
+2. **키워드 반복 스팸 제거**(`is_keyword_spam`): 토큰 6개 이상일 때 고유 토큰 비율 < 0.45 이거나 단일 토큰이 5회 이상 반복되면 드롭(예: `polymarket bot polymarket bot …` ×20).
+3. **신호 없음 제거**: `description` 과 `topics` 가 둘 다 비어 있으면 드롭.
+4. **AI 관련성 요구**(`has_ai_relevance`): `topics` 가 `AI_TOPICS` 또는 `trends_themes` 큐레이션 테마와 교집합 0이면 드롭(`topic:` 검색이라 대개 충족, 잡음만 제거).
+
+### **한글 번역 백필(재수집 없음)**
+과거 429(초당 요청수 레이트)로 `description_ko` 가 대거 빈 경우, 재수집 없이 채운다(멱등):
+```bash
+cd backend
+DATABASE_URL='...' [MYMEMORY_EMAIL='you@example.com'] python collect.py --backfill-trends-translations --limit 200
+```
+- `description` 이 있고 `description_ko` IS NULL 인 행만 대상 → 재실행하면 남은 행 이어서 처리.
+- 번역 모듈이 요청 간 최소 간격(약 1.1초)과 429/타임아웃 점증 backoff 재시도(2초·4초)를 적용해 다시 무더기 429 를 맞지 않는다.
+- 일시 실패 행은 원문 유지(`description_ko` NULL)로 남아 다음 실행에서 재시도.
+- `MYMEMORY_EMAIL` 설정 시 일일 단어한도가 완화돼 **권장**(키 아님·시크릿 아님).
 
 ### **멱등 교체**
 - 수집 성공 시 해당 `period` 의 기존 행을 모두 삭제하고 새 결과로 교체(단일 트랜잭션).

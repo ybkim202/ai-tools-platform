@@ -15,6 +15,15 @@
   (멱등, 기본 limit=50, 키 불필요). 네트워크/쿼터 실패 행은 원문을 유지한 채
   남아 다음 실행에서 재시도된다. requests 미설치 시 0 건으로 조용히 종료(에러 아님).
 
+GitHub Trending 한글 번역 백필
+------------------------------
+    cd backend
+    DATABASE_URL='...' python collect.py --backfill-trends-translations [--limit N]
+  github_trending 행 중 description 이 있고 description_ko 가 NULL 인 것을 재수집
+  없이 번역해 채운다(멱등, 기본 limit=200). 과거 429 레이트로 비었던 행을 한 번에
+  채울 때 사용한다. MYMEMORY_EMAIL 설정 시 일일 단어한도가 완화돼 권장. 번역 모듈
+  자체에 요청 간 throttle 과 429 재시도가 들어 있어 다시 무더기 429 를 맞지 않는다.
+
 선택 환경변수(없으면 해당 소스만 비활성, 잡은 정상)
   - GITHUB_TOKEN        : GitHub 인증 호출(없으면 무토큰 공개 호출)
   - PRODUCT_HUNT_TOKEN  : Product Hunt 활성(없으면 조용히 skip)
@@ -53,6 +62,7 @@ def main(argv=None) -> int:
     """전체 소스를 1회 수집한다. 반환값은 프로세스 종료코드(0=성공).
 
     --backfill-translations 가 주어지면 수집 대신 기존 뉴스의 한글 번역만 백필한다.
+    --backfill-trends-translations 가 주어지면 github_trending 의 description_ko 만 백필한다.
     """
     parser = argparse.ArgumentParser(description="AITools 수동 수집/번역 백필")
     parser.add_argument(
@@ -61,10 +71,18 @@ def main(argv=None) -> int:
         help="title_ko 가 NULL 인 기존 뉴스를 한글 번역해 채운다(수집은 하지 않음).",
     )
     parser.add_argument(
+        "--backfill-trends-translations",
+        action="store_true",
+        help=(
+            "description_ko 가 NULL 인 github_trending 행을 한글 번역해 채운다"
+            "(재수집 없음, 멱등). 120행 백필 시 --limit 200 권장."
+        ),
+    )
+    parser.add_argument(
         "--limit",
         type=int,
         default=50,
-        help="번역 백필 1회 처리 최대 행수(기본 50).",
+        help="번역 백필 1회 처리 최대 행수(뉴스 기본 50; 트렌드는 200 권장).",
     )
     args = parser.parse_args(argv)
 
@@ -77,9 +95,17 @@ def main(argv=None) -> int:
     if args.backfill_translations:
         from collectors import backfill_translations
 
-        logger.info("=== 번역 백필 시작 (limit=%d) ===", args.limit)
+        logger.info("=== 뉴스 번역 백필 시작 (limit=%d) ===", args.limit)
         n = backfill_translations(limit=args.limit)
-        logger.info("=== 번역 백필 완료: %d 건 ===", n)
+        logger.info("=== 뉴스 번역 백필 완료: %d 건 ===", n)
+        return 0
+
+    if args.backfill_trends_translations:
+        from collectors import backfill_trends_translations
+
+        logger.info("=== 트렌드 번역 백필 시작 (limit=%d) ===", args.limit)
+        n = backfill_trends_translations(limit=args.limit)
+        logger.info("=== 트렌드 번역 백필 완료: %d 건 ===", n)
         return 0
 
     from collectors import collect_all
