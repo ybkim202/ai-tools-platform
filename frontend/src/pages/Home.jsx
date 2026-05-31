@@ -8,7 +8,8 @@ import { LoadingState, EmptyFilteredState, ErrorState } from '../components/stat
 import '../styles/Home.css';
 
 // 페이지당 도구 수(서버 limit 기본값과 일치).
-const PAGE_SIZE = 20;
+// 그리드가 한 행에 3개씩 → 3의 배수(21 = 3×7)로 두어 마지막 행이 꽉 차게 한다.
+const PAGE_SIZE = 21;
 
 const Home = () => {
   const { selectedToolsForCompare, clearCompareList } = useUIStore();
