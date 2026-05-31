@@ -18,12 +18,16 @@ const Recommendations = () => {
   // 'ready' | 'coming_soon' — 0건 시 EmptyFiltered vs EmptyNoData 판별.
   const [featureStatus, setFeatureStatus] = useState('ready');
 
-  // 업무/직업 선택지는 실제 DB 태그(meta.tags)에서 채운다(하드코딩 목록 금지).
-  // task/profession 모두 태그를 옵션 소스로 사용. 로드 실패 시 빈 목록 폴백.
-  const [options, setOptions] = useState([]);
+  // 업무/직업 선택지는 실제 DB 태그에서 타입별로 분리해 채운다(하드코딩 목록 금지).
+  // 업무별 탭 = data.tasks(task 타입), 직업별 탭 = data.professions(profession 타입).
+  // 신규 필드가 없는 구 백엔드는 평면 meta.tags로 폴백(점진 배포 안전).
+  const [optionsByType, setOptionsByType] = useState({ task: [], profession: [] });
   // 옵션(meta) 로드 상태: 0건 복구 동선("다시 시도") 구분용.
   // 'loading' | 'ready' | 'error'
   const [optionsStatus, setOptionsStatus] = useState('loading');
+
+  // 현재 탭에 해당하는 옵션 목록만 노출.
+  const options = optionsByType[selectedTab] || [];
 
   const loadOptions = useCallback(() => {
     let active = true;
@@ -32,18 +36,21 @@ const Recommendations = () => {
       .getMeta()
       .then((res) => {
         if (!active) return;
-        const tags = res?.data?.data?.tags;
-        if (Array.isArray(tags) && tags.length > 0) {
-          setOptions(tags);
-        } else {
-          setOptions([]);
-        }
+        const data = res?.data?.data || {};
+        const tasks = data.tasks;
+        const professions = data.professions;
+        // 신규 필드(tasks/professions)가 있으면 타입별로, 없으면 평면 tags로 폴백.
+        const flat = Array.isArray(data.tags) ? data.tags : [];
+        setOptionsByType({
+          task: Array.isArray(tasks) ? tasks : flat,
+          profession: Array.isArray(professions) ? professions : flat,
+        });
         setOptionsStatus('ready');
       })
       .catch(() => {
         // 메타 로드 실패: 옵션 없음 + 복구 동선("다시 시도") 노출.
         if (!active) return;
-        setOptions([]);
+        setOptionsByType({ task: [], profession: [] });
         setOptionsStatus('error');
       });
     return () => {

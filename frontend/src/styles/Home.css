@@ -416,6 +416,27 @@ body {
 }
 
 /* ========================================
+   PAGINATION
+   ======================================== */
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-2xl);
+}
+
+/* 말줄임 구분자: 클릭 불가, 보조 텍스트 색. */
+.pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--spacing-xs);
+  color: var(--color-text-tertiary);
+}
+
+/* ========================================
    STATE CONTAINERS
    ======================================== */
 

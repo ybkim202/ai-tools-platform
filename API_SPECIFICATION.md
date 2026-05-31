@@ -99,15 +99,19 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
   "data": {
     "categories": ["생성형AI", "이미지생성"],
     "tags": ["개발자", "콘텐츠작성"],
-    "difficulties": ["보통", "쉬움", "어려움"]
+    "difficulties": ["보통", "쉬움", "어려움"],
+    "tasks": ["콘텐츠작성", "코딩개발"],
+    "professions": ["개발자", "마케터"]
   },
   "error": null
 }
 ```
 
 - `categories`: `tools.category` distinct (null/빈값 제외, 정렬)
-- `tags`: `tags.name` distinct (tags 테이블, null/빈값 제외, 정렬)
+- `tags`: `tags.name` distinct (tags 테이블, null/빈값 제외, 정렬) — 평면(하위호환)
 - `difficulties`: `tools.difficulty` distinct (null/빈값 제외, 정렬)
+- `tasks`: `tags.name` 중 `type = 'task'` distinct (null/빈값 제외, 정렬)
+- `professions`: `tags.name` 중 `type = 'profession'` distinct (null/빈값 제외, 정렬)
 
 ---
 

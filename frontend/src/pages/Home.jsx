@@ -6,10 +6,17 @@ import ToolCard from '../components/ToolCard';
 import { LoadingState, EmptyFilteredState, ErrorState } from '../components/states/StateViews';
 import '../styles/Home.css';
 
+// 페이지당 도구 수(서버 limit 기본값과 일치).
+const PAGE_SIZE = 20;
+
 const Home = () => {
   const { selectedToolsForCompare, clearCompareList } = useUIStore();
   const compareCount = selectedToolsForCompare.length;
   const [tools, setTools] = useState([]);
+  // 페이지네이션: 1-indexed. totalPages/totalCount는 서버 pagination에서 채운다.
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [selectedDifficulty, setSelectedDifficulty] = useState('전체');
@@ -50,9 +57,11 @@ const Home = () => {
   }, [sortBy]);
 
   // 난이도순이던 중 난이도 필터가 켜지면 인기순으로 폴백(중복 의미 제거).
+  // 정렬 변경은 페이지 리셋을 동반한다(같은 effect에서 batch → fetch 1회).
   useEffect(() => {
     if (difficultySortDisabled && sortBy === 'difficulty') {
       setSortBy('popularity');
+      setCurrentPage(1);
     }
   }, [difficultySortDisabled, sortBy]);
 
@@ -82,6 +91,7 @@ const Home = () => {
     setSearchQuery('');
     setSelectedCategory('전체');
     setSelectedDifficulty('전체');
+    setCurrentPage(1);
   };
 
   // 활성 필터 칩 목록(라벨 텍스트 항상 포함 — 색 단독 의미전달 금지).
@@ -91,7 +101,10 @@ const Home = () => {
       key: 'search',
       label: '검색',
       value: searchQuery,
-      onRemove: () => setSearchQuery(''),
+      onRemove: () => {
+        setSearchQuery('');
+        setCurrentPage(1);
+      },
     });
   }
   if (selectedCategory !== '전체') {
@@ -99,7 +112,10 @@ const Home = () => {
       key: 'category',
       label: '카테고리',
       value: selectedCategory,
-      onRemove: () => setSelectedCategory('전체'),
+      onRemove: () => {
+        setSelectedCategory('전체');
+        setCurrentPage(1);
+      },
     });
   }
   if (selectedDifficulty !== '전체') {
@@ -107,7 +123,10 @@ const Home = () => {
       key: 'difficulty',
       label: '난이도',
       value: selectedDifficulty,
-      onRemove: () => setSelectedDifficulty('전체'),
+      onRemove: () => {
+        setSelectedDifficulty('전체');
+        setCurrentPage(1);
+      },
     });
   }
 
@@ -121,16 +140,32 @@ const Home = () => {
         difficulty: selectedDifficulty !== '전체' ? selectedDifficulty : undefined,
         // 정렬은 서버 ORDER BY로 위임 — 클라 슬라이스/재정렬 없이 응답 순서를 그대로 렌더.
         sort_by: sortBy,
+        // 페이지네이션: 서버 limit/offset로 위임(20개씩).
+        limit: PAGE_SIZE,
+        offset: (currentPage - 1) * PAGE_SIZE,
       };
 
       const response = await toolsAPI.getTools(params);
-      
+
       if (response.data && response.data.data) {
         setTools(response.data.data);
       } else if (Array.isArray(response.data)) {
         setTools(response.data);
       } else {
         setTools([]);
+      }
+
+      // 서버 pagination 메타로 전체 페이지/카운트 갱신.
+      const pagination = response.data?.pagination;
+      if (pagination) {
+        const pages = Number(pagination.pages) || 1;
+        const total = Number(pagination.total) || 0;
+        setTotalPages(pages);
+        setTotalCount(total);
+        // 방어: 현재 페이지가 범위를 벗어나면(필터로 페이지 수 감소 등) 1로 복귀.
+        if (currentPage > pages && pages > 0) {
+          setCurrentPage(1);
+        }
       }
     } catch (err) {
       const error = handleApiError(err);
@@ -139,11 +174,40 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, selectedCategory, selectedDifficulty, sortBy]);
+  }, [searchQuery, selectedCategory, selectedDifficulty, sortBy, currentPage]);
 
   useEffect(() => {
     fetchTools();
   }, [fetchTools]);
+
+  // 페이지 이동: 상태 변경 후 결과 영역 상단으로 스크롤(맥락 유지).
+  const goToPage = (page) => {
+    setCurrentPage(page);
+    const target = document.getElementById('tools');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // 페이지 번호 목록: 7개 이하면 전부, 초과면 첫·현재±1·끝 + 말줄임(null).
+  const buildPageItems = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    const items = new Set([1, totalPages, currentPage]);
+    if (currentPage - 1 > 1) items.add(currentPage - 1);
+    if (currentPage + 1 < totalPages) items.add(currentPage + 1);
+    const sorted = Array.from(items).sort((a, b) => a - b);
+    // 인접하지 않은 구간 사이에 말줄임(null) 삽입.
+    const result = [];
+    let prev = 0;
+    for (const n of sorted) {
+      if (n - prev > 1) result.push(null);
+      result.push(n);
+      prev = n;
+    }
+    return result;
+  };
 
   return (
     <div className="home">
@@ -178,7 +242,10 @@ const Home = () => {
                 type="text"
                 placeholder="도구 이름, 기능으로 검색..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="search-input"
               />
             </div>
@@ -195,7 +262,10 @@ const Home = () => {
                     key={cat}
                     className={`filter-btn ${selectedCategory === cat ? 'active' : ''}`}
                     aria-pressed={selectedCategory === cat}
-                    onClick={() => setSelectedCategory(cat)}
+                    onClick={() => {
+                      setSelectedCategory(cat);
+                      setCurrentPage(1);
+                    }}
                   >
                     {cat}
                   </button>
@@ -212,7 +282,10 @@ const Home = () => {
                     key={diff}
                     className={`filter-btn ${selectedDifficulty === diff ? 'active' : ''}`}
                     aria-pressed={selectedDifficulty === diff}
-                    onClick={() => setSelectedDifficulty(diff)}
+                    onClick={() => {
+                      setSelectedDifficulty(diff);
+                      setCurrentPage(1);
+                    }}
                   >
                     {diff}
                   </button>
@@ -290,7 +363,7 @@ const Home = () => {
                 <div className="tools-header-text">
                   <h2 className="tools-title">발견한 도구</h2>
                   <p className="tools-count" aria-live="polite">
-                    {tools.length}개의 AI 도구 · {SORT_LABELS[sortBy]}
+                    {totalCount}개의 AI 도구 · {SORT_LABELS[sortBy]}
                   </p>
                 </div>
                 <div className="tools-sort">
@@ -314,7 +387,10 @@ const Home = () => {
                               ? '난이도로 필터 중에는 난이도순 정렬이 의미 없습니다'
                               : undefined
                           }
-                          onClick={() => setSortBy(key)}
+                          onClick={() => {
+                            setSortBy(key);
+                            setCurrentPage(1);
+                          }}
                         >
                           {SORT_LABELS[key]}
                         </button>
@@ -328,6 +404,53 @@ const Home = () => {
                   <ToolCard key={tool.id} tool={tool} />
                 ))}
               </div>
+
+              {/* Pagination — 페이지 2개 이상일 때만 */}
+              {totalPages > 1 && (
+                <nav
+                  className="pagination"
+                  role="group"
+                  aria-label="페이지 네비게이션"
+                >
+                  <button
+                    type="button"
+                    className="filter-btn"
+                    disabled={currentPage <= 1}
+                    onClick={() => goToPage(currentPage - 1)}
+                  >
+                    이전
+                  </button>
+                  {buildPageItems().map((page, idx) =>
+                    page === null ? (
+                      <span
+                        key={`ellipsis-${idx}`}
+                        className="pagination-ellipsis"
+                        aria-hidden="true"
+                      >
+                        …
+                      </span>
+                    ) : (
+                      <button
+                        key={page}
+                        type="button"
+                        className={`filter-btn ${currentPage === page ? 'active' : ''}`}
+                        aria-current={currentPage === page ? 'page' : undefined}
+                        onClick={() => goToPage(page)}
+                      >
+                        {page}
+                      </button>
+                    )
+                  )}
+                  <button
+                    type="button"
+                    className="filter-btn"
+                    disabled={currentPage >= totalPages}
+                    onClick={() => goToPage(currentPage + 1)}
+                  >
+                    다음
+                  </button>
+                </nav>
+              )}
             </>
           )}
 
