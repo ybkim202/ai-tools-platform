@@ -2,8 +2,8 @@
 
 목적
 ----
-빈 PostgreSQL DB 에 AITools 의 6개 테이블(tools, pricing, benchmarks, news,
-tags, tool_tags)과 인덱스를 만든다. SQL 본문은 `schema.sql` 한 곳에만 두고,
+빈 PostgreSQL DB 에 AITools 의 7개 테이블(tools, pricing, benchmarks, news,
+github_trending, tags, tool_tags)과 인덱스를 만든다. SQL 본문은 `schema.sql` 한 곳에만 두고,
 이 모듈은 그 파일을 읽어 단일 트랜잭션으로 실행하는 얇은 러너다.
 
 멱등성(재실행 안전)
@@ -22,7 +22,7 @@ schema.sql 의 모든 DDL 은 CREATE TABLE/INDEX IF NOT EXISTS 라
 
 실행 순서(중요)
 ---------------
-1) python init_db.py          → 6개 테이블/인덱스 생성
+1) python init_db.py          → 7개 테이블/인덱스 생성
 2) python load_tools_fixed.py → tools/pricing 적재
 3) python seed_tags.py        → tags/tool_tags 적재
 (또는 python bootstrap.py 로 위 세 단계를 한 번에)
@@ -45,7 +45,15 @@ if not DATABASE_URL:
 SCHEMA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "schema.sql")
 
 # 검증용 — schema.sql 이 생성하는 테이블 목록.
-EXPECTED_TABLES = ("tools", "pricing", "benchmarks", "news", "tags", "tool_tags")
+EXPECTED_TABLES = (
+    "tools",
+    "pricing",
+    "benchmarks",
+    "news",
+    "github_trending",
+    "tags",
+    "tool_tags",
+)
 
 
 def load_schema(path: str = SCHEMA_FILE) -> str:
@@ -104,7 +112,7 @@ def main() -> None:
             # IF NOT EXISTS 라 정상 경로에선 발생하지 않지만 방어적으로 보고.
             print(f"⚠️  누락된 테이블: {', '.join(missing)}")
         else:
-            print(f"✅ 6개 테이블 모두 존재: {', '.join(EXPECTED_TABLES)}")
+            print(f"✅ {len(EXPECTED_TABLES)}개 테이블 모두 존재: {', '.join(EXPECTED_TABLES)}")
         print("\n✅ 스키마 초기화 완료(commit)!")
 
     except Exception as e:

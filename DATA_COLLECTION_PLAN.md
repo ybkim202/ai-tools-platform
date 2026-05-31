@@ -286,6 +286,38 @@ class GitHubCollector:
 
 ---
 
+## 🔥 **GitHub Trending (구현됨)**
+
+`/api/trends/github` 의 데이터 소스. 위 GitHub 릴리스 수집(news 적재)과 별개로, **독립
+`github_trending` 테이블**을 채우는 수집기다(`collectors/github_trending.py`).
+
+### **트렌딩 정의(v1)**
+- 최근 생성(`weekly`=7일 / `monthly`=30일 내 `created`) + 별점 내림차순.
+- 오래된 인기 레포(예: PyTorch)는 포함하지 않는다. velocity(별점 증가율)는 v2 로 보류.
+
+### **수집 방식**
+- **엔드포인트**: `GET https://api.github.com/search/repositories?q=topic:{topic} created:>={기간시작} stars:>={임계값}&sort=stars&order=desc&per_page=N`
+- **토픽 다중 질의**: `ai, llm, machine-learning, generative-ai, agents, rag, stable-diffusion, deep-learning` 를 각각 질의하고 `repo_full_name` 기준으로 병합·중복제거(별점 큰 쪽 유지).
+- **별점 임계값**(env 오버라이드): `GITHUB_TRENDING_MIN_STARS_WEEKLY`(기본 10), `GITHUB_TRENDING_MIN_STARS_MONTHLY`(기본 50).
+- **적재 개수**: period 별 별점 상위 약 60개(`rank` 1=최고).
+- **토큰**: `GITHUB_TOKEN` 있으면 인증(Search 레이트 10→30/min), 없어도 동작. 토큰은 로그에 남기지 않는다(헌법 G9).
+- **번역**: `description` → `description_ko`(무료 MyMemory, 키 불필요). 실패 시 `null`(원문 유지).
+
+### **멱등 교체**
+- 수집 성공 시 해당 `period` 의 기존 행을 모두 삭제하고 새 결과로 교체(단일 트랜잭션).
+- period 단위 에러 격리: 한 period 실패가 다른 period 를 막지 않는다.
+- `UNIQUE(repo_full_name, period)` 제약으로 같은 레포/기간은 1행만 유지.
+
+### **주제(테마) 매핑**
+- `trends_themes.py`(단일 정본)가 GitHub `topics` → 큐레이션 테마(`agent`/`rag`/`local-llm`/`image`/`voice`/`finetune`/`mlops`)로 매핑. 라우터가 응답 `themes[]` 에 임베드(별도 엔드포인트 없음).
+
+### **등록/실행**
+- `collectors/base.py` 의 `_load_collectors()` 에 `github_trending` 등록 → `collect.py`(수동 1회)·`scheduler.py`(주기)에 자동 포함.
+- `cd backend && DATABASE_URL=... [GITHUB_TOKEN=...] python collect.py` 로 초기 적재.
+- **선행 조건**: `github_trending` 테이블이 먼저 존재해야 한다(아래 마이그레이션 메모 참조).
+
+---
+
 ## 🌐 **웹 크롤링**
 
 ### **라이브러리**

@@ -260,17 +260,19 @@ def _load_collectors() -> list:
     각 collector 의 collect(conn) 는 신규 삽입 행수를 반환한다.
     토큰 미설정 소스는 collect 내부에서 0 을 반환하며 조용히 skip 한다.
     """
-    from . import rss, github, producthunt
+    from . import rss, github, producthunt, github_trending
 
     return [
         ("rss", rss.collect),
         ("github", github.collect),
         ("producthunt", producthunt.collect),
+        # github_trending 은 news 가 아니라 독립 github_trending 테이블을 멱등 교체한다.
+        ("github_trending", github_trending.collect),
     ]
 
 
 # 관측용: 구성된 소스 이름(스케줄러 로깅에 사용). lazy 하게 채워진다.
-ACTIVE_COLLECTORS = ["rss", "github", "producthunt"]
+ACTIVE_COLLECTORS = ["rss", "github", "producthunt", "github_trending"]
 
 
 def collect_all(conn=None) -> int:

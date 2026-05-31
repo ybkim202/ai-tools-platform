@@ -5,16 +5,196 @@ import {
   Route,
   NavLink,
   Link,
+  useLocation,
 } from 'react-router-dom';
 import Home from './pages/Home';
 import Compare from './pages/Compare';
 import Details from './pages/Details';
 import Recommendations from './pages/Recommendations';
 import News from './pages/News';
+import GithubTrends from './pages/GithubTrends';
 import Benchmarks from './pages/Benchmarks';
 import { useUIStore } from './stores/toolStore';
 import ExternalLinkIcon from './components/ExternalLinkIcon';
 import './App.css';
+
+// 트렌드 하위 라우트 정의(드롭다운 + 모바일 그룹 공유 진실).
+const TREND_ITEMS = [
+  { to: '/news', label: '뉴스' },
+  { to: '/trends/github', label: '깃헙 트렌드' },
+];
+
+// 네비 '트렌드 ▾' 드롭다운(데스크톱) + 모바일 들여쓰기 그룹.
+// 단일 DOM + 미디어쿼리 표시전환: .nav-dropdown은 모바일에서 숨기고
+// .nav-group(라벨+sub링크)은 데스크톱에서 숨긴다(App.css). 라우트는 한 번만 선언.
+const TrendNav = ({ closeMenu }) => {
+  const location = useLocation();
+  const [open, setOpen] = React.useState(false);
+  const containerRef = React.useRef(null);
+  const triggerRef = React.useRef(null);
+  const itemRefs = React.useRef([]);
+  const closeTimer = React.useRef(null);
+
+  // 하위 경로 중 하나라도 활성이면 트리거를 부모 활성으로 표시.
+  const parentActive = TREND_ITEMS.some((it) =>
+    location.pathname.startsWith(it.to)
+  );
+
+  const clearCloseTimer = () => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  };
+
+  const closeDropdown = React.useCallback(() => {
+    clearCloseTimer();
+    setOpen(false);
+  }, []);
+
+  // 바깥 클릭 + Escape 닫기(열림 동안에만).
+  React.useEffect(() => {
+    if (!open) return undefined;
+    const onPointerDown = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
+
+  React.useEffect(() => () => clearCloseTimer(), []);
+
+  const onTriggerKeyDown = (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setOpen(true);
+      // 다음 틱에 첫 아이템 포커스.
+      requestAnimationFrame(() => itemRefs.current[0]?.focus());
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setOpen((v) => !v);
+    }
+  };
+
+  const onMenuKeyDown = (e, idx) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      itemRefs.current[(idx + 1) % TREND_ITEMS.length]?.focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      itemRefs.current[
+        (idx - 1 + TREND_ITEMS.length) % TREND_ITEMS.length
+      ]?.focus();
+    }
+  };
+
+  return (
+    <>
+      {/* 데스크톱: hover/click 드롭다운 */}
+      <div
+        className="nav-dropdown"
+        ref={containerRef}
+        onMouseEnter={() => {
+          clearCloseTimer();
+          setOpen(true);
+        }}
+        onMouseLeave={() => {
+          clearCloseTimer();
+          closeTimer.current = setTimeout(() => setOpen(false), 200);
+        }}
+      >
+        <button
+          type="button"
+          ref={triggerRef}
+          className={`nav-link nav-dropdown-trigger${
+            parentActive ? ' nav-link-active' : ''
+          }`}
+          aria-expanded={open}
+          aria-haspopup="true"
+          aria-controls="trend-submenu"
+          onClick={() => setOpen((v) => !v)}
+          onKeyDown={onTriggerKeyDown}
+        >
+          트렌드
+          <svg
+            className="chevron"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
+        <div
+          id="trend-submenu"
+          className="nav-dropdown-menu"
+          role="menu"
+          hidden={!open}
+        >
+          {TREND_ITEMS.map((it, idx) => (
+            <NavLink
+              key={it.to}
+              to={it.to}
+              role="menuitem"
+              ref={(el) => {
+                itemRefs.current[idx] = el;
+              }}
+              tabIndex={open ? 0 : -1}
+              onClick={() => {
+                closeDropdown();
+                closeMenu();
+              }}
+              onKeyDown={(e) => onMenuKeyDown(e, idx)}
+              className={({ isActive }) =>
+                `nav-dropdown-item${isActive ? ' nav-link-active' : ''}`
+              }
+            >
+              {it.label}
+            </NavLink>
+          ))}
+        </div>
+      </div>
+
+      {/* 모바일: 들여쓰기 그룹(기존 햄버거 패널 안) */}
+      <div className="nav-group">
+        <span className="nav-group-label" id="trend-group">
+          트렌드
+        </span>
+        {TREND_ITEMS.map((it) => (
+          <NavLink
+            key={it.to}
+            to={it.to}
+            onClick={closeMenu}
+            className={({ isActive }) =>
+              `nav-link nav-link-sub${isActive ? ' nav-link-active' : ''}`
+            }
+          >
+            {it.label}
+          </NavLink>
+        ))}
+      </div>
+    </>
+  );
+};
 
 function App() {
   const { theme, toggleDarkMode } = useUIStore();
@@ -176,15 +356,7 @@ function App() {
                 >
                   추천
                 </NavLink>
-                <NavLink
-                  to="/news"
-                  onClick={closeMenu}
-                  className={({ isActive }) =>
-                    `nav-link${isActive ? ' nav-link-active' : ''}`
-                  }
-                >
-                  뉴스
-                </NavLink>
+                <TrendNav closeMenu={closeMenu} />
                 <NavLink
                   to="/benchmarks"
                   onClick={closeMenu}
@@ -215,6 +387,7 @@ function App() {
             <Route path="/compare" element={<Compare />} />
             <Route path="/recommendations" element={<Recommendations />} />
             <Route path="/news" element={<News />} />
+            <Route path="/trends/github" element={<GithubTrends />} />
             <Route path="/benchmarks" element={<Benchmarks />} />
             <Route path="/details/:id" element={<Details />} />
           </Routes>
@@ -243,6 +416,9 @@ function App() {
               </Link>
               <Link to="/news" className="footer-link">
                 뉴스
+              </Link>
+              <Link to="/trends/github" className="footer-link">
+                깃헙 트렌드
               </Link>
               <Link to="/benchmarks" className="footer-link">
                 벤치마크

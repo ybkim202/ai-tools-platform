@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import tools, recommendations, compare, news, benchmarks
+from app.routers import tools, recommendations, compare, news, benchmarks, trends
 from app.exceptions import register_exception_handlers
 from app.auth import verify_api_key, rate_limit_dependency
 import os
@@ -50,6 +50,7 @@ app.include_router(recommendations.router, dependencies=_rate_limit)
 app.include_router(compare.router, dependencies=_rate_limit)
 app.include_router(news.router, dependencies=_rate_limit)
 app.include_router(benchmarks.router, dependencies=_rate_limit)
+app.include_router(trends.router, dependencies=_rate_limit)
 
 # ==================== 루트 엔드포인트 ====================
 @app.get("/")
@@ -68,7 +69,8 @@ def root():
             "trending_news": "/api/news/trending",
             "benchmarks": "/api/benchmarks",
             "benchmark_summary": "/api/benchmarks/summary/{tool_id}",
-            "benchmark_types": "/api/benchmarks/types"
+            "benchmark_types": "/api/benchmarks/types",
+            "github_trending": "/api/trends/github"
         }
     }
 

@@ -4,7 +4,7 @@ FastAPI + 원시 SQL(SQLAlchemy `text()`, ORM 없음) + PostgreSQL.
 이 문서는 **빈 새 DB 를 레포만으로 세우는 절차의 정본**이다.
 
 > 과거에는 `tools`/`pricing`/`benchmarks`/`news` 테이블이 레포 밖에서 수동 생성되어
-> 재현이 불가능했다. 이제 [`schema.sql`](schema.sql) 이 6개 테이블의 정본이고,
+> 재현이 불가능했다. 이제 [`schema.sql`](schema.sql) 이 7개 테이블의 정본이고,
 > [`bootstrap.py`](bootstrap.py) 한 번으로 스키마 → 데이터가 멱등 적재된다.
 
 ## 사전 준비
@@ -25,7 +25,7 @@ DATABASE_URL='postgresql://USER:PASSWORD@HOST/DB' python bootstrap.py
 
 | 순서 | 스크립트 | 하는 일 |
 |---|---|---|
-| 1 | [`init_db.py`](init_db.py) | `schema.sql` 실행 → 6개 테이블/인덱스 생성 |
+| 1 | [`init_db.py`](init_db.py) | `schema.sql` 실행 → 7개 테이블/인덱스 생성(`github_trending` 포함) |
 | 2 | [`load_tools_fixed.py`](load_tools_fixed.py) | `tools_data.json`(78개) → `tools` / `pricing` 적재 |
 | 3 | [`seed_tags.py`](seed_tags.py) | `tags_seed.json` → `tags` / `tool_tags` 적재(추천 활성화) |
 | 4 | [`seed_benchmarks.py`](seed_benchmarks.py) | `benchmarks_data.json` → `benchmarks` 적재(벤치마크 활성화, LLM 9개·24행) |
@@ -43,6 +43,25 @@ DATABASE_URL='...' python seed_benchmarks.py    # 벤치마크만(도구 적재 
 > `pricing` 은 신규 INSERT 분기에서만 채운다. 따라서 **빈 새 DB 에 1회 실행**을 전제로 한다.
 > (부분 적재 후 재실행 시 pricing 이 비어 있을 수 있음.)
 
+### ⚠️ 운영 중 DB 에 `github_trending` 테이블 선적용(중요)
+
+`schema.sql` 의 `CREATE TABLE IF NOT EXISTS github_trending ...` 는 **이미 운영 중인 DB**
+에도 안전하게 적용된다(없으면 생성, 있으면 무동작). 단, **코드(라우터/수집기)가 새 테이블을
+쓰기 전에 DB 에 테이블이 먼저 존재해야 한다.** 과거 `news.title_ko` 컬럼을 코드가 먼저
+참조해 운영에서 깨졌던 사고의 교훈이다 — **순서를 반드시 지킬 것**:
+
+```bash
+# 1) 코드 배포 전(또는 직후 즉시) 운영 DB 에 스키마 재적용 → github_trending 생성.
+cd backend
+DATABASE_URL='postgresql://USER:PASSWORD@HOST/DB' python init_db.py
+# 2) 그 다음에 수집(테이블 채우기). 비어 있으면 라우터는 빈 결과를 graceful 반환.
+DATABASE_URL='...' [GITHUB_TOKEN=...] python collect.py
+```
+
+테이블이 없는 상태로 `/api/trends/github` 가 호출되면 라우터는 예외를 잡아
+`{success:false, error:DATABASE_ERROR}` 로 응답한다(앱은 죽지 않음). 정상 점등을 위해
+**선적용 → 수집** 순서를 지킨다.
+
 ## 새 DB 로 교체(노출된 옛 DB 폐기) 절차
 
 1. Render → **New + → PostgreSQL** 로 새 DB 생성(같은 region/버전).
@@ -59,9 +78,10 @@ UNION ALL SELECT 'pricing',    COUNT(*) FROM pricing
 UNION ALL SELECT 'tags',       COUNT(*) FROM tags
 UNION ALL SELECT 'tool_tags',  COUNT(*) FROM tool_tags
 UNION ALL SELECT 'benchmarks', COUNT(*) FROM benchmarks   -- 24 예상(LLM 9개)
-UNION ALL SELECT 'news',       COUNT(*) FROM news;        -- 0 예상
+UNION ALL SELECT 'news',       COUNT(*) FROM news        -- 0 예상
+UNION ALL SELECT 'github_trending', COUNT(*) FROM github_trending;  -- 0 예상(수집 전)
 ```
-기대: `tools=78`, `pricing>0`, `tags=19`, `tool_tags=312`, `benchmarks=24`, `news=0`.
+기대: `tools=78`, `pricing>0`, `tags=19`, `tool_tags=312`, `benchmarks=24`, `news=0`, `github_trending=0`.
 
 ### 추천 활성화
 `GET /api/recommendations?task=<시드에 존재하는 task명>` →
@@ -84,6 +104,8 @@ UNION ALL SELECT 'news',       COUNT(*) FROM news;        -- 0 예상
 | `collectors/rss.py` | **키리스**(토큰 불필요) 공개 RSS 피드 파싱 — 항상 활성 |
 | `collectors/github.py` | GitHub 릴리스 — `GITHUB_TOKEN` 있으면 인증, 없으면 무토큰 공개 호출 |
 | `collectors/producthunt.py` | Product Hunt 트렌딩 — `PRODUCT_HUNT_TOKEN` 없으면 조용히 skip |
+| `collectors/github_trending.py` | GitHub Search 로 트렌딩 레포 수집 → **독립 `github_trending` 테이블**을 period 별 멱등 교체(`GITHUB_TOKEN` 선택). `/api/trends/github` 의 소스 |
+| `trends_themes.py` | 깃헙 트렌드 주제(테마) 매핑 단일 정본 — 라우터/수집기 공용 |
 | `scheduler.py` | APScheduler(BackgroundScheduler), 가드/시작/종료 |
 | `collect.py` | 스케줄러 없이 **수동 1회** 전체 수집(초기 적재·테스트·외부 cron 용) |
 
@@ -94,8 +116,10 @@ UNION ALL SELECT 'news',       COUNT(*) FROM news;        -- 0 예상
 | `ENABLE_SCHEDULER` | (off) | `true` 일 때만 스케줄러 가동. 미설정/false 면 앱은 스케줄러 없이 정상 기동. |
 | `SCHEDULER_WORKER` | (off) | 멀티워커 중복 방지. `true` 인 **단일 프로세스**에서만 잡을 띄움. |
 | `COLLECT_INTERVAL_HOURS` | `24` | 수집 주기(시간). |
-| `GITHUB_TOKEN` | (선택) | 있으면 GitHub 인증 호출(레이트↑). 없으면 무토큰. |
+| `GITHUB_TOKEN` | (선택) | 있으면 GitHub 인증 호출(릴리스+Search 레이트↑). 없으면 무토큰. |
 | `PRODUCT_HUNT_TOKEN` | (선택) | 있어야 Product Hunt 소스 활성. 없으면 조용히 skip. |
+| `GITHUB_TRENDING_MIN_STARS_WEEKLY` | `10` | 주간 트렌딩 별점 임계값. |
+| `GITHUB_TRENDING_MIN_STARS_MONTHLY` | `50` | 월간 트렌딩 별점 임계값. |
 
 > 비밀정보(토큰)는 환경변수로만 주입하며 코드/로그에 남기지 않는다(헌법 G9).
 
@@ -128,6 +152,8 @@ ENABLE_SCHEDULER=true SCHEDULER_WORKER=true COLLECT_INTERVAL_HOURS=24 \
 
 - 수동 수집 후 `news` 행수 증가 확인, `GET /api/news` · `GET /api/news/trending` 점등.
 - 재실행 시 신규 0 / 스킵 N 으로 수렴(멱등).
+- 트렌딩: 수집 후 `github_trending` 행수 확인, `GET /api/trends/github?period=weekly` ·
+  `?period=monthly` 점등. period 멱등 교체이므로 재실행 시 행수는 누적되지 않고 상위 N 으로 수렴.
 
 ## TODO (후속, 이번 범위 밖)
 

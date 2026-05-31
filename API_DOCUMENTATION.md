@@ -16,7 +16,8 @@
 6. [Compare API](#compare-api)
 7. [News API](#news-api)
 8. [Benchmarks API](#benchmarks-api)
-9. [Rate Limiting](#rate-limiting)
+9. [Trends API](#trends-api)
+10. [Rate Limiting](#rate-limiting)
 
 ---
 
@@ -639,6 +640,80 @@ curl "http://localhost:8000/api/benchmarks/summary/4"
 
 # MMLU 벤치마크 정렬
 curl "http://localhost:8000/api/benchmarks?benchmark_type=MMLU&sort_by=score_desc"
+```
+
+---
+
+## 📈 **Trends API**
+
+깃헙 트렌딩 오픈소스(최근 생성 + 고별점)
+
+### **GET /api/trends/github**
+
+급부상 오픈소스를 기간·주제별로 조회한다. 트렌딩 정의(v1) = 최근 생성(주간=7일/월간=30일 내 `created`) + 별점 내림차순. 오래된 인기 레포는 포함되지 않는다(velocity 는 v2).
+
+데이터 소스는 `github_trending` 테이블(수집기 `collectors/github_trending.py` 가 period 별로 멱등 교체). 주제(테마) 군집 매핑은 서버 파이썬(`trends_themes.py` 단일 정본)에서 수행되어 응답의 `themes[]` 에 임베드된다(별도 `/topics` 엔드포인트 없음).
+
+**파라미터**
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|---------|------|------|------|
+| `period` | string | ❌ | 기간 `weekly`\|`monthly` (기본: `weekly`, 비정상값은 `weekly` 로 정규화) |
+| `theme` | string | ❌ | 주제 군집 key. 허용: `agent`, `rag`, `local-llm`, `image`, `voice`, `finetune`, `mlops`. 미지정/`all`/비유효 키는 전체(필터 없음) |
+| `limit` | number | ❌ | 페이지당 레포 수 (1-100, 기본: 12) |
+| `offset` | number | ❌ | 오프셋 (≥0) |
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "data": {
+    "repos": [
+      {
+        "id": 1,
+        "owner": "langchain-ai",
+        "repo": "langchain",
+        "name": "langchain",
+        "avatar_url": "https://avatars.githubusercontent.com/...",
+        "html_url": "https://github.com/langchain-ai/langchain",
+        "description": "Build context-aware reasoning applications",
+        "description_ko": "맥락 인식 추론 애플리케이션 구축",
+        "stars": 1234,
+        "language": "Python",
+        "topics": ["rag", "agents", "llm"]
+      }
+    ],
+    "themes": [
+      { "key": "all", "label": "전체", "count": 60 },
+      { "key": "rag", "label": "RAG", "count": 8 },
+      { "key": "agent", "label": "AI 에이전트", "count": 5 }
+    ],
+    "total": 60,
+    "collected_at": "2026-05-31T00:00:00+00:00"
+  },
+  "pagination": {
+    "total": 60,
+    "limit": 12,
+    "offset": 0,
+    "pages": 5
+  },
+  "error": null
+}
+```
+
+> **`themes[]`**: 주제 군집 카운트. `all`(label `전체`) 은 해당 period 전체 개수로 항상 포함되며, count 0 인 큐레이션 테마는 응답에서 제외된다. 카운트는 **theme 필터 적용 전(period 전체) 기준**으로 집계되고, `total` 은 **theme 필터 적용 후** 개수다.
+> **`description_ko`** (비파괴): 영어 설명을 무료 MyMemory 번역 API(키 불필요)로 옮긴 한국어. 네트워크/쿼터 실패 시 `null`(원문 `description` 유지). 프론트는 값이 있으면 한글, 없으면 원문을 표시한다.
+> **`collected_at`**: 해당 period 의 `MAX(collected_date)` (신선도 표기용). 데이터가 없으면 `null`.
+
+**예시**
+
+```bash
+# 주간 전체 트렌딩
+curl "http://localhost:8000/api/trends/github?period=weekly&limit=12"
+
+# 월간 + RAG 테마 필터
+curl "http://localhost:8000/api/trends/github?period=monthly&theme=rag"
 ```
 
 ---
