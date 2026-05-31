@@ -86,6 +86,8 @@ export const compareAPI = {
 // ==================== News API ====================
 export const newsAPI = {
   // 뉴스 조회
+  // params: { days, limit, offset, search, tool_id } — search는 제목/내용/도구명 ILIKE.
+  // 응답: { success, data: [...], pagination: { total, limit, offset, pages }, error }.
   getNews: (params = {}) => {
     return apiClient.get('/news', { params });
   },

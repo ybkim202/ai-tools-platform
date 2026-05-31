@@ -303,6 +303,7 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
 |---------|------|------|------|
 | `tool_id` | number | ❌ | 특정 도구의 뉴스만 |
 | `days` | number | ❌ | 최근 N일 이내 (1~365, 기본값: 30) |
+| `search` | string | ❌ | 제목/내용/도구명 검색어 (부분 일치, 대소문자 무시) |
 | `limit` | number | ❌ | 최대 결과 수 (1~100, 기본값: 20) |
 | `offset` | number | ❌ | 오프셋 (기본값: 0) |
 
