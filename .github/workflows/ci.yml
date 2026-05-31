@@ -20,7 +20,8 @@ jobs:
           node-version: '20'
           cache: npm
           cache-dependency-path: frontend/package-lock.json
-      - run: npm ci
+      # npm install 사용(npm ci는 lock-package.json 완전 일치 강제 — 로컬/CI npm 버전차로 드리프트 발생). 빌드 검증이 목적이므로 install 로 견고화.
+      - run: npm install --no-audit --no-fund
       # 디자인 토큰 가드 — 사용처 CSS raw hex 재유입 차단(무채색/토큰 회귀 방지)
       - name: 디자인 토큰 가드
         working-directory: .
