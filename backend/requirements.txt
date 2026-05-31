@@ -7,4 +7,3 @@ gunicorn
 apscheduler
 requests
 feedparser
-anthropic

@@ -488,8 +488,9 @@ curl "http://localhost:8000/api/compare?ids=4,5,6"
 }
 ```
 
-> **`title_ko` / `summary_ko`** (추가 필드, 비파괴): 영어 뉴스를 Claude 로 번역한 한국어 제목/요약.
-> 번역 비활성(ANTHROPIC_API_KEY 미설정) 또는 번역 실패 시 `null`. 프론트는 값이 있으면 한글,
+> **`title_ko` / `summary_ko`** (추가 필드, 비파괴): 영어 뉴스를 무료 MyMemory 번역 API(키 불필요)로
+> 번역한 한국어 제목/번역 스니펫. 선택적으로 `MYMEMORY_EMAIL` 환경변수를 주면 무료 일일 한도가 확대된다.
+> 네트워크/쿼터 실패 시 `null`. 프론트는 값이 있으면 한글,
 > 없으면 원문(`title`/`content`)을 표시한다. `/api/news/trending` 은 도구 단위 집계(개수/최신일자)만
 > 반환하므로 이 필드를 포함하지 않는다.
 

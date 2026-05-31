@@ -125,9 +125,10 @@ def upsert_news_item(cursor, item: NewsItem, tool_index: dict) -> bool:
     if cursor.fetchone() is not None:
         return False
 
-    # 한글 번역(ANTHROPIC_API_KEY 가 있을 때만). 키 없거나 실패 시 (None, None)
-    # 이므로 원문만 NULL 한글로 저장된다. 번역 자체가 예외를 던지지 않게 모듈이
-    # 흡수하지만, 방어적으로 한 번 더 격리해 번역 실패가 삽입을 막지 않게 한다.
+    # 한글 번역(무료 MyMemory, 키 불필요). 네트워크/쿼터 실패 시 (None, None)
+    # 이므로 원문만 NULL 한글로 저장된다(원문 title/content 는 항상 유지). 번역
+    # 모듈이 예외를 흡수하지만, 방어적으로 한 번 더 격리해 번역 실패가 삽입을 막지
+    # 않게 한다.
     title_ko = None
     summary_ko = None
     try:
@@ -313,18 +314,27 @@ def backfill_translations(conn=None, limit: int = 50) -> int:
     멱등: title_ko IS NULL 행만 대상으로 하므로 이미 번역된 건은 skip.
     재실행하면 아직 미번역인 다음 limit 건을 이어서 처리한다.
 
-    ANTHROPIC_API_KEY 미설정이면 0 을 반환하고 조용히 종료(에러 아님).
+    번역은 무료 MyMemory API(키 불필요)를 쓴다. 네트워크/쿼터 실패 행은 번역되지
+    않은 채(title_ko NULL) 남아 다음 실행에서 재시도된다(원문은 항상 유지).
+    requests 미설치 시 0 을 반환하고 조용히 종료(에러 아님).
     항목별 try/except 로 격리 — 한 건 실패가 전체 백필을 막지 않는다.
+
+    MyMemory 무료 한도(익명 ~5,000 단어/일)를 한 번에 초과하지 않게 limit 로
+    처리량을 제한하고, 항목 사이에 짧은 sleep 으로 호출 폭주를 완화한다
+    (MYMEMORY_EMAIL 설정 시 ~50,000 단어/일로 한도 확대).
 
     Args:
         conn: 재사용할 psycopg2 연결. None 이면 내부에서 열고 닫는다.
-        limit: 한 번에 처리할 최대 행수(API 호출 폭주 방지).
+        limit: 한 번에 처리할 최대 행수(호출 폭주 방지).
     """
     from .translate import is_enabled, translate_to_korean
 
     if not is_enabled():
-        logger.info("ANTHROPIC_API_KEY 미설정 — 번역 백필 건너뜀(원문 유지).")
+        logger.info("requests 미설치 — 번역 백필 건너뜀(원문 유지).")
         return 0
+
+    # 항목 사이 가벼운 간격(초). 무료 API 레이트 완화용(과설계 금지, 단순하게).
+    item_sleep = 0.5
 
     own_conn = conn is None
     if own_conn:
@@ -351,7 +361,7 @@ def backfill_translations(conn=None, limit: int = 50) -> int:
             try:
                 title_ko, summary_ko = translate_to_korean(title, content)
                 if title_ko is None and summary_ko is None:
-                    # 번역 실패(키 일시오류 등) — 이 행은 다음 실행에서 재시도.
+                    # 번역 실패(네트워크/쿼터 일시오류 등) — 이 행은 다음 실행에서 재시도.
                     conn.rollback()
                     continue
                 cursor.execute(
@@ -365,6 +375,8 @@ def backfill_translations(conn=None, limit: int = 50) -> int:
                 logger.warning("번역 백필 항목 실패(skip) id=%s: %s", news_id, e)
             finally:
                 cursor.close()
+            # 무료 API 레이트 완화: 항목 사이 짧은 간격.
+            time.sleep(item_sleep)
     finally:
         if own_conn:
             conn.close()
