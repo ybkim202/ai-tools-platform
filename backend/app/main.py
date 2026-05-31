@@ -72,6 +72,37 @@ def root():
         }
     }
 
+# ==================== 자동 수집 스케줄러 (기본 비활성) ====================
+# scheduler.start_scheduler() 는 ENABLE_SCHEDULER=true 이고
+# SCHEDULER_WORKER=true 인 프로세스에서만 잡을 띄운다(멀티워커 중복 방지).
+# 그 외에는 None 을 반환하며 앱은 스케줄러 없이 정상 기동한다.
+# (collectors/scheduler 는 startup 안에서 lazy import 하여, apscheduler 미설치 시에도
+#  앱 import 자체가 깨지지 않게 한다.)
+@app.on_event("startup")
+def _startup_scheduler():
+    """앱 기동 시 가드를 통과하면 자동 수집 스케줄러를 시작한다."""
+    try:
+        from scheduler import start_scheduler
+
+        start_scheduler()
+    except Exception:
+        # 스케줄러 기동 실패가 웹 앱 기동을 막지 않도록 격리한다.
+        import logging
+
+        logging.getLogger(__name__).exception("스케줄러 기동 실패(앱은 계속 기동)")
+
+
+@app.on_event("shutdown")
+def _shutdown_scheduler():
+    """앱 종료 시 스케줄러를 안전하게 정리한다."""
+    try:
+        from scheduler import shutdown_scheduler
+
+        shutdown_scheduler()
+    except Exception:
+        pass
+
+
 @app.get("/health")
 def health_check(api_key = Depends(verify_api_key)):
     """
