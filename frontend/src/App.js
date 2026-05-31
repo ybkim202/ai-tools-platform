@@ -16,6 +16,7 @@ import GithubTrends from './pages/GithubTrends';
 import Benchmarks from './pages/Benchmarks';
 import { useUIStore } from './stores/toolStore';
 import ExternalLinkIcon from './components/ExternalLinkIcon';
+import GlobalSearch from './components/GlobalSearch';
 import './App.css';
 
 // 트렌드 하위 라우트 정의(드롭다운 + 모바일 그룹 공유 진실).
@@ -201,6 +202,11 @@ function App() {
   const compareCount = useUIStore(
     (state) => state.selectedToolsForCompare.length
   );
+  // 헤더 패널 enum(검색/메뉴 상호배타). 메뉴 열림 여부는 이 enum에서 파생.
+  const activeHeaderPanel = useUIStore((state) => state.activeHeaderPanel);
+  const toggleHeaderPanel = useUIStore((state) => state.toggleHeaderPanel);
+  const closeHeaderPanel = useUIStore((state) => state.closeHeaderPanel);
+  const menuOpen = activeHeaderPanel === 'menu';
   // OS prefers-color-scheme 실시간 추적(시스템 따름 모드에서 아이콘/aria-pressed 갱신용).
   const [systemPrefersDark, setSystemPrefersDark] = React.useState(
     () =>
@@ -232,19 +238,19 @@ function App() {
   // 효과적 다크 여부(aria-pressed·아이콘용).
   const isDark = theme === 'dark' || (theme === null && systemPrefersDark);
 
-  // 모바일 네비 토글 상태. 데스크톱은 CSS로 항상 가로 노출(이 상태는 모바일 패널에만 영향).
-  const [menuOpen, setMenuOpen] = React.useState(false);
+  // 모바일 네비 토글 상태는 store enum(activeHeaderPanel)에서 파생. 데스크톱은 CSS로 항상 가로 노출.
   const navMenuRef = React.useRef(null);
   const menuToggleRef = React.useRef(null);
 
-  const closeMenu = React.useCallback(() => setMenuOpen(false), []);
+  // 라우트 이동 등에서 모든 헤더 패널을 닫는다(검색/메뉴 공통).
+  const closeMenu = closeHeaderPanel;
 
-  // Escape로 닫기 + 바깥 클릭 닫기. 열림 동안에만 리스너 부착.
+  // Escape로 닫기 + 바깥 클릭 닫기. 메뉴 열림 동안에만 리스너 부착.
   useEffect(() => {
     if (!menuOpen) return undefined;
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
-        setMenuOpen(false);
+        closeHeaderPanel();
         // 닫은 뒤 포커스를 토글 버튼으로 복귀(키보드 흐름 유지).
         menuToggleRef.current?.focus();
       }
@@ -256,7 +262,7 @@ function App() {
         menuToggleRef.current &&
         !menuToggleRef.current.contains(e.target)
       ) {
-        setMenuOpen(false);
+        closeHeaderPanel();
       }
     };
     document.addEventListener('keydown', handleKeyDown);
@@ -265,7 +271,7 @@ function App() {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('mousedown', handlePointerDown);
     };
-  }, [menuOpen]);
+  }, [menuOpen, closeHeaderPanel]);
 
   return (
     <Router>
@@ -273,16 +279,38 @@ function App() {
         {/* 네비게이션 바 */}
         <nav className="navbar">
           <div className="navbar-container">
-            <Link to="/" className="navbar-logo" onClick={closeMenu}>
-              <span aria-hidden="true">🤖</span> AITools
+            <Link
+              to="/"
+              className="navbar-logo"
+              aria-label="AITools 홈"
+              onClick={closeHeaderPanel}
+            >
+              <span className="navbar-logo-mark" aria-hidden="true" />
+              <span className="navbar-logo-word">AITools</span>
             </Link>
+
+            {/* 전역 검색(F3): 어느 화면에서나 도구 즉시 탐색. 검색은 1급 진입점이므로
+                로고 우측에 배치(모바일은 컴포넌트 내부 아이콘 토글). */}
+            <GlobalSearch />
 
             {/* 모바일 전용 햄버거 토글(데스크톱은 CSS로 숨김). 색 단독 금지 → aria-label로 의미 전달 */}
             <button
               type="button"
               ref={menuToggleRef}
               className="nav-toggle"
-              onClick={() => setMenuOpen((open) => !open)}
+              onClick={() => {
+                const willOpen = activeHeaderPanel !== 'menu';
+                toggleHeaderPanel('menu');
+                // 검색 패널이 열려 있다가 메뉴로 전환되는 경우 포함:
+                // 메뉴를 열 때 포커스를 패널 첫 링크로 이동(포커스 미아 방지).
+                if (willOpen) {
+                  requestAnimationFrame(() => {
+                    navMenuRef.current
+                      ?.querySelector('a, button')
+                      ?.focus();
+                  });
+                }
+              }}
               aria-label={menuOpen ? '메뉴 닫기' : '메뉴 열기'}
               aria-expanded={menuOpen}
               aria-controls="primary-nav-menu"
@@ -331,6 +359,15 @@ function App() {
                   홈
                 </NavLink>
                 <NavLink
+                  to="/recommendations"
+                  onClick={closeMenu}
+                  className={({ isActive }) =>
+                    `nav-link${isActive ? ' nav-link-active' : ''}`
+                  }
+                >
+                  추천
+                </NavLink>
+                <NavLink
                   to="/compare"
                   onClick={closeMenu}
                   className={({ isActive }) =>
@@ -346,15 +383,6 @@ function App() {
                       {compareCount}
                     </span>
                   )}
-                </NavLink>
-                <NavLink
-                  to="/recommendations"
-                  onClick={closeMenu}
-                  className={({ isActive }) =>
-                    `nav-link${isActive ? ' nav-link-active' : ''}`
-                  }
-                >
-                  추천
                 </NavLink>
                 <TrendNav closeMenu={closeMenu} />
                 <NavLink
@@ -398,8 +426,13 @@ function App() {
           <div className="footer-content">
             {/* 블록1: 브랜드 */}
             <div className="footer-brand">
-              <Link to="/" className="footer-brand-title">
-                AITools
+              <Link
+                to="/"
+                className="footer-brand-title"
+                aria-label="AITools 홈"
+              >
+                <span className="footer-brand-mark" aria-hidden="true" />
+                <span>AITools</span>
               </Link>
               <p className="footer-tagline">
                 모든 AI 도구를 한곳에서 비교하고 추천받으세요.
@@ -408,11 +441,11 @@ function App() {
 
             {/* 블록2: 탐색 */}
             <nav className="footer-nav" aria-label="푸터 탐색">
-              <Link to="/compare" className="footer-link">
-                비교
-              </Link>
               <Link to="/recommendations" className="footer-link">
                 추천
+              </Link>
+              <Link to="/compare" className="footer-link">
+                비교
               </Link>
               <Link to="/news" className="footer-link">
                 뉴스

@@ -5,7 +5,7 @@
 ## 프로젝트
 
 **AITools** — AI 도구를 탐색·비교·추천받는 풀스택 웹 플랫폼.
-**정직한 현재 상태**: 골격(탐색·비교)은 동작. **벤치마크·추천·뉴스는 데이터 미적재로 사실상 미동작.** (진단 정본: [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md))
+**정직한 현재 상태**: 탐색·비교·추천·벤치마크 동작(데이터 적재 완료). **뉴스·깃헙트렌드는 0행 시작 → 수집 cron으로 점등.** (진단 정본: [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md))
 
 ## 실제 기술 스택 (fact 기준 — 문서 주장과 다를 수 있음)
 
@@ -62,8 +62,9 @@
 | [docs/GOVERNANCE.md](docs/GOVERNANCE.md) | 거버넌스 세부(컨벤션·하드룰·협업·체크리스트) |
 | [docs/DESIGN.md](docs/DESIGN.md) | 디자인 토큰·컴포넌트 서술 (코드 `frontend/src/styles/Home.css` `:root`가 최종 정본) |
 | [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md) | 현 상태 진단·갭(G1~G13)·개선 로드맵 |
+| [docs/UX_REVIEW.md](docs/UX_REVIEW.md) | 기획-UX 검토 (단일 출처) |
 | [API_DOCUMENTATION.md](API_DOCUMENTATION.md) | API 계약 (단, 코드 라우터와 대조 필요) |
-| [DATA_COLLECTION_PLAN.md](DATA_COLLECTION_PLAN.md) | 자동 수집 설계(미구현) |
+| [DATA_COLLECTION_PLAN.md](DATA_COLLECTION_PLAN.md) | 자동 수집 설계안 (구현은 `collectors/`·`collect.py`로 완료) |
 | [backend/README.md](backend/README.md) | DB 부트스트랩 절차(schema.sql·bootstrap.py·검증) 정본 |
 | `.claude/agents/*.md` | 각 에이전트 지시문 |
 

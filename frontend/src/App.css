@@ -73,6 +73,9 @@ textarea {
 }
 
 .navbar-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
   font-size: var(--font-size-xl);
   font-weight: 700;
   font-family: var(--font-family);
@@ -89,6 +92,23 @@ textarea {
   outline: none;
   border-radius: var(--radius-md);
   box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+/* 단색 아이콘 마크: mask로 잉크 토큰 채움 → 라이트/다크 자동 반전(신규 토큰 0). */
+.navbar-logo-mark {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  background-color: var(--color-text-primary);
+  -webkit-mask: url('./assets/aitools-logo.svg') center / contain no-repeat;
+  mask: url('./assets/aitools-logo.svg') center / contain no-repeat;
+}
+
+.navbar-logo-word {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: var(--color-text-primary);
 }
 
 .navbar-menu {
@@ -302,6 +322,11 @@ textarea {
   .nav-group {
     display: none;
   }
+
+  /* 전역 검색(F3): 로고와 네비 사이, 양옆 여백으로 균형. */
+  .global-search {
+    margin: 0 var(--spacing-lg);
+  }
 }
 
 /* ==================== 메인 콘텐츠 ==================== */
@@ -336,6 +361,9 @@ main {
 }
 
 .footer-brand-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
   font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--color-text-primary);
@@ -343,6 +371,16 @@ main {
 
 .footer-brand-title:hover {
   color: var(--color-primary);
+}
+
+/* 헤더와 동일 마스크 기법. 푸터 워드(16px/600)에 맞춰 약간 작게. */
+.footer-brand-mark {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  background-color: var(--color-text-primary);
+  -webkit-mask: url('./assets/aitools-logo.svg') center / contain no-repeat;
+  mask: url('./assets/aitools-logo.svg') center / contain no-repeat;
 }
 
 .footer-tagline {
@@ -441,6 +479,12 @@ a:focus-visible .external-icon {
 @media (max-width: 768px) {
   .navbar-container {
     height: 56px;
+  }
+
+  /* 모바일(navbar 56px): 마크 축소, 워드텍스트는 유지(브랜드명 전달) */
+  .navbar-logo-mark {
+    width: 24px;
+    height: 24px;
   }
 
   /* 모바일: 햄버거 버튼 노출 */

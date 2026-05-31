@@ -190,6 +190,10 @@ const storedCompare = readStoredCompare();
 export const useUIStore = create((set) => ({
   // 상태
   sidebarOpen: false,
+  // 헤더 패널 단일 enum: 'none' | 'search' | 'menu'.
+  // "동시에 하나만 열림" 불변식을 타입으로 강제(두 boolean 대비 회귀 위험↓).
+  // 모바일에서 검색 오버레이와 햄버거 메뉴가 포개지던 문제를 상호 배제로 근본 차단.
+  activeHeaderPanel: 'none',
   // 'light' | 'dark' | null(시스템 따름)
   theme: readStoredTheme(),
   compareMode: false,
@@ -271,4 +275,17 @@ export const useUIStore = create((set) => ({
     set({
       sidebarOpen: false,
     }),
+
+  // ── 헤더 패널(검색/메뉴) 상호배타 액션 ──
+  // 해당 패널을 연다(다른 쪽은 자동으로 닫힘).
+  openHeaderPanel: (panel) => set({ activeHeaderPanel: panel }),
+
+  // 토글: 같은 패널이면 닫고('none'), 다르면 해당 패널로 전환.
+  toggleHeaderPanel: (panel) =>
+    set((state) => ({
+      activeHeaderPanel: state.activeHeaderPanel === panel ? 'none' : panel,
+    })),
+
+  // 모든 헤더 패널을 닫는다(라우트 이동·바깥 클릭·Esc 공용).
+  closeHeaderPanel: () => set({ activeHeaderPanel: 'none' }),
 }));

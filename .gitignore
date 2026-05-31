@@ -15,3 +15,6 @@ __pycache__/
 !.env.example
 # backend/env 는 비밀번호를 담을 수 있는 env 파일 — 추적 금지(템플릿도 커밋하지 않는다)
 backend/env
+
+# 로고 디자인 소스(대용량 바이너리) — 앱은 frontend/src/assets 사용
+logo/*.ai

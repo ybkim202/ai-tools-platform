@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { recommendationsAPI, toolsAPI, handleApiError } from '../services/api';
 import ToolCard from '../components/ToolCard';
+import CompareTray from '../components/CompareTray';
 import {
   LoadingState,
   EmptyFilteredState,
@@ -182,6 +183,8 @@ const Recommendations = () => {
 
       {!loading && !error && recommendations.length > 0 && (
         <div className="results-section" role="region" aria-live="polite">
+          {/* 비교 트레이(F4): 추천 카드 담기 → 동일 트레이 노출 → 선택 유지한 채 /compare 이동 */}
+          <CompareTray />
           <h2 className="results-heading">
             <span className="results-context">'{selectedValue}'</span>
             에게 추천하는 도구 {recommendations.length}개

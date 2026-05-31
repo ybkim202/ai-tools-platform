@@ -41,7 +41,20 @@ def get_tools(
         
         # 필터링
         if search:
-            query += " AND name ILIKE :search"
+            # 검색 범위: 이름·설명·카테고리·태그(task/profession). 사용자 입력은
+            # 전부 :search 바인딩 1개로만 전달하므로 인젝션 불변식 유지(아래 query
+            # 누적은 정적 조각뿐). 태그는 tool_tags⨝tags 서브쿼리로 매칭.
+            query += (
+                " AND ("
+                "name ILIKE :search"
+                " OR description ILIKE :search"
+                " OR category ILIKE :search"
+                " OR tools.id IN ("
+                "SELECT tt.tool_id FROM tool_tags tt"
+                " JOIN tags t ON tt.tag_id = t.id"
+                " WHERE t.name ILIKE :search)"
+                ")"
+            )
             params["search"] = f"%{search}%"
 
         if category:
@@ -78,15 +91,18 @@ def get_tools(
         # 직접 보간하지 않는다. 아래 if/elif 분기는 화이트리스트로 동작하며 각
         # 분기에서 고정된 정적 문자열만 query 에 누적한다. 정의되지 않은 값은
         # 기본값(popularity)으로 폴백한다. (CASE 문도 고정 리터럴만 사용)
+        # 검색 시 이름 매칭을 최상단에(타입어헤드 품질). order_prefix 는 정적
+        # 리터럴 2종 중 택1이며 :search 는 바인딩 placeholder라 값 보간이 아님(안전).
+        order_prefix = "(name ILIKE :search) DESC, " if search else ""
         if sort_by == "price":
-            query += " ORDER BY (SELECT AVG(price) FROM pricing WHERE tool_id = tools.id)"
+            order_key = "(SELECT AVG(price) FROM pricing WHERE tool_id = tools.id)"
         elif sort_by == "recent":
-            query += " ORDER BY updated_at DESC"
+            order_key = "updated_at DESC"
         elif sort_by == "name":
-            query += " ORDER BY tools.name ASC"
+            order_key = "tools.name ASC"
         elif sort_by == "difficulty":
-            query += (
-                " ORDER BY CASE difficulty"
+            order_key = (
+                "CASE difficulty"
                 " WHEN '쉬움' THEN 1"
                 " WHEN '보통' THEN 2"
                 " WHEN '어려움' THEN 3"
@@ -94,7 +110,8 @@ def get_tools(
             )
         else:
             # popularity(기본) 및 정의되지 않은 모든 값
-            query += " ORDER BY user_count DESC"
+            order_key = "user_count DESC"
+        query += " ORDER BY " + order_prefix + order_key
         
         # 전체 개수 조회
         # f-string 으로 `query` 를 서브쿼리로 감싸지만, 위 불변식에 따라 `query` 는
