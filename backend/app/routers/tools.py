@@ -164,10 +164,12 @@ def get_tools_meta(db: Session = Depends(get_db)):
     distinct 목록을 반환한다. 하드코딩된 옵션 목록 제거 근거.
 
     Returns:
-        {success, data: {categories, tags, difficulties}, error}
+        {success, data: {categories, tags, difficulties, tasks, professions}, error}
         - categories: tools.category 의 distinct (null 제외, 정렬)
-        - tags: tags.name 의 distinct (tags 테이블, null 제외, 정렬)
+        - tags: tags.name 의 distinct (tags 테이블, null 제외, 정렬) — 평면(하위호환)
         - difficulties: tools.difficulty 의 distinct (null 제외, 정렬)
+        - tasks: tags.type = 'task' 인 name 의 distinct (null 제외, 정렬)
+        - professions: tags.type = 'profession' 인 name 의 distinct (null 제외, 정렬)
     """
     try:
         category_rows = db.execute(
@@ -188,14 +190,18 @@ def get_tools_meta(db: Session = Depends(get_db)):
         ).fetchall()
         difficulties = [row[0] for row in difficulty_rows]
 
+        # name, type 을 한 번에 조회해 파이썬에서 분류(쿼리 수 최소화).
+        # type 분기는 고정 리터럴('task'/'profession')만 사용 — 사용자 입력 보간 없음.
         tag_rows = db.execute(
             text(
-                "SELECT DISTINCT name FROM tags "
+                "SELECT DISTINCT name, type FROM tags "
                 "WHERE name IS NOT NULL AND name <> '' "
                 "ORDER BY name"
             )
         ).fetchall()
         tags = [row[0] for row in tag_rows]
+        tasks = [row[0] for row in tag_rows if row[1] == "task"]
+        professions = [row[0] for row in tag_rows if row[1] == "profession"]
 
         return {
             "success": True,
@@ -203,6 +209,8 @@ def get_tools_meta(db: Session = Depends(get_db)):
                 "categories": categories,
                 "tags": tags,
                 "difficulties": difficulties,
+                "tasks": tasks,
+                "professions": professions,
             },
             "error": None,
         }
