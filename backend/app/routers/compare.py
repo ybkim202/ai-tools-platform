@@ -33,13 +33,14 @@ def compare_tools(
                 }
             }
         
-        if len(tool_ids) == 0 or len(tool_ids) > 5:
+        # 비교는 의미상 최소 2개 이상이어야 한다(문서 계약: 2~5개).
+        if len(tool_ids) < 2 or len(tool_ids) > 5:
             return {
                 "success": False,
                 "data": None,
                 "error": {
-                    "code": "INVALID_COUNT",
-                    "message": "1개 이상 5개 이하의 도구를 비교할 수 있습니다."
+                    "code": "INVALID_PARAMETERS",
+                    "message": "비교는 2~5개의 도구를 지정해야 합니다."
                 }
             }
         

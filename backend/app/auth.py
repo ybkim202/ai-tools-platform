@@ -151,8 +151,34 @@ async def rate_limit_dependency(
     한계: 인메모리 카운터이므로 다중 워커/다중 인스턴스 환경에서는 워커별로
     독립 집계된다(정확한 전역 제한 아님). 정밀 제한이 필요하면 Redis 등 외부
     저장소로 이전해야 한다.
+
+    클라이언트 IP 산출: Railway 등 리버스 프록시 뒤에서는 ``request.client.host``
+    가 프록시 IP 로 뭉쳐 전체 사용자가 한 버킷에 묶인다. 이를 피하기 위해
+    ``X-Forwarded-For`` 헤더가 있으면 가장 왼쪽(left-most) IP 를 클라이언트로
+    사용하고, 없으면 ``request.client.host`` 로 폴백한다. 이는 보안 경계가 아니라
+    레이트리밋 식별 용도이며(스푸핑 가능), 신뢰할 수 있는 프록시가 헤더를 설정한다는
+    전제에 의존한다.
     """
-    client_host = request.client.host if request.client else "unknown"
+    client_host = _resolve_client_ip(request)
     identifier = api_key or f"ip:{client_host}"
     check_rate_limit(identifier)
     return True
+
+
+def _resolve_client_ip(request: Request) -> str:
+    """
+    레이트리밋용 클라이언트 IP 를 추정한다.
+
+    ``X-Forwarded-For`` 가 있으면 첫 번째(left-most) IP 를, 없으면
+    ``request.client.host`` 를 반환한다. 어느 쪽도 없으면 ``"unknown"``.
+
+    주의: 이 값은 신뢰 경계가 아니다(클라이언트가 헤더를 위조 가능).
+    레이트리밋 버킷 분리 용도로만 사용한다.
+    """
+    forwarded_for = request.headers.get("x-forwarded-for")
+    if forwarded_for:
+        first_ip = forwarded_for.split(",")[0].strip()
+        if first_ip:
+            return first_ip
+
+    return request.client.host if request.client else "unknown"

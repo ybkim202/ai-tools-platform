@@ -394,7 +394,7 @@ curl "http://localhost:8000/api/recommendations"
 
 | 파라미터 | 타입 | 필수 | 설명 |
 |---------|------|------|------|
-| `ids` | string | ✅ | 도구 ID들 (쉼표로 구분, 최대 5개) |
+| `ids` | string | ✅ | 도구 ID들 (쉼표로 구분, 2~5개) |
 
 **응답 (200 OK)**
 
@@ -428,6 +428,7 @@ curl "http://localhost:8000/api/recommendations"
 ```
 
 > 비교 대상 ID가 모두 존재하지 않으면 HTTP 404 (`TOOL_NOT_FOUND`)를 반환합니다.
+> 비교 도구 개수가 2개 미만이거나 5개 초과면 `INVALID_PARAMETERS`를 반환합니다.
 
 **예시**
 

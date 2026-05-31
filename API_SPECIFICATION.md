@@ -222,6 +222,59 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
 }
 ```
 
+> 페이징: `limit`(1~100, 기본 20), `offset`(기본 0)을 지원하며 응답에 `pagination`
+> 객체(`total`, `limit`, `offset`, `pages`)가 포함됩니다.
+
+---
+
+### **GET /benchmarks/summary/{tool_id}**
+
+특정 도구의 벤치마크 요약을 조회합니다(각 종류별 최신 점수 + 평균).
+
+**경로 파라미터**
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|---------|------|------|------|
+| `tool_id` | number | ✅ | 요약을 조회할 도구 ID |
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "data": {
+    "tool_id": 1,
+    "tool_name": "ChatGPT",
+    "benchmarks": {
+      "속도": { "score": 85, "source": "공식벤치마크", "collected_date": "2024-05-15T00:00:00Z" }
+    },
+    "average_score": 85.0
+  }
+}
+```
+
+- 도구가 없으면 `TOOL_NOT_FOUND`를 반환합니다(본문 `success:false`).
+
+---
+
+### **GET /benchmarks/types**
+
+사용 가능한 모든 벤치마크 종류 목록과 각 종류별 데이터 개수를 반환합니다.
+
+**요청 파라미터**: 없음
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "data": [
+    { "type": "속도", "count": 12 },
+    { "type": "정확도", "count": 9 }
+  ]
+}
+```
+
 ---
 
 ## 💰 **Pricing (가격)**
@@ -263,6 +316,42 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
       "collected_date": "2024-05-20T15:00:00Z"
     }
   ]
+}
+```
+
+> 페이징: `limit`(1~100, 기본 20), `offset`(기본 0)을 지원하며 응답에 `pagination`
+> 객체가 포함됩니다.
+
+---
+
+### **GET /news/trending**
+
+최근 N일 내 업데이트가 많은 도구들의 뉴스(트렌딩)를 조회합니다.
+
+**요청 파라미터**
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|---------|------|------|------|
+| `days` | number | ❌ | 최근 N일 이내 (1~30, 기본값: 7) |
+| `limit` | number | ❌ | 최대 결과 수 (1~50, 기본값: 10) |
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "tool_id": 1,
+      "tool_name": "ChatGPT",
+      "title": "GPT-4 Turbo 업데이트",
+      "content": "새로운 기능들이 추가되었습니다...",
+      "news_date": "2024-05-20T00:00:00Z",
+      "update_count": 3
+    }
+  ],
+  "period_days": 7
 }
 ```
 
@@ -335,7 +424,7 @@ curl "http://localhost:8000/api/recommendations?task=콘텐츠작성&limit=10"
 
 | 파라미터 | 타입 | 필수 | 설명 |
 |---------|------|------|------|
-| `ids` | string | ✅ | 비교할 도구 ID들 (쉼표로 구분, 1개 이상 5개 이하) |
+| `ids` | string | ✅ | 비교할 도구 ID들 (쉼표로 구분, 2~5개) |
 
 **응답 (200 OK)**
 
@@ -374,7 +463,7 @@ curl "http://localhost:8000/api/recommendations?task=콘텐츠작성&limit=10"
 - 각 도구의 `pricing[]` 항목 필드: `plan`, `price`, `currency`, `billing_period`.
 - `benchmarks`는 `{ benchmark_type: score }` 형태의 객체이며 데이터가 없으면 `{}`.
 - 비교 대상 ID가 모두 존재하지 않으면 HTTP 404(`TOOL_NOT_FOUND`). ID 파싱 실패 시
-  `INVALID_IDS`, 개수 위반 시 `INVALID_COUNT`를 반환합니다.
+  `INVALID_IDS`, 개수 위반(2개 미만 또는 5개 초과) 시 `INVALID_PARAMETERS`를 반환합니다.
 
 **예시 요청**
 
@@ -405,9 +494,8 @@ curl "http://localhost:8000/api/compare?ids=1,2,3"
 
 | 상태코드 | 에러코드 | 설명 |
 |---------|---------|------|
-| 400 | `INVALID_PARAMETERS` | 잘못된 파라미터 |
+| 400 | `INVALID_PARAMETERS` | 잘못된 파라미터 (compare: 비교 도구 개수 위반 2~5개 포함) |
 | 400 | `INVALID_IDS` | compare: ID가 숫자/쉼표 형식이 아님 |
-| 400 | `INVALID_COUNT` | compare: 비교 도구 개수 위반(1~5개) |
 | 401 | `INVALID_API_KEY` | 유효하지 않은 API Key |
 | 401 | `MISSING_API_KEY` | API Key 누락(필수 인증 경로) |
 | 401 | `AUTHENTICATION_ERROR` | 인증 실패 |

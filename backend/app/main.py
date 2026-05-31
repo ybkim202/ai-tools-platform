@@ -31,8 +31,11 @@ app.add_middleware(
     allow_origins=allowed_origins,
     # 프론트는 쿠키/크레덴셜을 사용하지 않으므로 False 로 둔다.
     allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    # 최소 권한: 실제 사용하는 메서드/헤더만 허용한다.
+    # - 모든 공개 엔드포인트는 GET(프리플라이트용 OPTIONS 포함)만 사용한다.
+    # - 요청 헤더는 JSON 바디용 Content-Type 과 선택적 인증용 X-API-Key 만 사용한다.
+    allow_methods=["GET", "OPTIONS"],
+    allow_headers=["Content-Type", "X-API-Key"],
 )
 
 # ==================== 예외 핸들러 등록 ====================
