@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useUIStore } from '../stores/toolStore';
 import { compareAPI, handleApiError } from '../services/api';
 import { formatUserCount } from '../utils/format';
-import { handleLogoError } from '../utils/logoFallback';
+import { handleLogoError, resolveLogoSrc } from '../utils/logoFallback';
 import { difficultyDot } from '../utils/difficulty';
 import {
   LoadingState,
@@ -142,7 +142,7 @@ const Compare = () => {
                       aria-label={`${tool.name} 상세 보기`}
                     >
                       <img
-                        src={tool.logo_url}
+                        src={resolveLogoSrc(tool.logo_url, tool.name)}
                         alt={tool.name}
                         className="table-logo"
                         loading="lazy"
@@ -248,7 +248,7 @@ const Compare = () => {
                   aria-label={`${tool.name} 상세 보기`}
                 >
                   <img
-                    src={tool.logo_url}
+                    src={resolveLogoSrc(tool.logo_url, tool.name)}
                     alt={tool.name}
                     className="table-logo"
                     loading="lazy"

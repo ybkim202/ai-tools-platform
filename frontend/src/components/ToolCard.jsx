@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useUIStore } from '../stores/toolStore';
 import { formatUserCount } from '../utils/format';
-import { handleLogoError } from '../utils/logoFallback';
+import { handleLogoError, resolveLogoSrc } from '../utils/logoFallback';
 import { difficultyDot } from '../utils/difficulty';
 import '../styles/ToolCard.css';
 
@@ -32,7 +32,7 @@ const ToolCard = ({ tool, reasonTags }) => {
         {/* 헤더 */}
         <div className="card-header">
           <img
-            src={tool.logo_url}
+            src={resolveLogoSrc(tool.logo_url, tool.name)}
             alt={tool.name}
             className="card-logo"
             loading="lazy"

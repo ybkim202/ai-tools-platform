@@ -470,11 +470,13 @@ curl "http://localhost:8000/api/compare?ids=4,5,6"
       "id": 1,
       "tool_id": 4,
       "tool_name": "ChatGPT",
-      "title": "GPT-4 Turbo 업데이트",
-      "content": "새로운 기능들이 추가되었습니다...",
+      "title": "GPT-4 Turbo Update",
+      "content": "New capabilities have been added...",
       "news_date": "2026-05-20T00:00:00",
       "source_url": "https://openai.com/...",
-      "collected_date": "2026-05-20T00:00:00"
+      "collected_date": "2026-05-20T00:00:00",
+      "title_ko": "GPT-4 Turbo 업데이트",
+      "summary_ko": "새로운 기능들이 추가되었습니다."
     }
   ],
   "pagination": {
@@ -485,6 +487,11 @@ curl "http://localhost:8000/api/compare?ids=4,5,6"
   }
 }
 ```
+
+> **`title_ko` / `summary_ko`** (추가 필드, 비파괴): 영어 뉴스를 Claude 로 번역한 한국어 제목/요약.
+> 번역 비활성(ANTHROPIC_API_KEY 미설정) 또는 번역 실패 시 `null`. 프론트는 값이 있으면 한글,
+> 없으면 원문(`title`/`content`)을 표시한다. `/api/news/trending` 은 도구 단위 집계(개수/최신일자)만
+> 반환하므로 이 필드를 포함하지 않는다.
 
 ### **GET /api/news/trending**
 

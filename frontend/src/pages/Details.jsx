@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useToolStore, useUIStore } from '../stores/toolStore';
 import { benchmarksAPI, newsAPI, toolsAPI } from '../services/api';
 import ToolCard from '../components/ToolCard';
+import { handleLogoError, resolveLogoSrc } from '../utils/logoFallback';
 import {
   LoadingState,
   EmptyNoDataState,
@@ -183,7 +184,13 @@ const Details = () => {
       </button>
 
       <div className="details-header">
-        <img src={selectedTool.logo_url} alt={selectedTool.name} className="logo" />
+        <img
+          src={resolveLogoSrc(selectedTool.logo_url, selectedTool.name)}
+          alt={selectedTool.name}
+          className="logo"
+          loading="lazy"
+          onError={handleLogoError}
+        />
         <div className="header-info">
           {selectedTool.category && (
             <p className="page-eyebrow">{selectedTool.category}</p>

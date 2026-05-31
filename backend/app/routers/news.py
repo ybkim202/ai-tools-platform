@@ -24,7 +24,8 @@ def get_news(
     try:
         # 쿼리 빌드 (INTERVAL 은 :days 정수 바인딩으로 계산)
         query = """
-        SELECT n.id, n.tool_id, t.name, n.title, n.content, n.news_date, n.source_url, n.collected_date
+        SELECT n.id, n.tool_id, t.name, n.title, n.content, n.news_date, n.source_url, n.collected_date,
+               n.title_ko, n.summary_ko
         FROM news n
         INNER JOIN tools t ON n.tool_id = t.id
         WHERE n.collected_date >= NOW() - (:days * INTERVAL '1 day')
@@ -69,7 +70,10 @@ def get_news(
                 "content": row[4],
                 "news_date": str(row[5]) if row[5] else None,
                 "source_url": row[6],
-                "collected_date": str(row[7]) if row[7] else None
+                "collected_date": str(row[7]) if row[7] else None,
+                # 한글 번역(번역 비활성/실패 시 None). 프론트는 있으면 한글, 없으면 원문 사용.
+                "title_ko": row[8],
+                "summary_ko": row[9]
             }
             for row in result.fetchall()
         ]

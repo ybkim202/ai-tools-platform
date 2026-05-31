@@ -73,6 +73,14 @@ CREATE TABLE IF NOT EXISTS news (
 CREATE INDEX IF NOT EXISTS idx_news_collected_date ON news(collected_date);
 CREATE INDEX IF NOT EXISTS idx_news_tool_id_collected_date ON news(tool_id, collected_date);
 
+-- 한글 번역 컬럼(nullable). 이미 운영 중인 DB 는 CREATE TABLE IF NOT EXISTS 로는
+-- 컬럼이 추가되지 않으므로, ADD COLUMN IF NOT EXISTS 로 멱등하게 보강한다.
+-- (init_db.py 가 schema.sql 을 재실행하면 기존 DB 에도 컬럼이 생긴다. Postgres 9.6+ 지원.)
+-- title_ko/summary_ko 는 ANTHROPIC_API_KEY 가 있을 때 Claude 로 번역되어 채워지고,
+-- 키가 없거나 번역 실패 시 NULL 로 남는다(원문 title/content 는 항상 유지).
+ALTER TABLE news ADD COLUMN IF NOT EXISTS title_ko   TEXT;
+ALTER TABLE news ADD COLUMN IF NOT EXISTS summary_ko TEXT;
+
 -- ==================== tags / tool_tags (추천 기능) ====================
 -- 정본은 여기다. seed_tags.py 에도 동일 DDL 이 방어적으로 존재한다
 -- (seed_tags.py 단독 실행 보장용). 둘 중 하나를 바꾸면 반드시 양쪽을 동기화할 것.

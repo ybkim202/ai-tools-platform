@@ -29,6 +29,22 @@
   color: var(--color-on-primary);
 }
 
+/* 선택 벤치마크 1줄 설명(칩 직후, 캡션 위). 미지정 시 미렌더 — 시프트 0 */
+.benchmark-desc {
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* 설명이 없을 때: 라이브 리전은 DOM에 상주시키되 시각 공간은 점유하지 않아
+   레이아웃 시프트를 0으로 유지한다(SR announce 경로는 보존). */
+.benchmark-desc.is-empty {
+  height: 0;
+  overflow: hidden;
+  line-height: 0;
+}
+
 .leaderboard-caption {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
