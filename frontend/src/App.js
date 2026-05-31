@@ -16,7 +16,6 @@ import GithubTrends from './pages/GithubTrends';
 import Benchmarks from './pages/Benchmarks';
 import { useUIStore } from './stores/toolStore';
 import ExternalLinkIcon from './components/ExternalLinkIcon';
-import GlobalSearch from './components/GlobalSearch';
 import './App.css';
 
 // 트렌드 하위 라우트 정의(드롭다운 + 모바일 그룹 공유 진실).
@@ -288,10 +287,6 @@ function App() {
               <span className="navbar-logo-mark" aria-hidden="true" />
               <span className="navbar-logo-word">AITools</span>
             </Link>
-
-            {/* 전역 검색(F3): 어느 화면에서나 도구 즉시 탐색. 검색은 1급 진입점이므로
-                로고 우측에 배치(모바일은 컴포넌트 내부 아이콘 토글). */}
-            <GlobalSearch />
 
             {/* 모바일 전용 햄버거 토글(데스크톱은 CSS로 숨김). 색 단독 금지 → aria-label로 의미 전달 */}
             <button

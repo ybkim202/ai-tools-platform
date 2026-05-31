@@ -18,7 +18,7 @@ const Home = () => {
   const compareCount = useUIStore(
     (state) => state.selectedToolsForCompare.length
   );
-  // GlobalSearch(F3)의 Enter → /?search=q 진입을 초기 입력값으로 1회 흡수.
+  // /?search=q 딥링크 진입 시 그 값을 검색 초기값으로 1회 흡수(공유 링크 지원).
   const [searchParams] = useSearchParams();
   const [tools, setTools] = useState([]);
   // 페이지네이션: 1-indexed. totalPages/totalCount는 서버 pagination에서 채운다.
