@@ -194,7 +194,9 @@ const Compare = () => {
                           <div key={idx} className="price-item">
                             <span className="plan">{displayLabel(price.plan)}</span>
                             <span className="price">
-                              {formatPrice(price.price)}
+                              {formatPrice(price.price, {
+                                billingPeriod: price.billing_period,
+                              })}
                             </span>
                           </div>
                         ))}
@@ -300,7 +302,9 @@ const Compare = () => {
                           <div key={idx} className="price-item">
                             <span className="plan">{displayLabel(price.plan)}</span>
                             <span className="price">
-                              {formatPrice(price.price)}
+                              {formatPrice(price.price, {
+                                billingPeriod: price.billing_period,
+                              })}
                             </span>
                           </div>
                         ))}

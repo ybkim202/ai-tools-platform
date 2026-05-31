@@ -3,22 +3,41 @@
 // 빈값/비정상 표기 공통 상수(가격·날짜·사용자 수 등 메타 위계). 색은 호출부에서 tertiary 권장.
 export const FALLBACK_DASH = '-';
 
+// 빈값/미상 표기 상수. price가 null/undefined/빈문자열/비유한값일 때 사용한다.
+// (0='무료'과 명확히 구분 — Number(null)===0 오표시 방지.)
+export const PRICE_UNKNOWN = '미상';
+
+// billing_period 코드값 → 보기 좋은 한글 접미사 매핑.
+// DB가 보장하는 4값(monthly/annual/onetime/free)을 정본으로 매핑한다(backend schema.sql).
+// 'free'·가격0은 '무료'로 흡수되므로 접미사 불필요(빈 문자열 반환).
+// 미지정/미지의 코드는 접미사 없이 금액만 표기(과설계 방지).
+const BILLING_PERIOD_SUFFIX = {
+  monthly: '/월',
+  annual: '/년',
+  onetime: '/1회',
+  free: '',
+};
+
+const billingPeriodSuffix = (billingPeriod) => {
+  if (typeof billingPeriod !== 'string' || billingPeriod === '') return '';
+  return BILLING_PERIOD_SUFFIX[billingPeriod] ?? '';
+};
+
 // 가격 표시: formatUserCount의 방어 패턴(Number 변환 + Number.isFinite + 폴백)을 따른다.
 // - price === 0            → '무료'
-// - 양수 유한값            → `$N` (옵션 billingPeriod 있으면 `$N/기간`)
-// - 음수/null/NaN/비정상   → FALLBACK_DASH('-')
-// options.billingPeriod는 D3(가격 정책) 확정 전까지 옵션. Compare는 미전달(현행 유지), Details는 전달.
-// (통화 변환·원화 병기는 D3 영역 → 미포함. 시그니처는 옵션 추가만으로 확장 호환.)
+// - 양수 유한값            → `$N` (옵션 billingPeriod 코드값을 한글 접미사로 붙임: 예 `$20/월`)
+// - null/undefined/빈문자열/NaN/음수 → PRICE_UNKNOWN('미상')  (0='무료'과 구분)
+// Compare·Details 양쪽 모두 동일 옵션(billingPeriod)으로 호출해 페이지 간 표기를 통일한다.
+// (통화 변환·원화 병기는 D3 영역 → 미포함. currency는 USD 단일 가정($ 접두) — 과설계 금지.)
 export const formatPrice = (price, options = {}) => {
+  // null/''/공백 등은 Number()가 0으로 강제 변환되므로 사전 차단(0='무료'과 누락='미상' 구분).
+  if (price === null || price === undefined) return PRICE_UNKNOWN;
+  if (typeof price === 'string' && price.trim() === '') return PRICE_UNKNOWN;
   const n = Number(price);
+  if (!Number.isFinite(n) || n < 0) return PRICE_UNKNOWN;
   if (n === 0) return '무료';
-  if (!Number.isFinite(n) || n < 0) return FALLBACK_DASH;
-  const base = `$${n}`;
   const { billingPeriod } = options;
-  if (typeof billingPeriod === 'string' && billingPeriod !== '') {
-    return `${base}/${billingPeriod}`;
-  }
-  return base;
+  return `$${n}${billingPeriodSuffix(billingPeriod)}`;
 };
 
 // 표시용 날짜 포맷: 'YYYY-MM-DD ...' 문자열에서 날짜 부분만 안전하게 취한다.

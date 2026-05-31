@@ -180,6 +180,37 @@ textarea {
   box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
+/* 모바일 햄버거 토글: 데스크톱은 숨김(가로 네비 유지), 모바일에서만 노출. pill 금지(rounded-md). */
+.nav-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
+  background-color: transparent;
+  color: var(--color-text-primary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-toggle:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-surface);
+}
+
+.nav-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.nav-toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ==================== 메인 콘텐츠 ==================== */
 main {
   flex: 1;
@@ -319,32 +350,51 @@ a:focus-visible .external-icon {
     height: 56px;
   }
 
+  /* 모바일: 햄버거 버튼 노출 */
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  /* 모바일: 메뉴를 헤더 아래 드롭다운 패널로 전환. 기본은 숨김, .navbar-menu-open 일 때만 표시 */
   .navbar-menu {
-    gap: var(--spacing-sm);
-    /* 토글 고정 + 링크 그룹만 스크롤되도록 메뉴는 폭을 점유하되 넘치지 않게 */
-    min-width: 0;
-  }
-
-  /* 좁은 화면: 링크 그룹을 가로 스크롤(스와이프). 줄바꿈은 sticky 점프 유발 → 미채택 */
-  .nav-links {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    gap: var(--spacing-sm);
-    /* 스크롤바 숨김(밀도 유지) */
-    scrollbar-width: none;
-    /* 마지막 링크 잘림 인지 보조 여백 */
-    padding-right: var(--spacing-sm);
-  }
-
-  .nav-links::-webkit-scrollbar {
     display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: var(--color-background);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+  }
+
+  .navbar-menu-open {
+    display: flex;
+  }
+
+  /* 컨테이너를 기준으로 패널을 절대 배치 */
+  .navbar-container {
+    position: relative;
+  }
+
+  /* 모바일: 링크 세로 스택(가로 스크롤 대신) */
+  .nav-links {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-xs);
+    width: 100%;
   }
 
   .nav-link {
-    /* 압축 금지: 폭은 콘텐츠 보존, 텍스트 줄바꿈 없음 */
-    flex-shrink: 0;
-    white-space: nowrap;
+    width: 100%;
+  }
+
+  /* 테마 토글: 메뉴 패널 안에서 좌측 정렬(아이콘 버튼 폭 유지) */
+  .navbar-menu .nav-button {
+    align-self: flex-start;
   }
 
   .footer-content {
