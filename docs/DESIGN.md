@@ -56,11 +56,13 @@ AITools는 Linear의 절제된 시스템 미감을 **라이트 캔버스**에서
 - **Ink Tertiary** (`{colors.text-tertiary}` — #9CA3AF / dark #94A3B8): 플레이스홀더, 비활성, 각주.
 
 ### Semantic
-- **Success** (`{colors.success}` — #16A34A): 난이도 "쉬움", 무료 가격, 성공 토스트. 10% 틴트 배경과 함께 배지로.
+- **Success** (`{colors.success}` — #16A34A): 난이도 "쉬움". *(무료 가격·성공 토스트는 계획 — 현재 미구현)*. 10% 틴트 배경과 함께 배지로.
 - **Warning** (`{colors.warning}` — #FB923C): 난이도 "보통".
 - **Error** (`{colors.error}` — #EF4444): 난이도 "어려움", 에러 상태, 삭제 호버, 재시도 버튼.
 
 > 시맨틱 색은 **배지·상태**에만. Linear처럼 마케팅 면에 무분별하게 뿌리지 않는다. 색만으로 의미를 전달하지 말고 항상 텍스트/아이콘을 동반한다(접근성).
+
+> **다크모드 = 완전 무채색 (채도 0).** 시맨틱 색(success/warning/error)도 다크에선 그레이스케일로 재정의된다(success #94A3B8, warning #CBD5E1, error #F1F5F9). 의미는 **명도 + 점 문자(○◐●) + 텍스트 라벨**로 전달한다.
 
 ### Note
 순흑(`#000000`)을 텍스트나 배경에 쓰지 않는다 — Ink는 #111827이다. 다크모드 캔버스도 순흑이 아닌 #0F172A(slate)다.
@@ -205,8 +207,11 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 
 ### Badges
 
-**`difficulty-badge`** — 난이도. inline-flex, 점(●)+텍스트(색맹 대응), `{type.caption}`/600, 라운드 `{rounded.full}`, 패딩 `{spacing.xs} {spacing.md}`.
-- easy: success 10% 배경 / `{colors.success}`. medium: warning 12% / `{colors.warning}`. hard: error 10% / `{colors.error}`.
+**`difficulty-badge`** — 난이도. inline-flex, 점(○◐●)+텍스트(색맹 대응), `{type.caption}`/600, 라운드 `{rounded.full}`, 패딩 `{spacing.xs} {spacing.md}`.
+- **점 문자는 난이도 3단계를 단조 증가하는 채움 정도로 표현한다**: 쉬움/easy `○`(빈 원) < 보통/medium `◐`(반 채움) < 어려움/hard `●`(꽉 채움). 매핑은 `utils/difficulty.js`(`difficultyDot`)가 단일 출처이며 한글/영문 enum 양쪽을 처리하고, 미매핑 값은 중립 점 `◌`로 폴백한다. 다크모드(채도 0)에서 색과 독립된 시각 채널 역할을 한다.
+- 배경/잉크는 `--difficulty-{easy,medium,hard}-{bg,ink}` 6종 토큰 경유(raw rgba 직접 사용 금지).
+- easy: `--difficulty-easy-bg`(라이트 success 10%) / `--difficulty-easy-ink`. medium: `--difficulty-medium-bg`(warning 12%) / `--difficulty-medium-ink`. hard: `--difficulty-hard-bg`(error 10%) / `--difficulty-hard-ink`.
+- **다크 예외**: 무채색 흰색(#F1F5F9) 저알파 틴트 배경(easy 5% / medium 9% / hard 13%)에 명도 단조 잉크(easy #94A3B8 < medium #CBD5E1 < hard #F1F5F9). 어려움이 가장 밝다(최고 강조).
 
 **`status-badge`** — 일반 상태 pill. 배경 `{colors.surface}`, 텍스트 `{colors.text-secondary}`, `{type.caption}`, 라운드 `{rounded.full}`, 패딩 `{spacing.xs} {spacing.sm}`.
 
