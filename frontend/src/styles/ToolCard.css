@@ -158,17 +158,26 @@
 }
 
 /* ==================== 카드 푸터 ==================== */
-/* 액션 버튼은 세로 스택 + 각 풀폭: '방문하기'(주 액션)를 위에 풀폭으로,
-   '비교'를 그 아래 풀폭으로 배치(좌우 분할 대신 카드 폭에 가운데 정렬 효과). */
+/* 액션 버튼은 데스크톱에서 가로 한 줄, 좌우 동일 너비(flex:1).
+   '방문하기'(주 액션)/'비교'(부 액션)를 50/50 분할. 모바일은 세로 스택. */
 .card-footer {
   display: flex;
-  flex-direction: column;
   gap: var(--spacing-sm);
   margin-top: var(--spacing-lg);
 }
 
+.card-footer .btn {
+  flex: 1;
+  /* 전역 `.btn` 정의 충돌(Home.css 등 동일 명시도)로 display 가 block 으로 덮여
+     justify-content 가 무력화 → '방문하기' 글자가 좌측 정렬되는 문제를 방지.
+     더 높은 명시도(.card-footer .btn)로 flex 중앙정렬을 보장한다. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+}
+
 .btn {
-  width: 100%;
   padding: var(--spacing-md) var(--spacing-lg);
   border: none;
   border-radius: var(--radius-md);
@@ -189,6 +198,9 @@
 .btn:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--color-focus-ring);
+  /* 인접 버튼(gap < 3px) 위로 포커스 링이 가려지지 않도록 끌어올림 */
+  position: relative;
+  z-index: 1;
 }
 
 .btn:disabled {
@@ -278,4 +290,14 @@
   box-shadow: 0 0 0 1px var(--color-primary);
 }
 
-/* 반응형: 카드 푸터는 기본이 이미 세로 풀폭 스택이라 별도 분기 불필요. */
+/* 반응형: 카드 푸터는 데스크톱 가로 한 줄(flex:1)이 기본,
+   ≤480px에서만 세로 풀폭 스택으로 복원. */
+@media (max-width: 480px) {
+  .card-footer {
+    flex-direction: column;
+  }
+  .card-footer .btn {
+    flex: none;
+    width: 100%;
+  }
+}
