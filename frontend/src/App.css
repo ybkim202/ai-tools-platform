@@ -322,11 +322,6 @@ textarea {
   .nav-group {
     display: none;
   }
-
-  /* 전역 검색(F3): 로고와 네비 사이, 양옆 여백으로 균형. */
-  .global-search {
-    margin: 0 var(--spacing-lg);
-  }
 }
 
 /* ==================== 메인 콘텐츠 ==================== */
