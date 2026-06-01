@@ -57,34 +57,40 @@
 
 ## 4. 핵심 기능 (구현된 API 기준)
 
-백엔드는 5개 라우터를 등록 (`backend/app/main.py:32-36`):
+백엔드는 7개 라우터를 등록 (`backend/app/main.py:48-55`): tools·recommendations·compare·news·benchmarks·trends·**events**.
 
 | 기능 | 엔드포인트 | 구현 파일 | 상태 |
 |------|-----------|-----------|------|
-| 도구 목록 (필터·정렬·페이징·검색) | `GET /api/tools` | `routers/tools.py:10` | 구현됨 (단, 파라미터 바인딩 이슈 — 7장 참조) |
-| 도구 상세 (벤치마크·가격·뉴스 포함) | `GET /api/tools/{id}` | `routers/tools.py:122` | 구현됨 (벤치마크 점등, 뉴스는 수집 전까지 빈 배열) |
+| 도구 목록 (필터·정렬·페이징·검색) | `GET /api/tools` | `routers/tools.py:10` | 구현됨 (`:name` 바인딩 통일 — 7장 참조) |
+| 필터 옵션 메타 + 카운트 | `GET /api/tools/meta` | `routers/tools.py:175` | 구현됨. categories/tags/difficulties/tasks/professions + **`total_tools`·`total_categories`** (About Hero 실데이터 앵커용, additive) |
+| 도구 상세 (벤치마크·가격·뉴스 포함) | `GET /api/tools/{id}` | `routers/tools.py:248` | 구현됨 (벤치마크 점등, 뉴스는 수집 전까지 빈 배열) |
 | 맞춤 추천 (업무/직업) | `GET /api/recommendations` | `routers/recommendations.py:9` | 구현됨 + **데이터 점등(seeded)** — 태그 19개·`tool_tags`≈312행 (`seed_tags.py`) |
 | 도구 비교 (1~5개) | `GET /api/compare` | `routers/compare.py:9` | 구현됨 |
 | 벤치마크 조회/요약/타입 | `GET /api/benchmarks*` | `routers/benchmarks.py` | 구현됨 + **데이터 점등(seeded)** — 24행/LLM 9개 (`seed_benchmarks.py`) |
 | 뉴스/트렌딩 | `GET /api/news*` | `routers/news.py` | 구현됨 + **수집 대기**(파이프라인 완비, 0행 시작 → cron 수집 시 점등). 빈 데이터는 `success:true`+빈 배열 graceful |
 | 깃헙 트렌드 | `GET /api/trends/github` | `routers/trends.py` + `collectors/github_trending.py` | 구현됨(수집기·테마 매핑·라우터). 데이터는 수집 실행 후 점등(`github_trending` 테이블 선적용 필요) |
+| 클릭 전환 이벤트 수집 | `POST /api/events` | `routers/events.py` | 구현됨. About CTA 클릭을 1st-party로 적재. name 화이트리스트(`about_cta_click`)·target 정규식·path≤256, `:name` 바인딩, IP/UA 미수집, rate limit 적용 |
 | 헬스/루트 | `GET /health`, `GET /` | `main.py:39-68` | 구현됨 |
 
-프론트엔드 페이지 (`frontend/src/App.js:50-55`):
+프론트엔드 페이지 (`frontend/src/App.js`):
 
-7화면 구현 완료:
+8화면 구현 완료(+ 404 폴백):
 
 | 라우트 | 페이지 | 파일 |
 |--------|--------|------|
 | `/` | 홈 (Hero + 검색 디바운스 + 필터 + 도구 그리드, 트렌드 중심 가치 카피·보조 CTA) | `pages/Home.jsx` |
+| `/about` | 소개 (유저 Pain→해결 서사, 세로 타임라인 4노드 + Hero 실데이터 수치 + 클로징 CTA, 클릭 전환 추적) | `pages/About.jsx` |
 | `/compare` | 비교 | `pages/Compare.jsx` |
 | `/recommendations` | 추천 | `pages/Recommendations.jsx` |
 | `/news` | 뉴스 | `pages/News.jsx` |
 | `/trends/github` | 깃헙 트렌드 | `pages/*` (trends/github) |
 | `/benchmarks` | 벤치마크 | `pages/*` |
 | `/details/:id` | 도구 상세 | `pages/Details.jsx` |
+| `*` | 404 (공용 `EmptyNoDataState` 재사용) | `pages/NotFound.jsx` |
 
-공용 컴포넌트(신규): `components/CompareTray.jsx`(`useUIStore` 자립 구독 공용 비교 트레이, Home·Recommendations 사용). `App.js` 네비/푸터 순서 재배치(홈→추천→비교(뱃지)→트렌드▾→벤치마크), 헤더 브랜드 로고·다크모드 토글 sun/moon 아이콘(CSS mask + 잉크 토큰).
+공용 컴포넌트(신규): `components/CompareTray.jsx`(`useUIStore` 자립 구독 공용 비교 트레이, Home·Recommendations 사용). `App.js` 네비 순서는 **소개(About) → 추천 → 비교(뱃지) → 트렌드▾ → 벤치마크**(텍스트 '홈' 항목은 제거, 홈 복귀는 헤더 로고로 일원화). 헤더 브랜드 로고·다크모드 토글 sun/moon 아이콘(CSS mask + 잉크 토큰).
+
+> **참고(About 페이지 + 전환 추적, 이번 세션)**: 네비 '홈'을 '소개(About)'로 대체하고, `docs/UX_REVIEW.md`의 Persona·Pain·Solution 골격을 **유저 Pain→우리의 답** 서사로 제품화한 About 페이지를 신설(세로 타임라인 모티프, Linear 토큰만·신규 색토큰 0·다크모드 자동). 1차 액션은 클로징 CTA에 집중(Hero CTA 없음). About의 클릭 전환을 측정하기 위해 **자체 백엔드 이벤트 수집**(`POST /api/events` + `events` 테이블)을 구현 — 외부 SaaS·키 없이 1st-party, IP/UA 미수집. 프론트 `trackEvent`는 fire-and-forget(네비 비차단·에러 침묵). Hero 메타 스트립은 `GET /api/tools/meta`의 `total_tools`/`total_categories`로 실데이터 수치를 표기하되 fetch 실패 시 기능명으로 graceful 폴백.
 
 > **참고(PR #37~#43 이력)**: 헤더 전역 검색 `GlobalSearch.jsx`(타입어헤드)를 추가했다가 **제거**(접근성 이점 낮음, PR #42) — 검색은 홈 검색/필터로 일원화. 대신 백엔드 `GET /api/tools` 검색 범위를 이름→**이름·설명·카테고리·태그**로 확장(`tools.py`). 도구 카드 버튼은 가로 한 줄·하단 정렬·방문하기 중앙정렬. 레이트리밋 하드닝(`auth.py`: XFF 우측 신뢰홉 채택·주기 스윕 — G13 부분 보강).
 
@@ -115,9 +121,9 @@
 
 ```mermaid
 flowchart TD
-    User[사용자 브라우저] --> FE[React SPA - CRA / 순수 CSS<br/>Home · Compare · Recommendations · News · GithubTrends · Benchmarks · Details]
-    FE -->|axios REST| BE[FastAPI<br/>routers: tools · recommendations · compare · news · benchmarks · trends]
-    BE -->|raw SQL via SQLAlchemy text :name| DB[(PostgreSQL @ Render<br/>tools · pricing · tags · tool_tags · benchmarks · news · github_trending)]
+    User[사용자 브라우저] --> FE[React SPA - CRA / 순수 CSS<br/>Home · About · Compare · Recommendations · News · GithubTrends · Benchmarks · Details]
+    FE -->|axios REST| BE[FastAPI<br/>routers: tools · recommendations · compare · news · benchmarks · trends · events]
+    BE -->|raw SQL via SQLAlchemy text :name| DB[(PostgreSQL @ Render<br/>tools · pricing · tags · tool_tags · benchmarks · news · github_trending · events)]
     Bootstrap[bootstrap.py<br/>init_db→load_tools_fixed→seed_tags→seed_benchmarks<br/>멱등 적재] -->|psycopg2| DB
     JSON[tools_data.json 78개 · tags_seed.json 19태그 · benchmarks_data.json 24행] --> Bootstrap
 
@@ -167,7 +173,7 @@ erDiagram
 - **태그 점등**: `backend/tags_seed.json`(19 태그 — task 11 · profession 8) + `seed_tags.py`가 78개 도구에 매핑 → `tool_tags`≈312행. (과거 "tags 데이터가 JSON에 없음" 서술은 정정 — 별도 `tags_seed.json`으로 존재)
 - **벤치마크 점등**: `backend/benchmarks_data.json`(24행, LLM 9개: ChatGPT/Claude/Gemini/Copilot/Llama2/Mistral/Falcon/Vicuna/Cohere) + `seed_benchmarks.py`. (과거 "benchmarks 0건" 서술 정정)
 - **뉴스·깃헙트렌드**: 시드 0행 시작. 수집 파이프라인(`collectors/{base,rss,github,producthunt,github_trending}.py`, `collect.py`, `scheduler.py`)으로 점등. `.github/workflows/collect.yml`이 매일 `0 0 * * *` cron 실행. `collect.py --backfill-translations`로 `title_ko`/`description_ko` 무료(MyMemory) 백필.
-- **부트스트랩**: `backend/bootstrap.py`가 `init_db.py`(schema.sql)→`load_tools_fixed.py`→`seed_tags.py`→`seed_benchmarks.py` 순으로 멱등 적재. 검증 SQL 기대치: tools=78, pricing>0, tags=19, tool_tags=312, benchmarks=24, news=0, github_trending=0.
+- **부트스트랩**: `backend/bootstrap.py`가 `init_db.py`(schema.sql)→`load_tools_fixed.py`→`seed_tags.py`→`seed_benchmarks.py` 순으로 멱등 적재. 검증 SQL 기대치(8개 테이블): tools=78, pricing>0, tags=19, tool_tags=312, benchmarks=24, news=0, github_trending=0, **events=0**(클릭 시 적재). `events`는 스키마 변경이 코드 사용보다 먼저 적용되도록 `init_db.py`의 `EXPECTED_TABLES`·`schema.sql`에 포함(과거 `news.title_ko` 사고 교훈 — 마이그레이션 선적용).
 - 실제 DB 카테고리 분포 (JSON 기준):
 
 | 카테고리 | 개수 | 카테고리 | 개수 |
