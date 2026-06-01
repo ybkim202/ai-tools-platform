@@ -102,13 +102,14 @@ open http://localhost:8000/docs                   # Swagger UI
 | 메서드 · 경로 | 설명 |
 |---|---|
 | `GET /api/tools` | 도구 목록 (검색·필터·페이징) |
-| `GET /api/tools/meta` | 필터 옵션값(카테고리·태그·난이도) |
+| `GET /api/tools/meta` | 필터 옵션값(카테고리·태그·난이도) + 카운트(`total_tools`·`total_categories`) |
 | `GET /api/tools/{id}` | 도구 상세 (가격·태그·벤치/뉴스) |
 | `GET /api/recommendations` | 업무(`task`)/직군(`profession`) 추천 |
 | `GET /api/compare?ids=` | 도구 비교 (2~5개) |
 | `GET /api/news`, `/api/news/trending` | 뉴스 (0행 시작 — 수집 전엔 빈 결과) |
 | `GET /api/benchmarks`, `/summary/{id}`, `/types` | 벤치마크 (24행 적재) |
 | `GET /api/trends/github` | 깃헙 트렌드 (0행 시작 — 수집 전엔 빈 결과) |
+| `POST /api/events` | 클릭 전환 이벤트 수집 (About CTA, 1st-party·IP/UA 미수집·rate limit) |
 
 계약 정본: [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) · [API_SPECIFICATION.md](./API_SPECIFICATION.md)
 
@@ -162,7 +163,7 @@ ai-tools-platform/
 │   └── bootstrap.py           # 위 적재 단계 원샷 진입점 (멱등)
 └── frontend/
     └── src/
-        ├── pages/             # Home · Compare · Recommendations · News · Trends(GitHub) · Benchmarks · Details
+        ├── pages/             # Home · About(소개) · Compare · Recommendations · News · Trends(GitHub) · Benchmarks · Details · NotFound(404)
         ├── components/        # ToolCard · CompareTray · Pagination · 상태뷰 등
         ├── stores/            # Zustand
         ├── services/api.js    # 모든 서버 호출 단일 경유
