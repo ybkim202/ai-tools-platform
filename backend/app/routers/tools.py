@@ -187,6 +187,8 @@ def get_tools_meta(db: Session = Depends(get_db)):
         - difficulties: tools.difficulty 의 distinct (null 제외, 정렬)
         - tasks: tags.type = 'task' 인 name 의 distinct (null 제외, 정렬)
         - professions: tags.type = 'profession' 인 name 의 distinct (null 제외, 정렬)
+        - total_tools: tools 테이블 전체 행 수 (정수) — About 페이지 앵커 수치
+        - total_categories: distinct category 개수 (= len(categories), 정수)
     """
     try:
         category_rows = db.execute(
@@ -220,6 +222,12 @@ def get_tools_meta(db: Session = Depends(get_db)):
         tasks = [row[0] for row in tag_rows if row[1] == "task"]
         professions = [row[0] for row in tag_rows if row[1] == "profession"]
 
+        # About 페이지 Hero 앵커 수치용 실데이터 카운트.
+        # 고정 SQL(사용자 입력 보간 없음). total_categories 는 추가 쿼리 없이
+        # 위 distinct categories 길이를 재사용한다.
+        total_tools = db.execute(text("SELECT COUNT(*) FROM tools")).scalar() or 0
+        total_categories = len(categories)
+
         return {
             "success": True,
             "data": {
@@ -228,6 +236,8 @@ def get_tools_meta(db: Session = Depends(get_db)):
                 "difficulties": difficulties,
                 "tasks": tasks,
                 "professions": professions,
+                "total_tools": int(total_tools),
+                "total_categories": total_categories,
             },
             "error": None,
         }

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { trackEvent } from '../services/api';
+import { trackEvent, toolsAPI } from '../services/api';
 import '../styles/About.css';
 
 // 전환 추적: 모든 About CTA 클릭은 단일 name 사용. target으로 위치를 구분한다.
@@ -76,6 +76,32 @@ const ArrowIcon = () => (
 );
 
 const About = () => {
+  // Hero 메타 스트립 실데이터 카운트. 실패/로딩 시 null 유지 → 기능명만 폴백.
+  const [meta, setMeta] = useState({ totalTools: null, totalCategories: null });
+
+  useEffect(() => {
+    let active = true;
+    toolsAPI
+      .getMeta()
+      .then((res) => {
+        if (!active) return;
+        const data = res?.data?.data || {};
+        const tools = Number(data.total_tools);
+        const categories = Number(data.total_categories);
+        setMeta({
+          totalTools: Number.isFinite(tools) && tools > 0 ? tools : null,
+          totalCategories:
+            Number.isFinite(categories) && categories > 0 ? categories : null,
+        });
+      })
+      .catch(() => {
+        // graceful 폴백 — 수치 없이 기능명만 노출. 콘솔 노이즈 금지.
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <div className="about-page">
       {/* HERO: 호명 + 한 줄 정의. CTA 없음(1차 액션은 클로징에 집중). */}
@@ -92,48 +118,85 @@ const About = () => {
               AITools는 흩어진 AI 도구를 한곳에서 탐색·비교하고, 당신의 작업에
               맞는 도구를 추천하는 플랫폼입니다.
             </p>
+            {/* 메타 스트립 — 실데이터 카운트(있을 때) + 정적 기능 앵커 라벨.
+                비링크·비인터랙티브(목록 시맨틱). 카운트는 fetch 성공 시에만 노출 → 폴백 안전. */}
+            <ul className="about-hero-meta" aria-label="플랫폼 규모와 제공 기능">
+              {meta.totalTools !== null && (
+                <li
+                  className="about-hero-meta-item"
+                  aria-label={`${meta.totalTools}개 이상 AI 도구`}
+                >
+                  <span aria-hidden="true">{meta.totalTools}개+ AI 도구</span>
+                </li>
+              )}
+              {meta.totalCategories !== null && (
+                <li
+                  className="about-hero-meta-item"
+                  aria-label={`${meta.totalCategories}개 카테고리`}
+                >
+                  <span aria-hidden="true">{meta.totalCategories} 카테고리</span>
+                </li>
+              )}
+              <li className="about-hero-meta-item">탐색·검색</li>
+              <li className="about-hero-meta-item">나란히 비교</li>
+              <li className="about-hero-meta-item">맞춤 추천</li>
+            </ul>
           </div>
         </div>
       </section>
 
-      {/* STORY: Pain→답 4블록. 서사 순서 보존을 위해 1열 세로 스택. */}
+      {/* STORY: Pain→답 4블록. 수직 타임라인 — 레일+노드로 여정 순서를 시각화. */}
       <section className="about-stories" aria-label="우리가 푸는 문제">
         <div className="container">
-          {STORIES.map((story) => (
-            <section
-              key={story.id}
-              className="about-story-card"
-              aria-labelledby={story.id}
-            >
-              <p className="about-story-eyebrow">{story.eyebrow}</p>
-              <h2 id={story.id} className="about-story-title">
-                {story.title}
-              </h2>
-              <p className="about-story-pain">{story.pain}</p>
-              <p className="about-story-answer-label">우리의 답</p>
-              <p className="about-story-answer">{story.answer}</p>
-              <div className="about-story-links">
-                {story.links.map((link) => (
-                  <Link
-                    key={link.to + link.label}
-                    to={link.to}
-                    className="about-story-link"
-                    data-track-name={TRACK_NAME}
-                    data-track-target={link.target}
-                    onClick={() =>
-                      trackEvent(TRACK_NAME, {
-                        target: link.target,
-                        path: window.location.pathname,
-                      })
-                    }
+          <div className="about-timeline">
+            {STORIES.map((story) => (
+              <article
+                key={story.id}
+                className="about-timeline-node"
+                aria-labelledby={`${story.id}-eyebrow ${story.id}`}
+              >
+                {/* 마커/레일은 장식 의사요소로 구현 — AT 비노출. */}
+                <span className="about-timeline-marker" aria-hidden="true" />
+                <div className="about-timeline-content">
+                  <p
+                    id={`${story.id}-eyebrow`}
+                    className="about-story-eyebrow"
                   >
-                    {link.label}
-                    <ArrowIcon />
-                  </Link>
-                ))}
-              </div>
-            </section>
-          ))}
+                    {story.eyebrow}
+                  </p>
+                  <h2 id={story.id} className="about-story-title">
+                    {story.title}
+                  </h2>
+                  <p className="about-story-pain">{story.pain}</p>
+                  {/* 답 패널 — surface 상승 + 헤어라인으로 Pain과 색 외 대조. */}
+                  <div className="about-answer-panel">
+                    <p className="about-story-answer-label">우리의 답</p>
+                    <p className="about-story-answer">{story.answer}</p>
+                    <div className="about-story-links">
+                      {story.links.map((link) => (
+                        <Link
+                          key={link.to + link.label}
+                          to={link.to}
+                          className="about-story-link"
+                          data-track-name={TRACK_NAME}
+                          data-track-target={link.target}
+                          onClick={() =>
+                            trackEvent(TRACK_NAME, {
+                              target: link.target,
+                              path: window.location.pathname,
+                            })
+                          }
+                        >
+                          {link.label}
+                          <ArrowIcon />
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 

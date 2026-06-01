@@ -102,7 +102,9 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
     "tags": ["개발자", "콘텐츠작성"],
     "difficulties": ["보통", "쉬움", "어려움"],
     "tasks": ["콘텐츠작성", "코딩개발"],
-    "professions": ["개발자", "마케터"]
+    "professions": ["개발자", "마케터"],
+    "total_tools": 78,
+    "total_categories": 12
   },
   "error": null
 }
@@ -113,6 +115,8 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
 - `difficulties`: `tools.difficulty` distinct (null/빈값 제외, 정렬)
 - `tasks`: `tags.name` 중 `type = 'task'` distinct (null/빈값 제외, 정렬)
 - `professions`: `tags.name` 중 `type = 'profession'` distinct (null/빈값 제외, 정렬)
+- `total_tools`: `tools` 전체 행 수 (정수) — About 페이지 Hero 앵커 수치
+- `total_categories`: distinct category 개수 (= `categories` 길이, 정수)
 
 ---
 

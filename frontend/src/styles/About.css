@@ -21,28 +21,129 @@
   margin: 0 auto;
 }
 
-/* STORY 섹션 컨테이너 — Hero와 동일 캔버스(surface 상승은 카드가 담당). */
+/* HERO 메타 스트립 — 정적 기능 앵커 라벨(ul/li). hero fadeInUp에 포함.
+   list 시맨틱이되 마커/들여쓰기는 제거(시각은 인라인 라벨 나열). */
+.about-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xl);
+  list-style: none;
+  padding: 0;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 0;
+}
+
+/* 앵커 라벨 — 비인터랙티브(클릭 어포던스 제거). 점 마커 + 텍스트로 구분.
+   pill 배경/테두리를 쓰지 않아 '클릭 가능' 오해를 차단. */
+.about-hero-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+/* 항목 사이 구분점(장식) — 첫 항목 제외. 색 외 텍스트 라벨이 의미 전달. */
+.about-hero-meta-item:not(:first-child)::before {
+  content: '·';
+  margin-right: var(--spacing-md);
+  color: var(--color-text-tertiary);
+}
+
+/* STORY 섹션 컨테이너 — Hero와 동일 캔버스(surface 상승은 답 패널이 담당). */
 .about-stories {
   padding: var(--spacing-3xl) 0;
   background-color: var(--color-background);
 }
 
+/* 타임라인은 좌측 정렬 레일 필요 → container 중앙정렬 해제. */
 .about-stories .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-xl);
+  display: block;
 }
 
-/* STORY 카드 — tool-card surface 패턴 차용. 비링크(내부 link만 인터랙티브). */
-.about-story-card {
-  width: 100%;
+/* TIMELINE 래퍼 — 수직 레일을 ::before로. */
+.about-timeline {
+  position: relative;
   max-width: 760px;
+  margin: 0 auto;
+}
+
+.about-timeline::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: var(--spacing-md);
+  bottom: var(--spacing-md);
+  width: 2px;
+  background-color: var(--color-border);
+  z-index: 0;
+}
+
+/* TIMELINE 노드 — 마커(고정폭) + 콘텐츠 2열 그리드. */
+.about-timeline-node {
+  position: relative;
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  column-gap: var(--spacing-lg);
+  padding-bottom: var(--spacing-3xl);
+  animation: fadeIn 400ms ease-out both;
+}
+
+.about-timeline-node:last-child {
+  padding-bottom: 0;
+}
+
+/* 마커 점 — 레일을 덮는 캔버스 배경 + 잉크 테두리. ::after = 내부 점. */
+.about-timeline-marker {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-background);
+  border: 2px solid var(--color-primary-border);
+}
+
+.about-timeline-marker::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-text-tertiary);
+}
+
+/* 종착 노드 강조 — 위치(끝) + 채움(색) 이중 채널. */
+.about-timeline-node:last-child .about-timeline-marker {
+  border-color: var(--color-primary);
+}
+
+.about-timeline-node:last-child .about-timeline-marker::after {
+  background-color: var(--color-primary);
+}
+
+/* 콘텐츠 열 — grid 자식 오버플로 방지. */
+.about-timeline-content {
+  min-width: 0;
+}
+
+/* eyebrow line-height로 24px 마커와 수직 정렬. */
+.about-story-eyebrow {
+  line-height: 24px;
+}
+
+/* 답 패널 — surface 상승 + 헤어라인으로 Pain↔답 색 외 대조. */
+.about-answer-panel {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-2xl);
-  animation: fadeIn 400ms ease-out both;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
 }
 
 /* Eyebrow "문제 01~04" — filter-label 패턴 동일. */
@@ -73,15 +174,13 @@
   margin-bottom: var(--spacing-lg);
 }
 
-/* "우리의 답" 라벨 — 헤어라인 구분선 + 라벨로 Pain↔답 위계를 색 외 수단으로 병행 전달. */
+/* "우리의 답" 라벨 — 패널이 구분 역할을 대체하므로 헤어라인 제거. */
 .about-story-answer-label {
   font-size: var(--font-size-sm);
   font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   color: var(--color-text-primary);
-  padding-top: var(--spacing-lg);
-  border-top: 1px solid var(--color-border);
   margin-bottom: var(--spacing-sm);
 }
 
@@ -139,12 +238,24 @@
     padding: var(--spacing-3xl) var(--spacing-lg);
   }
 
+  .about-hero-meta {
+    gap: var(--spacing-sm);
+  }
+
   .about-stories {
     padding: var(--spacing-2xl) 0;
   }
 
-  .about-story-card {
-    padding: var(--spacing-xl);
+  .about-timeline-node {
+    padding-bottom: var(--spacing-2xl);
+  }
+
+  .about-answer-panel {
+    padding: var(--spacing-md);
+  }
+
+  .about-story-title {
+    font-size: var(--font-size-xl);
   }
 }
 
@@ -152,5 +263,16 @@
   .about-story-links {
     flex-direction: column;
     gap: var(--spacing-md);
+  }
+}
+
+/* 모션 민감 사용자 — 진입/화살표 모션 제거. */
+@media (prefers-reduced-motion: reduce) {
+  .about-timeline-node {
+    animation: none;
+  }
+
+  .about-story-arrow {
+    transition: none;
   }
 }

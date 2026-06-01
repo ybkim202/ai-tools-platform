@@ -53,8 +53,10 @@ export const toolsAPI = {
 
   // 메타데이터(필터 옵션 소스) 조회
   // GET /api/tools/meta
-  //   -> { success, data: { categories, tags, difficulties, tasks, professions }, error }
+  //   -> { success, data: { categories, tags, difficulties, tasks, professions,
+  //                         total_tools, total_categories }, error }
   //   tasks/professions: 추천 탭의 타입별 옵션 소스(없으면 호출부에서 tags로 폴백).
+  //   total_tools/total_categories: About 페이지 Hero 앵커 수치(실데이터 카운트).
   // 응답값으로 필터 옵션을 채운다(하드코딩 금지). 실패 시 호출부에서 최소 폴백.
   getMeta: () => {
     return apiClient.get('/tools/meta');
