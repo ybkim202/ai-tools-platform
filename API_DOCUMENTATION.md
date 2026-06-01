@@ -155,7 +155,7 @@ API Key 유무와 무관하게, 모든 공개 라우터(`tools`/`recommendations
 
 | 파라미터 | 타입 | 필수 | 설명 | 예시 |
 |---------|------|------|------|------|
-| `search` | string | ❌ | 검색어 (도구명) | `ChatGPT` |
+| `search` | string | ❌ | 검색어 (이름·설명·카테고리·태그 부분일치, 대소문자 무시. 이름 매칭 우선 정렬) | `이미지` |
 | `category` | string | ❌ | 카테고리 필터 | `생성형AI` |
 | `country` | string | ❌ | 국가 필터 | `미국` |
 | `difficulty` | string | ❌ | 난이도 필터 | `쉬움` |
@@ -721,6 +721,71 @@ curl "http://localhost:8000/api/trends/github?period=weekly&limit=12"
 # 월간 + RAG 테마 필터
 curl "http://localhost:8000/api/trends/github?period=monthly&theme=rag"
 ```
+
+---
+
+## 📡 **Events API**
+
+1st-party 클릭 전환 추적. About 페이지 CTA 클릭을 비가시(invisible)로 계측한다. 프론트(`services/api.js`의 `trackEvent`)는 **fire-and-forget**(await 안 함, 모든 실패 침묵 catch)으로 호출하므로, 응답 본문/지연/에러는 사용자 동선에 영향을 주지 않는다.
+
+> **상태**: 구현 완료(`backend/app/routers/events.py`, `events` 테이블). 본 문서가 계약 정본이다.
+
+### 개인정보 방침 (확정)
+
+**IP 주소·User-Agent 등 식별 정보는 수집·저장하지 않는다.** 라우터는 `request.client.host` 나 User-Agent 헤더를 읽지 않으며, 저장 컬럼은 `name`/`target`/`path`/`referrer`/`created_at` 뿐이다. `referrer` 는 nullable 이고 **현재 프론트는 전송하지 않는다**(항상 NULL — 향후 확장 여지만 둔다).
+
+### **POST /api/events**
+
+전환 이벤트 1건을 적재한다. 인증 불필요(공개 쓰기). **레이트 리미팅 적용**(다른 공개 엔드포인트와 동일하게 `rate_limit_dependency` — 분당 100, IP 기준. 아래 Rate Limiting 절 참고).
+
+**요청 바디**
+
+```json
+{
+  "name": "about_cta_click",
+  "target": "closing_explore",
+  "path": "/about"
+}
+```
+
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| `name` | string | ✅ | 이벤트명. **화이트리스트**: 현재 `about_cta_click` 만 허용(패턴 `^[a-z0-9_]{1,40}$` + 화이트리스트). 그 외 값은 400 |
+| `target` | string | ✅ | 전환 지점 ID. 패턴 `^[a-z0-9_]{1,40}$`(길이 1~40). 위반 시 400. (예: `story_recommend`, `closing_explore`) |
+| `path` | string | ✅ | 이벤트 발생 SPA 경로 (예: `/about`). 길이 1~256. 프론트는 `window.location.pathname` 전송 |
+| `referrer` | string | ❌ | 직전 경로(SPA). **현재 프론트는 미전송 → 항상 NULL 저장**. nullable |
+
+> **검증 실패 응답**: 화이트리스트/정규식/길이 위반은 `400 INVALID_PARAMETERS`, 바디 필드 누락은 `422 VALIDATION_ERROR`. 어느 경우든 `{success,data,error}` 포맷이며, 보안상 클라이언트가 보낸 `path`/`target` 값을 에러 메시지에 **에코백하지 않는다**. 프론트는 모든 실패를 침묵 처리한다.
+
+**About 전환 지점 target 사전(8개)**
+
+| target | 위치 | 목적지 |
+|--------|------|--------|
+| `story_recommend` | Story 01 인라인 | `/recommendations` |
+| `story_compare` | Story 02 인라인 | `/compare` |
+| `story_benchmark` | Story 02 인라인 | `/benchmarks` |
+| `story_github` | Story 03 인라인 | `/trends/github` |
+| `story_news` | Story 03 인라인 | `/news` |
+| `story_explore` | Story 04 인라인 | `/` |
+| `closing_explore` | Closing 1차 솔리드 | `/` |
+| `closing_recommend` | Closing 보조 | `/recommendations` |
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "data": { "recorded": true },
+  "error": null
+}
+```
+
+### 구현 메모 (확정)
+
+- 라우터: `backend/app/routers/events.py` (Railway 상대 import 규칙 준수 — `from ..database`, `from ..exceptions`). `main.py` 에 `Depends(rate_limit_dependency)` 로 등록.
+- 적재 테이블: `events(id, name VARCHAR(40), target VARCHAR(40), path VARCHAR(256), referrer VARCHAR(512) NULL, created_at TIMESTAMP DEFAULT now())`. `idx_events_created_at` 인덱스. 정본은 `backend/schema.sql`(`init_db.py` 로 멱등 적용).
+- DB 접근은 parameterized `text()` `:name` 바인딩(SQLi 금지). 응답은 `{success,data,error}` 포맷.
+- 개인정보: IP/User-Agent 미수집(위 "개인정보 방침" 참조).
 
 ---
 

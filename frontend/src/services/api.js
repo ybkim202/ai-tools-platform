@@ -111,7 +111,7 @@ export const newsAPI = {
 export const trendingAPI = {
   // 깃헙 트렌딩 레포 조회 (/trends/github 페이지 데이터 소스).
   // params: { period('weekly'|'monthly'), theme(군집 키, 'all'이면 미전달), limit, offset }
-  // 가정 응답 계약: {
+  // 응답 계약(확정 — backend/app/routers/trends.py 구현 완료): {
   //   success,
   //   data: {
   //     repos: [{ id, owner, repo, name, avatar_url, html_url,
@@ -124,8 +124,7 @@ export const trendingAPI = {
   //   pagination: { total, limit, offset, pages },
   //   error
   // }
-  // ⚠ 백엔드 미확정: backend-fastapi/api-contract-guardian 가 GET /api/trends/github 및
-  //   위 응답 스키마를 확정해야 실제 동작. (현재 빈 결과 시 EmptyNoDataState로 graceful)
+  // 데이터는 수집 cron 점등 전 0행일 수 있음 → 빈 결과 시 EmptyNoDataState로 graceful.
   getGithubTrending: (params = {}) => {
     const { theme, ...rest } = params;
     // 'all' 또는 빈 테마는 서버에 전달하지 않는다(전체 = 필터 없음).
@@ -151,6 +150,20 @@ export const benchmarksAPI = {
   getBenchmarkTypes: () => {
     return apiClient.get('/benchmarks/types');
   },
+};
+
+// ==================== Events(전환 추적) API ====================
+// 1st-party 클릭 전환 추적. 비가시 계측 — 사용자/화면에 어떤 상태도 노출하지 않는다.
+// fire-and-forget: await 하지 않고 발사하며, 모든 실패(4xx/5xx/네트워크/타임아웃)는
+// 침묵 catch 한다(콘솔 에러도 금지 — QA/사용자 노이즈 방지). 반환값 없음.
+// name-agnostic 시그니처: 향후 about_page_view 등 다른 이벤트에도 재사용 가능.
+// path: 호출부에서 window.location.pathname 전달. referrer는 백엔드 nullable(현재 생략).
+export const trackEvent = (name, { target, path } = {}) => {
+  try {
+    apiClient.post('/events', { name, target, path }).catch(() => {});
+  } catch (e) {
+    // 동기 예외도 onClick 밖으로 전파 금지.
+  }
 };
 
 // ==================== 에러 핸들러 ====================

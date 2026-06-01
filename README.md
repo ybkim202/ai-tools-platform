@@ -163,7 +163,7 @@ ai-tools-platform/
 └── frontend/
     └── src/
         ├── pages/             # Home · Compare · Recommendations · News · Trends(GitHub) · Benchmarks · Details
-        ├── components/        # ToolCard · GlobalSearch · CompareTray · 상태뷰 등
+        ├── components/        # ToolCard · CompareTray · Pagination · 상태뷰 등
         ├── stores/            # Zustand
         ├── services/api.js    # 모든 서버 호출 단일 경유
         └── styles/            # 디자인 토큰(:root) · 페이지 CSS

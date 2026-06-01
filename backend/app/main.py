@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import tools, recommendations, compare, news, benchmarks, trends
+from app.routers import tools, recommendations, compare, news, benchmarks, trends, events
 from app.exceptions import register_exception_handlers
 from app.auth import verify_api_key, rate_limit_dependency
 import os
@@ -32,9 +32,9 @@ app.add_middleware(
     # 프론트는 쿠키/크레덴셜을 사용하지 않으므로 False 로 둔다.
     allow_credentials=False,
     # 최소 권한: 실제 사용하는 메서드/헤더만 허용한다.
-    # - 모든 공개 엔드포인트는 GET(프리플라이트용 OPTIONS 포함)만 사용한다.
+    # - 조회 엔드포인트는 GET, 전환 계측(POST /api/events)은 POST 를 사용한다(OPTIONS 는 프리플라이트용).
     # - 요청 헤더는 JSON 바디용 Content-Type 과 선택적 인증용 X-API-Key 만 사용한다.
-    allow_methods=["GET", "OPTIONS"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type", "X-API-Key"],
 )
 
@@ -51,6 +51,8 @@ app.include_router(compare.router, dependencies=_rate_limit)
 app.include_router(news.router, dependencies=_rate_limit)
 app.include_router(benchmarks.router, dependencies=_rate_limit)
 app.include_router(trends.router, dependencies=_rate_limit)
+# 공개 무인증 쓰기(전환 계측)라 레이트 리미팅이 특히 중요하다.
+app.include_router(events.router, dependencies=_rate_limit)
 
 # ==================== 루트 엔드포인트 ====================
 @app.get("/")
@@ -70,7 +72,8 @@ def root():
             "benchmarks": "/api/benchmarks",
             "benchmark_summary": "/api/benchmarks/summary/{tool_id}",
             "benchmark_types": "/api/benchmarks/types",
-            "github_trending": "/api/trends/github"
+            "github_trending": "/api/trends/github",
+            "events": "/api/events"
         }
     }
 
