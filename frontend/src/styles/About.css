@@ -1,0 +1,156 @@
+/* ========================================
+   ABOUT PAGE
+   재사용: .hero-gradient .hero-content .hero-badge .hero-title
+           .hero-subtitle .container .footer-cta .cta-buttons
+           .cta-button .cta-button-secondary + fadeIn 키프레임.
+   위 공용 클래스/키프레임은 Home.css 정의에 의존하므로 명시적으로 import한다.
+   (CRA 번들은 전 CSS를 합치나, 의존을 명시해 캐스케이드 순서·딥링크·향후
+    Home.css 리팩터 시의 사일런트 브레이크를 방지.)
+   신규(아래): 토큰만 사용, 인라인 hex/raw px 0건.
+   ======================================== */
+@import './Home.css';
+
+/* HERO — .hero(100vh)는 About에 과함. 내부 요소는 기존 클래스 재사용. */
+.about-hero {
+  position: relative;
+  padding: var(--spacing-4xl) var(--spacing-lg);
+  overflow: hidden;
+}
+
+.about-hero .hero-content {
+  margin: 0 auto;
+}
+
+/* STORY 섹션 컨테이너 — Hero와 동일 캔버스(surface 상승은 카드가 담당). */
+.about-stories {
+  padding: var(--spacing-3xl) 0;
+  background-color: var(--color-background);
+}
+
+.about-stories .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xl);
+}
+
+/* STORY 카드 — tool-card surface 패턴 차용. 비링크(내부 link만 인터랙티브). */
+.about-story-card {
+  width: 100%;
+  max-width: 760px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-2xl);
+  animation: fadeIn 400ms ease-out both;
+}
+
+/* Eyebrow "문제 01~04" — filter-label 패턴 동일. */
+.about-story-eyebrow {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* 제목(Pain 한 줄) */
+.about-story-title {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.3px;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+/* Pain 본문 — secondary(답보다 옅게 = 위계). */
+.about-story-pain {
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* "우리의 답" 라벨 — 헤어라인 구분선 + 라벨로 Pain↔답 위계를 색 외 수단으로 병행 전달. */
+.about-story-answer-label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* 답 본문 — primary(Pain보다 진하게 = 위계). */
+.about-story-answer {
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* 복수 링크 wrap — 데스크톱 가로, 좁은 폭 세로. */
+.about-story-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+}
+
+/* STORY CTA 링크 — 인라인 텍스트 링크(버튼 아님). 터치 타깃 확보 위해 세로 패딩. */
+.about-story-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) 0;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.about-story-link:hover {
+  text-decoration: underline;
+}
+
+.about-story-link:hover .about-story-arrow {
+  transform: translateX(2px);
+}
+
+.about-story-arrow {
+  transition: transform var(--transition-fast);
+}
+
+.about-story-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+/* ========================================
+   ABOUT RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+  .about-hero {
+    padding: var(--spacing-3xl) var(--spacing-lg);
+  }
+
+  .about-stories {
+    padding: var(--spacing-2xl) 0;
+  }
+
+  .about-story-card {
+    padding: var(--spacing-xl);
+  }
+}
+
+@media (max-width: 640px) {
+  .about-story-links {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+}

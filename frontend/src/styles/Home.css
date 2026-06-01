@@ -258,6 +258,12 @@ body {
   transform: translateY(0);
 }
 
+/* 키보드 포커스 가시 링(WCAG 2.4.7). 1차/보조 CTA 공통 토큰 사용. */
+.cta-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
 /* Hero CTA 그룹(F5): 1차 1개 + 보조 2개. 중앙 정렬, 좁으면 wrap. */
 .hero-cta-group {
   display: flex;

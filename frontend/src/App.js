@@ -8,12 +8,14 @@ import {
   useLocation,
 } from 'react-router-dom';
 import Home from './pages/Home';
+import About from './pages/About';
 import Compare from './pages/Compare';
 import Details from './pages/Details';
 import Recommendations from './pages/Recommendations';
 import News from './pages/News';
 import GithubTrends from './pages/GithubTrends';
 import Benchmarks from './pages/Benchmarks';
+import NotFound from './pages/NotFound';
 import { useUIStore } from './stores/toolStore';
 import ExternalLinkIcon from './components/ExternalLinkIcon';
 import './App.css';
@@ -344,14 +346,13 @@ function App() {
               {/* 링크 그룹: 데스크톱 가로 / 모바일 세로 패널 */}
               <div className="nav-links">
                 <NavLink
-                  to="/"
-                  end
+                  to="/about"
                   onClick={closeMenu}
                   className={({ isActive }) =>
                     `nav-link${isActive ? ' nav-link-active' : ''}`
                   }
                 >
-                  홈
+                  소개
                 </NavLink>
                 <NavLink
                   to="/recommendations"
@@ -410,12 +411,15 @@ function App() {
         <main>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/recommendations" element={<Recommendations />} />
             <Route path="/news" element={<News />} />
             <Route path="/trends/github" element={<GithubTrends />} />
             <Route path="/benchmarks" element={<Benchmarks />} />
             <Route path="/details/:id" element={<Details />} />
+            {/* catch-all: 오타/없는 경로 → 빈 main 대신 복귀 동선 제공 */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
 
@@ -439,6 +443,9 @@ function App() {
 
             {/* 블록2: 탐색 */}
             <nav className="footer-nav" aria-label="푸터 탐색">
+              <Link to="/about" className="footer-link">
+                소개
+              </Link>
               <Link to="/recommendations" className="footer-link">
                 추천
               </Link>

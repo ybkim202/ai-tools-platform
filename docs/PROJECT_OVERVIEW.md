@@ -84,7 +84,9 @@
 | `/benchmarks` | 벤치마크 | `pages/*` |
 | `/details/:id` | 도구 상세 | `pages/Details.jsx` |
 
-공용 컴포넌트(신규): `components/GlobalSearch.jsx`(헤더 타입어헤드, 300ms 디바운스, `searchTools` limit 6, 항목→`/details/:id`, Enter→`/?search=q`), `components/CompareTray.jsx`(`useUIStore` 자립 구독 공용 비교 트레이, Home·Recommendations 사용). `App.js` 네비/푸터 순서 재배치(홈→추천→비교(뱃지)→트렌드▾→벤치마크).
+공용 컴포넌트(신규): `components/CompareTray.jsx`(`useUIStore` 자립 구독 공용 비교 트레이, Home·Recommendations 사용). `App.js` 네비/푸터 순서 재배치(홈→추천→비교(뱃지)→트렌드▾→벤치마크), 헤더 브랜드 로고·다크모드 토글 sun/moon 아이콘(CSS mask + 잉크 토큰).
+
+> **참고(PR #37~#43 이력)**: 헤더 전역 검색 `GlobalSearch.jsx`(타입어헤드)를 추가했다가 **제거**(접근성 이점 낮음, PR #42) — 검색은 홈 검색/필터로 일원화. 대신 백엔드 `GET /api/tools` 검색 범위를 이름→**이름·설명·카테고리·태그**로 확장(`tools.py`). 도구 카드 버튼은 가로 한 줄·하단 정렬·방문하기 중앙정렬. 레이트리밋 하드닝(`auth.py`: XFF 우측 신뢰홉 채택·주기 스윕 — G13 부분 보강).
 
 ---
 

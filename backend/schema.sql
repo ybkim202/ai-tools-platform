@@ -111,6 +111,24 @@ CREATE TABLE IF NOT EXISTS github_trending (
 CREATE INDEX IF NOT EXISTS idx_github_trending_period_rank ON github_trending(period, rank);
 CREATE INDEX IF NOT EXISTS idx_github_trending_period_collected ON github_trending(period, collected_date);
 
+-- ==================== events (전환 추적, 독립 엔터티) ====================
+-- POST /api/events 의 저장 대상. About 페이지 CTA 클릭 등 1st-party 전환 계측.
+-- tools 와 무관한 독립 엔터티이므로 FK 없음.
+-- 개인정보 미수집(헌법 G9): IP/User-Agent 등 식별 정보는 저장하지 않는다.
+--   라우터는 request.client.host / User-Agent 헤더를 읽지 않는다.
+-- name/target 은 라우터가 화이트리스트/정규식(^[a-z0-9_]{1,40}$)으로 검증한 값만 INSERT.
+-- referrer 는 nullable(프론트는 현재 미전송 — 향후 확장 여지만 둔다).
+-- created_at 에만 인덱스(시계열 조회용). 운영 중 DB 에도 IF NOT EXISTS 로 안전 적용.
+CREATE TABLE IF NOT EXISTS events (
+    id         SERIAL PRIMARY KEY,
+    name       VARCHAR(40) NOT NULL,
+    target     VARCHAR(40) NOT NULL,
+    path       VARCHAR(256) NOT NULL,
+    referrer   VARCHAR(512),
+    created_at TIMESTAMP NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at);
+
 -- ==================== tags / tool_tags (추천 기능) ====================
 -- 정본은 여기다. seed_tags.py 에도 동일 DDL 이 방어적으로 존재한다
 -- (seed_tags.py 단독 실행 보장용). 둘 중 하나를 바꾸면 반드시 양쪽을 동기화할 것.

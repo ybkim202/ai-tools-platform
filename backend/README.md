@@ -4,7 +4,7 @@ FastAPI + 원시 SQL(SQLAlchemy `text()`, ORM 없음) + PostgreSQL.
 이 문서는 **빈 새 DB 를 레포만으로 세우는 절차의 정본**이다.
 
 > 과거에는 `tools`/`pricing`/`benchmarks`/`news` 테이블이 레포 밖에서 수동 생성되어
-> 재현이 불가능했다. 이제 [`schema.sql`](schema.sql) 이 7개 테이블의 정본이고,
+> 재현이 불가능했다. 이제 [`schema.sql`](schema.sql) 이 8개 테이블의 정본이고,
 > [`bootstrap.py`](bootstrap.py) 한 번으로 스키마 → 데이터가 멱등 적재된다.
 
 ## 사전 준비
@@ -25,7 +25,7 @@ DATABASE_URL='postgresql://USER:PASSWORD@HOST/DB' python bootstrap.py
 
 | 순서 | 스크립트 | 하는 일 |
 |---|---|---|
-| 1 | [`init_db.py`](init_db.py) | `schema.sql` 실행 → 7개 테이블/인덱스 생성(`github_trending` 포함) |
+| 1 | [`init_db.py`](init_db.py) | `schema.sql` 실행 → 8개 테이블/인덱스 생성(`github_trending`·`events` 포함) |
 | 2 | [`load_tools_fixed.py`](load_tools_fixed.py) | `tools_data.json`(78개) → `tools` / `pricing` 적재 |
 | 3 | [`seed_tags.py`](seed_tags.py) | `tags_seed.json` → `tags` / `tool_tags` 적재(추천 활성화) |
 | 4 | [`seed_benchmarks.py`](seed_benchmarks.py) | `benchmarks_data.json` → `benchmarks` 적재(벤치마크 활성화, LLM 9개·24행) |
@@ -61,6 +61,14 @@ DATABASE_URL='...' [GITHUB_TOKEN=...] python collect.py
 테이블이 없는 상태로 `/api/trends/github` 가 호출되면 라우터는 예외를 잡아
 `{success:false, error:DATABASE_ERROR}` 로 응답한다(앱은 죽지 않음). 정상 점등을 위해
 **선적용 → 수집** 순서를 지킨다.
+
+#### `events` 테이블도 동일(전환 추적 — POST /api/events)
+
+`events` 테이블 역시 **코드(`routers/events.py`)가 INSERT 하기 전에 DB 에 먼저 존재해야 한다.**
+배포 전(또는 직후 즉시) 운영 DB 에 `python init_db.py` 를 한 번 실행하면 `CREATE TABLE
+IF NOT EXISTS events ...` 가 멱등 적용된다(데이터 적재 불필요 — 빈 테이블로 시작해 클릭 시 채워짐).
+프론트는 실패를 침묵 처리하므로 테이블 부재 시에도 사용자 동선은 무해하지만, 계측 점등을 위해
+**스키마 선적용**을 지킨다. 개인정보(IP/User-Agent)는 저장하지 않는다.
 
 ## 새 DB 로 교체(노출된 옛 DB 폐기) 절차
 

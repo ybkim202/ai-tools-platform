@@ -51,6 +51,7 @@ EXPECTED_TABLES = (
     "benchmarks",
     "news",
     "github_trending",
+    "events",
     "tags",
     "tool_tags",
 )
