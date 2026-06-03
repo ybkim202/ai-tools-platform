@@ -56,36 +56,36 @@ const ToolCard = ({ tool, reasonTags }) => {
 
           {/* 메타 정보 */}
           <div className="meta-info">
-            {/* 인기지표: GitHub stars(오픈소스) 우선, 없으면 HN points(자동 발견).
-                둘 다 없으면 미표시. 라벨 텍스트+아이콘+숫자로 의미를 전달한다
-                (색만으로 의미 전달 금지). */}
-            {(() => {
-              const stars = formatMetric(tool.github_stars);
-              if (stars) {
-                return (
-                  <div className="meta-item">
-                    <span className="meta-label">GitHub</span>
-                    <span className="meta-value popularity-value">
-                      <span className="popularity-icon" aria-hidden="true">★</span>
-                      {stars}
-                    </span>
-                  </div>
-                );
-              }
-              const hn = formatMetric(tool.hn_points);
-              if (hn) {
-                return (
-                  <div className="meta-item">
-                    <span className="meta-label">HN</span>
-                    <span className="meta-value popularity-value">
-                      <span className="popularity-icon" aria-hidden="true">▲</span>
-                      {hn}
-                    </span>
-                  </div>
-                );
-              }
-              return null;
-            })()}
+            {/* 라이선스: 항상 표시. 입문자의 1차 질문("설치형/가입형")을 인기지표보다
+                먼저 답한다. is_open_source가 truthy면 오픈소스, 그 외(undefined 포함)
+                는 '독점'으로 폴백 — 라벨 항상 표시 불변식 유지. 색 단독 금지 →
+                텍스트 + 점 문자(◆/◇) 2중 채널. title로 영문 풀네임 보강. */}
+            <div className="meta-item">
+              <span className="meta-label">라이선스</span>
+              {tool.is_open_source ? (
+                <span className="license-badge license-open" title="Open-Source">
+                  <span className="license-dot" aria-hidden="true">◆</span>
+                  오픈소스
+                </span>
+              ) : (
+                <span className="license-badge license-proprietary" title="Proprietary">
+                  <span className="license-dot" aria-hidden="true">◇</span>
+                  독점
+                </span>
+              )}
+            </div>
+
+            {/* GitHub stars: 오픈소스 도구 한정으로 표시(수치 비null일 때).
+                라벨 텍스트+아이콘+숫자로 의미를 전달한다(색만으로 의미 전달 금지). */}
+            {tool.is_open_source === true && formatMetric(tool.github_stars) && (
+              <div className="meta-item">
+                <span className="meta-label">GitHub</span>
+                <span className="meta-value popularity-value">
+                  <span className="popularity-icon" aria-hidden="true">★</span>
+                  {formatMetric(tool.github_stars)}
+                </span>
+              </div>
+            )}
 
             {formatUserCount(tool.user_count) && (
               <div className="meta-item">

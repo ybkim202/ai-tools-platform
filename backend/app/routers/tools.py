@@ -21,6 +21,7 @@ def get_tools(
     max_price: float = Query(None, description="최대 가격"),
     min_users: int = Query(None, description="최소 사용자 수"),
     max_users: int = Query(None, description="최대 사용자 수"),
+    open_source: bool = Query(None, description="라이선스 필터: true=오픈소스, false=독점, 미지정=전체"),
     sort_by: str = Query("popularity", description="정렬 기준"),
     limit: int = Query(20, ge=1, le=100, description="페이지당 결과 수"),
     offset: int = Query(0, ge=0, description="오프셋"),
@@ -84,7 +85,14 @@ def get_tools(
         if max_users is not None:
             query += " AND user_count <= :max_users"
             params["max_users"] = max_users
-        
+
+        # 라이선스 필터: 오픈소스 판정은 github_repo 보유 여부.
+        # (github_repo IS NOT NULL) 불린식을 :open_source 바인딩과 비교 — 값은
+        # params 로만 전달하므로 인젝션 불변식 유지(정적 조각만 query 에 누적).
+        if open_source is not None:
+            query += " AND (github_repo IS NOT NULL) = :open_source"
+            params["open_source"] = open_source
+
         # 정렬
         #
         # 불변식(MUST 준수): sort_by 는 사용자 자유 입력이므로 ORDER BY 절에 절대
@@ -109,8 +117,10 @@ def get_tools(
                 " ELSE 4 END, user_count DESC"
             )
         else:
-            # popularity(기본) 및 정의되지 않은 모든 값
-            order_key = "user_count DESC"
+            # popularity(기본) 및 정의되지 않은 모든 값.
+            # NULLS LAST: Postgres 는 DESC 에서 NULL 을 최댓값으로 맨 앞에 두므로,
+            # user_count 가 없는 자동발견 도구가 인기 1위로 오표시되는 것을 막는다.
+            order_key = "user_count DESC NULLS LAST"
         query += " ORDER BY " + order_prefix + order_key
         
         # 전체 개수 조회
@@ -149,6 +159,8 @@ def get_tools(
                 "updated_at": str(row[12]),
                 "github_stars": row._mapping.get("github_stars"),
                 "hn_points": row._mapping.get("hn_points"),
+                # 라이선스: github_repo 보유 = 오픈소스(true), 아니면 독점(false).
+                "is_open_source": row._mapping.get("github_repo") is not None,
             }
             for row in result.fetchall()
         ]
@@ -289,6 +301,7 @@ def get_tool_detail(tool_id: int, db: Session = Depends(get_db)):
             "github_stars": tool_row._mapping.get("github_stars"),
             "hn_points": tool_row._mapping.get("hn_points"),
             "source": tool_row._mapping.get("source"),
+            "is_open_source": tool_row._mapping.get("github_repo") is not None,
         }
         
         # 태그 조회 (task / profession 분류)
