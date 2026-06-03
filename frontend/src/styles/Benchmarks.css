@@ -60,7 +60,10 @@
 
 .leaderboard-table {
   width: 100%;
-  border-collapse: collapse;
+  /* separate + spacing 0: 시각은 collapse 와 동일하되, 행(tr)이 transform/box-shadow 를
+     받을 수 있게 한다(collapse 에서는 행 pop 효과가 렌더되지 않음). */
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 .leaderboard-table th,
@@ -133,6 +136,46 @@ thead .col-score {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ---- 행 hover 강조: 흐릿한 행이 진해지며 아주 살짝 pop ----
+   기본 상태는 순위·출처(secondary)·막대(tertiary)가 연해 전체가 뿌옇다.
+   마우스를 올린 행만 색이 진해지고(primary) 미세하게 떠오른다(scale+shadow).
+   pop 은 "매우 약간"(scale 1.008) — reduced-motion 에서는 끈다. */
+.leaderboard-table tbody tr {
+  transition: background-color var(--transition-normal),
+              transform var(--transition-normal),
+              box-shadow var(--transition-normal);
+}
+
+.leaderboard-table tbody tr td {
+  transition: color var(--transition-normal);
+}
+
+/* 막대는 transform(barGrow) 애니메이션이 있으므로 색만 transition(충돌 방지). */
+.leaderboard-table tbody tr .bar-fill {
+  transition: background-color var(--transition-normal);
+}
+
+.leaderboard-table tbody tr:hover {
+  background-color: var(--color-primary-surface-strong);
+  transform: scale(1.008);
+  box-shadow: var(--shadow-sm);
+}
+
+.leaderboard-table tbody tr:hover .col-rank,
+.leaderboard-table tbody tr:hover .col-source {
+  color: var(--color-text-primary);
+}
+
+.leaderboard-table tbody tr:hover .bar-fill {
+  background-color: var(--color-text-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .leaderboard-table tbody tr:hover {
+    transform: none;
+  }
 }
 
 /* ---- 점수 막대 (무채색, 장식 채널) ---- */
