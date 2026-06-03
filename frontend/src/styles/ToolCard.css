@@ -341,8 +341,8 @@
 }
 
 /* 반응형: 카드 푸터는 데스크톱 가로 한 줄(flex:1)이 기본,
-   ≤480px에서만 세로 풀폭 스택으로 복원. */
-@media (max-width: 480px) {
+   모바일(≤768px, 그리드 2열이라 카드 폭이 좁음)에서 세로 풀폭 스택으로. */
+@media (max-width: 768px) {
   .card-footer {
     flex-direction: column;
   }

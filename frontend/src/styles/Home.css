@@ -829,7 +829,7 @@ body {
   }
 
   .filter-buttons {
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .tools-section {
@@ -837,7 +837,9 @@ body {
   }
 
   .tools-grid {
-    grid-template-columns: 1fr;
+    /* 모바일: 한 줄에 2개. 좁은 폭이라 간격도 줄여 카드 폭을 확보. */
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
   }
 
   .cta-buttons {
