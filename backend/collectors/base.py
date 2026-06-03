@@ -260,7 +260,9 @@ def _load_collectors() -> list:
     각 collector 의 collect(conn) 는 신규 삽입 행수를 반환한다.
     토큰 미설정 소스는 collect 내부에서 0 을 반환하며 조용히 skip 한다.
     """
-    from . import rss, github, producthunt, github_trending, tools_metrics
+    from . import (
+        rss, github, producthunt, github_trending, tools_metrics, benchmarks_lmarena,
+    )
 
     return [
         ("rss", rss.collect),
@@ -272,11 +274,17 @@ def _load_collectors() -> list:
         # hn_points)만 갱신한다. 신규 도구 발견(tools_discover)은 여기에 넣지 않고
         # collect.py --discover-tools 로 주 1회 별도 호출한다(일일 잡을 가볍게 유지).
         ("tools_metrics", tools_metrics.collect),
+        # benchmarks_lmarena 는 benchmarks 테이블의 'LMArena Elo'(선호)를 vendor 매핑으로
+        # 갱신한다(키 불필요 미러). representative_model 없는 도구는 자동 skip.
+        ("benchmarks_lmarena", benchmarks_lmarena.collect),
     ]
 
 
 # 관측용: 구성된 소스 이름(스케줄러 로깅에 사용). lazy 하게 채워진다.
-ACTIVE_COLLECTORS = ["rss", "github", "producthunt", "github_trending", "tools_metrics"]
+ACTIVE_COLLECTORS = [
+    "rss", "github", "producthunt", "github_trending", "tools_metrics",
+    "benchmarks_lmarena",
+]
 
 
 def collect_all(conn=None) -> int:

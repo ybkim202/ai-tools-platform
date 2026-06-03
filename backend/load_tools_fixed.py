@@ -89,6 +89,8 @@ def save_tools_to_db(conn, tools):
             user_count_date = datetime.now()
             # 오픈소스 도구만 채워지는 "owner/repo"(SaaS 는 None). stars 자동 갱신 키.
             github_repo = tool.get('github_repo')
+            # LMArena vendor 식별자(대화선호 Elo 자동수집 매핑). 미설정이면 None.
+            representative_model = tool.get('representative_model')
             
             # 중복 확인 및 INSERT/UPDATE
             check_query = "SELECT id FROM tools WHERE name = %s"
@@ -112,13 +114,14 @@ def save_tools_to_db(conn, tools):
                     user_count_source = %s,
                     user_count_date = %s,
                     github_repo = COALESCE(%s, github_repo),
+                    representative_model = COALESCE(%s, representative_model),
                     updated_at = %s
                 WHERE name = %s
                 """
                 cursor.execute(update_query, (
                     logo_url, official_url, description, category, country,
                     difficulty, user_count, user_count_source, user_count_date,
-                    github_repo, datetime.now(), name
+                    github_repo, representative_model, datetime.now(), name
                 ))
                 updated_count += 1
             else:
@@ -127,14 +130,14 @@ def save_tools_to_db(conn, tools):
                 INSERT INTO tools
                 (name, logo_url, official_url, description, category, country,
                  difficulty, user_count, user_count_source, user_count_date,
-                 github_repo, created_at, updated_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                 github_repo, representative_model, created_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
                 """
                 cursor.execute(insert_query, (
                     name, logo_url, official_url, description, category, country,
                     difficulty, user_count, user_count_source, user_count_date,
-                    github_repo, datetime.now(), datetime.now()
+                    github_repo, representative_model, datetime.now(), datetime.now()
                 ))
                 tool_id = cursor.fetchone()[0]
                 inserted_count += 1
