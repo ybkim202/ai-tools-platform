@@ -50,7 +50,9 @@ const ToolCard = ({ tool, reasonTags }) => {
 
         {/* 내용 */}
         <div className="card-body">
-          <p className="description">{tool.description}</p>
+          {tool.description && (
+            <p className="description">{tool.description}</p>
+          )}
 
           {/* 메타 정보 */}
           <div className="meta-info">

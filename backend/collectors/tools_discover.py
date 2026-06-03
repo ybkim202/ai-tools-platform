@@ -97,8 +97,10 @@ _CATEGORY_RULES = [
 # 화이트리스트 폴백(매핑 실패 시). tools_data.json 카테고리 20종 중 하나.
 _CATEGORY_FALLBACK = "특수목적"
 
-# 이름 추출 분리자(앞 세그먼트만 도구명으로 채택).
-_NAME_SPLIT_RE = re.compile(r"\s*[–—\-:,(]\s*")
+# 이름/설명 분리자(앞=이름, 뒤=설명). 좋은 Show HN 은 "Name – 설명" / "Name: 설명" 꼴.
+# 대시(-–—)는 "양옆 공백"이 있을 때만 분리자로 본다. 공백 없는 하이픈은 합성어
+# (Open-Source·Id-agent·Tiny-vLLM)의 일부이므로 분리하지 않는다.
+_NAME_SPLIT_RE = re.compile(r"\s+[-–—]\s+|:\s+|,\s+|\s+\(")
 # "Show HN:" 접두사 제거(대소문자 무시).
 _SHOW_HN_RE = re.compile(r"^\s*show\s+hn\s*:?\s*", re.IGNORECASE)
 # 이름 앞 흔한 1인칭 도입구 제거.
@@ -108,9 +110,26 @@ _LEADIN_RE = re.compile(
     re.IGNORECASE,
 )
 
+# 제품명이 아니라 "문장/글 제목"으로 보이는 첫 단어(동명사·의문사·관사·명령형 등) → 드롭.
+# 예: "Reducing LLM input tokens by 70%", "Building an agent", "How I built X".
+_SENTENCE_LEAD = {
+    "how", "why", "what", "when", "where", "who", "is", "are", "can", "should",
+    "the", "a", "an", "this", "that", "these", "those",
+    "building", "reducing", "making", "using", "creating", "showing", "adding",
+    "improving", "scaling", "running", "writing", "getting", "turning", "bringing",
+    "build", "make", "use", "create", "stop", "let", "lets", "introducing",
+    "understanding", "exploring", "learning", "automating", "generating",
+}
+# 글 제목 신호(부분 정규식): "by 70%", "in 150 lines", "%", "lines of code" 등.
+_ARTICLE_SIGNAL_RE = re.compile(r"\bby\s+\d|\bin\s+\d|%|\blines?\b", re.IGNORECASE)
+
 _NAME_MIN = 2
-_NAME_MAX = 60
-_NAME_MAX_WORDS = 6  # 이보다 많으면 제품명이 아니라 문장/글 제목으로 보고 드롭.
+_NAME_MAX = 40
+# 분리자가 있으면 앞부분(이름)은 보통 1~4 단어. 분리자가 없으면(제목 전체가 후보)
+# 문장일 위험이 커 더 짧게(≤3)만 허용한다.
+_NAME_MAX_WORDS = 4
+_NAME_MAX_WORDS_NOSEP = 3
+_DESC_MIN = 8     # 설명이 이보다 짧으면(의미 없음) 버린다.
 _DESC_MAX = 500
 _URL_MAX = 500
 _DEFAULT_MIN_POINTS = 15
@@ -144,30 +163,72 @@ def is_ai_related(text: str) -> bool:
     return any(phrase in low for phrase in _AI_PHRASES)
 
 
+def _strip_prefixes(title: str) -> str:
+    """제목에서 'Show HN:' 접두사와 1인칭 도입구를 제거한 본문을 반환(순수 함수)."""
+    s = _SHOW_HN_RE.sub("", title or "").strip()
+    s = _LEADIN_RE.sub("", s).strip()
+    return s
+
+
+def _looks_like_sentence(name: str) -> bool:
+    """이름 후보가 제품명이 아니라 문장/글 제목으로 보이는지(순수 함수).
+
+    첫 단어가 동명사·의문사·관사·명령형이거나, 'by N%'·'in N lines'·'%' 같은 글 제목
+    신호가 있으면 True(드롭 대상).
+    """
+    words = name.split()
+    if not words:
+        return True
+    if words[0].lower().strip(".,!?") in _SENTENCE_LEAD:
+        return True
+    if _ARTICLE_SIGNAL_RE.search(name):
+        return True
+    return False
+
+
 def extract_tool_name(title: str) -> Optional[str]:
     """HN "Show HN" 제목에서 도구명을 추출한다(순수 함수). 추출 실패 시 None.
 
     예) "Show HN: Cleorra – an AI tool for X" → "Cleorra"
         "Show HN: I built Foozle, a GPT wrapper" → "Foozle"
-    분리자(–, —, -, :, ,, ()) 앞 첫 세그먼트를 이름으로 보고, 1인칭 도입구를 제거한다.
-    길이(_NAME_MIN.._NAME_MAX) 밖이거나 비면 None.
+        "Show HN: Reducing LLM tokens by 70%" → None (문장/글 제목)
+    분리자(–, —, -, :, ,, ()) 앞 세그먼트를 이름으로 본다. 분리자가 없으면 제목 전체가
+    후보이므로 문장 위험이 커 더 짧은 단어수만 허용하고, 문장형(동명사/의문사/글 신호)은
+    드롭한다. 길이(_NAME_MIN.._NAME_MAX) 밖이면 None.
     """
-    if not title:
+    s = _strip_prefixes(title)
+    if not s:
         return None
-    s = _SHOW_HN_RE.sub("", title).strip()
-    s = _LEADIN_RE.sub("", s).strip()
-    # 첫 분리자 앞 세그먼트.
-    first = _NAME_SPLIT_RE.split(s, maxsplit=1)[0].strip()
-    # 양끝 따옴표/마침표 정리.
-    first = first.strip(" \"'.")
+    parts = _NAME_SPLIT_RE.split(s, maxsplit=1)
+    has_separator = len(parts) > 1
+    first = parts[0].strip().strip(" \"'.")
     first = re.sub(r"\s+", " ", first)
     if not first or not (_NAME_MIN <= len(first) <= _NAME_MAX):
         return None
-    # 단어 수가 많으면 제품명이 아니라 문장/글 제목일 가능성이 높다
-    # (예: "Build Your Own AI Agent CLI in 150 Lines"). 도구명은 보통 1~4 단어.
-    if len(first.split()) > _NAME_MAX_WORDS:
+    cap = _NAME_MAX_WORDS if has_separator else _NAME_MAX_WORDS_NOSEP
+    if len(first.split()) > cap:
+        return None
+    if _looks_like_sentence(first):
         return None
     return first
+
+
+def extract_description(title: str) -> Optional[str]:
+    """제목의 설명부(분리자 뒤)를 추출한다(순수 함수). 설명부가 없거나 너무 짧으면 None.
+
+    예) "Show HN: Cleorra – an AI resume builder" → "an AI resume builder"
+        "Show HN: Ollama" → None (분리자 없음 = 설명부 없음)
+    이름과 설명을 분리해 카드에서 이름이 설명에 중복 노출되지 않게 한다.
+    """
+    s = _strip_prefixes(title)
+    parts = _NAME_SPLIT_RE.split(s, maxsplit=1)
+    if len(parts) < 2:
+        return None
+    desc = parts[1].strip().strip(" \"'.")
+    desc = re.sub(r"\s+", " ", desc)
+    if len(desc) < _DESC_MIN:
+        return None
+    return desc[:_DESC_MAX]
 
 
 def normalize_category(text: str) -> str:
@@ -205,10 +266,12 @@ def parse_hit(hit) -> Optional[Dict]:
     if not is_ai_related(f"{title} {url}"):
         return None
 
-    # 설명은 제목에서 이름 뒤 부분(없으면 제목 전체). 스팸이면 드롭.
-    desc = title
-    if is_keyword_spam(desc):
+    # 스팸(키워드 반복) 제목 드롭.
+    if is_keyword_spam(title):
         return None
+
+    # 설명은 제목의 분리자 뒤 설명부(이름과 분리). 없으면 None → 카드에서 설명 줄 생략.
+    desc = extract_description(title)
 
     points = hit.get("points")
     try:
@@ -219,7 +282,7 @@ def parse_hit(hit) -> Optional[Dict]:
     return {
         "name": name,
         "official_url": url[:_URL_MAX],
-        "description": desc[:_DESC_MAX],
+        "description": desc,
         "category": normalize_category(f"{title} {url}"),
         "hn_object_id": object_id[:20],
         "hn_points": points,
