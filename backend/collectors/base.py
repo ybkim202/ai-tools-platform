@@ -260,7 +260,7 @@ def _load_collectors() -> list:
     각 collector 의 collect(conn) 는 신규 삽입 행수를 반환한다.
     토큰 미설정 소스는 collect 내부에서 0 을 반환하며 조용히 skip 한다.
     """
-    from . import rss, github, producthunt, github_trending
+    from . import rss, github, producthunt, github_trending, tools_metrics
 
     return [
         ("rss", rss.collect),
@@ -268,11 +268,15 @@ def _load_collectors() -> list:
         ("producthunt", producthunt.collect),
         # github_trending 은 news 가 아니라 독립 github_trending 테이블을 멱등 교체한다.
         ("github_trending", github_trending.collect),
+        # tools_metrics 는 news 가 아니라 tools 의 검증 가능한 인기지표(github_stars,
+        # hn_points)만 갱신한다. 신규 도구 발견(tools_discover)은 여기에 넣지 않고
+        # collect.py --discover-tools 로 주 1회 별도 호출한다(일일 잡을 가볍게 유지).
+        ("tools_metrics", tools_metrics.collect),
     ]
 
 
 # 관측용: 구성된 소스 이름(스케줄러 로깅에 사용). lazy 하게 채워진다.
-ACTIVE_COLLECTORS = ["rss", "github", "producthunt", "github_trending"]
+ACTIVE_COLLECTORS = ["rss", "github", "producthunt", "github_trending", "tools_metrics"]
 
 
 def collect_all(conn=None) -> int:

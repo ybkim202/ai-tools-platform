@@ -35,11 +35,16 @@ apiClient.interceptors.response.use(
 // ==================== Tools API ====================
 export const toolsAPI = {
   // 도구 목록 조회
+  // 도구 목록 조회. 각 도구는 기존 필드 + 인기지표를 포함한다:
+  //   github_stars: 오픈소스 도구의 GitHub stars(자동 갱신). 없으면 null.
+  //   hn_points:    자동 발견(Hacker News) 도구의 points. 없으면 null.
+  // 둘 다 "검증 가능한 공식 소스"로만 채워지며 user_count는 자동 갱신하지 않는다.
   getTools: (params = {}) => {
     return apiClient.get('/tools', { params });
   },
 
-  // 도구 상세 조회
+  // 도구 상세 조회. 위 인기지표(github_stars/hn_points) + source('manual'|'auto_hn'|
+  // 'auto_github')를 추가로 포함한다.
   getToolDetail: (toolId) => {
     return apiClient.get(`/tools/${toolId}`);
   },

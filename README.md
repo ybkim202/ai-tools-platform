@@ -15,7 +15,8 @@
 | 맞춤 추천 (업무/직군) | ✅ 동작 (태그 19개 · `tool_tags` ≈312행 적재) |
 | 벤치마크 | ✅ 동작 (`benchmarks` 24행 · LLM 9개 적재) |
 | 뉴스/깃헙 트렌드 | ⏳ 수집 파이프라인 완비, **0행 시작 → cron 수집 후 점등** |
-| 자동 데이터 수집 (collectors + GitHub Actions cron) | ⏳ 구현됨, 상시 자동 실행은 아님 (APScheduler 기본 비활성 · 매일 `0 0 * * *` cron) |
+| 도구 자동 갱신·발견 | ✅ 인기지표(GitHub stars·HN points) 일 1회 갱신 + 신규 AI 도구 자동 발견(Hacker News "Show HN", 주 1회, 키 불필요) |
+| 자동 데이터 수집 (collectors + GitHub Actions cron) | ⏳ 구현됨, 상시 자동 실행은 아님 (APScheduler 기본 비활성 · 뉴스 매일 `0 0 * * *` · 도구 발견 주간 `0 0 * * 1`) |
 
 진단 정본: [docs/PROJECT_OVERVIEW.md](./docs/PROJECT_OVERVIEW.md)
 
@@ -101,7 +102,7 @@ open http://localhost:8000/docs                   # Swagger UI
 
 | 메서드 · 경로 | 설명 |
 |---|---|
-| `GET /api/tools` | 도구 목록 (검색·필터·페이징) |
+| `GET /api/tools` | 도구 목록 (검색·필터·페이징 · 인기지표 `github_stars`/`hn_points` 포함) |
 | `GET /api/tools/meta` | 필터 옵션값(카테고리·태그·난이도) + 카운트(`total_tools`·`total_categories`) |
 | `GET /api/tools/{id}` | 도구 상세 (가격·태그·벤치/뉴스) |
 | `GET /api/recommendations` | 업무(`task`)/직군(`profession`) 추천 |
@@ -152,8 +153,8 @@ ai-tools-platform/
 │   │   ├── auth.py            # 선택적 API Key · 레이트리밋
 │   │   ├── exceptions.py      # 표준 에러 핸들러
 │   │   └── routers/           # tools · recommendations · compare · news · benchmarks · trends
-│   ├── collectors/            # 수집 파이프라인 (base · rss · github · producthunt · github_trending)
-│   ├── collect.py             # 수집 진입점 (--backfill-translations: MyMemory 무료 번역 백필)
+│   ├── collectors/            # 수집 파이프라인 (base · rss · github · producthunt · github_trending · tools_metrics · tools_discover)
+│   ├── collect.py             # 수집 진입점 (--backfill-translations: 번역 백필 · --discover-tools: HN 신규 도구 발견)
 │   ├── scheduler.py           # APScheduler (기본 비활성)
 │   ├── schema.sql             # 테이블 정본 DDL
 │   ├── init_db.py             # schema.sql 실행 러너

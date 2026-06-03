@@ -65,10 +65,16 @@
       "user_count_source": "공식블로그",
       "user_count_date": "2024-05-20T00:00:00Z",
       "created_at": "2024-05-01T10:00:00Z",
-      "updated_at": "2024-05-20T10:00:00Z"
+      "updated_at": "2024-05-20T10:00:00Z",
+      "github_stars": null,
+      "hn_points": null
     },
     // ... 더 많은 도구들
   ],
+  // github_stars/hn_points: 자동 갱신 인기지표(검증 가능한 공식 API만).
+  //   github_stars = 오픈소스 도구의 GitHub stars(없으면 null).
+  //   hn_points    = Hacker News 자동 발견 도구의 points(없으면 null).
+  //   user_count 는 자동 갱신하지 않는다(출처 불명확 — 수동 유지).
   "pagination": {
     "total": 127,
     "limit": 20,

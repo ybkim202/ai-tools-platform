@@ -87,6 +87,8 @@ def save_tools_to_db(conn, tools):
             user_count = tool.get('user_count')
             user_count_source = tool.get('user_count_source')
             user_count_date = datetime.now()
+            # 오픈소스 도구만 채워지는 "owner/repo"(SaaS 는 None). stars 자동 갱신 키.
+            github_repo = tool.get('github_repo')
             
             # 중복 확인 및 INSERT/UPDATE
             check_query = "SELECT id FROM tools WHERE name = %s"
@@ -95,8 +97,11 @@ def save_tools_to_db(conn, tools):
             
             if existing_tool:
                 # UPDATE
+                # github_repo 는 COALESCE 로 갱신: JSON 에 값이 있으면 채우고, None 이면
+                # 기존 DB 값을 보존한다(자동 갱신 collector 가 채운 repo 를 시드 재적재가
+                # 덮어쓰지 않게). github_stars/hn_* 등 자동 갱신 컬럼은 여기서 건드리지 않는다.
                 update_query = """
-                UPDATE tools 
+                UPDATE tools
                 SET logo_url = %s,
                     official_url = %s,
                     description = %s,
@@ -106,29 +111,30 @@ def save_tools_to_db(conn, tools):
                     user_count = %s,
                     user_count_source = %s,
                     user_count_date = %s,
+                    github_repo = COALESCE(%s, github_repo),
                     updated_at = %s
                 WHERE name = %s
                 """
                 cursor.execute(update_query, (
                     logo_url, official_url, description, category, country,
                     difficulty, user_count, user_count_source, user_count_date,
-                    datetime.now(), name
+                    github_repo, datetime.now(), name
                 ))
                 updated_count += 1
             else:
                 # INSERT
                 insert_query = """
-                INSERT INTO tools 
-                (name, logo_url, official_url, description, category, country, 
-                 difficulty, user_count, user_count_source, user_count_date, 
-                 created_at, updated_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO tools
+                (name, logo_url, official_url, description, category, country,
+                 difficulty, user_count, user_count_source, user_count_date,
+                 github_repo, created_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
                 """
                 cursor.execute(insert_query, (
                     name, logo_url, official_url, description, category, country,
                     difficulty, user_count, user_count_source, user_count_date,
-                    datetime.now(), datetime.now()
+                    github_repo, datetime.now(), datetime.now()
                 ))
                 tool_id = cursor.fetchone()[0]
                 inserted_count += 1

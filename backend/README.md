@@ -70,6 +70,19 @@ IF NOT EXISTS events ...` 가 멱등 적용된다(데이터 적재 불필요 —
 프론트는 실패를 침묵 처리하므로 테이블 부재 시에도 사용자 동선은 무해하지만, 계측 점등을 위해
 **스키마 선적용**을 지킨다. 개인정보(IP/User-Agent)는 저장하지 않는다.
 
+#### `tools` 자동 갱신/발견 컬럼도 동일(인기지표·신규 도구)
+
+`schema.sql` 은 `tools` 에 `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` 로 자동 갱신 컬럼
+(`github_repo`·`github_stars`·`hn_object_id`·`hn_points`·`metrics_synced_at`·`source`)을
+멱등 추가한다. **수집기(`collectors/tools_metrics.py`·`tools_discover.py`)나 라우터가 이
+컬럼을 읽기 전에 운영 DB 에 먼저 적용해야 한다** — 동일하게 `python init_db.py` 선실행.
+- 인기지표 갱신: 일일 `collect.py`(에 `tools_metrics` 등록됨)가 `github_stars`/`hn_points`
+  를 갱신한다. **검증 가능한 공식 API 값만** 갱신하고 `user_count` 는 건드리지 않는다.
+- 신규 도구 발견: `python collect.py --discover-tools`(주간 워크플로우)가 Hacker News
+  "Show HN" 에서 AI 도구를 찾아 `source='auto_hn'` 로 자동 공개한다. 카테고리는 기존 20종
+  화이트리스트로 정규화돼 프론트 필터를 오염시키지 않는다.
+- 롤백: 자동 발견 도구는 `DELETE FROM tools WHERE source='auto_hn'` 로 일괄 제거 가능.
+
 ## 새 DB 로 교체(노출된 옛 DB 폐기) 절차
 
 1. Render → **New + → PostgreSQL** 로 새 DB 생성(같은 region/버전).

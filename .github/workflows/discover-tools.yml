@@ -1,0 +1,43 @@
+name: 신규 도구 발견 (Hacker News)
+
+# Hacker News "Show HN" 에서 신규 AI 도구를 발견해 tools 테이블에 자동 추가한다.
+# - 일일 수집(collect.yml)과 분리한 주 1회 잡 — 발견은 양이 많고 일일 잡을 가볍게 유지.
+# - 키 불필요(HN Algolia 공개 API). DATABASE_URL 만 있으면 동작.
+# - 품질 필터(AI 관련성·스팸·points 임계값) 통과 시 자동 공개(source='auto_hn').
+#   문제가 있으면 DELETE FROM tools WHERE source='auto_hn' AND ... 로 롤백 가능.
+# - 인기지표(github_stars/hn_points) 갱신은 일일 collect.yml(tools_metrics)이 담당.
+# - DATABASE_URL 미설정이면 잡은 안내 후 종료(에러로 떨어지지 않음).
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'   # 매주 월요일 00:00 UTC (주 1회)
+  workflow_dispatch: {}    # 수동 실행 버튼
+
+# 동시 실행 방지(주기+수동 겹침 방지)
+concurrency:
+  group: discover-tools
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: 신규 도구 발견 실행
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # 선택: points 임계값 조정(미설정 시 기본 15). 더 엄격히 하려면 값을 올린다.
+          HN_DISCOVER_MIN_POINTS: ${{ vars.HN_DISCOVER_MIN_POINTS }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::warning::DATABASE_URL secret 미설정 — 발견을 건너뜁니다. (Settings→Secrets→Actions 에 추가하세요)"
+            exit 0
+          fi
+          python collect.py --discover-tools

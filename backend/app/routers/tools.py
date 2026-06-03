@@ -129,6 +129,9 @@ def get_tools(
 
         # 도구 조회
         result = db.execute(text(query), params)
+        # 인기지표(github_stars/hn_points)는 컬럼명으로 접근한다(SELECT * 이지만
+        # ALTER 로 뒤에 추가된 컬럼이라 위치 인덱스 대신 _mapping.get 로 안전 접근.
+        # 마이그레이션 전 DB 면 키가 없어 None 이 되며 깨지지 않는다).
         tools = [
             {
                 "id": row[0],
@@ -143,7 +146,9 @@ def get_tools(
                 "user_count_source": row[9],
                 "user_count_date": str(row[10]) if row[10] else None,
                 "created_at": str(row[11]),
-                "updated_at": str(row[12])
+                "updated_at": str(row[12]),
+                "github_stars": row._mapping.get("github_stars"),
+                "hn_points": row._mapping.get("hn_points"),
             }
             for row in result.fetchall()
         ]
@@ -280,6 +285,10 @@ def get_tool_detail(tool_id: int, db: Session = Depends(get_db)):
             "user_count": tool_row[8],
             "user_count_source": tool_row[9],
             "user_count_date": str(tool_row[10]) if tool_row[10] else None,
+            # 인기지표(컬럼명 접근 — ALTER 로 뒤에 추가된 컬럼, 마이그레이션 전엔 None).
+            "github_stars": tool_row._mapping.get("github_stars"),
+            "hn_points": tool_row._mapping.get("hn_points"),
+            "source": tool_row._mapping.get("source"),
         }
         
         # 태그 조회 (task / profession 분류)
