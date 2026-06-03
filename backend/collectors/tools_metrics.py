@@ -40,6 +40,7 @@ from typing import Optional
 
 from .base import http_get
 from .github_trending import _auth_headers  # GITHUB_TOKEN 인증 헤더 재사용
+from .tools_discover import extract_github_repo  # official_url → owner/repo 파서 재사용
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +79,48 @@ def extract_hn_points(payload) -> Optional[int]:
         return int(value)
     except (TypeError, ValueError):
         return None
+
+
+def _backfill_github_repo(conn) -> int:
+    """official_url 이 github.com 레포인데 github_repo 가 비어 있는 도구를 채운다. 채운 행수 반환.
+
+    자동 발견(auto_hn) 도구 중 GitHub 레포로 런칭한 것을 오픈소스로 정정하고 stars
+    갱신 대상이 되게 한다. 멱등(github_repo IS NULL 행만 대상). 항목별 savepoint 격리.
+    이 단계 직후 _update_github_stars 가 새로 채워진 repo 의 stars 도 함께 갱신한다.
+    """
+    cursor = conn.cursor()
+    updated = 0
+    try:
+        cursor.execute(
+            "SELECT id, name, official_url FROM tools "
+            "WHERE github_repo IS NULL AND official_url ILIKE '%%github.com%%'"
+        )
+        rows = cursor.fetchall()
+        logger.info("[tools_metrics] github_repo 백필 후보 %d 개", len(rows))
+
+        for tool_id, name, url in rows:
+            repo = extract_github_repo(url)
+            if not repo:
+                continue
+            cursor.execute("SAVEPOINT bf_sp")
+            try:
+                cursor.execute(
+                    "UPDATE tools SET github_repo = %s WHERE id = %s", (repo, tool_id)
+                )
+                cursor.execute("RELEASE SAVEPOINT bf_sp")
+                updated += 1
+            except Exception as e:
+                cursor.execute("ROLLBACK TO SAVEPOINT bf_sp")
+                logger.warning("[tools_metrics] github_repo 백필 실패(skip) %s: %s", name, e)
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        logger.exception("[tools_metrics] github_repo 백필 실패, 롤백")
+        raise
+    finally:
+        cursor.close()
+    logger.info("[tools_metrics] github_repo 백필 %d 개", updated)
+    return updated
 
 
 def _update_github_stars(conn, headers: dict) -> int:
@@ -184,6 +227,17 @@ def collect(conn) -> int:
     """
     headers = _auth_headers()
     logger.info("[tools_metrics] 수집 시작(github 인증=%s)", "Authorization" in headers)
+
+    # 먼저 github.com 레포인데 github_repo 가 비어 있는 도구를 채운다(에러 격리).
+    # 실패해도 stars/points 갱신은 계속 진행한다.
+    try:
+        _backfill_github_repo(conn)
+    except Exception:
+        logger.exception("[tools_metrics] github_repo 백필 실패(갱신은 계속)")
+        try:
+            conn.rollback()
+        except Exception:
+            pass
 
     total = 0
     for label, fn in (("github_stars", lambda: _update_github_stars(conn, headers)),

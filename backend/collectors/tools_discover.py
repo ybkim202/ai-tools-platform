@@ -244,11 +244,54 @@ def normalize_category(text: str) -> str:
     return _CATEGORY_FALLBACK
 
 
+# GitHub 의 비-레포 첫 경로(예약어). owner 자리에 오면 repo 가 아니므로 제외한다.
+_GH_RESERVED_OWNER = {
+    "features", "about", "pricing", "settings", "marketplace", "sponsors",
+    "topics", "collections", "trending", "login", "join", "new", "orgs",
+    "apps", "notifications", "explore", "search", "contact", "site",
+    "security", "enterprise", "readme", "discussions", "issues", "pulls",
+}
+
+
+def extract_github_repo(url: str) -> Optional[str]:
+    """official_url 이 github.com 레포면 "owner/repo" 를 추출한다(순수 함수). 아니면 None.
+
+    예) https://github.com/ollama/ollama            → "ollama/ollama"
+        https://github.com/foo/bar/blob/main/README → "foo/bar"
+        https://github.com/features/copilot         → None (features=예약어, 레포 아님)
+        https://cleorra.com                          → None (github 아님)
+    뒤따르는 경로(/blob, /tree …)·.git 접미사·쿼리는 버린다. 잘못 추출되더라도
+    tools_metrics 의 stars 조회가 404 로 안전하게 skip 한다(에러 격리).
+    """
+    if not url:
+        return None
+    try:
+        from urllib.parse import urlparse
+
+        parsed = urlparse(url)
+    except Exception:
+        return None
+    if "github.com" not in (parsed.netloc or "").lower():
+        return None
+    parts = [seg for seg in (parsed.path or "").split("/") if seg]
+    if len(parts) < 2:
+        return None
+    owner, repo = parts[0], parts[1]
+    if owner.lower() in _GH_RESERVED_OWNER:
+        return None
+    if repo.endswith(".git"):
+        repo = repo[:-4]
+    if not owner or not repo:
+        return None
+    return f"{owner}/{repo}"[:255]
+
+
 def parse_hit(hit) -> Optional[Dict]:
     """HN Algolia search hit 한 건을 도구 후보 dict 로 변환한다(순수 함수). 부적합 시 None.
 
     필터: url 존재, 이름 추출 성공, AI 관련성(제목+URL), 키워드 스팸 아님.
     points 임계값은 호출측(_fetch)에서 질의로 거르므로 여기선 방어적 보존만.
+    official_url 이 github.com 레포면 github_repo 를 함께 채워(오픈소스 판정·stars 갱신).
     """
     if not isinstance(hit, dict):
         return None
@@ -286,6 +329,8 @@ def parse_hit(hit) -> Optional[Dict]:
         "category": normalize_category(f"{title} {url}"),
         "hn_object_id": object_id[:20],
         "hn_points": points,
+        # github.com 레포면 추출(오픈소스 판정·stars 갱신 대상). 아니면 None.
+        "github_repo": extract_github_repo(url),
     }
 
 
@@ -363,8 +408,8 @@ def _insert_candidates(conn, candidates: List[Dict]) -> int:
                 cursor.execute(
                     "INSERT INTO tools "
                     "(name, official_url, description, category, "
-                    " hn_object_id, hn_points, source, metrics_synced_at) "
-                    "VALUES (%s, %s, %s, %s, %s, %s, 'auto_hn', now())",
+                    " hn_object_id, hn_points, github_repo, source, metrics_synced_at) "
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s, 'auto_hn', now())",
                     (
                         cand["name"],
                         cand["official_url"],
@@ -372,6 +417,7 @@ def _insert_candidates(conn, candidates: List[Dict]) -> int:
                         cand["category"],
                         cand["hn_object_id"],
                         cand["hn_points"],
+                        cand.get("github_repo"),
                     ),
                 )
                 cursor.execute("RELEASE SAVEPOINT cand_sp")
