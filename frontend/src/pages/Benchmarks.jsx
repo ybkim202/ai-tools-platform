@@ -159,6 +159,20 @@ const Benchmarks = () => {
     });
   }, [allRows]);
 
+  // 진입 stagger 순서: 데이터가 있는(rows>0) 섹션만 순차 인덱스를 부여한다.
+  // 빈 섹션은 맵에서 빠지므로 delay 0으로 즉시 표시(로딩 오인 방지).
+  const nonEmptyOrder = useMemo(() => {
+    const map = new Map();
+    let order = 0;
+    sections.forEach((sec) => {
+      if (sec.rows.length > 0) {
+        map.set(sec.key, order);
+        order += 1;
+      }
+    });
+    return map;
+  }, [sections]);
+
   // 비교 토글(동일 tool_id면 모든 섹션에서 동기 체크).
   const isSelected = useCallback(
     (toolId) => selected.some((s) => s.tool_id === toolId),
@@ -425,12 +439,19 @@ const Benchmarks = () => {
             )}
 
             {/* 카테고리 섹션 ×5 */}
-            {sections.map((sec) => (
+            {sections.map((sec) => {
+              // stagger delay는 데이터가 있는 섹션 순서로만 누적한다.
+              // 빈(0행) 섹션이 인덱스를 먹으면 시각 리듬이 끊기고,
+              // 빈 상태 카드가 늦게 떠 "로딩 중" 오인을 주는 문제를 막는다.
+              const order = nonEmptyOrder.get(sec.key);
+              const delayMs = order === undefined ? 0 : order * 100;
+              return (
               <section
                 key={sec.key}
                 id={`section-${sec.key}`}
                 className="benchmark-section"
                 aria-labelledby={`section-title-${sec.key}`}
+                style={{ animationDelay: `${delayMs}ms` }}
               >
                 <header className="benchmark-section-header">
                   <div className="benchmark-section-heading">
@@ -471,7 +492,8 @@ const Benchmarks = () => {
                   />
                 )}
               </section>
-            ))}
+              );
+            })}
           </>
         )}
       </div>
