@@ -204,6 +204,626 @@ thead .col-score {
   color: var(--color-text-secondary);
 }
 
+/* ========================================
+   C1. 카테고리 앵커 네비 (sticky)
+   filter-btn 패턴 재사용 — 새 색/간격 생성 금지.
+   ======================================== */
+.category-anchor-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background-color: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--spacing-md) 0;
+  margin: 0 calc(-1 * var(--spacing-lg));
+  padding-left: var(--spacing-lg);
+  padding-right: var(--spacing-lg);
+}
+
+.category-anchor-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.category-anchor-chip {
+  text-decoration: none;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.category-anchor-chip.active {
+  box-shadow: 0 0 0 3px var(--color-primary-surface-strong);
+}
+
+/* ========================================
+   C6. 비교 트레이 (sticky-top / 모바일 fixed-bottom)
+   ======================================== */
+.compare-tray {
+  position: sticky;
+  top: 56px;
+  z-index: 19;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.compare-tray-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.compare-tray-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex: 0 0 auto;
+}
+
+.compare-counter-pill {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--color-primary-surface-strong);
+  border: 1px solid var(--color-primary-border);
+  color: var(--color-primary-darker);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-variant-numeric: tabular-nums;
+}
+
+.compare-tray-hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+.compare-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.active-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background-color: var(--color-primary-surface-strong);
+  border: 1px solid var(--color-primary-border);
+  color: var(--color-primary-darker);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  padding: var(--spacing-xs) var(--spacing-md);
+}
+
+.active-filter-chip-remove {
+  border: none;
+  background: transparent;
+  color: var(--color-primary-darker);
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  line-height: 1;
+  padding: 0 var(--spacing-xs);
+  border-radius: var(--radius-sm);
+}
+
+.active-filter-chip-remove:hover {
+  color: var(--color-error);
+}
+
+.active-filter-chip-remove:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.compare-tray-max {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+/* 공유 버튼 (button-primary / button-ghost) */
+.button-primary {
+  background-color: var(--color-primary-darker);
+  color: var(--color-on-primary);
+  border: none;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md) var(--spacing-xl);
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+}
+
+.button-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.button-primary:focus-visible,
+.button-ghost:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.button-ghost {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  cursor: pointer;
+}
+
+.button-ghost:hover {
+  color: var(--color-text-primary);
+}
+
+/* ========================================
+   C2. 카테고리 섹션
+   ======================================== */
+.benchmark-section {
+  scroll-margin-top: 64px;
+  margin-top: var(--spacing-3xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.benchmark-section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.benchmark-section-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.benchmark-section-title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.benchmark-section-title-en {
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  color: var(--color-text-tertiary);
+}
+
+.benchmark-section-desc {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* C3. 벤치마크 type 배지 (status-badge 패턴) */
+.benchmark-type-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.benchmark-type-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-full);
+  padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+/* ========================================
+   C4. 막대그룹 리더보드 확장
+   ======================================== */
+.col-compare {
+  width: 64px;
+  text-align: right;
+}
+
+/* 선택된 행 강조: 막대 진하게 + 좌측 인디케이터(색 단독 금지 — 체크와 중복신호) */
+.leaderboard-row--picked {
+  box-shadow: inset 2px 0 0 0 var(--color-primary);
+}
+
+.bar-track--picked .bar-fill {
+  background-color: var(--color-text-secondary);
+}
+
+/* 출처 컬럼 2줄: source + snapshot */
+.source-name {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+
+.source-snapshot {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* C7. 비교 체크박스 (커스텀) */
+.compare-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--spacing-sm);
+  cursor: pointer;
+  justify-content: center;
+}
+
+.compare-checkbox input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.compare-checkbox-box {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: transparent;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.compare-checkbox input:checked + .compare-checkbox-box {
+  background-color: var(--color-primary-darker);
+  border-color: var(--color-primary-darker);
+  color: var(--color-on-primary);
+}
+
+.compare-checkbox input:focus-visible + .compare-checkbox-box {
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.compare-checkbox input:disabled + .compare-checkbox-box {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.compare-checkbox-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.leaderboard-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.leaderboard-card--picked {
+  box-shadow: inset 2px 0 0 0 var(--color-primary);
+}
+
+/* ========================================
+   C8/C9. 다축 비교 패널 + 뷰 토글
+   ======================================== */
+.multi-axis-panel {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  scroll-margin-top: 64px;
+}
+
+.multi-axis-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.multi-axis-title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.view-toggle {
+  display: inline-flex;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-background);
+  overflow: hidden;
+}
+
+.view-toggle-seg {
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  min-height: 40px;
+  cursor: pointer;
+}
+
+.view-toggle-seg + .view-toggle-seg {
+  border-left: 1px solid var(--color-border);
+}
+
+.view-toggle-seg.active {
+  background-color: var(--color-primary-darker);
+  color: var(--color-on-primary);
+}
+
+.view-toggle-seg.is-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.view-toggle-seg:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.view-toggle-caption,
+.multi-axis-note {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  margin: 0;
+}
+
+/* C10. 다축 막대그룹 */
+.comparison-bar-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.comparison-axis-title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-md);
+}
+
+.comparison-axis-unit {
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  color: var(--color-text-tertiary);
+  margin-left: var(--spacing-xs);
+}
+
+.comparison-axis-bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.comparison-axis-bar-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 88px;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.comparison-bar-label {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.comparison-bar-value {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* C11. 레이더 (순수 SVG) */
+.comparison-radar-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xl);
+  flex-wrap: wrap;
+}
+
+.comparison-radar {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  flex: 0 1 360px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .radar-polygon {
+    animation: radarFadeIn var(--transition-normal);
+  }
+}
+
+@keyframes radarFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.radar-ring,
+.radar-axis-line {
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.radar-polygon {
+  fill: var(--color-primary-surface);
+  stroke-width: 1.5;
+}
+
+/* 무채색 명도 단계로 도구 구분(채도 금지). 마커 글리프가 의미 전달 보조. */
+.radar-ink-0 {
+  stroke: var(--color-text-primary);
+  fill: var(--color-text-primary);
+}
+
+.radar-ink-1 {
+  stroke: var(--color-text-secondary);
+  fill: var(--color-text-secondary);
+}
+
+.radar-ink-2 {
+  stroke: var(--color-text-tertiary);
+  fill: var(--color-text-tertiary);
+}
+
+.radar-polygon.radar-ink-0,
+.radar-polygon.radar-ink-1,
+.radar-polygon.radar-ink-2 {
+  fill: var(--color-primary-surface);
+}
+
+.radar-vertex-marker {
+  font-size: 10px;
+}
+
+.radar-axis-label {
+  fill: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.radar-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  flex: 1 1 160px;
+}
+
+.radar-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.radar-legend-marker {
+  font-size: var(--font-size-base);
+  line-height: 1;
+}
+
+.radar-legend-label {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+}
+
+/* C12. 데이터 표 */
+.comparison-data-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.comparison-data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.comparison-data-table th,
+.comparison-data-table td {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-base);
+  text-align: left;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.comparison-data-table thead th {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.comparison-data-unit {
+  color: var(--color-text-tertiary);
+}
+
+.comparison-data-rowhead,
+.comparison-data-corner {
+  position: sticky;
+  left: 0;
+  background-color: var(--color-surface);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.comparison-data-empty {
+  color: var(--color-text-tertiary);
+}
+
+.comparison-data-table tbody tr:last-child th,
+.comparison-data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
 /* ---- 반응형: 테이블 → 카드 ---- */
 @media (max-width: 768px) {
   .leaderboard {
@@ -212,5 +832,47 @@ thead .col-score {
 
   .leaderboard-cards {
     display: flex;
+  }
+
+  .category-anchor-list {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .category-anchor-chip {
+    white-space: nowrap;
+  }
+
+  .benchmark-section {
+    margin-top: var(--spacing-2xl);
+  }
+
+  /* 비교 트레이: 하단 fixed + safe-area */
+  .compare-tray {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom));
+  }
+
+  .comparison-radar-wrap {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .comparison-radar {
+    max-width: 100%;
+    flex-basis: auto;
+  }
+
+  .comparison-axis-bar-row {
+    grid-template-columns: 96px 1fr 72px;
   }
 }

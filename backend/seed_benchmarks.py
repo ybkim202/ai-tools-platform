@@ -3,8 +3,10 @@
 목적
 ----
 benchmarks 라우터(`backend/app/routers/benchmarks.py`)가 조회하는
-`benchmarks(id, tool_id, benchmark_type, score, source, collected_date)` 테이블에
-검증 가능한 공개 표준 벤치마크 점수(`benchmarks_data.json`)를 적재한다.
+`benchmarks(id, tool_id, benchmark_type, score, source, category, model_version, unit,
+collected_date)` 테이블에 검증 가능한 공개 표준 벤치마크 점수(`benchmarks_data.json`)를
+적재한다. category(추론/코딩/수학/멀티모달/선호/종합)·model_version(어느 모델 점수인지)·
+unit(percent|elo)은 카테고리 섹션·다축 비교·스케일 표시의 근거다.
 
 데이터 정합성(헌법)
 -------------------
@@ -15,9 +17,10 @@ benchmarks 라우터(`backend/app/routers/benchmarks.py`)가 조회하는
 멱등성(재실행 안전)
 -------------------
 benchmarks 테이블에는 유니크 제약이 없으므로, 코드에서 적재 전
-(tool_id, benchmark_type, source) 조합 존재 여부를 SELECT 로 확인하고
-이미 있으면 skip 한다. 따라서 재실행 시 중복 행이 생기지 않고
-"신규 0 / 스킵 N" 으로 수렴한다. collected_date 는 적재 시각(NOW())으로 채운다.
+(tool_id, benchmark_type, source, model_version) 조합 존재 여부를 SELECT 로 확인하고
+이미 있으면 skip 한다(멱등 키에 model_version 포함 — 같은 벤치의 다른 모델 세대 점수는
+별개 행으로 공존). 따라서 재실행 시 중복 행이 생기지 않고 "신규 0 / 스킵 N" 으로 수렴한다.
+collected_date 는 적재 시각(NOW())으로 채운다.
 
 보안(헌법 G9)
 -------------
@@ -52,10 +55,16 @@ if not DATABASE_URL:
 
 SEED_FILE = "benchmarks_data.json"
 
-# 합리 범위 가드. 표준 LLM 벤치(MMLU/HumanEval/GPQA/MATH/MMMU/GSM8K 등)는
-# 모두 0~100(% 또는 정확도 척도)이라 보수적으로 이 범위를 강제한다.
-SCORE_MIN = 0.0
-SCORE_MAX = 100.0
+# 합리 범위 가드(unit 별). percent 벤치(GPQA/MMLU-Pro/SWE-bench/AIME/MATH-500/MMMU 등)는
+# 0~100, LMArena 등 elo 는 ~1000-1400 분포라 보수적으로 500~2000 을 허용한다.
+# unit 이 이 맵에 없으면 검증 단계에서 거부한다(허용 unit 화이트리스트 겸용).
+SCORE_RANGES = {
+    "percent": (0.0, 100.0),
+    "elo": (500.0, 2000.0),
+}
+
+# 허용 카테고리(벤치마크 페이지 섹션 키). 새 값 난립 방지(프론트 필터 동기화 하드룰).
+ALLOWED_CATEGORIES = {"추론", "코딩", "수학", "멀티모달", "선호", "종합"}
 
 
 def load_seed(filename: str = SEED_FILE) -> list:
@@ -101,22 +110,40 @@ def load_seed(filename: str = SEED_FILE) -> list:
             btype = b.get("benchmark_type")
             score = b.get("score")
             source = b.get("source")
+            category = b.get("category")
+            model_version = b.get("model_version")
+            unit = b.get("unit", "percent")
             if not isinstance(btype, str) or not btype.strip():
                 raise SystemExit(
                     f"❌ '{tool_name}' benchmarks[{j}] benchmark_type 누락/형식 오류."
+                )
+            # unit 검증(허용 화이트리스트 = SCORE_RANGES 키).
+            if unit not in SCORE_RANGES:
+                raise SystemExit(
+                    f"❌ '{tool_name}'/{btype} unit 이 허용값(percent/elo) 밖입니다: {unit!r}"
                 )
             # bool 은 int 의 서브클래스라 명시적으로 배제한다.
             if isinstance(score, bool) or not isinstance(score, Real):
                 raise SystemExit(
                     f"❌ '{tool_name}'/{btype} score 는 숫자여야 합니다: {score!r}"
                 )
-            if not (SCORE_MIN <= float(score) <= SCORE_MAX):
+            lo, hi = SCORE_RANGES[unit]
+            if not (lo <= float(score) <= hi):
                 raise SystemExit(
-                    f"❌ '{tool_name}'/{btype} score 가 합리 범위(0~100) 밖입니다: {score}"
+                    f"❌ '{tool_name}'/{btype} score 가 unit={unit} 합리 범위({lo}~{hi}) 밖입니다: {score}"
                 )
             if not isinstance(source, str) or not source.strip():
                 raise SystemExit(
                     f"❌ '{tool_name}'/{btype} source(출처) 가 필요합니다(공개 출처 표기)."
+                )
+            # category/model_version 은 카테고리 섹션·다축 비교의 필수 메타.
+            if not isinstance(category, str) or category not in ALLOWED_CATEGORIES:
+                raise SystemExit(
+                    f"❌ '{tool_name}'/{btype} category 가 허용값({sorted(ALLOWED_CATEGORIES)}) 이어야 합니다: {category!r}"
+                )
+            if not isinstance(model_version, str) or not model_version.strip():
+                raise SystemExit(
+                    f"❌ '{tool_name}'/{btype} model_version(어느 모델 점수인지) 이 필요합니다."
                 )
             total_rows += 1
 
@@ -126,13 +153,21 @@ def load_seed(filename: str = SEED_FILE) -> list:
     return data
 
 
-def _exists(cursor, tool_id: int, benchmark_type: str, source: str) -> bool:
-    """동일 (tool_id, benchmark_type, source) 행이 이미 존재하는지 확인한다(멱등성 근거)."""
+def _exists(
+    cursor, tool_id: int, benchmark_type: str, source: str, model_version: str
+) -> bool:
+    """동일 행이 이미 존재하는지 확인한다(멱등성 근거).
+
+    멱등 키에 model_version 을 포함한다 — 같은 도구·같은 벤치라도 다른 모델 버전 점수는
+    별개 행으로 공존 가능(예: 모델 세대 갱신 시 신규 행 추가). model_version 은 NOT NULL
+    검증을 거치므로 NULL 비교 함정 없음.
+    """
     cursor.execute(
         "SELECT 1 FROM benchmarks "
         "WHERE tool_id = %s AND benchmark_type = %s AND source = %s "
+        "AND model_version = %s "
         "LIMIT 1",
-        (tool_id, benchmark_type, source),
+        (tool_id, benchmark_type, source, model_version),
     )
     return cursor.fetchone() is not None
 
@@ -168,14 +203,18 @@ def seed_benchmarks(cursor, data: list) -> tuple:
             btype = b["benchmark_type"]
             source = b["source"]
             score = b["score"]
-            if _exists(cursor, tool_id, btype, source):
+            category = b["category"]
+            model_version = b["model_version"]
+            unit = b.get("unit", "percent")
+            if _exists(cursor, tool_id, btype, source, model_version):
                 skipped += 1
                 continue
             cursor.execute(
                 "INSERT INTO benchmarks "
-                "(tool_id, benchmark_type, score, source, collected_date) "
-                "VALUES (%s, %s, %s, %s, NOW())",
-                (tool_id, btype, score, source),
+                "(tool_id, benchmark_type, score, source, category, "
+                " model_version, unit, collected_date) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())",
+                (tool_id, btype, score, source, category, model_version, unit),
             )
             inserted += cursor.rowcount
 

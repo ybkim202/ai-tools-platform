@@ -84,6 +84,18 @@ CREATE TABLE IF NOT EXISTS benchmarks (
 CREATE INDEX IF NOT EXISTS idx_benchmarks_tool_id ON benchmarks(tool_id);
 CREATE INDEX IF NOT EXISTS idx_benchmarks_collected_date ON benchmarks(collected_date);
 
+-- 카테고리별 다양화 컬럼(nullable, 운영 중 DB 에도 ADD COLUMN IF NOT EXISTS 로 멱등 보강).
+-- news.title_ko 패턴과 동일 — 코드(seed/라우터)가 새 컬럼을 쓰기 전에 먼저 적용해야 한다.
+--   category      : 추론/코딩/수학/멀티모달/선호/종합 — 벤치마크 페이지 카테고리 섹션 그룹핑 키.
+--   model_version : 어느 모델 점수인지(예 "Claude Opus 4.5", "GPT-5.1"). source 에 묻힌 정보를 정형화.
+--   unit          : 'percent'(0~100) | 'elo'(LMArena ~1000-1400). score 스케일 구분 — 표시·정규화 근거.
+-- score 는 NUMERIC(12,4)라 Elo(정수)도 그대로 수용한다(별도 scale 컬럼 불필요).
+-- 기존 행은 unit DEFAULT 'percent' 로 자동 후방호환(기존 벤치는 전부 % 척도였음).
+ALTER TABLE benchmarks ADD COLUMN IF NOT EXISTS category      VARCHAR(50);
+ALTER TABLE benchmarks ADD COLUMN IF NOT EXISTS model_version VARCHAR(120);
+ALTER TABLE benchmarks ADD COLUMN IF NOT EXISTS unit          VARCHAR(20) NOT NULL DEFAULT 'percent';
+CREATE INDEX IF NOT EXISTS idx_benchmarks_category ON benchmarks(category);
+
 -- ==================== news (tools 1:N) ====================
 -- collected_date 는 news 라우터의 "최근 N일" 필터/정렬 핵심 컬럼.
 CREATE TABLE IF NOT EXISTS news (

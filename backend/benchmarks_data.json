@@ -2,70 +2,41 @@
   {
     "tool_name": "ChatGPT",
     "benchmarks": [
-      {"benchmark_type": "MMLU", "score": 86.4, "source": "OpenAI GPT-4 Technical Report (2023)"},
-      {"benchmark_type": "HumanEval", "score": 67.0, "source": "OpenAI GPT-4 Technical Report (2023)"},
-      {"benchmark_type": "GSM8K", "score": 92.0, "source": "OpenAI GPT-4 Technical Report (2023)"}
+      {"benchmark_type": "GPQA Diamond", "category": "추론", "model_version": "GPT-5.5", "unit": "percent", "score": 93.5, "source": "Artificial Analysis — GPQA Diamond leaderboard (gpt-5.5 xhigh, snapshot 2026-06)"},
+      {"benchmark_type": "LMArena Elo", "category": "선호", "model_version": "GPT-5.5", "unit": "elo", "score": 1482, "source": "LMArena Text leaderboard (gpt-5.5-high, snapshot 2026-06)"}
     ]
   },
   {
     "tool_name": "Claude",
     "benchmarks": [
-      {"benchmark_type": "MMLU", "score": 86.8, "source": "Anthropic Claude 3 Model Card (Claude 3 Opus, 2024)"},
-      {"benchmark_type": "HumanEval", "score": 84.9, "source": "Anthropic Claude 3 Model Card (Claude 3 Opus, 2024)"},
-      {"benchmark_type": "GSM8K", "score": 95.0, "source": "Anthropic Claude 3 Model Card (Claude 3 Opus, 2024)"},
-      {"benchmark_type": "GPQA", "score": 50.4, "source": "Anthropic Claude 3 Model Card (Claude 3 Opus, GPQA Diamond, 2024)"},
-      {"benchmark_type": "MATH", "score": 60.1, "source": "Anthropic Claude 3 Model Card (Claude 3 Opus, 2024)"}
+      {"benchmark_type": "GPQA Diamond", "category": "추론", "model_version": "Claude Opus 4.8", "unit": "percent", "score": 93.6, "source": "Anthropic Claude Opus 4.8 System Card (snapshot 2026-05)"},
+      {"benchmark_type": "SWE-bench Verified", "category": "코딩", "model_version": "Claude Opus 4.8", "unit": "percent", "score": 88.6, "source": "Anthropic Claude Opus 4.8 System Card (snapshot 2026-05)"}
     ]
   },
   {
     "tool_name": "Gemini",
     "benchmarks": [
-      {"benchmark_type": "MMLU", "score": 90.0, "source": "Google Gemini 1.0 Technical Report (Gemini Ultra, 2023)"},
-      {"benchmark_type": "HumanEval", "score": 74.4, "source": "Google Gemini 1.0 Technical Report (Gemini Ultra, 2023)"},
-      {"benchmark_type": "GSM8K", "score": 94.4, "source": "Google Gemini 1.0 Technical Report (Gemini Ultra, 2023)"},
-      {"benchmark_type": "MATH", "score": 53.2, "source": "Google Gemini 1.0 Technical Report (Gemini Ultra, 2023)"},
-      {"benchmark_type": "MMMU", "score": 59.4, "source": "Google Gemini 1.0 Technical Report (Gemini Ultra, 2023)"}
-    ]
-  },
-  {
-    "tool_name": "Microsoft Copilot",
-    "benchmarks": [
-      {"benchmark_type": "MMLU", "score": 86.4, "source": "OpenAI GPT-4 Technical Report (2023); Copilot is built on GPT-4"},
-      {"benchmark_type": "HumanEval", "score": 67.0, "source": "OpenAI GPT-4 Technical Report (2023); Copilot is built on GPT-4"}
-    ]
-  },
-  {
-    "tool_name": "Llama 2",
-    "benchmarks": [
-      {"benchmark_type": "MMLU", "score": 68.9, "source": "Meta Llama 2 Paper (Llama 2 70B, 2023)"},
-      {"benchmark_type": "HumanEval", "score": 29.9, "source": "Meta Llama 2 Paper (Llama 2 70B, 2023)"},
-      {"benchmark_type": "GSM8K", "score": 56.8, "source": "Meta Llama 2 Paper (Llama 2 70B, 2023)"}
+      {"benchmark_type": "GPQA Diamond", "category": "추론", "model_version": "Gemini 3 Pro", "unit": "percent", "score": 91.9, "source": "Google — Gemini 3 official blog (snapshot 2026-05)"},
+      {"benchmark_type": "MMLU-Pro", "category": "추론", "model_version": "Gemini 3 Pro", "unit": "percent", "score": 89.8, "source": "Artificial Analysis (Gemini 3 Pro Preview high, snapshot 2026-06)"},
+      {"benchmark_type": "SWE-bench Verified", "category": "코딩", "model_version": "Gemini 3 Pro", "unit": "percent", "score": 76.2, "source": "Google — Gemini 3 official blog (snapshot 2026)"},
+      {"benchmark_type": "AIME 2025", "category": "수학", "model_version": "Gemini 3 Pro", "unit": "percent", "score": 95.0, "source": "Google — Gemini 3 official blog (no tools, snapshot 2026)"},
+      {"benchmark_type": "MMMU", "category": "멀티모달", "model_version": "Gemini 3 Pro", "unit": "percent", "score": 81.0, "source": "Google — Gemini 3 official blog (MMMU-Pro, snapshot 2026)"},
+      {"benchmark_type": "LMArena Elo", "category": "선호", "model_version": "Gemini 3 Pro", "unit": "elo", "score": 1486, "source": "LMArena Text leaderboard (gemini-3-pro, snapshot 2026-06)"}
     ]
   },
   {
     "tool_name": "Mistral AI",
     "benchmarks": [
-      {"benchmark_type": "MMLU", "score": 70.6, "source": "Mistral AI Mixtral 8x7B announcement (2023)"},
-      {"benchmark_type": "HumanEval", "score": 40.2, "source": "Mistral AI Mixtral 8x7B announcement (2023)"},
-      {"benchmark_type": "GSM8K", "score": 58.4, "source": "Mistral AI Mixtral 8x7B announcement (2023)"}
+      {"benchmark_type": "SWE-bench Verified", "category": "코딩", "model_version": "Mistral Medium 3.5", "unit": "percent", "score": 77.6, "source": "Mistral official benchmarks / llm-stats cross-check (snapshot 2026-05)"},
+      {"benchmark_type": "LMArena Elo", "category": "선호", "model_version": "Mistral Large 3", "unit": "elo", "score": 1415, "source": "LMArena Text leaderboard (mistral-large-3, snapshot 2026-06)"}
     ]
   },
   {
-    "tool_name": "Falcon",
+    "tool_name": "Llama 2",
     "benchmarks": [
-      {"benchmark_type": "MMLU", "score": 57.0, "source": "TII Falcon 180B model card / Hugging Face Open LLM Leaderboard (2023)"}
-    ]
-  },
-  {
-    "tool_name": "Vicuna",
-    "benchmarks": [
-      {"benchmark_type": "MMLU", "score": 59.2, "source": "LMSYS Vicuna 33B report / Hugging Face Open LLM Leaderboard (2023)"}
-    ]
-  },
-  {
-    "tool_name": "Cohere",
-    "benchmarks": [
-      {"benchmark_type": "MMLU", "score": 75.7, "source": "Cohere Command R+ documentation (2024)"}
+      {"benchmark_type": "GPQA Diamond", "category": "추론", "model_version": "Llama 4 Maverick", "unit": "percent", "score": 69.8, "source": "Meta — Llama 4 official model card (Maverick, snapshot 2025-2026)"},
+      {"benchmark_type": "MMLU-Pro", "category": "추론", "model_version": "Llama 4 Maverick", "unit": "percent", "score": 80.5, "source": "Meta — Llama 4 official model card (Maverick, snapshot 2025-2026)"},
+      {"benchmark_type": "MMMU", "category": "멀티모달", "model_version": "Llama 4 Maverick", "unit": "percent", "score": 73.4, "source": "Meta — Llama 4 official model card (Maverick image reasoning, snapshot 2025-2026)"}
     ]
   }
 ]
