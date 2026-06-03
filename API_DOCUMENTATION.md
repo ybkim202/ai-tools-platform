@@ -163,7 +163,8 @@ API Key 유무와 무관하게, 모든 공개 라우터(`tools`/`recommendations
 | `max_price` | number | ❌ | 최대 가격 | `100` |
 | `min_users` | number | ❌ | 최소 사용자 수 | `1000000` |
 | `max_users` | number | ❌ | 최대 사용자 수 | `100000000` |
-| `sort_by` | string | ❌ | 정렬 (popularity/name/difficulty/price/recent) | `popularity` |
+| `open_source` | boolean | ❌ | 라이선스 필터: `true`=오픈소스, `false`=독점, 미지정=전체 (판정 기준: `github_repo` 보유 여부) | `true` |
+| `sort_by` | string | ❌ | 정렬 (popularity/name/difficulty/price/recent). `popularity`는 `user_count DESC NULLS LAST` | `popularity` |
 | `limit` | number | ❌ | 결과 수 (1-100, 기본: 20) | `10` |
 | `offset` | number | ❌ | 오프셋 (페이징) | `0` |
 
@@ -188,7 +189,8 @@ API Key 유무와 무관하게, 모든 공개 라우터(`tools`/`recommendations
       "created_at": "2026-05-24T00:00:00",
       "updated_at": "2026-05-24T00:00:00",
       "github_stars": null,
-      "hn_points": null
+      "hn_points": null,
+      "is_open_source": false
     }
   ],
   "pagination": {
@@ -202,8 +204,9 @@ API Key 유무와 무관하게, 모든 공개 라우터(`tools`/`recommendations
 
 **인기지표 필드(자동 갱신)**
 
-- `github_stars` (int|null): 오픈소스 도구의 GitHub stars. `github_repo`가 있는 도구만 일 1회 자동 갱신, 없으면 `null`.
-- `hn_points` (int|null): 자동 발견(Hacker News "Show HN") 도구의 points. 수동 등록 도구는 `null`.
+- `is_open_source` (boolean): 오픈소스 여부. `github_repo` 보유 시 `true`(오픈소스), 아니면 `false`(독점). 카드 라이선스 라벨·`open_source` 필터의 기준.
+- `github_stars` (int|null): 오픈소스 도구의 GitHub stars. `github_repo`가 있는 도구만 일 1회 자동 갱신, 없으면 `null`. (프론트 카드는 `is_open_source=true`일 때만 ⭐ 노출)
+- `hn_points` (int|null): 자동 발견(Hacker News "Show HN") 도구의 points. 수동 등록 도구는 `null`. (데이터는 보존하되 일반 사용자 카드에는 노출하지 않음)
 - 두 값은 **검증 가능한 공식 API**(GitHub Repo API · HN Algolia)로만 채워진다. `user_count`(출처 불명확)는 **자동 갱신하지 않는다**(수동 유지). 도구 상세(`GET /api/tools/{id}`)는 여기에 더해 `source`(`manual`|`auto_hn`|`auto_github`)를 반환한다.
 
 **예시**
@@ -287,6 +290,7 @@ curl "http://localhost:8000/api/tools/meta"
     "github_stars": null,
     "hn_points": null,
     "source": "manual",
+    "is_open_source": false,
     "tasks": ["콘텐츠작성", "코딩"],
     "professions": ["개발자", "마케터"],
     "benchmarks": [

@@ -67,14 +67,18 @@
       "created_at": "2024-05-01T10:00:00Z",
       "updated_at": "2024-05-20T10:00:00Z",
       "github_stars": null,
-      "hn_points": null
+      "hn_points": null,
+      "is_open_source": false
     },
     // ... 더 많은 도구들
   ],
+  // is_open_source: 오픈소스 여부(github_repo 보유 시 true, 아니면 독점 false).
+  //   필터 파라미터 open_source(true/false/미지정)로 거를 수 있다.
   // github_stars/hn_points: 자동 갱신 인기지표(검증 가능한 공식 API만).
-  //   github_stars = 오픈소스 도구의 GitHub stars(없으면 null).
-  //   hn_points    = Hacker News 자동 발견 도구의 points(없으면 null).
+  //   github_stars = 오픈소스 도구의 GitHub stars(없으면 null). 카드는 오픈소스만 ⭐ 노출.
+  //   hn_points    = Hacker News 자동 발견 도구의 points(없으면 null). 카드 미노출(데이터만 보존).
   //   user_count 는 자동 갱신하지 않는다(출처 불명확 — 수동 유지).
+  //   인기순(popularity) 정렬은 user_count DESC NULLS LAST(사용자수 없는 도구는 뒤로).
   "pagination": {
     "total": 127,
     "limit": 20,

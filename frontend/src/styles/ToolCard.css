@@ -140,6 +140,39 @@
   line-height: 1;
 }
 
+/* 라이선스 배지: difficulty-badge/status-badge와 동일한 pill 토큰(신규 색토큰 0건).
+   점 문자(◆/◇)는 색 외 2차 시각 채널 — 색맹·채도0에서도 구분. */
+.license-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* 오픈소스: 잉크 틴트 강조(category-badge 패턴 차용). */
+.license-open {
+  background-color: var(--color-primary-surface);
+  color: var(--color-primary-darker);
+  border: 1px solid var(--color-primary-border);
+}
+
+/* 독점: 중립 톤(status-badge 패턴 차용). */
+.license-proprietary {
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.license-dot {
+  font-size: var(--font-size-sm);
+  line-height: 1;
+  color: inherit;
+}
+
 .difficulty-badge {
   display: inline-flex;
   align-items: center;

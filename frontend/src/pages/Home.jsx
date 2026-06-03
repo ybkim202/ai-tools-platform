@@ -13,6 +13,14 @@ import '../styles/Home.css';
 const PAGE_SIZE = 21;
 // 검색 디바운스(ms): 입력 멈춤 후 호출. News 패턴과 동일.
 const SEARCH_DEBOUNCE_MS = 300;
+// 라이선스 필터 옵션(단일 출처, 모듈 스코프 — 렌더마다 재생성/effect deps 흔들림 방지).
+// 2값 도메인(오픈소스/독점)이라 정적 허용(하드코딩 카테고리와 무관). param은 getTools의
+// open_source 쿼리값(true/false/undefined).
+const LICENSE_OPTIONS = [
+  { key: 'all', label: '전체', param: undefined },
+  { key: 'open', label: '오픈소스', param: true },
+  { key: 'prop', label: '독점', param: false },
+];
 
 const Home = () => {
   const compareCount = useUIStore(
@@ -35,6 +43,9 @@ const Home = () => {
   );
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [selectedDifficulty, setSelectedDifficulty] = useState('전체');
+  // 라이선스 필터: 2값 도메인(오픈소스/독점)이라 정적 옵션 허용(하드코딩 카테고리와 무관).
+  // param: open_source 쿼리값(true/false/undefined). 기본 'all'(전체).
+  const [selectedLicense, setSelectedLicense] = useState('all');
   // 정렬은 서버 ORDER BY로 위임(sort_by 파라미터). sessionStorage로 영속화.
   // 초기값: 저장값 → 없으면 'popularity'. (theme/compare의 try/catch 가드 패턴 재사용)
   const [sortBy, setSortBy] = useState(() => {
@@ -57,7 +68,10 @@ const Home = () => {
   const [difficulties, setDifficulties] = useState(['전체']);
 
   const isFiltered =
-    search !== '' || selectedCategory !== '전체' || selectedDifficulty !== '전체';
+    search !== '' ||
+    selectedCategory !== '전체' ||
+    selectedDifficulty !== '전체' ||
+    selectedLicense !== 'all';
 
   // 난이도 필터가 활성이면 "난이도순" 정렬은 의미 없음 → 비활성 대상.
   const difficultySortDisabled = selectedDifficulty !== '전체';
@@ -120,6 +134,7 @@ const Home = () => {
     setSearch('');
     setSelectedCategory('전체');
     setSelectedDifficulty('전체');
+    setSelectedLicense('all');
     setCurrentPage(1);
   };
 
@@ -160,6 +175,17 @@ const Home = () => {
       },
     });
   }
+  if (selectedLicense !== 'all') {
+    activeFilters.push({
+      key: 'license',
+      label: '라이선스',
+      value: selectedLicense === 'open' ? '오픈소스' : '독점',
+      onRemove: () => {
+        setSelectedLicense('all');
+        setCurrentPage(1);
+      },
+    });
+  }
 
   const fetchTools = useCallback(async () => {
     setLoading(true);
@@ -169,6 +195,8 @@ const Home = () => {
         search: search || undefined,
         category: selectedCategory !== '전체' ? selectedCategory : undefined,
         difficulty: selectedDifficulty !== '전체' ? selectedDifficulty : undefined,
+        // 라이선스: true(오픈소스)/false(독점)/undefined(전체). undefined는 axios가 미전달.
+        open_source: LICENSE_OPTIONS.find((o) => o.key === selectedLicense).param,
         // 정렬은 서버 ORDER BY로 위임 — 클라 슬라이스/재정렬 없이 응답 순서를 그대로 렌더.
         sort_by: sortBy,
         // 페이지네이션: 서버 limit/offset로 위임(20개씩).
@@ -205,7 +233,7 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  }, [search, selectedCategory, selectedDifficulty, sortBy, currentPage]);
+  }, [search, selectedCategory, selectedDifficulty, selectedLicense, sortBy, currentPage]);
 
   useEffect(() => {
     fetchTools();
@@ -308,6 +336,26 @@ const Home = () => {
                     }}
                   >
                     {diff}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* License Filter — 빈도 낮은 보조 필터이므로 필터 영역 끝에 배치. */}
+            <div className="filter-group">
+              <label className="filter-label">라이선스</label>
+              <div className="filter-buttons">
+                {LICENSE_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.key}
+                    className={`filter-btn ${selectedLicense === opt.key ? 'active' : ''}`}
+                    aria-pressed={selectedLicense === opt.key}
+                    onClick={() => {
+                      setSelectedLicense(opt.key);
+                      setCurrentPage(1);
+                    }}
+                  >
+                    {opt.label}
                   </button>
                 ))}
               </div>
