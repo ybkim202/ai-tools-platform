@@ -234,10 +234,13 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
       "id": 1,
       "tool_id": 1,
       "tool_name": "ChatGPT",
-      "benchmark_type": "MMLU",
-      "score": 86.4,
-      "source": "공식벤치마크",
-      "collected_date": "2024-05-15T00:00:00Z"
+      "benchmark_type": "GPQA Diamond",
+      "score": 93.5,
+      "source": "Artificial Analysis (snapshot 2026-06)",
+      "collected_date": "2026-06-04T00:00:00Z",
+      "category": "추론",
+      "model_version": "GPT-5.5",
+      "unit": "percent"
     }
   ]
 }
@@ -245,6 +248,9 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
 
 > 페이징: `limit`(1~100, 기본 20), `offset`(기본 0)을 지원하며 응답에 `pagination`
 > 객체(`total`, `limit`, `offset`, `pages`)가 포함됩니다.
+>
+> **additive 필드**: `category`(추론/코딩/수학/멀티모달/선호/종합)·`model_version`·`unit`(`percent`|`elo`). `score`는 raw(정규화 전).
+> 신규 엔드포인트: `GET /benchmarks/categories`(카테고리 섹션 메타), `GET /benchmarks/matrix?category=…|tool_ids=1,2,3`(type×tool 최신 점수 1콜, 다축 비교용).
 
 ---
 

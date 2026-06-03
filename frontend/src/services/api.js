@@ -154,9 +154,23 @@ export const benchmarksAPI = {
     return apiClient.get(`/benchmarks/summary/${toolId}`);
   },
 
-  // 벤치마크 종류
+  // 벤치마크 종류. 응답에 category·unit 포함(프론트가 type→category 매핑을 DB 기준으로).
   getBenchmarkTypes: () => {
     return apiClient.get('/benchmarks/types');
+  },
+
+  // 카테고리 메타(섹션 구동). -> { success, data: [{category, unit, type_count, row_count}] }
+  getBenchmarkCategories: () => {
+    return apiClient.get('/benchmarks/categories');
+  },
+
+  // 다축 비교 매트릭스(카테고리 또는 지정 도구들의 type×tool 최신 점수, 1콜).
+  // params: { category?: string, tool_ids?: '1,2,3' }
+  //   -> { success, data: { category, types:[{type,unit}],
+  //        tools:[{tool_id,tool_name,scores:{type:{score,unit,model_version,source}}}] } }
+  //   score는 항상 raw(정규화 전). 표시용 정규화는 프론트 책임.
+  getBenchmarkMatrix: (params = {}) => {
+    return apiClient.get('/benchmarks/matrix', { params });
   },
 };
 

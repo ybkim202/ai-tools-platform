@@ -578,7 +578,7 @@ curl "http://localhost:8000/api/news/trending"
 | 파라미터 | 타입 | 필수 | 설명 |
 |---------|------|------|------|
 | `tool_id` | number | ❌ | 특정 도구만 |
-| `benchmark_type` | string | ❌ | 벤치마크 종류 (MMLU, HumanEval, GSM8K, GPQA, MATH, MMMU). 전체 목록은 `GET /api/benchmarks/types` |
+| `benchmark_type` | string | ❌ | 벤치마크 종류 (GPQA Diamond, MMLU-Pro, SWE-bench Verified, AIME 2025, MMMU, LMArena Elo 등). 전체 목록은 `GET /api/benchmarks/types` |
 | `sort_by` | string | ❌ | 정렬 (score_desc/score_asc/recent) |
 | `limit` | number | ❌ | 결과 수 (기본: 20) |
 | `offset` | number | ❌ | 오프셋 |
@@ -593,10 +593,13 @@ curl "http://localhost:8000/api/news/trending"
       "id": 1,
       "tool_id": 4,
       "tool_name": "ChatGPT",
-      "benchmark_type": "MMLU",
-      "score": 86.4,
-      "source": "공식벤치마크",
-      "collected_date": "2026-05-15T00:00:00"
+      "benchmark_type": "GPQA Diamond",
+      "score": 93.5,
+      "source": "Artificial Analysis — GPQA Diamond (snapshot 2026-06)",
+      "collected_date": "2026-06-04T00:00:00",
+      "category": "추론",
+      "model_version": "GPT-5.5",
+      "unit": "percent"
     }
   ],
   "pagination": {
@@ -608,9 +611,11 @@ curl "http://localhost:8000/api/news/trending"
 }
 ```
 
+**필드 (additive)**: `category`(추론/코딩/수학/멀티모달/선호/종합), `model_version`(어느 모델 점수인지), `unit`(`percent`|`elo`). `score`는 항상 raw(정규화 전). `unit='elo'`(LMArena)는 0~100 percent와 스케일이 다르다.
+
 ### **GET /api/benchmarks/summary/{tool_id}**
 
-도구별 벤치마크 요약
+도구별 벤치마크 요약 (종류별 최신 1행)
 
 **응답 (200 OK)**
 
@@ -621,20 +626,23 @@ curl "http://localhost:8000/api/news/trending"
     "tool_id": 4,
     "tool_name": "ChatGPT",
     "benchmarks": {
-      "MMLU": {
-        "score": 86.4,
-        "source": "공식벤치마크",
-        "collected_date": "2026-05-15T00:00:00"
+      "GPQA Diamond": {
+        "score": 93.5,
+        "source": "Artificial Analysis — GPQA Diamond (snapshot 2026-06)",
+        "collected_date": "2026-06-04T00:00:00",
+        "category": "추론",
+        "model_version": "GPT-5.5",
+        "unit": "percent"
       }
     },
-    "average_score": 86.4
+    "average_score": 93.5
   }
 }
 ```
 
 ### **GET /api/benchmarks/types**
 
-사용 가능한 벤치마크 종류 목록
+사용 가능한 벤치마크 종류 목록 (category·unit 포함 — 프론트가 type→category 매핑을 DB 기준으로)
 
 **응답 (200 OK)**
 
@@ -642,17 +650,52 @@ curl "http://localhost:8000/api/news/trending"
 {
   "success": true,
   "data": [
-    {
-      "type": "GSM8K",
-      "count": 5
-    },
-    {
-      "type": "MMLU",
-      "count": 3
-    }
+    { "type": "GPQA Diamond", "category": "추론", "unit": "percent", "count": 4 },
+    { "type": "LMArena Elo", "category": "선호", "unit": "elo", "count": 3 }
   ]
 }
 ```
+
+### **GET /api/benchmarks/categories**
+
+카테고리별 메타 (벤치마크 페이지 섹션 구동)
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "data": [
+    { "category": "추론", "unit": "percent", "type_count": 2, "row_count": 6 },
+    { "category": "선호", "unit": "elo", "type_count": 1, "row_count": 3 }
+  ]
+}
+```
+
+### **GET /api/benchmarks/matrix**
+
+다축 비교 매트릭스 — 카테고리(또는 지정 도구들)의 type×tool 최신 점수를 1콜로
+
+**파라미터**: `category`(예: `추론`) 또는 `tool_ids`(쉼표구분, 예: `1,2,3`). 둘 다 미지정이면 전체.
+
+**응답 (200 OK)**
+
+```json
+{
+  "success": true,
+  "data": {
+    "category": "추론",
+    "types": [ {"type": "GPQA Diamond", "unit": "percent"}, {"type": "MMLU-Pro", "unit": "percent"} ],
+    "tools": [
+      {
+        "tool_id": 4, "tool_name": "ChatGPT",
+        "scores": { "GPQA Diamond": {"score": 93.5, "unit": "percent", "model_version": "GPT-5.5", "source": "..."} }
+      }
+    ]
+  }
+}
+```
+`score`는 항상 raw(정규화 전). 카테고리 섹션·레이더/막대그룹 표시용 정규화는 프론트가 카테고리(축) 내 min-max로 수행한다.
 
 **예시**
 
@@ -663,8 +706,10 @@ curl "http://localhost:8000/api/benchmarks/types"
 # 특정 도구 요약
 curl "http://localhost:8000/api/benchmarks/summary/4"
 
-# MMLU 벤치마크 정렬
-curl "http://localhost:8000/api/benchmarks?benchmark_type=MMLU&sort_by=score_desc"
+# 카테고리 섹션 메타 / 다축 매트릭스
+curl "http://localhost:8000/api/benchmarks/categories"
+curl "http://localhost:8000/api/benchmarks/matrix?category=추론"
+curl "http://localhost:8000/api/benchmarks/matrix?tool_ids=1,2,3"
 ```
 
 ---
