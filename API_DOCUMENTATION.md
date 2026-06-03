@@ -186,7 +186,9 @@ API Key 유무와 무관하게, 모든 공개 라우터(`tools`/`recommendations
       "user_count_source": "공식발표",
       "user_count_date": "2026-05-24T00:00:00",
       "created_at": "2026-05-24T00:00:00",
-      "updated_at": "2026-05-24T00:00:00"
+      "updated_at": "2026-05-24T00:00:00",
+      "github_stars": null,
+      "hn_points": null
     }
   ],
   "pagination": {
@@ -197,6 +199,12 @@ API Key 유무와 무관하게, 모든 공개 라우터(`tools`/`recommendations
   }
 }
 ```
+
+**인기지표 필드(자동 갱신)**
+
+- `github_stars` (int|null): 오픈소스 도구의 GitHub stars. `github_repo`가 있는 도구만 일 1회 자동 갱신, 없으면 `null`.
+- `hn_points` (int|null): 자동 발견(Hacker News "Show HN") 도구의 points. 수동 등록 도구는 `null`.
+- 두 값은 **검증 가능한 공식 API**(GitHub Repo API · HN Algolia)로만 채워진다. `user_count`(출처 불명확)는 **자동 갱신하지 않는다**(수동 유지). 도구 상세(`GET /api/tools/{id}`)는 여기에 더해 `source`(`manual`|`auto_hn`|`auto_github`)를 반환한다.
 
 **예시**
 
@@ -276,6 +284,9 @@ curl "http://localhost:8000/api/tools/meta"
     "category": "생성형AI",
     "country": "미국",
     "user_count": 100000000,
+    "github_stars": null,
+    "hn_points": null,
+    "source": "manual",
     "tasks": ["콘텐츠작성", "코딩"],
     "professions": ["개발자", "마케터"],
     "benchmarks": [

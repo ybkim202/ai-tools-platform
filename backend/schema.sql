@@ -33,6 +33,31 @@ CREATE TABLE IF NOT EXISTS tools (
     updated_at        TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 자동 갱신/발견 컬럼(nullable). 운영 중 DB 에도 ADD COLUMN IF NOT EXISTS 로 멱등 보강한다
+-- (init_db.py 가 schema.sql 을 재실행하면 기존 DB 에도 컬럼이 생긴다. Postgres 9.6+).
+-- news 의 title_ko 패턴과 동일 — 코드가 새 컬럼을 쓰기 전에 이 마이그레이션을 먼저 적용해야 한다.
+--
+-- 인기지표는 소스 중립적으로 분리 저장한다(GitHub stars 와 HN points 는 스케일이 달라
+-- 단일 컬럼으로 합치면 정렬이 왜곡되므로 합치지 않는다). 자동 갱신은 "검증 가능한 공식
+-- 소스"만 대상으로 하며, user_count(출처 불명확)는 절대 자동 덮어쓰지 않는다(수동 유지).
+--   github_repo       : "owner/repo"(오픈소스 도구만, SaaS 는 NULL). stars 갱신 키.
+--   github_stars      : GitHub Repo API stargazers_count 스냅샷.
+--   hn_object_id      : Hacker News story ID(자동 발견 도구의 멱등키 겸 points 재갱신 키).
+--   hn_points         : Hacker News points 스냅샷(자동 발견 도구의 인기지표).
+--   metrics_synced_at : 인기지표 마지막 동기화 시각.
+--   source            : 출처 추적. 'manual'(기존 78개·수동) | 'auto_hn' | 'auto_github'.
+--                       게이트가 아니라 추적/롤백용(자동 공개 정책) — 기본값 'manual'.
+ALTER TABLE tools ADD COLUMN IF NOT EXISTS github_repo       VARCHAR(255);
+ALTER TABLE tools ADD COLUMN IF NOT EXISTS github_stars      INTEGER;
+ALTER TABLE tools ADD COLUMN IF NOT EXISTS hn_object_id      VARCHAR(20);
+ALTER TABLE tools ADD COLUMN IF NOT EXISTS hn_points         INTEGER;
+ALTER TABLE tools ADD COLUMN IF NOT EXISTS metrics_synced_at TIMESTAMP;
+ALTER TABLE tools ADD COLUMN IF NOT EXISTS source            VARCHAR(30) NOT NULL DEFAULT 'manual';
+
+-- 자동 발견 도구 멱등키: 같은 HN story 는 1행만(부분 인덱스, hn_object_id 있는 행만).
+CREATE UNIQUE INDEX IF NOT EXISTS idx_tools_hn_object_id ON tools(hn_object_id)
+    WHERE hn_object_id IS NOT NULL;
+
 -- ==================== pricing (tools 1:N) ====================
 -- billing_period 는 load_tools_fixed.validate_billing_period() 가 보장하는 4값만 허용.
 CREATE TABLE IF NOT EXISTS pricing (

@@ -127,6 +127,19 @@
   font-weight: 600;
 }
 
+/* 인기지표 값: 아이콘 + 숫자 인라인 정렬(토큰만 사용, 신규 색토큰 없음). */
+.popularity-value {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.popularity-icon {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1;
+}
+
 .difficulty-badge {
   display: inline-flex;
   align-items: center;

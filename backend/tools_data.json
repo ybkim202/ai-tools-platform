@@ -119,6 +119,7 @@
   },
   {
     "name": "Stable Diffusion",
+    "github_repo": "Stability-AI/generative-models",
     "logo_url": "https://huggingface.co/front/assets/huggingface_logo-noborder.svg",
     "official_url": "https://huggingface.co/spaces/stabilityai/stable-diffusion-webui",
     "description": "오픈소스 이미지 생성 모델. 로컬에서 실행 가능하고 커스터마이징 가능",
@@ -596,6 +597,7 @@
   },
   {
     "name": "LangChain",
+    "github_repo": "langchain-ai/langchain",
     "logo_url": "https://langchain.com/favicon.ico",
     "official_url": "https://langchain.com",
     "description": "LLM 앱 개발 프레임워크. 여러 AI 모델을 체인으로 연결",
@@ -638,6 +640,7 @@
   },
   {
     "name": "GPT4All",
+    "github_repo": "nomic-ai/gpt4all",
     "logo_url": "https://www.nomic.ai/favicon.ico",
     "official_url": "https://gpt4all.io",
     "description": "로컬에서 실행 가능한 오픈소스 LLM. 인터넷 연결 불필요",
@@ -680,6 +683,7 @@
   },
   {
     "name": "Alpaca",
+    "github_repo": "tatsu-lab/stanford_alpaca",
     "logo_url": "https://www.stanford.edu/favicon.ico",
     "official_url": "https://github.com/tatsu-lab/alpaca",
     "description": "Stanford의 오픈소스 채팅 모델. 경량이고 효율적",
@@ -778,6 +782,7 @@
   },
   {
     "name": "Gradio",
+    "github_repo": "gradio-app/gradio",
     "logo_url": "https://www.gradio.app/favicon.ico",
     "official_url": "https://www.gradio.app",
     "description": "ML 모델 웹 인터페이스 생성 라이브러리. 빠르게 데모 만들기",
@@ -792,6 +797,7 @@
   },
   {
     "name": "Streamlit",
+    "github_repo": "streamlit/streamlit",
     "logo_url": "https://streamlit.io/favicon.ico",
     "official_url": "https://streamlit.io",
     "description": "ML 앱 개발 프레임워크. Python으로 빠르게 웹앱 만들기",
@@ -806,6 +812,7 @@
   },
   {
     "name": "TensorFlow",
+    "github_repo": "tensorflow/tensorflow",
     "logo_url": "https://www.tensorflow.org/favicon.ico",
     "official_url": "https://www.tensorflow.org",
     "description": "Google의 오픈소스 머신러닝 프레임워크. 신경망 훈련",
@@ -820,6 +827,7 @@
   },
   {
     "name": "PyTorch",
+    "github_repo": "pytorch/pytorch",
     "logo_url": "https://pytorch.org/favicon.ico",
     "official_url": "https://pytorch.org",
     "description": "Meta의 오픈소스 머신러닝 프레임워크. 유연한 신경망 개발",
@@ -834,6 +842,7 @@
   },
   {
     "name": "Keras",
+    "github_repo": "keras-team/keras",
     "logo_url": "https://keras.io/favicon.ico",
     "official_url": "https://keras.io",
     "description": "고수준 신경망 API. TensorFlow와 통합",
@@ -848,6 +857,7 @@
   },
   {
     "name": "Scikit-learn",
+    "github_repo": "scikit-learn/scikit-learn",
     "logo_url": "https://scikit-learn.org/stable/_static/favicon.ico",
     "official_url": "https://scikit-learn.org",
     "description": "머신러닝 라이브러리. 분류, 회귀, 클러스터링",
@@ -862,6 +872,7 @@
   },
   {
     "name": "XGBoost",
+    "github_repo": "dmlc/xgboost",
     "logo_url": "https://xgboost.readthedocs.io/en/stable/_static/favicon.ico",
     "official_url": "https://xgboost.readthedocs.io",
     "description": "그래디언트 부스팅 라이브러리. 고성능 머신러닝",
@@ -876,6 +887,7 @@
   },
   {
     "name": "LightGBM",
+    "github_repo": "microsoft/LightGBM",
     "logo_url": "https://lightgbm.readthedocs.io/en/latest/_static/favicon.ico",
     "official_url": "https://lightgbm.readthedocs.io",
     "description": "경량 그래디언트 부스팅. 빠르고 효율적",
@@ -890,6 +902,7 @@
   },
   {
     "name": "Pandas",
+    "github_repo": "pandas-dev/pandas",
     "logo_url": "https://pandas.pydata.org/static/favicon.ico",
     "official_url": "https://pandas.pydata.org",
     "description": "데이터 분석 라이브러리. 데이터 처리 및 분석",
@@ -904,6 +917,7 @@
   },
   {
     "name": "NumPy",
+    "github_repo": "numpy/numpy",
     "logo_url": "https://numpy.org/favicon.ico",
     "official_url": "https://numpy.org",
     "description": "수치 계산 라이브러리. 과학 컴퓨팅의 기초",
@@ -918,6 +932,7 @@
   },
   {
     "name": "Matplotlib",
+    "github_repo": "matplotlib/matplotlib",
     "logo_url": "https://matplotlib.org/stable/_static/favicon.ico",
     "official_url": "https://matplotlib.org",
     "description": "데이터 시각화 라이브러리. 그래프 및 차트 생성",
@@ -932,6 +947,7 @@
   },
   {
     "name": "Jupyter",
+    "github_repo": "jupyter/notebook",
     "logo_url": "https://jupyter.org/favicon.ico",
     "official_url": "https://jupyter.org",
     "description": "인터랙티브 노트북. 데이터 분석 및 시각화",
@@ -946,6 +962,7 @@
   },
   {
     "name": "JupyterLab",
+    "github_repo": "jupyterlab/jupyterlab",
     "logo_url": "https://jupyter.org/favicon.ico",
     "official_url": "https://jupyterlab.readthedocs.io",
     "description": "Jupyter의 차세대 IDE. 향상된 개발 환경",
@@ -960,6 +977,7 @@
   },
   {
     "name": "MONAI",
+    "github_repo": "Project-MONAI/MONAI",
     "logo_url": "https://monai.io/favicon.ico",
     "official_url": "https://monai.io",
     "description": "의료 이미지 AI 프레임워크. 의료 영상 처리",
@@ -974,6 +992,7 @@
   },
   {
     "name": "MediaPipe",
+    "github_repo": "google-ai-edge/mediapipe",
     "logo_url": "https://mediapipe.dev/favicon.ico",
     "official_url": "https://mediapipe.dev",
     "description": "Google의 멀티미디어 처리 프레임워크. 포즈, 손 인식 등",
@@ -988,6 +1007,7 @@
   },
   {
     "name": "OpenCV",
+    "github_repo": "opencv/opencv",
     "logo_url": "https://opencv.org/favicon.ico",
     "official_url": "https://opencv.org",
     "description": "컴퓨터 비전 라이브러리. 이미지 처리 및 분석",
@@ -1002,6 +1022,7 @@
   },
   {
     "name": "Transformers (Hugging Face)",
+    "github_repo": "huggingface/transformers",
     "logo_url": "https://huggingface.co/front/assets/huggingface_logo-noborder.svg",
     "official_url": "https://huggingface.co/transformers",
     "description": "트랜스포머 모델 라이브러리. NLP 및 비전 모델",
@@ -1016,6 +1037,7 @@
   },
   {
     "name": "spaCy",
+    "github_repo": "explosion/spaCy",
     "logo_url": "https://spacy.io/favicon.ico",
     "official_url": "https://spacy.io",
     "description": "NLP 라이브러리. 자연어 처리 및 텍스트 분석",
@@ -1030,6 +1052,7 @@
   },
   {
     "name": "NLTK",
+    "github_repo": "nltk/nltk",
     "logo_url": "https://www.nltk.org/favicon.ico",
     "official_url": "https://www.nltk.org",
     "description": "자연어 도구 키트. NLP 연구 및 교육용",
@@ -1044,6 +1067,7 @@
   },
   {
     "name": "FastText",
+    "github_repo": "facebookresearch/fastText",
     "logo_url": "https://fasttext.cc/favicon.ico",
     "official_url": "https://fasttext.cc",
     "description": "Facebook의 텍스트 분류 라이브러리. 빠르고 효율적",
@@ -1058,6 +1082,7 @@
   },
   {
     "name": "Rasa",
+    "github_repo": "RasaHQ/rasa",
     "logo_url": "https://rasa.com/favicon.ico",
     "official_url": "https://rasa.com",
     "description": "챗봇 및 대화형 AI 프레임워크. 오픈소스 및 엔터프라이즈",
@@ -1072,6 +1097,7 @@
   },
   {
     "name": "Ray",
+    "github_repo": "ray-project/ray",
     "logo_url": "https://ray.io/favicon.ico",
     "official_url": "https://ray.io",
     "description": "분산 처리 프레임워크. 머신러닝 병렬 처리",
@@ -1086,6 +1112,7 @@
   },
   {
     "name": "Dask",
+    "github_repo": "dask/dask",
     "logo_url": "https://dask.org/favicon.ico",
     "official_url": "https://dask.org",
     "description": "병렬 컴퓨팅 라이브러리. 대용량 데이터 처리",
@@ -1100,6 +1127,7 @@
   },
   {
     "name": "Celery",
+    "github_repo": "celery/celery",
     "logo_url": "https://docs.celeryproject.org/en/stable/_static/favicon.ico",
     "official_url": "https://docs.celeryproject.org",
     "description": "분산 작업 큐. 비동기 작업 처리",

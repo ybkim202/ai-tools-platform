@@ -79,6 +79,14 @@ def main(argv=None) -> int:
         ),
     )
     parser.add_argument(
+        "--discover-tools",
+        action="store_true",
+        help=(
+            "Hacker News 'Show HN' 에서 신규 AI 도구를 발견해 tools 에 자동 추가한다"
+            "(키 불필요, 멱등). 일일 수집과 분리된 주 1회 잡 — 일일 collect 에는 미포함."
+        ),
+    )
+    parser.add_argument(
         "--limit",
         type=int,
         default=50,
@@ -106,6 +114,19 @@ def main(argv=None) -> int:
         logger.info("=== 트렌드 번역 백필 시작 (limit=%d) ===", args.limit)
         n = backfill_trends_translations(limit=args.limit)
         logger.info("=== 트렌드 번역 백필 완료: %d 건 ===", n)
+        return 0
+
+    if args.discover_tools:
+        from collectors import discover_tools
+        from collectors.base import get_connection
+
+        logger.info("=== 신규 도구 발견 시작 (Hacker News) ===")
+        conn = get_connection()
+        try:
+            n = discover_tools(conn)
+        finally:
+            conn.close()
+        logger.info("=== 신규 도구 발견 완료: 신규 %d 건 ===", n)
         return 0
 
     from collectors import collect_all

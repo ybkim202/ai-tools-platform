@@ -21,10 +21,12 @@ from .base import ACTIVE_COLLECTORS, backfill_translations, collect_all
 from .github_trending import (
     backfill_translations as backfill_trends_translations,
 )
+from .tools_discover import collect as discover_tools
 
 __all__ = [
     "ACTIVE_COLLECTORS",
     "backfill_translations",
     "backfill_trends_translations",
     "collect_all",
+    "discover_tools",
 ]

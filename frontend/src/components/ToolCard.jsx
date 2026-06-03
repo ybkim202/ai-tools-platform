@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useUIStore } from '../stores/toolStore';
-import { formatUserCount } from '../utils/format';
+import { formatUserCount, formatMetric } from '../utils/format';
 import { safeHttpUrl } from '../utils/url';
 import { handleLogoError, resolveLogoSrc } from '../utils/logoFallback';
 import { difficultyDot } from '../utils/difficulty';
@@ -54,6 +54,37 @@ const ToolCard = ({ tool, reasonTags }) => {
 
           {/* 메타 정보 */}
           <div className="meta-info">
+            {/* 인기지표: GitHub stars(오픈소스) 우선, 없으면 HN points(자동 발견).
+                둘 다 없으면 미표시. 라벨 텍스트+아이콘+숫자로 의미를 전달한다
+                (색만으로 의미 전달 금지). */}
+            {(() => {
+              const stars = formatMetric(tool.github_stars);
+              if (stars) {
+                return (
+                  <div className="meta-item">
+                    <span className="meta-label">GitHub</span>
+                    <span className="meta-value popularity-value">
+                      <span className="popularity-icon" aria-hidden="true">★</span>
+                      {stars}
+                    </span>
+                  </div>
+                );
+              }
+              const hn = formatMetric(tool.hn_points);
+              if (hn) {
+                return (
+                  <div className="meta-item">
+                    <span className="meta-label">HN</span>
+                    <span className="meta-value popularity-value">
+                      <span className="popularity-icon" aria-hidden="true">▲</span>
+                      {hn}
+                    </span>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+
             {formatUserCount(tool.user_count) && (
               <div className="meta-item">
                 <span className="meta-label">사용자</span>
