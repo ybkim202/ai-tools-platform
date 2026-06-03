@@ -108,7 +108,7 @@ open http://localhost:8000/docs                   # Swagger UI
 | `GET /api/recommendations` | 업무(`task`)/직군(`profession`) 추천 |
 | `GET /api/compare?ids=` | 도구 비교 (2~5개) |
 | `GET /api/news`, `/api/news/trending` | 뉴스 (0행 시작 — 수집 전엔 빈 결과) |
-| `GET /api/benchmarks`, `/summary/{id}`, `/types` | 벤치마크 (24행 적재) |
+| `GET /api/benchmarks`, `/summary/{id}`, `/types`, `/categories`, `/matrix` | 벤치마크 (카테고리별 정본 셋 적재 · 다축 비교) |
 | `GET /api/trends/github` | 깃헙 트렌드 (0행 시작 — 수집 전엔 빈 결과) |
 | `POST /api/events` | 클릭 전환 이벤트 수집 (About CTA, 1st-party·IP/UA 미수집·rate limit) |
 

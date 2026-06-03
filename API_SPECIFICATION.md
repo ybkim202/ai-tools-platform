@@ -219,7 +219,7 @@ curl "http://localhost:8000/api/tools?category=생성형AI&sort_by=popularity&li
 | 파라미터 | 타입 | 필수 | 설명 |
 |---------|------|------|------|
 | `tool_id` | number | ❌ | 특정 도구의 벤치마크만 |
-| `benchmark_type` | string | ❌ | 벤치마크 종류 (MMLU, HumanEval, GSM8K, GPQA, MATH, MMMU). 전체 목록은 `GET /benchmarks/types` |
+| `benchmark_type` | string | ❌ | 벤치마크 종류 (GPQA Diamond, MMLU-Pro, SWE-bench Verified, AIME 2025, MMMU, LMArena Elo 등). 전체 목록은 `GET /benchmarks/types` |
 | `sort_by` | string | ❌ | 정렬 기준 (`score_desc`, `score_asc`, `recent`) |
 | `limit` | number | ❌ | 최대 결과 수 (1~100, 기본 20) |
 | `offset` | number | ❌ | 오프셋 (기본 0) |

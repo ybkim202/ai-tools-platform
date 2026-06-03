@@ -1,6 +1,7 @@
 [
   {
     "name": "ChatGPT",
+    "representative_model": "OpenAI",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg",
     "official_url": "https://openai.com/chatgpt",
     "description": "OpenAI의 대화형 AI 모델. 자연스러운 텍스트 생성, 질문 답변, 코딩 등 다양한 작업 가능",
@@ -16,6 +17,7 @@
   },
   {
     "name": "Claude",
+    "representative_model": "Anthropic",
     "logo_url": "https://www.anthropic.com/images/claude-logo.png",
     "official_url": "https://claude.ai",
     "description": "Anthropic의 AI 어시스턴트. 깊이 있는 분석, 창의적 작업, 프로그래밍에 강점",
@@ -89,6 +91,7 @@
   },
   {
     "name": "Gemini",
+    "representative_model": "Google",
     "logo_url": "https://www.gstatic.com/images/branding/product/1x/gemini_512dp.png",
     "official_url": "https://gemini.google.com",
     "description": "Google의 멀티모달 AI 모델. 텍스트, 이미지, 비디오 등 다양한 입력 처리",

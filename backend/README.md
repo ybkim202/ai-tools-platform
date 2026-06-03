@@ -83,6 +83,16 @@ IF NOT EXISTS events ...` 가 멱등 적용된다(데이터 적재 불필요 —
   화이트리스트로 정규화돼 프론트 필터를 오염시키지 않는다.
 - 롤백: 자동 발견 도구는 `DELETE FROM tools WHERE source='auto_hn'` 로 일괄 제거 가능.
 
+#### 벤치마크 LMArena Elo 자동수집(Phase B)도 동일
+
+`schema.sql` 은 `tools` 에 `representative_model`(LMArena vendor 식별자) 컬럼을, `benchmarks`
+에 `category/model_version/unit` 컬럼을 `ADD COLUMN IF NOT EXISTS` 로 멱등 추가한다. **수집기
+(`collectors/benchmarks_lmarena.py`)·seed·라우터가 이 컬럼을 읽기 전에 `init_db.py` 선적용**.
+- `collectors/benchmarks_lmarena.py`(일일 `collect.py` 에 등록됨, 키 불필요): arena-ai-leaderboards
+  공개 미러의 Text arena 를 가져와, `representative_model`(vendor)에 해당하는 vendor 최고 Elo
+  모델을 그 도구의 'LMArena Elo'(category='선호', unit='elo')로 멱등 갱신(도구당 1행 교체).
+- `representative_model` 이 NULL 인 도구는 자동수집 skip(수동 점수만 유지).
+
 ## 새 DB 로 교체(노출된 옛 DB 폐기) 절차
 
 1. Render → **New + → PostgreSQL** 로 새 DB 생성(같은 region/버전).

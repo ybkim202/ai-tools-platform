@@ -149,6 +149,7 @@ thead .col-score {
   height: 8px;
   background-color: var(--color-text-tertiary);
   border-radius: var(--radius-full);
+  transform-origin: left center;
 }
 
 /* ---- 모바일 카드 (기본 숨김) ---- */
@@ -390,6 +391,42 @@ thead .col-score {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
+}
+
+/* 진입 모션: 섹션은 fadeInUp(stagger delay는 JSX index 인라인), 막대는 좌측 채움.
+   width는 인라인(barPctInSection)으로 주입되므로 transform: scaleX로 비파괴 채움.
+   barGrow는 리더보드(테이블·모바일 카드)에만 한정 — 다축 비교 패널의
+   .comparison-bar-group .bar-fill로 모션이 새지 않도록 셀렉터를 좁힌다. */
+@media (prefers-reduced-motion: no-preference) {
+  .benchmark-section {
+    animation: fadeInUp 600ms ease-out both;
+  }
+
+  .leaderboard-table .bar-fill,
+  .leaderboard-cards .bar-fill {
+    animation: barGrow var(--transition-slow) both;
+  }
+}
+
+@keyframes barGrow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* reduce 회귀 대비 로컬 가드: 막대가 0폭으로 멈추지 않도록 최종상태 보장. */
+@media (prefers-reduced-motion: reduce) {
+  .benchmark-section,
+  .bar-fill {
+    animation: none !important;
+  }
+
+  .bar-fill {
+    transform: none;
+  }
 }
 
 .benchmark-section-header {

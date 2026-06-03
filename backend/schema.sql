@@ -58,6 +58,12 @@ ALTER TABLE tools ADD COLUMN IF NOT EXISTS source            VARCHAR(30) NOT NUL
 CREATE UNIQUE INDEX IF NOT EXISTS idx_tools_hn_object_id ON tools(hn_object_id)
     WHERE hn_object_id IS NOT NULL;
 
+-- 벤치마크 자동수집(Phase B) — LMArena 미러로 대화선호 Elo 를 자동 갱신할 때 쓰는
+-- 도구↔공급사 매핑. 값은 LMArena vendor 식별자(예 'OpenAI','Anthropic','Google').
+-- collector 가 해당 vendor 의 최고 Elo 모델을 그 도구의 LMArena Elo 로 매핑한다(모델
+-- 식별자가 자주 바뀌어도 강건). NULL 이면 자동수집 대상 아님(수동 점수만). 멱등 보강.
+ALTER TABLE tools ADD COLUMN IF NOT EXISTS representative_model VARCHAR(60);
+
 -- ==================== pricing (tools 1:N) ====================
 -- billing_period 는 load_tools_fixed.validate_billing_period() 가 보장하는 4값만 허용.
 CREATE TABLE IF NOT EXISTS pricing (
