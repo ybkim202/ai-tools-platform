@@ -130,6 +130,35 @@
   color: var(--difficulty-hard-ink);
 }
 
+/* 라이선스 배지 — 난이도(.difficulty)와 동일한 pill 토큰. 점 문자(◆/◇)는 색 외 2차 채널. */
+.license {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+}
+
+.license-open {
+  background-color: var(--color-primary-surface);
+  color: var(--color-primary-darker);
+  border: 1px solid var(--color-primary-border);
+}
+
+.license-proprietary {
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.license-dot {
+  font-size: var(--font-size-sm);
+  line-height: 1;
+  color: inherit;
+}
+
 .pricing-list,
 .benchmark-list {
   display: flex;

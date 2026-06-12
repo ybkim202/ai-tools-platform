@@ -253,7 +253,13 @@ const Home = () => {
       {/* Hero Section */}
       <section className="hero">
         <div className="hero-content">
-          <div className="hero-badge">매일 업데이트되는 AI 도구 · 트렌드</div>
+          <div className="hero-badge">
+            {/* 실측 수치(사회적 증명). 적재 전(0)에는 수치 숨기고 검증 가능한 카피로 폴백.
+                트렌드 cron 점등 전이라 "매일 트렌드" 대신 "매주 갱신"으로 톤 다운(약속-실제 일치). */}
+            {totalCount > 0
+              ? `AI 도구 ${totalCount}개 · 매주 갱신`
+              : '매주 갱신되는 AI 도구 큐레이션'}
+          </div>
           <h1 className="hero-title">모든 AI 도구를<br />한곳에서 발견하세요</h1>
           <p className="hero-subtitle">
             빠르게 바뀌는 AI를 한곳에서. 지금 뜨는 도구를 발견하고, 비교하고, 나에게 맞는 걸 추천받으세요
@@ -265,14 +271,13 @@ const Home = () => {
                 <path d="M10 4v12m0 0l-4-4m4 4l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </a>
+            {/* 보조 CTA 1개로 단순화(랜딩 우선: 1차 액션에 시선 집중).
+                '도구 비교'는 카드의 비교 버튼·CompareTray로 도달 가능하여 히어로에서 제거. */}
             <Link to="/trends/github" className="cta-button cta-button-secondary">
               지금 뜨는 AI 보기
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M3 17l6-6 4 4 7-7m0 0h-5m5 0v5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-            </Link>
-            <Link to="/compare" className="cta-button cta-button-secondary">
-              도구 비교
             </Link>
           </div>
         </div>

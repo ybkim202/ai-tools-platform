@@ -30,6 +30,10 @@ const Recommendations = () => {
   // 현재 탭에 해당하는 옵션 목록만 노출.
   const options = optionsByType[selectedTab] || [];
 
+  // 결과(로딩→카드)가 선택 영역 아래·폴드 밖에 렌더될 수 있어, 선택 직후 이 앵커로
+  // 스크롤해 피드백을 보이게 한다(Home 페이지네이션 scrollIntoView 패턴 재사용).
+  const resultsAnchorRef = React.useRef(null);
+
   const loadOptions = useCallback(() => {
     let active = true;
     setOptionsStatus('loading');
@@ -90,6 +94,13 @@ const Recommendations = () => {
   const handleSelect = (value) => {
     setSelectedValue(value);
     fetchRecommendations(selectedTab, value);
+    // 다음 프레임에 결과 앵커로 이동(로딩/결과가 폴드 밖이어도 피드백이 보이게).
+    requestAnimationFrame(() => {
+      resultsAnchorRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
   };
 
   const handleReset = () => {
@@ -117,14 +128,16 @@ const Recommendations = () => {
       <div className="page-header">
         <p className="page-eyebrow">맞춤 추천</p>
         <h1 className="page-title">나에게 맞는 AI 도구</h1>
-        <p className="page-subtitle">당신의 업무와 직업에 맞는 AI 도구를 추천받으세요</p>
+        <p className="page-subtitle">당신의 업무 또는 직업에 맞춰 AI 도구를 추천받으세요</p>
       </div>
 
-      <div className="recommendation-tabs" role="tablist">
+      <div className="recommendation-tabs" role="tablist" aria-label="추천 기준">
         <button
           type="button"
           role="tab"
+          id="rec-tab-task"
           aria-selected={selectedTab === 'task'}
+          aria-controls="rec-tabpanel"
           className={`tab ${selectedTab === 'task' ? 'active' : ''}`}
           onClick={() => handleTabChange('task')}
         >
@@ -133,7 +146,9 @@ const Recommendations = () => {
         <button
           type="button"
           role="tab"
+          id="rec-tab-profession"
           aria-selected={selectedTab === 'profession'}
+          aria-controls="rec-tabpanel"
           className={`tab ${selectedTab === 'profession' ? 'active' : ''}`}
           onClick={() => handleTabChange('profession')}
         >
@@ -141,7 +156,14 @@ const Recommendations = () => {
         </button>
       </div>
 
-      <div className="selection-area">
+      <div
+        className="selection-area"
+        role="tabpanel"
+        id="rec-tabpanel"
+        aria-labelledby={
+          selectedTab === 'task' ? 'rec-tab-task' : 'rec-tab-profession'
+        }
+      >
         <div className="options">
           <h3>{selectedTab === 'task' ? '업무를 선택하세요' : '직업을 선택하세요'}</h3>
           {options.length > 0 ? (
@@ -174,6 +196,9 @@ const Recommendations = () => {
           )}
         </div>
       </div>
+
+      {/* 스크롤 타깃: 선택 직후 이 지점으로 이동해 로딩/결과가 보이게 한다(피드백 근접성). */}
+      <div ref={resultsAnchorRef} aria-hidden="true" />
 
       {loading && <LoadingState message="추천을 불러오는 중..." />}
 

@@ -440,6 +440,8 @@ curl "http://localhost:8000/api/recommendations"
         "user_count": 100000000,
         "difficulty": "쉬움",
         "official_url": "https://openai.com/chatgpt",
+        "logo_url": "https://...",
+        "is_open_source": false,
         "pricing": [
           {
             "plan": "무료",

@@ -5,7 +5,15 @@ import { benchmarksAPI, newsAPI, toolsAPI } from '../services/api';
 import ToolCard from '../components/ToolCard';
 import ExternalLinkIcon from '../components/ExternalLinkIcon';
 import { handleLogoError, resolveLogoSrc } from '../utils/logoFallback';
-import { formatPrice, formatDate, formatScore, displayLabel } from '../utils/format';
+import {
+  formatPrice,
+  formatDate,
+  formatScore,
+  displayLabel,
+  formatMetric,
+  formatUserCount,
+} from '../utils/format';
+import { difficultyDot } from '../utils/difficulty';
 import { safeHttpUrl } from '../utils/url';
 import {
   LoadingState,
@@ -165,6 +173,10 @@ const Details = () => {
     Object.keys(benchmarks.benchmarks).length > 0;
 
   const isInCompare = selectedToolsForCompare.includes(selectedTool.id);
+  // 비교는 최대 5개(카드와 동일 규칙). 한도 도달 + 미선택이면 버튼 비활성 + 사유 노출
+  // (조용히 무시 → "고장났다" 인식 방지). ToolCard.jsx의 compareDisabled 패턴 재사용.
+  const compareLimitReached = selectedToolsForCompare.length >= 5;
+  const compareDisabled = !isInCompare && compareLimitReached;
   const handleCompareToggle = () => {
     if (isInCompare) {
       removeToolForCompare(selectedTool.id);
@@ -200,9 +212,50 @@ const Details = () => {
           )}
           <h1 className="page-title">{selectedTool.name}</h1>
           <p className="description">{selectedTool.description}</p>
+          {/* 헤더 메타: 결정(공식 사이트 방문) 직전 화면이므로 카드와 동일한 신뢰 신호를
+              ⊇로 보강 — 라이선스·난이도(색+점)·국가·GitHub★·사용자 수. (카드 ⊆ 상세 불변식) */}
           <div className="meta">
-            <span className="country">{selectedTool.country}</span>
-            <span className="difficulty">{selectedTool.difficulty}</span>
+            {/* 라이선스: 항상 표시. 색 단독 금지 → 점 문자(◆/◇)+텍스트 2중 채널. */}
+            {selectedTool.is_open_source ? (
+              <span className="license-badge license-open" title="Open-Source">
+                <span className="license-dot" aria-hidden="true">◆</span>
+                오픈소스
+              </span>
+            ) : (
+              <span className="license-badge license-proprietary" title="Proprietary">
+                <span className="license-dot" aria-hidden="true">◇</span>
+                독점
+              </span>
+            )}
+
+            {/* 난이도: 카드의 semantic 색+점 배지 재사용(평이한 회색 pill 대신 위계 보존). */}
+            {selectedTool.difficulty && (
+              <span className={`difficulty-badge ${selectedTool.difficulty}`}>
+                <span className="difficulty-dot" aria-hidden="true">
+                  {difficultyDot(selectedTool.difficulty)}
+                </span>
+                {selectedTool.difficulty}
+              </span>
+            )}
+
+            {selectedTool.country && (
+              <span className="country">{selectedTool.country}</span>
+            )}
+
+            {/* GitHub stars: 오픈소스 한정(수치 비null). 라벨+아이콘+숫자(색 단독 금지). */}
+            {selectedTool.is_open_source === true &&
+              formatMetric(selectedTool.github_stars) && (
+                <span className="meta-pill">
+                  <span className="popularity-icon" aria-hidden="true">★</span>
+                  GitHub {formatMetric(selectedTool.github_stars)}
+                </span>
+              )}
+
+            {formatUserCount(selectedTool.user_count) && (
+              <span className="meta-pill">
+                사용자 {formatUserCount(selectedTool.user_count)}
+              </span>
+            )}
           </div>
 
           {detailTags.length > 0 && (
@@ -233,6 +286,14 @@ const Details = () => {
               className={`btn btn-secondary ${isInCompare ? 'active' : ''}`}
               onClick={handleCompareToggle}
               aria-pressed={isInCompare}
+              disabled={compareDisabled}
+              title={
+                isInCompare
+                  ? '비교 제거'
+                  : compareDisabled
+                  ? '비교는 최대 5개까지 가능합니다'
+                  : '비교 추가'
+              }
             >
               {isInCompare ? '✓ 비교함' : '비교에 추가'}
             </button>
@@ -241,10 +302,11 @@ const Details = () => {
       </div>
 
       <div className="details-content">
-        {/* 가격 */}
-        {selectedTool.pricing && selectedTool.pricing.length > 0 && (
-          <section className="pricing-section">
-            <h2>가격</h2>
+        {/* 가격 — 항상 섹션 렌더(숨김 금지). 데이터 없으면 "준비 중" 빈 상태로,
+            벤치마크·뉴스·관련 섹션과 동일 패턴. "무료/유료/미상" 불확실성(=의심) 제거. */}
+        <section className="pricing-section">
+          <h2>가격</h2>
+          {selectedTool.pricing && selectedTool.pricing.length > 0 ? (
             <div className="pricing-grid">
               {selectedTool.pricing.map((price) => (
                 <div key={price.id} className="pricing-card">
@@ -260,8 +322,14 @@ const Details = () => {
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <EmptyNoDataState
+              inline
+              title="가격 정보 준비 중"
+              message="공개된 가격 정보가 아직 없습니다."
+            />
+          )}
+        </section>
 
         {/* 벤치마크 — 항상 섹션 렌더(숨김 금지) */}
         <section className="benchmark-section">
