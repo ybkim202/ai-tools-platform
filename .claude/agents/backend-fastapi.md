@@ -21,7 +21,7 @@ tools: Read, Edit, Write, Bash, Grep, Glob
 
 ## 검증
 - 변경 후 가능하면 `cd backend && python -m uvicorn app.main:app --reload`로 기동 확인하거나, 임포트/구문 오류를 점검한다.
-- API 변경 시 `API_DOCUMENTATION.md`/`API_SPECIFICATION.md`와 어긋나지 않는지 확인하고, 계약이 바뀌면 [api-contract] 동기화 필요성을 보고한다.
+- API 변경 시 `docs/API_DOCUMENTATION.md`/`docs/API_SPECIFICATION.md`와 어긋나지 않는지 확인하고, 계약이 바뀌면 [api-contract] 동기화 필요성을 보고한다.
 
 ## 보고
 무엇을 왜 바꿨는지, 영향받는 엔드포인트와 프론트엔드 영향 가능성을 간결히 요약해 반환한다.

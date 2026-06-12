@@ -391,7 +391,7 @@ CORS: ALLOWED_ORIGINS 화이트리스트, allow_credentials=False
 ### **Phase 2: 스케일링**
 - 500개 도구
 - 일 1회 업데이트
-- 백엔드 자동 스케일 (Render)
+- 백엔드 자동 스케일 (Railway)
 - 캐싱 추가 (Redis)
 
 ```

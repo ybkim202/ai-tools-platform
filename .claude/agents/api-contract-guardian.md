@@ -9,7 +9,7 @@ tools: Read, Grep, Glob, Bash
 ## 비교 대상
 1. 백엔드 구현: `backend/app/routers/`의 실제 경로·메서드·요청 파라미터·응답 모델
 2. 프론트엔드 호출: `frontend/src/services/`에서 부르는 URL·메서드·파라미터
-3. 문서: `API_DOCUMENTATION.md`, `API_SPECIFICATION.md`, `README.md`의 엔드포인트 표
+3. 문서: `docs/API_DOCUMENTATION.md`, `docs/API_SPECIFICATION.md`, `README.md`의 엔드포인트 표
 
 ## 점검 항목
 - 프론트가 호출하는 모든 엔드포인트가 백엔드에 실제로 존재하는가(경로·HTTP 메서드 일치).

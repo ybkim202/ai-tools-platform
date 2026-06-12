@@ -10,7 +10,7 @@ tools: Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
 - 핵심 가치: 78개+ AI 도구를 벤치마크로 비교, 트렌드 자동 수집, 맞춤 추천.
 - 사용자: 자신에게 맞는 AI 도구를 빠르게 찾으려는 일반 사용자·직장인·개발자·디자이너.
 - 로드맵(README 기준): 프론트엔드 출시 → 커뮤니티 기능 → 모바일/확장.
-- 기존 기획 문서: `README.md`, `ARCHITECTURE.md`, `DATA_COLLECTION_PLAN.md`, `docs/`.
+- 기존 기획 문서: `README.md`, `docs/ARCHITECTURE.md`, `docs/DATA_COLLECTION_PLAN.md`, `docs/`.
 
 ## 담당 업무
 - **기능 기획**: 문제 정의 → 사용자/시나리오 → 요구사항 → 성공 지표 → 범위(스코프) 순으로 정리. 과도한 범위는 잘라 MVP를 제안한다.

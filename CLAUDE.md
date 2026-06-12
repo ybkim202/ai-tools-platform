@@ -11,7 +11,7 @@
 
 - **백엔드**: FastAPI · raw SQL(SQLAlchemy `text()`, ORM 모델 없음) · PostgreSQL · 구조 `backend/app/{main,database,auth,exceptions}.py + routers/`
 - **프론트**: React 19 · CRA(react-scripts) · 순수 CSS · Zustand · Axios · react-router-dom v7
-- **주의**: README/ARCHITECTURE는 TS·Tailwind·Vite·Render를 주장하나 **실제와 다름**. 코드가 사실이다.
+- **주의**: README/ARCHITECTURE는 fact 기준으로 정정 완료(2026-05). 그래도 문서-코드 충돌 시 **코드가 사실이다**.
 
 ## 핵심 원칙
 
@@ -63,9 +63,9 @@
 | [docs/DESIGN.md](docs/DESIGN.md) | 디자인 토큰·컴포넌트 서술 (코드 `frontend/src/styles/Home.css` `:root`가 최종 정본) |
 | [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md) | 현 상태 진단·갭(G1~G13)·개선 로드맵 |
 | [docs/UX_REVIEW.md](docs/UX_REVIEW.md) | 기획-UX 검토 (단일 출처) |
-| [API_DOCUMENTATION.md](API_DOCUMENTATION.md) | API 계약 (단, 코드 라우터와 대조 필요) |
-| [DATA_COLLECTION_PLAN.md](DATA_COLLECTION_PLAN.md) | 자동 수집 설계안 (구현은 `collectors/`·`collect.py`로 완료) |
+| [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) | API 계약 (단, 코드 라우터와 대조 필요) |
+| [docs/DATA_COLLECTION_PLAN.md](docs/DATA_COLLECTION_PLAN.md) | 자동 수집 설계안 (구현은 `collectors/`·`collect.py`로 완료) |
 | [backend/README.md](backend/README.md) | DB 부트스트랩 절차(schema.sql·bootstrap.py·검증) 정본 |
 | `.claude/agents/*.md` | 각 에이전트 지시문 |
 
-> 충돌 시 우선순위: **실제 코드 > PROJECT_OVERVIEW(진단) > 기타 문서**. README/ARCHITECTURE는 스택 정정 필요(별도 작업).
+> 충돌 시 우선순위: **실제 코드 > PROJECT_OVERVIEW(진단) > 기타 문서**. CLAUDE.md·README 외 문서는 `docs/`에 둔다(CLAUDE.md는 자동 로드, README는 GitHub 표시 때문에 루트 고정).

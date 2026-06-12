@@ -124,9 +124,9 @@ SQLAlchemy `text()`에 psycopg2 스타일 `%(name)s`를 쓰지 않는다(런타�
 | [docs/DESIGN.md](./DESIGN.md) | 디자인 토큰·컴포넌트 **서술** | 최종 정본은 코드 `Home.css :root` |
 | [docs/PROJECT_OVERVIEW.md](./PROJECT_OVERVIEW.md) | **현 상태 진단**·갭(G1~G13)·로드맵 | 상태 판단의 정본 |
 | [docs/UX_Compare_Page_Redesign.md](./UX_Compare_Page_Redesign.md) | Compare 페이지 UX 스펙 | 구현 대기 |
-| [API_DOCUMENTATION.md](../API_DOCUMENTATION.md) / [API_SPECIFICATION.md](../API_SPECIFICATION.md) | API 계약 | **코드 라우터와 대조 필요** |
-| [DATA_COLLECTION_PLAN.md](../DATA_COLLECTION_PLAN.md) | 자동 수집 설계 | 미구현 |
-| [README.md](../README.md) / [ARCHITECTURE.md](../ARCHITECTURE.md) | 제품 소개·아키텍처 | **스택 정정 필요**(TS/Tailwind/Vite/Render 주장) |
+| [API_DOCUMENTATION.md](API_DOCUMENTATION.md) / [API_SPECIFICATION.md](API_SPECIFICATION.md) | API 계약 | **코드 라우터와 대조 필요** |
+| [DATA_COLLECTION_PLAN.md](DATA_COLLECTION_PLAN.md) | 자동 수집 설계 | 미구현 |
+| [README.md](../README.md) / [ARCHITECTURE.md](ARCHITECTURE.md) | 제품 소개·아키텍처 | **스택 정정 필요**(TS/Tailwind/Vite/Render 주장) |
 | `.claude/agents/*.md` | 각 에이전트 지시문 | 에이전트 동작의 정본 |
 
 **충돌 시 우선순위**: 실제 코드 > PROJECT_OVERVIEW(진단) > 기타 문서.

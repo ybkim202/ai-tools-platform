@@ -112,7 +112,7 @@ open http://localhost:8000/docs                   # Swagger UI
 | `GET /api/trends/github` | 깃헙 트렌드 (0행 시작 — 수집 전엔 빈 결과) |
 | `POST /api/events` | 클릭 전환 이벤트 수집 (About CTA, 1st-party·IP/UA 미수집·rate limit) |
 
-계약 정본: [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) · [API_SPECIFICATION.md](./API_SPECIFICATION.md)
+계약 정본: [API_DOCUMENTATION.md](./docs/API_DOCUMENTATION.md) · [API_SPECIFICATION.md](./docs/API_SPECIFICATION.md)
 
 ---
 
@@ -136,9 +136,9 @@ open http://localhost:8000/docs                   # Swagger UI
 | [docs/PROJECT_OVERVIEW.md](./docs/PROJECT_OVERVIEW.md) | 현 상태 진단·갭·로드맵 |
 | [docs/DESIGN.md](./docs/DESIGN.md) | 디자인 시스템(무채색+잉크 토큰) |
 | [docs/PRODUCT_PLAN.md](./docs/PRODUCT_PLAN.md) · [docs/DESIGN_SECTIONS.md](./docs/DESIGN_SECTIONS.md) | 4페이지 기획·섹션 디자인 스펙 |
-| [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) · [API_SPECIFICATION.md](./API_SPECIFICATION.md) | API 계약 |
+| [API_DOCUMENTATION.md](./docs/API_DOCUMENTATION.md) · [API_SPECIFICATION.md](./docs/API_SPECIFICATION.md) | API 계약 |
 | [backend/README.md](./backend/README.md) | DB 부트스트랩 절차 |
-| [DATA_COLLECTION_PLAN.md](./DATA_COLLECTION_PLAN.md) | 자동 수집 설계안 (구현은 `collectors/`·`collect.py`·`scheduler.py`로 완료) |
+| [DATA_COLLECTION_PLAN.md](./docs/DATA_COLLECTION_PLAN.md) | 자동 수집 설계안 (구현은 `collectors/`·`collect.py`·`scheduler.py`로 완료) |
 
 ---
 
