@@ -127,7 +127,7 @@ UNION ALL SELECT 'github_trending', COUNT(*) FROM github_trending;  -- 0 예상(
 ## 자동 데이터 수집 (APScheduler)
 
 빈 `news` 테이블을 공개 소스에서 자동/수동으로 채워 뉴스·트렌딩 기능을 점등한다.
-설계 배경은 [`../DATA_COLLECTION_PLAN.md`](../DATA_COLLECTION_PLAN.md), 구현은 아래.
+설계 배경은 [`../DATA_COLLECTION_PLAN.md`](../docs/DATA_COLLECTION_PLAN.md), 구현은 아래.
 
 | 파일 | 역할 |
 |---|---|

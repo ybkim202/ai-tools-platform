@@ -9,7 +9,7 @@ tools: Read, Edit, Write, Bash, Grep, Glob
 ## 데이터 위치
 - 메인 데이터셋: `backend/tools_data.json` (78개+ 도구)
 - 로더: `backend/load_tools_fixed.py`, `backend/scripts/`
-- 계획 문서: `DATA_COLLECTION_PLAN.md`
+- 계획 문서: `docs/DATA_COLLECTION_PLAN.md`
 
 ## 작업 원칙
 - 새 도구/필드는 `tools_data.json`의 기존 항목과 동일한 키 구조·타입·네이밍을 유지한다(스키마 표류 금지).

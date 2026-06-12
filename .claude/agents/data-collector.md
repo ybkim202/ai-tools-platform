@@ -9,7 +9,7 @@ tools: Read, Edit, Write, Bash, Grep, Glob
 ## 맥락
 - 수집 대상: 각 AI 도구의 최신 업데이트, 트렌딩 도구, 뉴스, 벤치마크 점수.
 - 데이터 싱크: `backend/tools_data.json` 및 PostgreSQL(뉴스/벤치마크 테이블).
-- 기존 자산: `backend/scripts/`, `backend/load_tools_fixed.py`, 계획은 `DATA_COLLECTION_PLAN.md`.
+- 기존 자산: `backend/scripts/`, `backend/load_tools_fixed.py`, 계획은 `docs/DATA_COLLECTION_PLAN.md`.
 - 스택: Python, APScheduler(주기 작업), FastAPI 앱과 통합.
 
 ## 작업 원칙
