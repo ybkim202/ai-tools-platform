@@ -164,6 +164,25 @@ const Compare = () => {
                 ))}
               </tr>
               <tr>
+                <td className="label">라이선스</td>
+                {comparisonData.map((tool) => (
+                  <td key={tool.id}>
+                    {/* 핵심 비교축. 색 단독 금지 → 점 문자(◆/◇)+텍스트 2중 채널(카드와 동일). */}
+                    {tool.is_open_source ? (
+                      <span className="license license-open" title="Open-Source">
+                        <span className="license-dot" aria-hidden="true">◆</span>
+                        오픈소스
+                      </span>
+                    ) : (
+                      <span className="license license-proprietary" title="Proprietary">
+                        <span className="license-dot" aria-hidden="true">◇</span>
+                        독점
+                      </span>
+                    )}
+                  </td>
+                ))}
+              </tr>
+              <tr>
                 <td className="label">난이도</td>
                 {comparisonData.map((tool) => (
                   <td key={tool.id}>
@@ -277,6 +296,22 @@ const Compare = () => {
                 <div className="comparison-card-row">
                   <dt>카테고리</dt>
                   <dd>{tool.category}</dd>
+                </div>
+                <div className="comparison-card-row">
+                  <dt>라이선스</dt>
+                  <dd>
+                    {tool.is_open_source ? (
+                      <span className="license license-open" title="Open-Source">
+                        <span className="license-dot" aria-hidden="true">◆</span>
+                        오픈소스
+                      </span>
+                    ) : (
+                      <span className="license license-proprietary" title="Proprietary">
+                        <span className="license-dot" aria-hidden="true">◇</span>
+                        독점
+                      </span>
+                    )}
+                  </dd>
                 </div>
                 <div className="comparison-card-row">
                   <dt>난이도</dt>

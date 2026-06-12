@@ -35,7 +35,7 @@ def compare_tools(
         
         for tool_id in tool_ids:
             # 도구 정보 조회
-            tool_query = "SELECT id, name, category, user_count, difficulty, official_url, logo_url FROM tools WHERE id = :tool_id"
+            tool_query = "SELECT id, name, category, user_count, difficulty, official_url, logo_url, is_open_source FROM tools WHERE id = :tool_id"
             tool_result = db.execute(text(tool_query), {"tool_id": tool_id})
             tool_row = tool_result.fetchone()
             
@@ -70,6 +70,8 @@ def compare_tools(
                 "difficulty": tool_row[4],
                 "official_url": tool_row[5],
                 "logo_url": tool_row[6],
+                # 라이선스(오픈소스/독점)는 핵심 비교축 — 카드·상세와 동일하게 노출.
+                "is_open_source": tool_row[7],
                 "pricing": pricing,
                 "benchmarks": benchmarks
             })
