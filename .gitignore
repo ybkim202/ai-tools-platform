@@ -1,6 +1,8 @@
 
 # Claude Code 개인 설정(알림 hook 등)
 .claude/settings.local.json
+# 개인 세션 로그(세션 기록 훅이 기록) — 팀원별 로컬 전용
+.claude/local/
 
 # Python 컴파일 캐시 (히스토리에 키가 박혀 노출됐던 원인 — 절대 커밋 금지)
 __pycache__/
