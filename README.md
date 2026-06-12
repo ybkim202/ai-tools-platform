@@ -177,6 +177,7 @@ ai-tools-platform/
 
 1. 브랜치 생성 → 변경 → PR (기본 브랜치 직접 커밋 금지)
 2. PR 전 체크: `cd frontend && CI=true npm run build` 통과 · 시크릿 없음 · 문서/계약 동기화
+   - 시크릿은 CI의 gitleaks가 차단한다. 로컬 선차단(권장): `pip install pre-commit && pre-commit install` (1회)
 3. 백엔드 PEP8·타입힌팅·docstring, 프론트 ESLint(react-app) 통과·빌드 경고 0
 4. 모든 DB 접근은 `:name` 바인딩, API 응답은 `{success, data, error}` 유지
 
