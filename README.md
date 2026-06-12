@@ -63,6 +63,7 @@ DATABASE_URL='postgresql://USER:PASSWORD@HOST/DB' python bootstrap.py
 DATABASE_URL='postgresql://...' uvicorn app.main:app --reload
 ```
 - 부트스트랩 상세·검증 절차: [backend/README.md](./backend/README.md)
+- 환경변수 템플릿: [backend/.env.example](./backend/.env.example) — 로컬은 `DATABASE_URL` 하나면 충분.
 - 비밀정보는 **환경변수로만** 주입(소스 하드코딩 금지).
 
 ### 2) 프론트엔드
@@ -70,8 +71,9 @@ DATABASE_URL='postgresql://...' uvicorn app.main:app --reload
 cd frontend
 npm install
 
-# 백엔드 주소를 빌드 변수로 주입
-REACT_APP_API_URL='http://localhost:8000/api' npm start
+# 백엔드 주소를 빌드 변수로 주입 (또는 .env.example을 .env.local로 복사)
+cp .env.example .env.local
+npm start
 # 프로덕션 빌드
 CI=true npm run build
 ```
@@ -86,6 +88,9 @@ open http://localhost:8000/docs                   # Swagger UI
 ---
 
 ## 환경변수
+
+템플릿: [backend/.env.example](./backend/.env.example) · [frontend/.env.example](./frontend/.env.example) — 변수 전체 목록·기본값·용도가 적혀 있다.
+**로컬 개발에 운영 시크릿은 필요 없다**(로컬 DB 부트스트랩으로 충분). 운영 시크릿을 공유해야 할 때는 git 밖(패스워드 매니저 공유 볼트)으로만.
 
 | 변수 | 위치 | 설명 |
 |---|---|---|
