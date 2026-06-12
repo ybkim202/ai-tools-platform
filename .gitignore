@@ -4,6 +4,9 @@
 # 개인 세션 로그(세션 기록 훅이 기록) — 팀원별 로컬 전용
 .claude/local/
 
+# UX 리뷰 등 세션 산출 보고서(로컬 부산물) — 결론은 docs/UX_REVIEW.md 정본에 반영
+docs/reports/
+
 # Python 컴파일 캐시 (히스토리에 키가 박혀 노출됐던 원인 — 절대 커밋 금지)
 __pycache__/
 *.pyc
