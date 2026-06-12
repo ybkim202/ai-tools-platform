@@ -1,0 +1,8 @@
+# gitleaks 설정 — 기본 룰셋 + 프로젝트 허용 목록
+# 시크릿 커밋 차단 가드. CI(ci.yml)와 pre-commit 훅이 이 설정을 사용한다.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "문서 curl 예시의 API 키 placeholder (실제 키 아님)"
+regexes = ['''your-api-key''']
