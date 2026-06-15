@@ -81,6 +81,8 @@ strategist      designer         frontend-react          tools-data-curator
 
 ### 4.1 비밀정보 (G9) — **NEVER 하드코딩**
 API 키·DB 비밀번호·커넥션 문자열을 소스에 적지 않는다. `os.environ`/`.env`로만 읽고, `.env`는 `.gitignore`에 둔다. 노출된 키는 즉시 로테이션한다.
+- **자동 차단**: [gitleaks](https://github.com/gitleaks/gitleaks)가 2단계로 시크릿 커밋을 막는다 — ① CI(`.github/workflows/ci.yml`)가 PR/push마다 전체 히스토리를 스캔(발견 시 실패), ② 로컬 pre-commit 훅(`.pre-commit-config.yaml`)이 커밋 전 선차단. 룰셋·허용 목록은 루트 `.gitleaks.toml`.
+- **시크릿 공유**: 운영 시크릿은 git 밖(패스워드 매니저 공유 볼트)으로만 전달. 슬랙 평문·이슈·커밋 금지. 로컬 개발에는 운영 시크릿이 필요 없다(로컬 DB 부트스트랩으로 충분 — `.env.example` 참조).
 
 ### 4.2 SQL 바인딩 (G7) — **MUST `:name` 통일**
 SQLAlchemy `text()`에 psycopg2 스타일 `%(name)s`를 쓰지 않는다(런타임 오류 위험). `:name` 바인딩 + `params` dict로 통일. 모든 DB 접근은 parameterized(문자열 포매팅으로 쿼리 조립 금지 → SQL Injection 방지).
@@ -100,6 +102,13 @@ SQLAlchemy `text()`에 psycopg2 스타일 `%(name)s`를 쓰지 않는다(런타�
 
 ## 5. 커밋 / PR 체크리스트
 
+### 5.0 신규 합류자 온보딩
+1. 레포 클론 → `.env.example`을 참고해 로컬 환경 구성(로컬은 `DATABASE_URL` 하나면 충분, 운영 시크릿 불필요).
+2. 로컬 PostgreSQL + `cd backend && DATABASE_URL=... python bootstrap.py`(스키마+도구+태그+벤치마크 멱등 적재). 절차 정본: [backend/README.md](../backend/README.md).
+3. 프론트: `cd frontend && cp .env.example .env.local && npm start`.
+4. 시크릿 사고 예방용 pre-commit(권장): `pip install pre-commit && pre-commit install`(레포당 1회).
+- 빠른 시작·환경변수 상세는 [README.md](../README.md).
+
 ### 5.1 브랜치·커밋
 - 기본 브랜치에서 직접 작업하지 않는다 — feature 브랜치를 먼저 만든다.
 - 커밋·푸시는 **사용자가 명시적으로 요청할 때만** 수행한다.
@@ -108,7 +117,7 @@ SQLAlchemy `text()`에 psycopg2 스타일 `%(name)s`를 쓰지 않는다(런타�
 ### 5.2 PR 전 점검
 - [ ] `cd frontend && npm run build` 통과(ESLint 경고 0).
 - [ ] 백엔드 변경 시 임포트/구문·기동 점검.
-- [ ] **시크릿 없음** — 키·비밀번호·커넥션 문자열 미포함.
+- [ ] **시크릿 없음** — 키·비밀번호·커넥션 문자열 미포함(CI gitleaks가 자동 검증하나, pre-commit으로 선차단 권장).
 - [ ] API 계약 변경 시 `services/api.js` + API 문서 동기화(필요 시 api-contract-guardian).
 - [ ] 데이터 스키마 변경 시 `tools_data.json` 유효성(`python -m json.tool`)·로더 확인.
 - [ ] 디자인 변경 시 DESIGN.md 토큰 준수, 다크모드 깨짐 없음.
@@ -123,11 +132,13 @@ SQLAlchemy `text()`에 psycopg2 스타일 `%(name)s`를 쓰지 않는다(런타�
 | [docs/GOVERNANCE.md](./GOVERNANCE.md) (이 문서) | 거버넌스 **세부** | 컨벤션·하드룰·협업·체크리스트 |
 | [docs/DESIGN.md](./DESIGN.md) | 디자인 토큰·컴포넌트 **서술** | 최종 정본은 코드 `Home.css :root` |
 | [docs/PROJECT_OVERVIEW.md](./PROJECT_OVERVIEW.md) | **현 상태 진단**·갭(G1~G13)·로드맵 | 상태 판단의 정본 |
-| [docs/UX_Compare_Page_Redesign.md](./UX_Compare_Page_Redesign.md) | Compare 페이지 UX 스펙 | 구현 대기 |
+| [docs/UX_REVIEW.md](./UX_REVIEW.md) | 기획-UX 검토(5화면 실무 컨펌 포함) | 단일 출처 |
 | [API_DOCUMENTATION.md](API_DOCUMENTATION.md) / [API_SPECIFICATION.md](API_SPECIFICATION.md) | API 계약 | **코드 라우터와 대조 필요** |
-| [DATA_COLLECTION_PLAN.md](DATA_COLLECTION_PLAN.md) | 자동 수집 설계 | 미구현 |
-| [README.md](../README.md) / [ARCHITECTURE.md](ARCHITECTURE.md) | 제품 소개·아키텍처 | **스택 정정 필요**(TS/Tailwind/Vite/Render 주장) |
+| [DATA_COLLECTION_PLAN.md](DATA_COLLECTION_PLAN.md) | 자동 수집 설계 | 구현 완료(`collectors/`·`collect.py`·`scheduler.py`) |
+| [README.md](../README.md) / [ARCHITECTURE.md](ARCHITECTURE.md) | 제품 소개·아키텍처 | fact 기준 정정 완료(2026-06) |
 | `.claude/agents/*.md` | 각 에이전트 지시문 | 에이전트 동작의 정본 |
+
+**문서 배치 규칙**: `CLAUDE.md`(루트 — Claude Code 자동 로드)·`README.md`(루트 — GitHub 표시)만 루트에 둔다. 나머지 문서는 전부 `docs/`. CLAUDE.md를 `docs/`로 옮기면 프로젝트 규칙이 세션에 자동 로드되지 않는다.
 
 **충돌 시 우선순위**: 실제 코드 > PROJECT_OVERVIEW(진단) > 기타 문서.
 
@@ -136,5 +147,8 @@ SQLAlchemy `text()`에 psycopg2 스타일 `%(name)s`를 쓰지 않는다(런타�
 ## 7. 변경 이력 / 결정 로그
 
 원칙·규칙·스택 결정이 바뀌면 여기에 한 줄씩 누적한다(최신이 위).
+
+- **2026-06-15** 팀 협업 온보딩 정비 — ① 세션 기록 훅 3종을 `.claude/settings.json`으로 팀 공유(로그는 `.claude/local/` 개인 분리), ② `.env.example`(backend/frontend) 추가로 로컬은 `DATABASE_URL`만으로 실행, ③ gitleaks 시크릿 스캔(CI+pre-commit) 도입, ④ 문서 배치 규칙 명문화(CLAUDE.md·README만 루트). (G9 자동화 보강)
+- **2026-06-15** 배포 정의 일원화(G11 해소) — 고아 `render.yaml`(Render Blueprint)·`Procfile`(uvicorn worker 미지정으로 기동 실패하던 깨진 설정) 제거. 배포 정의를 `Dockerfile`(Railway, uvicorn) 단일로 통일. 실제 토폴로지는 **백엔드 Railway · DB Render · 프론트 Vercel** 변동 없음.
 
 - 2026-05-30 — 거버넌스 문서 신설(CLAUDE.md + GOVERNANCE.md). 8개 에이전트 라우팅, P0 갭(G5/G7/G9/G10/G13) 하드룰화.
