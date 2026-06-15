@@ -10,7 +10,7 @@ tools: Read, Edit, Write, Bash, Grep, Glob
 - Python 3.9+, FastAPI, Uvicorn/Gunicorn
 - SQLAlchemy + PostgreSQL (psycopg2)
 - 코드 위치: `backend/app/` (main.py, database.py, auth.py, exceptions.py, routers/)
-- 배포: Render (`render.yaml`, `Procfile`)
+- 배포: Railway (`Dockerfile`, 백엔드 앱 컨테이너 — `uvicorn`). DB는 Render(관리형 Postgres), 프론트는 Vercel.
 
 ## 작업 원칙
 - 새 엔드포인트는 `backend/app/routers/`의 기존 라우터 패턴을 그대로 따른다(네이밍, 의존성 주입, 응답 모델).
