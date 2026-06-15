@@ -201,7 +201,4 @@ ENABLE_SCHEDULER=true SCHEDULER_WORKER=true COLLECT_INTERVAL_HOURS=24 \
 
 ## TODO (후속, 이번 범위 밖)
 
-- **render.yaml 인프라 코드화**: `databases:` 블록 + `fromDatabase` 로 `DATABASE_URL`
-  자동 주입을 두면 대시보드 수동 입력을 없앨 수 있다. 단, 현재 DB 를 대시보드에서
-  수동 생성/관리 중이라 충돌을 피하려 보류했다. Blueprint 일원화 시 도입 검토.
 - 수집 소스 확장(RSS 피드/리포/벤치마크), 슬랙 알림은 후속.

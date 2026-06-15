@@ -103,7 +103,7 @@
 | 영역 | 기획 문서 주장 | 실제 코드 | 근거 |
 |------|---------------|-----------|------|
 | 백엔드 프레임워크 | FastAPI | FastAPI ✅ | `requirements.txt:1`, `main.py:13` |
-| 백엔드 호스팅 | Render (`README.md:153`) / Railway (커밋 메시지) | 양쪽 설정 공존 (`render.yaml`, `Dockerfile` "Railway", `Procfile` gunicorn) | `backend/render.yaml`, `Dockerfile:5`, `backend/Procfile` |
+| 백엔드 호스팅 | Railway (`Dockerfile`) | **Railway 확정** — `render.yaml` 제거(고아 Blueprint). `Procfile`(gunicorn)은 미사용 잔재로 잔존 | `Dockerfile`, `backend/Procfile` |
 | 프론트 프레임워크 | React 18 | **React 19.2** | `frontend/package.json:11` |
 | 빌드 도구 | Vite (`ARCHITECTURE.md:285`) | **react-scripts (CRA)** | `frontend/package.json:14,19` |
 | 언어 | TypeScript (`ARCHITECTURE.md:280`) | **JavaScript (.js/.jsx)** | `frontend/src/*` |
@@ -212,7 +212,7 @@ erDiagram
 |---|-----|------|------|
 | G9 | **[해소]** 비밀정보 커밋 — 하드코딩 API 키·평문 DB 비밀번호 제거, 환경변수만 사용하도록 정리. | 자격증명 유출 위험 제거 | `auth.py`, `load_tools_fixed.py` (환경변수화) |
 | G10 | **[해소]** CORS — 와일드카드 제거. `ALLOWED_ORIGINS` 화이트리스트 + `allow_credentials=False`로 변경. | 보안 모범사례 준수 | `main.py` (`ALLOWED_ORIGINS`) |
-| G11 | **호스팅 정의 혼재** — Render(`render.yaml`)·Railway(`Dockerfile`)·gunicorn(`Procfile`) 공존. `Procfile`은 `gunicorn app.main:app`인데 ASGI 앱에 uvicorn worker 미지정 → 그대로면 기동 실패 가능. | 배포 혼선 | `render.yaml`, `Dockerfile:5`, `Procfile` |
+| G11 | **[부분해소]** 호스팅 정의 혼재 — Render Blueprint(`render.yaml`) 제거로 배포 정의를 `Dockerfile`(Railway)로 일원화. 단 `Procfile`(`gunicorn app.main:app`, uvicorn worker 미지정 → ASGI 기동 실패 가능)이 미사용 잔재로 남아 있어 제거 권장. | 배포 혼선 대부분 해소 | `Dockerfile`, `backend/Procfile` |
 | G12 | **[해소]** 문서-코드 불일치 정정 — README/ARCHITECTURE의 TS/Tailwind/Vite/구버전 구조 주장을 실제 스택(React 19/CRA/순수 CSS/raw SQL)으로 동기화 완료. | 신규 합류자 혼란 해소 | 5장 표, README/ARCHITECTURE 갱신본 |
 | G13 | **[부분해소]** 레이트리밋 실제 적용 — 인메모리 방식으로 라우터에 연결됨. 단 **다중 워커 환경에서 카운터 비공유 한계 잔존**(워커별 독립 카운트). | 단일 워커 기준 동작, 다중 워커 정확도 한계 | `auth.py`, 라우터 의존성 적용 |
 | G14 | **[수집대기]** 깃헙 트렌드 — `GET /api/trends/github` 라우터·수집기(`collectors/github_trending.py`)·테마 매핑(`app/trends_themes.py`) 구현 완료. 시드 0행 → 수집 실행 시 점등. 운영 점등 순서: (1) DB 테이블 선적용(`init_db.py`/`schema.sql`의 `github_trending`), (2) 수집 1회(`collect.py`). 라우터는 예외 graceful 처리하지만 **테이블 선적용 순서 준수 필요**(과거 `news.title_ko` 사고 교훈). | 수집 전까지 빈 화면(프론트 EmptyState graceful) | `routers/trends.py`, `collectors/github_trending.py`, `schema.sql`(github_trending) |
@@ -272,7 +272,7 @@ gantt
 
 - **[해소]** 스키마 DDL 존재 확인 — `backend/schema.sql`에 `tags`/`tool_tags`/`benchmarks`/`news`/`github_trending` 등 테이블 DDL 정의됨(`init_db.py`로 적용). 더 이상 "DDL이 보이지 않음" 아님.
 - **[해소]** SQL 바인딩 — 전 라우터 `:name` 통일로 `%(name)s` 이슈 해소(G7).
-- **[해소]** 배포 타깃 확정 — **백엔드 Railway · DB Render · 프론트 Vercel**. (레포 `render.yaml`과는 불일치 — render.yaml은 정정/정리 대상)
+- **[해소]** 배포 타깃 확정 — **백엔드 Railway · DB Render · 프론트 Vercel**. (고아 `render.yaml` 제거로 레포-실배포 일치)
 - **[미확정]** 운영(Render) DB가 실제로 `bootstrap` 되었는지 라이브 확인 필요(세션 로그상 점등 정황). 뉴스/깃헙트렌드는 0행 시작이라 cron 수집 후 점등.
 - 프론트엔드가 실제로 어떤 백엔드 URL(`REACT_APP_API_URL`)을 바라보며 운영되는지 (CORS는 `ALLOWED_ORIGINS` 필수).
 
@@ -282,7 +282,7 @@ gantt
 
 내부 파일:
 - `backend/app/main.py`, `database.py`, `auth.py`, `routers/{tools,recommendations,compare,benchmarks,news}.py`
-- `backend/tools_data.json`, `backend/load_tools_fixed.py`, `backend/render.yaml`, `backend/Procfile`, `Dockerfile`, `backend/requirements.txt`
+- `backend/tools_data.json`, `backend/load_tools_fixed.py`, `backend/Procfile`, `Dockerfile`, `backend/requirements.txt`
 - `frontend/package.json`, `frontend/src/App.js`, `services/api.js`, `stores/toolStore.js`, `pages/{Home,Recommendations}.jsx`
 - `README.md`, `ARCHITECTURE.md`, `DATA_COLLECTION_PLAN.md`, `API_DOCUMENTATION.md`, `API_SPECIFICATION.md`
 - 데이터 분석: `tools_data.json` 직접 파싱 (78개 도구, 카테고리 분포, benchmarks/news/tags 키 부재 확인)
