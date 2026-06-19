@@ -18,6 +18,18 @@ const ToolCard = ({ tool, reasonTags }) => {
 
   const officialUrl = safeHttpUrl(tool.official_url);
 
+  // 정보 위계 승격(#5): 핵심 지표 1개를 카드에서 강조한다.
+  // 우선순위는 GitHub stars(오픈소스 한정) → user_count. 둘 다 없으면 강조하지 않는다
+  // (빈 강조 금지). 강조 지표는 메타 목록에서 제외해 중복 노출을 피한다.
+  const starsValue =
+    tool.is_open_source === true ? formatMetric(tool.github_stars) : null;
+  const userCountValue = formatUserCount(tool.user_count);
+  const headlineMetric = starsValue
+    ? { kind: 'stars', icon: '★', label: 'GitHub stars', value: starsValue }
+    : userCountValue
+    ? { kind: 'users', icon: '👥', label: '사용자 수', value: userCountValue }
+    : null;
+
   const handleCompareToggle = () => {
     if (isSelected) {
       removeToolForCompare(tool.id);
@@ -54,7 +66,20 @@ const ToolCard = ({ tool, reasonTags }) => {
             <p className="description">{tool.description}</p>
           )}
 
-          {/* 메타 정보 */}
+          {/* 핵심 지표 승격(#5): GitHub stars > user_count 순으로 1개만 강조.
+              아이콘 + 숫자 + 의미 라벨(sr-only)을 병행해 색·크기 단독 의미 전달을 피한다.
+              둘 다 없으면 렌더하지 않는다(빈 강조 금지). */}
+          {headlineMetric && (
+            <div className="card-headline-metric">
+              <span className="headline-metric-icon" aria-hidden="true">
+                {headlineMetric.icon}
+              </span>
+              <span className="headline-metric-value">{headlineMetric.value}</span>
+              <span className="sr-only">{headlineMetric.label}</span>
+            </div>
+          )}
+
+          {/* 메타 정보(보조) — 승격된 지표는 여기서 제외해 중복 노출을 막는다. */}
           <div className="meta-info">
             {/* 라이선스: 항상 표시. 입문자의 1차 질문("설치형/가입형")을 인기지표보다
                 먼저 답한다. is_open_source가 truthy면 오픈소스, 그 외(undefined 포함)
@@ -75,24 +100,22 @@ const ToolCard = ({ tool, reasonTags }) => {
               )}
             </div>
 
-            {/* GitHub stars: 오픈소스 도구 한정으로 표시(수치 비null일 때).
+            {/* GitHub stars: 강조 지표로 승격되지 않은 경우에만 보조 메타로 표시.
                 라벨 텍스트+아이콘+숫자로 의미를 전달한다(색만으로 의미 전달 금지). */}
-            {tool.is_open_source === true && formatMetric(tool.github_stars) && (
+            {headlineMetric?.kind !== 'stars' && starsValue && (
               <div className="meta-item">
                 <span className="meta-label">GitHub</span>
                 <span className="meta-value popularity-value">
                   <span className="popularity-icon" aria-hidden="true">★</span>
-                  {formatMetric(tool.github_stars)}
+                  {starsValue}
                 </span>
               </div>
             )}
 
-            {formatUserCount(tool.user_count) && (
+            {headlineMetric?.kind !== 'users' && userCountValue && (
               <div className="meta-item">
                 <span className="meta-label">사용자</span>
-                <span className="meta-value">
-                  {formatUserCount(tool.user_count)}
-                </span>
+                <span className="meta-value">{userCountValue}</span>
               </div>
             )}
 

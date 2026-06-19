@@ -100,6 +100,29 @@
   overflow: hidden;
 }
 
+/* ==================== 핵심 지표 승격(#5) ==================== */
+/* 카드당 1개 지표(GitHub stars 또는 사용자 수)를 보조 메타보다 큰 위계로 강조.
+   값은 메타(sm) 대비 ~1.33배(lg)로 키우고 굵게. 아이콘+숫자+sr-only 라벨 병행. */
+.card-headline-metric {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-xs);
+}
+
+.headline-metric-icon {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  line-height: 1;
+  align-self: center;
+}
+
+.headline-metric-value {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
 /* ==================== 메타 정보 ==================== */
 .meta-info {
   display: flex;
@@ -122,9 +145,11 @@
   letter-spacing: 0.5px;
 }
 
+/* 보조 메타 값: 승격된 핵심 지표보다 톤 다운(2차 텍스트색 + 약한 굵기).
+   배지(라이선스/난이도)는 자체 색을 유지하므로 영향 없음. */
 .meta-value {
-  color: var(--color-text-primary);
-  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-weight: 500;
 }
 
 /* 인기지표 값: 아이콘 + 숫자 인라인 정렬(토큰만 사용, 신규 색토큰 없음). */
