@@ -9,62 +9,47 @@ import {
 import '../styles/Benchmarks.css';
 
 /*
- * 카테고리 정본은 백엔드 스키마에 아직 없다(benchmarks 테이블은 benchmark_type만 보유,
- * category/unit/model_version 컬럼 없음). 따라서 카테고리·단위·라벨은 프론트의
- * 표현 계층 매핑으로 파생한다 — 임의 데이터 생성이 아니라 기존 benchmark_type을
- * 5개 축으로 그룹핑하는 결정적 매핑이다. 백엔드에 category/unit이 추가되면
- * 이 매핑을 응답값으로 대체한다(후속 작업).
+ * 섹션(카테고리) 목록의 정본은 DB 다(GET /benchmarks/categories). 프론트는 표시
+ * 카피(라벨/영문/설명)만 category 키로 join 해 보강한다 — 분류·존재 여부는 전부
+ * DB 가 결정한다(헌법 G5/G6: 목록 하드코딩 금지). 코드에 카피가 없는 DB category 는
+ * 폴백 라벨(category 원문)로 렌더해 누락 0, 코드에만 있고 DB 에 없는 카테고리는
+ * 섹션을 만들지 않는다.
  *
  * 각 카테고리는 동일 unit 축만 포함한다(스펙 R4: 단위 혼합 금지).
  */
-// 카테고리 표시 메타(UI 카피). key 는 백엔드 benchmarks.category 값과 1:1 일치한다.
-// 분류 자체는 DB 의 category 컬럼(응답 r.category)으로 하므로 하드코딩 매핑이 아니다
-// (헌법 G5/G6: 필터값 DB 동기화). unit 도 행의 r.unit 을 우선 사용하고 여기 값은 폴백.
-const CATEGORIES = [
-  {
-    key: '추론',
-    label: '추론',
+// 카테고리 표시 카피(메타). key 는 백엔드 benchmarks.category 값과 1:1 일치한다.
+// 이 객체는 "분류"가 아니라 "표현 카피"만 보유한다 — 섹션 생성은 DB 응답으로 구동.
+const CATEGORY_META = {
+  추론: {
     labelEn: 'Reasoning',
     desc: '대학원 수준 과학·지식 추론(GPQA Diamond·MMLU-Pro)',
-    unit: 'percent',
   },
-  {
-    key: '코딩',
-    label: '코딩',
+  코딩: {
     labelEn: 'Coding',
     desc: '실전 코드 수정·생성 정확도(SWE-bench Verified·LiveCodeBench)',
-    unit: 'percent',
   },
-  {
-    key: '수학',
-    label: '수학',
+  수학: {
     labelEn: 'Math',
     desc: '경시·다단계 수학 문제 해결(AIME 2025·MATH-500)',
-    unit: 'percent',
   },
-  {
-    key: '멀티모달',
-    label: '멀티모달',
+  멀티모달: {
     labelEn: 'Multimodal',
     desc: '이미지와 텍스트를 결합한 추론(MMMU)',
-    unit: 'percent',
   },
-  {
-    key: '선호',
-    label: '선호',
+  선호: {
     labelEn: 'Preference',
     desc: '사람 선호 기반 상대 평가(LMArena Elo)',
-    unit: 'elo',
   },
-];
+};
 
 const MAX_COMPARE = 5;
 
-// raw 점수 + 단위 포맷(스펙 C4). percent→소수1자리%, elo→정수 Elo.
+// raw 점수 + 단위 포맷(스펙 C4·발견 #9 만점 표기).
+//   percent → "92.0/100"(만점 100 명시), elo → 정수 Elo(절대 만점 없음).
 const formatScore = (score, unit) => {
   if (!Number.isFinite(score)) return '-';
   if (unit === 'elo') return `${Math.round(score)} Elo`;
-  return `${score.toFixed(1)}%`;
+  return `${score.toFixed(1)}/100`;
 };
 
 // snapshot 날짜 → 'YYYY-MM' 표기. 없으면 null.
@@ -74,12 +59,17 @@ const formatSnapshot = (dateStr) => {
   return m ? `${m[1]}-${m[2]}` : null;
 };
 
-// 섹션(축) 내 min-max 정규화 + 시각 최소폭 8% floor(스펙 C4).
-const barPctInSection = (score, min, max) => {
+// 막대 길이 정규화(발견 #7: 섹션·다축 두 뷰 동일 기준 — "0 기준 절대 비율").
+//   percent → 만점 100 고정 분모(unit=percent 면 만점 100 으로 간주).
+//   elo     → 절대 만점이 없으므로 축(섹션) 내 최댓값을 분모로(0 기준 유지).
+// 어느 뷰든 같은 점수는 같은 길이로 그려진다(상대 min-max 제거). 점수 있는 셀은
+// 시각 최소폭 8% floor 로 0 과 구분.
+const barPct = (score, unit, axisMax) => {
   if (!Number.isFinite(score)) return 0;
-  if (max <= min) return 100;
-  const norm = (score - min) / (max - min);
-  return 8 + norm * 92;
+  const denom = unit === 'elo' ? axisMax : 100;
+  if (!Number.isFinite(denom) || denom <= 0) return 0;
+  const norm = Math.min(1, score / denom);
+  return Math.max(8, norm * 100);
 };
 
 // 도구의 카테고리 내 최신 model_version 1개만 노출(스펙 Q2 권고).
@@ -102,7 +92,8 @@ const dedupeByTool = (list) => {
 };
 
 const Benchmarks = () => {
-  // 전체 벤치마크 1회 적재 후 카테고리별 클라이언트 분류.
+  // 섹션 목록의 정본은 DB(/benchmarks/categories). 점수 행은 /benchmarks 1회 적재.
+  const [categories, setCategories] = useState([]);
   const [allRows, setAllRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -114,8 +105,8 @@ const Benchmarks = () => {
   const [panelOpen, setPanelOpen] = useState(false);
   const [view, setView] = useState('bars');
 
-  // 활성 앵커 섹션(IntersectionObserver 동기화).
-  const [activeKey, setActiveKey] = useState(CATEGORIES[0].key);
+  // 활성 앵커 섹션(IntersectionObserver 동기화). 첫 DB 카테고리로 초기화.
+  const [activeKey, setActiveKey] = useState(null);
 
   const panelRef = useRef(null);
 
@@ -123,12 +114,15 @@ const Benchmarks = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await benchmarksAPI.getBenchmarks({
-        sort_by: 'score_desc',
-        limit: 100,
-      });
-      setAllRows(res.data?.data || []);
+      // 섹션 목록(DB 정본) + 점수 행을 병렬 적재.
+      const [catRes, rowRes] = await Promise.all([
+        benchmarksAPI.getBenchmarkCategories(),
+        benchmarksAPI.getBenchmarks({ sort_by: 'score_desc', limit: 100 }),
+      ]);
+      setCategories(catRes.data?.data || []);
+      setAllRows(rowRes.data?.data || []);
     } catch (err) {
+      setCategories([]);
       setAllRows([]);
       setError(handleApiError(err).message);
     } finally {
@@ -140,24 +134,35 @@ const Benchmarks = () => {
     fetchAll();
   }, [fetchAll]);
 
-  // 카테고리별 행 그룹(파생). 각 섹션은 동일 unit 축만 포함하므로
-  // min-max 정규화가 안전하다(R4).
+  // 섹션 파생: 정본은 DB 카테고리(/categories) 순서. 표시 카피는 CATEGORY_META 에서
+  // category 키로 join, 없으면 category 원문을 폴백 라벨로(누락 0). 각 섹션은 동일
+  // unit 축만 포함한다(R4).
   const sections = useMemo(() => {
-    return CATEGORIES.map((cat) => {
+    return categories.map((cat) => {
+      const key = cat.category;
+      const meta = CATEGORY_META[key] || {};
       // 분류는 DB 의 category 컬럼(r.category)으로 — 프론트 하드코딩 매핑 제거.
-      const matched = allRows.filter((r) => r.category === cat.key);
+      const matched = allRows.filter((r) => r.category === key);
       const rows = dedupeByTool(matched);
       const scores = rows.map((r) => r.score).filter(Number.isFinite);
-      const min = scores.length ? Math.min(...scores) : 0;
       const max = scores.length ? Math.max(...scores) : 0;
       const typeBadges = Array.from(
         new Set(matched.map((r) => r.benchmark_type).filter(Boolean))
       );
-      // 섹션 unit 은 행의 실제 unit 우선(없으면 카테고리 폴백).
-      const unit = matched.find((r) => r.unit)?.unit || cat.unit;
-      return { ...cat, unit, rows, min, max, typeBadges };
+      // 섹션 unit 은 행의 실제 unit 우선(없으면 카테고리 메타 unit 폴백).
+      const unit = matched.find((r) => r.unit)?.unit || cat.unit || 'percent';
+      return {
+        key,
+        label: key, // 라벨 = DB category 원문(코드 카피가 없어도 누락 0).
+        labelEn: meta.labelEn || '',
+        desc: meta.desc || '',
+        unit,
+        rows,
+        max,
+        typeBadges,
+      };
     });
-  }, [allRows]);
+  }, [categories, allRows]);
 
   // 진입 stagger 순서: 데이터가 있는(rows>0) 섹션만 순차 인덱스를 부여한다.
   // 빈 섹션은 맵에서 빠지므로 delay 0으로 즉시 표시(로딩 오인 방지).
@@ -209,6 +214,8 @@ const Benchmarks = () => {
           tool_id: s.tool_id,
           tool_name: s.tool_name,
           score: row ? row.score : null,
+          source: row?.source || null,
+          modelVersion: row?.model_version || null,
         };
       });
       const vals = cells.map((c) => c.score).filter(Number.isFinite);
@@ -254,12 +261,19 @@ const Benchmarks = () => {
       },
       { rootMargin: '-64px 0px -60% 0px', threshold: [0, 0.25, 0.5, 1] }
     );
-    CATEGORIES.forEach((cat) => {
-      const el = document.getElementById(`section-${cat.key}`);
+    sections.forEach((sec) => {
+      const el = document.getElementById(`section-${sec.key}`);
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
   }, [sections]);
+
+  // DB 카테고리 적재 후 활성 앵커를 첫 섹션으로 초기화(아직 미설정일 때만).
+  useEffect(() => {
+    if (activeKey === null && sections.length > 0) {
+      setActiveKey(sections[0].key);
+    }
+  }, [activeKey, sections]);
 
   return (
     <div className="benchmarks-page">
@@ -279,8 +293,8 @@ const Benchmarks = () => {
         ) : allRows.length === 0 ? (
           <EmptyNoDataState
             title="아직 등록된 벤치마크가 없습니다"
-            badge="매일 수집 중 · Coming soon"
-            message="수집 파이프라인이 매일 새 데이터를 모으고 있어요. 곧 지금 뜨는 도구를 여기서 확인할 수 있습니다."
+            badge="수동 큐레이션"
+            message="공개 벤치마크 점수를 카테고리별로 정리해 등록합니다. 등록되면 여기에서 카테고리별 리더보드로 확인할 수 있어요."
             ctaLabel="도구 탐색하기"
             ctaTo="/"
           />
@@ -429,8 +443,10 @@ const Benchmarks = () => {
                 </div>
 
                 <p className="multi-axis-note">
-                  각 축은 해당 벤치마크 내 상대값입니다(단위 상이). 비교 기준은
-                  아래 표의 점수 숫자입니다.
+                  막대·꼭짓점 길이는 0 기준 절대 비율입니다(percent 축은 만점 100,
+                  Elo 축은 절대 만점이 없어 비교 도구 중 최고점을 기준으로 둡니다).
+                  섹션 리더보드 막대와 동일한 기준이며, 비교 기준은 아래 표의 점수
+                  숫자입니다.
                 </p>
 
                 {/* C12. 데이터 표(항상 DOM — 접근성 SSOT) */}
@@ -460,11 +476,15 @@ const Benchmarks = () => {
                       className="benchmark-section-title"
                     >
                       {sec.label}
-                      <span className="benchmark-section-title-en">
-                        {sec.labelEn}
-                      </span>
+                      {sec.labelEn && (
+                        <span className="benchmark-section-title-en">
+                          {sec.labelEn}
+                        </span>
+                      )}
                     </h2>
-                    <p className="benchmark-section-desc">{sec.desc}</p>
+                    {sec.desc && (
+                      <p className="benchmark-section-desc">{sec.desc}</p>
+                    )}
                   </div>
                   {sec.typeBadges.length > 0 && (
                     <div className="benchmark-type-badges">
@@ -480,7 +500,7 @@ const Benchmarks = () => {
                 {sec.rows.length === 0 ? (
                   <EmptyNoDataState
                     title="이 카테고리 점수가 아직 없습니다"
-                    message="수집되면 여기에 리더보드가 채워집니다."
+                    message="점수가 등록되면 여기에 리더보드가 채워집니다."
                     inline
                   />
                 ) : (
@@ -561,11 +581,7 @@ const BarGroupLeaderboard = ({ sec, isSelected, toggleCompare, trayFull }) => {
                       <div
                         className="bar-fill"
                         style={{
-                          width: `${barPctInSection(
-                            row.score,
-                            sec.min,
-                            sec.max
-                          )}%`,
+                          width: `${barPct(row.score, sec.unit, sec.max)}%`,
                         }}
                       />
                     </div>
@@ -647,7 +663,7 @@ const BarGroupLeaderboard = ({ sec, isSelected, toggleCompare, trayFull }) => {
                   <div
                     className="bar-fill"
                     style={{
-                      width: `${barPctInSection(row.score, sec.min, sec.max)}%`,
+                      width: `${barPct(row.score, sec.unit, sec.max)}%`,
                     }}
                   />
                 </div>
@@ -687,13 +703,16 @@ const BarGroupLeaderboard = ({ sec, isSelected, toggleCompare, trayFull }) => {
       </div>
 
       <p className="leaderboard-caption">
-        막대 길이는 이 축 내 상대값입니다. 비교 기준은 점수 숫자입니다.
+        {sec.unit === 'elo'
+          ? '막대 길이는 0 기준, 이 축 최고점 대비 비율입니다(Elo 는 절대 만점이 없어 최고점을 기준으로 둡니다). 비교 기준은 점수 숫자입니다.'
+          : '막대 길이는 0~100점(만점 100) 기준 절대 비율입니다. 비교 기준은 점수 숫자입니다.'}
       </p>
     </>
   );
 };
 
-// C10. 다축 막대그룹(축별 그룹, 도구별 막대). 축마다 자체 unit·자체 정규화.
+// C10. 다축 막대그룹(축별 그룹, 도구별 막대). 발견 #7: barPct 로 섹션 리더보드와
+// 동일 정규화(0 기준 절대 비율). 발견 #9: 점수 옆 출처(source) 표기.
 const ComparisonBarGroup = ({ matrix }) => {
   return (
     <div className="comparison-bar-group">
@@ -702,29 +721,34 @@ const ComparisonBarGroup = ({ matrix }) => {
           <h3 className="comparison-axis-title">
             {axis.label}
             <span className="comparison-axis-unit">
-              {axis.unit === 'elo' ? '(Elo)' : '(%)'}
+              {axis.unit === 'elo' ? '(Elo)' : '(점 / 100)'}
             </span>
           </h3>
           <ul className="comparison-axis-bars">
             {axis.cells.map((cell) => {
               const has = Number.isFinite(cell.score);
-              const pct = has && axis.max > 0 ? (cell.score / axis.max) * 100 : 0;
               const text = has ? formatScore(cell.score, axis.unit) : '-';
+              const srcLabel = has && cell.source ? `, 출처 ${cell.source}` : '';
               return (
                 <li key={cell.tool_id} className="comparison-axis-bar-row">
                   <span className="comparison-bar-label">{cell.tool_name}</span>
                   <div
                     className="bar-track"
                     role="img"
-                    aria-label={`${cell.tool_name}, ${axis.label} ${text}`}
+                    aria-label={`${cell.tool_name}, ${axis.label} ${text}${srcLabel}`}
                   >
                     <div
                       className="bar-fill"
                       aria-hidden="true"
-                      style={{ width: `${Math.max(has ? 8 : 0, pct)}%` }}
+                      style={{ width: `${barPct(cell.score, axis.unit, axis.max)}%` }}
                     />
                   </div>
-                  <span className="comparison-bar-value">{text}</span>
+                  <span className="comparison-bar-value">
+                    {text}
+                    {has && cell.source && (
+                      <span className="comparison-bar-source">{cell.source}</span>
+                    )}
+                  </span>
                 </li>
               );
             })}
@@ -766,26 +790,39 @@ const ComparisonRadar = ({ matrix, tools }) => {
       .join(' ')
   );
 
-  // 도구별 폴리곤(축별 max=외곽). 결측 셀은 중심(0) 처리하되 표에 '-'로 진실 노출.
+  // 도구별 폴리곤. 발견 #7: 비율은 0 기준 절대(percent→/100, elo→/축 최고점) —
+  // 막대 뷰와 동일 기준. 발견 #8: 결측 셀은 중심(0)으로 찍지 않고 폴리곤·마커에서
+  // 제외한다(결측을 "최저점"으로 오독시키지 않음). 결측이 있으면 폴리곤이 열린
+  // 형태(개곡선)가 되며, 정확한 값은 표가 SSOT.
   const polygons = tools.map((tool, ti) => {
-    const pts = axes.map((axis, i) => {
+    const present = []; // { i, point } — 점수 있는 축만.
+    let hasMissing = false;
+    axes.forEach((axis, i) => {
       const cell = axis.cells.find((c) => c.tool_id === tool.tool_id);
-      const ratio =
-        cell && Number.isFinite(cell.score) && axis.max > 0
-          ? cell.score / axis.max
-          : 0;
-      return pointAt(i, ratio);
+      const has = cell && Number.isFinite(cell.score);
+      if (!has) {
+        hasMissing = true;
+        return;
+      }
+      const denom = axis.unit === 'elo' ? axis.max : 100;
+      const ratio = denom > 0 ? Math.min(1, cell.score / denom) : 0;
+      present.push({ i, point: pointAt(i, ratio) });
     });
     return {
       tool,
       marker: TOOL_MARKERS[ti % TOOL_MARKERS.length],
       inkClass: `radar-ink-${ti % 3}`,
-      polyStr: pts
-        .map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`)
+      hasMissing,
+      // 점수 ≥3 축이면 닫힌 폴리곤, 2축이면 선분, 1축이면 점만(폴리곤 생략).
+      polyStr: present
+        .map((p) => `${p.point.x.toFixed(1)},${p.point.y.toFixed(1)}`)
         .join(' '),
-      vertices: pts,
+      vertices: present,
     };
   });
+
+  // 결측이 하나라도 있으면 desc/캡션에 처리 방식을 명시(접근성).
+  const anyMissing = polygons.some((p) => p.hasMissing);
 
   return (
     <div className="comparison-radar-wrap">
@@ -797,8 +834,9 @@ const ComparisonRadar = ({ matrix, tools }) => {
       >
         <title id="radar-title">다축 레이더 비교</title>
         <desc id="radar-desc">
-          {tools.map((t) => t.tool_name).join(', ')}의 카테고리별 상대 점수.
-          정확한 수치는 아래 데이터 표를 참고하세요.
+          {tools.map((t) => t.tool_name).join(', ')}의 카테고리별 0 기준 점수
+          비율. 점수가 없는 축은 그리지 않습니다(중심 0 으로 찍지 않음 — 최저점이
+          아닌 결측). 정확한 수치는 아래 데이터 표를 참고하세요.
         </desc>
 
         {/* 그리드 링 */}
@@ -821,19 +859,29 @@ const ComparisonRadar = ({ matrix, tools }) => {
           );
         })}
 
-        {/* 도구 폴리곤 */}
+        {/* 도구 폴리곤. 결측 축은 꼭짓점에서 제외 — 결측이 있으면 폴리곤이 열린
+            형태(개곡선)가 되어 결측을 0 으로 오독시키지 않는다(발견 #8). */}
         {polygons.map((poly) => (
           <g key={poly.tool.tool_id}>
-            <polygon
-              className={`radar-polygon ${poly.inkClass}`}
-              points={poly.polyStr}
-            />
-            {poly.vertices.map((v, vi) => (
+            {poly.vertices.length >= 3 ? (
+              <polygon
+                className={`radar-polygon ${poly.inkClass}${
+                  poly.hasMissing ? ' radar-polygon--partial' : ''
+                }`}
+                points={poly.polyStr}
+              />
+            ) : poly.vertices.length === 2 ? (
+              <polyline
+                className={`radar-polyline ${poly.inkClass}`}
+                points={poly.polyStr}
+              />
+            ) : null}
+            {poly.vertices.map((v) => (
               <text
-                key={vi}
+                key={v.i}
                 className={`radar-vertex-marker ${poly.inkClass}`}
-                x={v.x}
-                y={v.y}
+                x={v.point.x}
+                y={v.point.y}
                 textAnchor="middle"
                 dominantBaseline="central"
                 aria-hidden="true"
@@ -878,10 +926,21 @@ const ComparisonRadar = ({ matrix, tools }) => {
             >
               {poly.marker}
             </span>
-            <span className="radar-legend-label">{poly.tool.tool_name}</span>
+            <span className="radar-legend-label">
+              {poly.tool.tool_name}
+              {poly.hasMissing && (
+                <span className="radar-legend-missing"> · 일부 축 점수 없음</span>
+              )}
+            </span>
           </li>
         ))}
       </ul>
+      {anyMissing && (
+        <p className="radar-missing-caption">
+          점수가 없는 축은 그리지 않아 도형이 열려 있을 수 있습니다. 빈 축은 0점이
+          아니라 데이터 없음(아래 표에 '-')입니다.
+        </p>
+      )}
     </div>
   );
 };
@@ -900,7 +959,7 @@ const ComparisonDataTable = ({ matrix, tools }) => {
               <th key={axis.key} scope="col">
                 {axis.label}
                 <span className="comparison-data-unit">
-                  {axis.unit === 'elo' ? ' (Elo)' : ' (%)'}
+                  {axis.unit === 'elo' ? ' (Elo)' : ' (점 / 100)'}
                 </span>
               </th>
             ))}
@@ -922,7 +981,23 @@ const ComparisonDataTable = ({ matrix, tools }) => {
                     key={axis.key}
                     className={has ? undefined : 'comparison-data-empty'}
                   >
-                    {has ? formatScore(cell.score, axis.unit) : '-'}
+                    {has ? (
+                      <>
+                        <span className="comparison-data-score">
+                          {formatScore(cell.score, axis.unit)}
+                        </span>
+                        {/* 발견 #9: 출처·모델 버전 표기. */}
+                        {(cell.source || cell.modelVersion) && (
+                          <span className="comparison-data-source">
+                            {[cell.modelVersion, cell.source]
+                              .filter(Boolean)
+                              .join(' · ')}
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      '-'
+                    )}
                   </td>
                 );
               })}
@@ -930,6 +1005,10 @@ const ComparisonDataTable = ({ matrix, tools }) => {
           ))}
         </tbody>
       </table>
+      <p className="comparison-data-caption">
+        점수는 raw 값입니다. percent 축은 만점 100 기준, Elo 는 상대 점수(만점 없음).
+        출처·모델 버전은 점수 아래에 표기됩니다.
+      </p>
     </div>
   );
 };
