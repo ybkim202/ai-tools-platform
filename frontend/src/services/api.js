@@ -84,6 +84,10 @@ export const recommendationsAPI = {
 // ==================== Compare API ====================
 export const compareAPI = {
   // 도구 비교
+  // 응답: { success, data: { comparison: [...], total_tools: N }, error }.
+  // 각 도구의 benchmarks는 중첩 객체:
+  //   { "MMLU": { score: 86.4, source: "Artificial Analysis", unit: "percent" }, ... }
+  //   (구버전은 값=숫자였음. utils/benchmark.js의 benchmarkScore가 양쪽을 흡수.)
   compareTools: (toolIds) => {
     return apiClient.get('/compare', {
       params: { ids: toolIds.join(',') },

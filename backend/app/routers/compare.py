@@ -55,12 +55,20 @@ def compare_tools(
                 for row in pricing_result.fetchall()
             ]
             
-            # 벤치마크 정보 조회
-            benchmark_query = "SELECT benchmark_type, score FROM benchmarks WHERE tool_id = :tool_id"
+            # 벤치마크 정보 조회 — 점수와 함께 출처(source)·단위(unit)를 반환해
+            # 비교 화면이 "이 점수 믿어도 되나" 질문에 답하도록 한다(구체성=신뢰).
+            benchmark_query = (
+                "SELECT benchmark_type, score, source, unit "
+                "FROM benchmarks WHERE tool_id = :tool_id"
+            )
             benchmark_result = db.execute(text(benchmark_query), {"tool_id": tool_id})
             benchmarks = {}
             for row in benchmark_result.fetchall():
-                benchmarks[row[0]] = float(row[1])
+                benchmarks[row[0]] = {
+                    "score": float(row[1]),
+                    "source": row[2],
+                    "unit": row[3] or "percent",
+                }
             
             comparison.append({
                 "id": tool_row[0],

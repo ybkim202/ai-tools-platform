@@ -2,10 +2,16 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useUIStore } from '../stores/toolStore';
 import { compareAPI, handleApiError } from '../services/api';
-import { formatUserCount, formatPrice, formatScore, displayLabel } from '../utils/format';
+import { formatUserCount, formatPrice, displayLabel } from '../utils/format';
 import { safeHttpUrl } from '../utils/url';
 import { handleLogoError, resolveLogoSrc } from '../utils/logoFallback';
 import { difficultyDot } from '../utils/difficulty';
+import {
+  benchmarkTypeLabel,
+  benchmarkScore,
+  benchmarkSource,
+  formatBenchmarkScore,
+} from '../utils/benchmark';
 import ExternalLinkIcon from '../components/ExternalLinkIcon';
 import {
   LoadingState,
@@ -15,6 +21,15 @@ import {
 } from '../components/states/StateViews';
 import { SearchEmptyIcon } from '../components/states/StateIcons';
 import '../styles/Compare.css';
+
+// 행 단위 최고값 배지(#2). 색 단독 금지 → 삼각 아이콘(▲)+"최고" 텍스트 2중 채널.
+// 셀의 .is-best 굵게/틴트와 함께 쓰여 스캔 없이 우위 도구를 식별하게 한다.
+const BestBadge = () => (
+  <span className="best-badge" title="이 항목에서 가장 우수">
+    <span className="best-badge-icon" aria-hidden="true">▲</span>
+    최고
+  </span>
+);
 
 const Compare = () => {
   const { selectedToolsForCompare, compareNamesById, clearCompareList } =
@@ -53,6 +68,68 @@ const Compare = () => {
   const missingToolNames = selectedToolsForCompare
     .filter((id) => !returnedIds.has(id))
     .map((id) => compareNamesById[id] || `#${id}`);
+
+  // ── 행 단위 우열(#2) ──────────────────────────────────────────────
+  // 정량 비교 가능 행의 "최고값"을 미리 계산한다. 강조는 비교 대상이
+  // 2개 이상일 때만 의미가 있으므로 그때만 maxima를 채운다.
+  // null/0(미상) 값은 후보에서 제외하고, 동률이면 셀 비교에서 복수 강조된다.
+  const tools = React.useMemo(
+    () => comparisonData ?? [],
+    [comparisonData]
+  );
+  const canHighlight = tools.length >= 2;
+
+  const numericUserCount = (tool) => {
+    const n = Number(tool?.user_count);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  };
+
+  const maxUserCount = React.useMemo(() => {
+    if (!canHighlight) return null;
+    const values = tools
+      .map((t) => {
+        const n = Number(t?.user_count);
+        return Number.isFinite(n) && n > 0 ? n : null;
+      })
+      .filter((v) => v !== null);
+    return values.length > 0 ? Math.max(...values) : null;
+  }, [tools, canHighlight]);
+
+  // 벤치마크는 타입별로 최고 점수가 다르므로 type → maxScore 맵을 만든다.
+  // 신규 형식(benchmarks[type] = { score, source, unit })에서 score만 꺼내 비교한다.
+  const maxBenchmarkByType = React.useMemo(() => {
+    if (!canHighlight) return {};
+    const max = {};
+    tools.forEach((tool) => {
+      const entries = tool?.benchmarks ? Object.entries(tool.benchmarks) : [];
+      entries.forEach(([type, value]) => {
+        const n = benchmarkScore(value);
+        if (n === null) return;
+        if (max[type] === undefined || n > max[type]) max[type] = n;
+      });
+    });
+    return max;
+  }, [tools, canHighlight]);
+
+  // ── 가로 스크롤 시그니파이어(#10) ─────────────────────────────────
+  // 실제 오버플로일 때만, 그리고 끝에 도달하지 않았을 때만 우측 페이드+힌트.
+  const scrollRef = React.useRef(null);
+  const [showScrollHint, setShowScrollHint] = React.useState(false);
+
+  const updateScrollHint = React.useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const overflowing = el.scrollWidth > el.clientWidth + 1;
+    const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1;
+    setShowScrollHint(overflowing && !atEnd);
+  }, []);
+
+  useEffect(() => {
+    // 데이터/뷰포트 변화 후 오버플로 재측정.
+    updateScrollHint();
+    window.addEventListener('resize', updateScrollHint);
+    return () => window.removeEventListener('resize', updateScrollHint);
+  }, [updateScrollHint, comparisonData]);
 
   if (selectedToolsForCompare.length === 0) {
     return (
@@ -125,12 +202,16 @@ const Compare = () => {
 
       {!loading && !error && comparisonData && comparisonData.length > 0 && (
         <>
+        {/* 스크롤 래퍼: 실제 오버플로일 때만 우측 페이드+힌트(#10). is-overflow 클래스로 토글. */}
+        <div className={`comparison-table-wrap${showScrollHint ? ' is-overflow' : ''}`}>
         <div
+          ref={scrollRef}
           className="comparison-table"
           aria-live="polite"
           role="region"
           aria-label="도구 비교 표 (가로로 스크롤하여 더 많은 도구를 볼 수 있습니다)"
           tabIndex={0}
+          onScroll={updateScrollHint}
         >
           <table>
             <thead>
@@ -156,54 +237,10 @@ const Compare = () => {
                 ))}
               </tr>
             </thead>
+            {/* 행 위계(#4): 결정축(가격·벤치마크·사용자 수)을 위로, 메타(카테고리·라이선스·난이도·링크)는 아래·톤 다운. */}
             <tbody>
-              <tr>
-                <td className="label">카테고리</td>
-                {comparisonData.map((tool) => (
-                  <td key={tool.id}>{tool.category}</td>
-                ))}
-              </tr>
-              <tr>
-                <td className="label">라이선스</td>
-                {comparisonData.map((tool) => (
-                  <td key={tool.id}>
-                    {/* 핵심 비교축. 색 단독 금지 → 점 문자(◆/◇)+텍스트 2중 채널(카드와 동일). */}
-                    {tool.is_open_source ? (
-                      <span className="license license-open" title="Open-Source">
-                        <span className="license-dot" aria-hidden="true">◆</span>
-                        오픈소스
-                      </span>
-                    ) : (
-                      <span className="license license-proprietary" title="Proprietary">
-                        <span className="license-dot" aria-hidden="true">◇</span>
-                        독점
-                      </span>
-                    )}
-                  </td>
-                ))}
-              </tr>
-              <tr>
-                <td className="label">난이도</td>
-                {comparisonData.map((tool) => (
-                  <td key={tool.id}>
-                    <span className={`difficulty ${tool.difficulty}`}>
-                      <span className="difficulty-dot" aria-hidden="true">
-                        {difficultyDot(tool.difficulty)}
-                      </span>
-                      {tool.difficulty}
-                    </span>
-                  </td>
-                ))}
-              </tr>
-              <tr>
-                <td className="label">사용자 수</td>
-                {comparisonData.map((tool) => (
-                  <td key={tool.id}>
-                    {formatUserCount(tool.user_count) ?? '-'}
-                  </td>
-                ))}
-              </tr>
-              <tr>
+              {/* 가격 — 결정축 */}
+              <tr className="decision-row">
                 <td className="label">가격</td>
                 {comparisonData.map((tool) => (
                   <td key={tool.id}>
@@ -226,26 +263,125 @@ const Compare = () => {
                   </td>
                 ))}
               </tr>
-              <tr>
+              {/* 벤치마크 — 결정축. 타입별 최고 점수 셀 강조(#2). 타입은 읽을 라벨, 점수는 /100(#9). */}
+              <tr className="decision-row">
                 <td className="label">벤치마크</td>
+                {comparisonData.map((tool) => {
+                  const entries = tool.benchmarks
+                    ? Object.entries(tool.benchmarks)
+                    : [];
+                  const isBest =
+                    canHighlight &&
+                    entries.some(([type, value]) => {
+                      const n = benchmarkScore(value);
+                      return (
+                        n !== null &&
+                        maxBenchmarkByType[type] !== undefined &&
+                        n === maxBenchmarkByType[type]
+                      );
+                    });
+                  return (
+                    <td key={tool.id} className={isBest ? 'is-best' : undefined}>
+                      {entries.length > 0 ? (
+                        <div className="benchmark-list">
+                          {entries.map(([type, value]) => {
+                            const n = benchmarkScore(value);
+                            const source = benchmarkSource(value);
+                            const typeBest =
+                              canHighlight &&
+                              n !== null &&
+                              maxBenchmarkByType[type] !== undefined &&
+                              n === maxBenchmarkByType[type];
+                            return (
+                              <div
+                                key={type}
+                                className={`benchmark-item${
+                                  typeBest ? ' benchmark-item-best' : ''
+                                }`}
+                              >
+                                <span className="type">
+                                  {benchmarkTypeLabel(type)}
+                                </span>
+                                <span className="score">
+                                  {formatBenchmarkScore(value)}
+                                  {typeBest && <BestBadge />}
+                                </span>
+                                {source && (
+                                  <span className="benchmark-source">
+                                    {source}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <span className="cell-coming-soon">준비 중</span>
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+              {/* 사용자 수 — 결정축이자 사회적 증명. 최다 사용자 셀 강조(#2). */}
+              <tr className="decision-row">
+                <td className="label">사용자 수</td>
+                {comparisonData.map((tool) => {
+                  const count = numericUserCount(tool);
+                  const isBest =
+                    canHighlight && count !== null && count === maxUserCount;
+                  return (
+                    <td key={tool.id} className={isBest ? 'is-best' : undefined}>
+                      <span className="user-count-value">
+                        {formatUserCount(tool.user_count) ?? '-'}
+                      </span>
+                      {isBest && <BestBadge />}
+                    </td>
+                  );
+                })}
+              </tr>
+              {/* 카테고리 — 메타 */}
+              <tr className="meta-row">
+                <td className="label">카테고리</td>
+                {comparisonData.map((tool) => (
+                  <td key={tool.id}>{tool.category}</td>
+                ))}
+              </tr>
+              {/* 라이선스 — 메타 */}
+              <tr className="meta-row">
+                <td className="label">라이선스</td>
                 {comparisonData.map((tool) => (
                   <td key={tool.id}>
-                    {tool.benchmarks && Object.keys(tool.benchmarks).length > 0 ? (
-                      <div className="benchmark-list">
-                        {Object.entries(tool.benchmarks).map(([type, score]) => (
-                          <div key={type} className="benchmark-item">
-                            <span className="type">{type}</span>
-                            <span className="score">{formatScore(score)}</span>
-                          </div>
-                        ))}
-                      </div>
+                    {/* 핵심 비교축. 색 단독 금지 → 점 문자(◆/◇)+텍스트 2중 채널(카드와 동일). */}
+                    {tool.is_open_source ? (
+                      <span className="license license-open" title="Open-Source">
+                        <span className="license-dot" aria-hidden="true">◆</span>
+                        오픈소스
+                      </span>
                     ) : (
-                      <span className="cell-coming-soon">준비 중</span>
+                      <span className="license license-proprietary" title="Proprietary">
+                        <span className="license-dot" aria-hidden="true">◇</span>
+                        독점
+                      </span>
                     )}
                   </td>
                 ))}
               </tr>
-              <tr>
+              {/* 난이도 — 메타 */}
+              <tr className="meta-row">
+                <td className="label">난이도</td>
+                {comparisonData.map((tool) => (
+                  <td key={tool.id}>
+                    <span className={`difficulty ${tool.difficulty}`}>
+                      <span className="difficulty-dot" aria-hidden="true">
+                        {difficultyDot(tool.difficulty)}
+                      </span>
+                      {tool.difficulty}
+                    </span>
+                  </td>
+                ))}
+              </tr>
+              {/* 링크 — 메타 */}
+              <tr className="meta-row">
                 <td className="label">링크</td>
                 {comparisonData.map((tool) => (
                   <td key={tool.id}>
@@ -268,6 +404,11 @@ const Compare = () => {
               </tr>
             </tbody>
           </table>
+        </div>
+          {/* 오버플로 시에만 노출(끝 도달 시 자동 소거). 페이드는 장식, 힌트는 텍스트로 의미 전달. */}
+          <div className="comparison-scroll-hint" aria-hidden="true">
+            ← 스크롤 →
+          </div>
         </div>
 
         {/* 모바일 전용: 도구별 세로 카드 스택. 테이블 헤더가 사라지므로
@@ -292,43 +433,9 @@ const Compare = () => {
                 </Link>
               </header>
 
+              {/* 행 위계(#4): 결정축 먼저(가격·벤치마크·사용자 수), 메타는 뒤(.meta-row 톤 다운). */}
               <dl className="comparison-card-rows">
-                <div className="comparison-card-row">
-                  <dt>카테고리</dt>
-                  <dd>{tool.category}</dd>
-                </div>
-                <div className="comparison-card-row">
-                  <dt>라이선스</dt>
-                  <dd>
-                    {tool.is_open_source ? (
-                      <span className="license license-open" title="Open-Source">
-                        <span className="license-dot" aria-hidden="true">◆</span>
-                        오픈소스
-                      </span>
-                    ) : (
-                      <span className="license license-proprietary" title="Proprietary">
-                        <span className="license-dot" aria-hidden="true">◇</span>
-                        독점
-                      </span>
-                    )}
-                  </dd>
-                </div>
-                <div className="comparison-card-row">
-                  <dt>난이도</dt>
-                  <dd>
-                    <span className={`difficulty ${tool.difficulty}`}>
-                      <span className="difficulty-dot" aria-hidden="true">
-                        {difficultyDot(tool.difficulty)}
-                      </span>
-                      {tool.difficulty}
-                    </span>
-                  </dd>
-                </div>
-                <div className="comparison-card-row">
-                  <dt>사용자 수</dt>
-                  <dd>{formatUserCount(tool.user_count) ?? '-'}</dd>
-                </div>
-                <div className="comparison-card-row">
+                <div className="comparison-card-row decision-row">
                   <dt>가격</dt>
                   <dd>
                     {tool.pricing?.length > 0 ? (
@@ -349,19 +456,43 @@ const Compare = () => {
                     )}
                   </dd>
                 </div>
-                <div className="comparison-card-row">
+                <div className="comparison-card-row decision-row">
                   <dt>벤치마크</dt>
                   <dd>
                     {tool.benchmarks &&
                     Object.keys(tool.benchmarks).length > 0 ? (
                       <div className="benchmark-list">
                         {Object.entries(tool.benchmarks).map(
-                          ([type, score]) => (
-                            <div key={type} className="benchmark-item">
-                              <span className="type">{type}</span>
-                              <span className="score">{formatScore(score)}</span>
-                            </div>
-                          )
+                          ([type, value]) => {
+                            const n = benchmarkScore(value);
+                            const source = benchmarkSource(value);
+                            const typeBest =
+                              canHighlight &&
+                              n !== null &&
+                              maxBenchmarkByType[type] !== undefined &&
+                              n === maxBenchmarkByType[type];
+                            return (
+                              <div
+                                key={type}
+                                className={`benchmark-item${
+                                  typeBest ? ' benchmark-item-best' : ''
+                                }`}
+                              >
+                                <span className="type">
+                                  {benchmarkTypeLabel(type)}
+                                </span>
+                                <span className="score">
+                                  {formatBenchmarkScore(value)}
+                                  {typeBest && <BestBadge />}
+                                </span>
+                                {source && (
+                                  <span className="benchmark-source">
+                                    {source}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          }
                         )}
                       </div>
                     ) : (
@@ -369,7 +500,56 @@ const Compare = () => {
                     )}
                   </dd>
                 </div>
-                <div className="comparison-card-row">
+                <div className="comparison-card-row decision-row">
+                  <dt>사용자 수</dt>
+                  <dd>
+                    {(() => {
+                      const count = numericUserCount(tool);
+                      const isBest =
+                        canHighlight && count !== null && count === maxUserCount;
+                      return (
+                        <span className="user-count-cell">
+                          <span className="user-count-value">
+                            {formatUserCount(tool.user_count) ?? '-'}
+                          </span>
+                          {isBest && <BestBadge />}
+                        </span>
+                      );
+                    })()}
+                  </dd>
+                </div>
+                <div className="comparison-card-row meta-row">
+                  <dt>카테고리</dt>
+                  <dd>{tool.category}</dd>
+                </div>
+                <div className="comparison-card-row meta-row">
+                  <dt>라이선스</dt>
+                  <dd>
+                    {tool.is_open_source ? (
+                      <span className="license license-open" title="Open-Source">
+                        <span className="license-dot" aria-hidden="true">◆</span>
+                        오픈소스
+                      </span>
+                    ) : (
+                      <span className="license license-proprietary" title="Proprietary">
+                        <span className="license-dot" aria-hidden="true">◇</span>
+                        독점
+                      </span>
+                    )}
+                  </dd>
+                </div>
+                <div className="comparison-card-row meta-row">
+                  <dt>난이도</dt>
+                  <dd>
+                    <span className={`difficulty ${tool.difficulty}`}>
+                      <span className="difficulty-dot" aria-hidden="true">
+                        {difficultyDot(tool.difficulty)}
+                      </span>
+                      {tool.difficulty}
+                    </span>
+                  </dd>
+                </div>
+                <div className="comparison-card-row meta-row">
                   <dt>링크</dt>
                   <dd>
                     {safeHttpUrl(tool.official_url) ? (

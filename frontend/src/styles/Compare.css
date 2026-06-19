@@ -16,9 +16,15 @@
   text-align: center;
 }
 
-.comparison-table {
+/* 스크롤 래퍼(#10): 페이드 마스크/힌트를 테이블 위에 절대배치하기 위한 컨텍스트.
+   래퍼는 max-width 정렬만 담당하고, 실제 스크롤은 자식 .comparison-table이 가진다. */
+.comparison-table-wrap {
+  position: relative;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.comparison-table {
   background-color: var(--color-background);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
@@ -27,6 +33,47 @@
   overflow-y: visible;
   -webkit-overflow-scrolling: touch; /* iOS 관성 스크롤 */
   box-shadow: var(--shadow-lg);
+}
+
+/* 우측 페이드 마스크(#10): 실제 오버플로(is-overflow)일 때만 노출.
+   sticky 첫 열은 가리지 않도록 우측에만 깔고 pointer-events 무효(클릭 통과). */
+.comparison-table-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 48px;
+  border-top-right-radius: var(--radius-xl);
+  border-bottom-right-radius: var(--radius-xl);
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-background)
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast);
+}
+
+.comparison-table-wrap.is-overflow::after {
+  opacity: 1;
+}
+
+/* "← 스크롤 →" 텍스트 힌트: 색이 아니라 텍스트로 의미 전달(접근성).
+   끝 도달 시 JS가 is-overflow를 제거해 페이드와 함께 사라진다. */
+.comparison-scroll-hint {
+  display: none;
+  margin: var(--spacing-sm) auto 0;
+  text-align: center;
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.comparison-table-wrap.is-overflow .comparison-scroll-hint {
+  display: block;
 }
 
 /* 키보드 사용자가 스크롤 영역에 진입했음을 명확히(색만 의존 X) */
@@ -175,6 +222,20 @@
   font-size: var(--font-size-base);
 }
 
+/* 벤치마크 항목은 type/score 한 줄 + 출처(source) 보조 줄로 줄바꿈할 수 있다. */
+.benchmark-item {
+  flex-wrap: wrap;
+}
+
+/* 출처(source) 보조 텍스트: 메타 위계(tertiary, 작게). 행 전체 폭을 차지해
+   type/score 아래 줄로 흐른다. 거짓 강조 방지 위해 항상 톤 다운. */
+.benchmark-source {
+  flex-basis: 100%;
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+}
+
 .plan,
 .type {
   font-weight: 600;
@@ -185,6 +246,87 @@
 .score {
   color: var(--color-primary-darker);
   font-weight: 700;
+}
+
+.score {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* ── 행 위계(#4) ──────────────────────────────────────────────────
+   결정축(가격·벤치마크·사용자 수)은 라벨을 강하게, 값을 키워 승격.
+   메타(카테고리·라이선스·난이도·링크)는 라벨을 secondary로 톤 다운. */
+.decision-row > td,
+.decision-row > th {
+  background-color: var(--color-primary-surface);
+}
+
+.decision-row .label {
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.decision-row .price,
+.decision-row .user-count-value {
+  font-size: var(--font-size-lg);
+}
+
+.meta-row .label {
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.meta-row > td:not(.label) {
+  color: var(--color-text-secondary);
+}
+
+.user-count-value {
+  font-weight: 700;
+  color: var(--color-primary-darker);
+}
+
+/* ── 행 단위 우열 강조(#2) ────────────────────────────────────────
+   최고값 셀: 굵게 + 미세 배경 틴트. 색 단독이 아니라 .best-badge(아이콘+텍스트) 동반. */
+.comparison-table td.is-best {
+  background-color: var(--color-primary-surface-strong);
+  font-weight: 700;
+}
+
+.user-count-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* "최고" 배지 — pill 토큰 재사용(난이도/라이선스와 동일 시각 언어). 삼각 아이콘이 색 외 채널. */
+.best-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-left: var(--spacing-xs);
+  padding: 0 var(--spacing-sm);
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-surface-strong);
+  border: 1px solid var(--color-primary-border);
+  color: var(--color-primary-darker);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.best-badge-icon {
+  font-size: var(--font-size-sm);
+  line-height: 1;
+}
+
+/* 다중 벤치마크 중 최고 항목만 강조(셀 전체가 아닌 행 내 항목 단위). */
+.benchmark-item-best .type,
+.benchmark-item-best .score {
+  color: var(--color-primary-darker);
 }
 
 /* 헤더 → 상세 진입 링크 (C5) */
@@ -325,8 +467,24 @@
   color: var(--color-text-primary);
 }
 
+/* 카드에서도 결정축 승격(#4): 미세 틴트 배경 + 라벨/값 강조, 메타는 톤 다운. */
+.comparison-card-row.decision-row {
+  background-color: var(--color-primary-surface);
+}
+
+.comparison-card-row.decision-row dt {
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.comparison-card-row.meta-row dt,
+.comparison-card-row.meta-row dd {
+  color: var(--color-text-secondary);
+}
+
 @media (max-width: 768px) {
-  .comparison-table {
+  /* 모바일은 카드 스택만 노출 → 데스크톱 표 래퍼(페이드/힌트 포함) 전체 숨김. */
+  .comparison-table-wrap {
     display: none;
   }
 
