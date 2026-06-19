@@ -214,11 +214,11 @@ const Recommendations = () => {
             <span className="results-context">'{selectedValue}'</span>
             에게 추천하는 도구 {recommendations.length}개
           </h2>
-          {/* 추천 근거 폴백(#11): 백엔드가 matched_tags를 주면 카드별 근거가 뜨지만,
-              일부/전부 비어 있으면 근거가 증발해 일반 목록과 구분되지 않는다.
-              근거가 빠진 카드가 하나라도 있으면 결과 영역에 맥락 라벨을 한 줄 둔다
-              (동어반복 대신 "무엇을 기준으로 골랐는지"를 명시). */}
-          {recommendations.some(
+          {/* 추천 근거 폴백(#11): 백엔드가 matched_tags를 주면 카드별 근거 칩이 뜬다.
+              근거가 "전부" 비어 있을 때만(every) 결과 영역에 맥락 라벨을 한 줄 둔다.
+              일부 카드에만 칩이 있으면 상단 라벨을 띄우지 않는다 — 개별 근거 칩과
+              일반 라벨이 동시에 떠 "어느 게 진짜 근거냐"는 이중 메시지가 되는 것을 막는다. */}
+          {recommendations.every(
             (tool) =>
               !Array.isArray(tool.matched_tags) || tool.matched_tags.length === 0
           ) && (

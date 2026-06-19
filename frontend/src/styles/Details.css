@@ -98,11 +98,6 @@
   font-weight: 700;
 }
 
-.meta .price-summary-pill .price-summary-icon {
-  color: var(--color-primary);
-  font-weight: 700;
-}
-
 .detail-tags {
   display: flex;
   flex-wrap: wrap;

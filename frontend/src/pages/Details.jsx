@@ -245,13 +245,11 @@ const Details = () => {
               </span>
             )}
 
-            {/* 가격 요약(#4): "얼마인가"를 헤더에서 즉시 답한다. 아이콘+텍스트로
-                의미 전달(색 단독 금지). 상세 금액 위계는 아래 가격 섹션이 담당. */}
+            {/* 가격 요약(#4): "얼마인가"를 헤더에서 즉시 답한다. priceSummary 텍스트
+                ("무료 플랜 있음"/"시작가 $N")가 의미를 전달하며, formatPrice가 $ 통화를
+                쓰므로 통화 단정 아이콘(₩)은 두지 않는다. 상세 금액 위계는 아래 가격 섹션이 담당. */}
             {priceSummary && (
-              <span className="meta-pill price-summary-pill">
-                <span className="price-summary-icon" aria-hidden="true">₩</span>
-                {priceSummary}
-              </span>
+              <span className="meta-pill price-summary-pill">{priceSummary}</span>
             )}
 
             {/* 난이도: 카드의 semantic 색+점 배지 재사용(평이한 회색 pill 대신 위계 보존).

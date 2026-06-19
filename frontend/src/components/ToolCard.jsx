@@ -24,10 +24,13 @@ const ToolCard = ({ tool, reasonTags }) => {
   const starsValue =
     tool.is_open_source === true ? formatMetric(tool.github_stars) : null;
   const userCountValue = formatUserCount(tool.user_count);
+  // 아이콘은 무채색 글리프만 사용한다(컬러 이모지 금지 — AI slop·OS별 렌더 편차).
+  // stars는 ★ 글리프, user_count는 적합한 단색 글리프 어휘가 없어 아이콘을 생략하고
+  // 숫자 + sr-only 라벨로 의미를 전달한다(라벨 텍스트가 의미 채널).
   const headlineMetric = starsValue
     ? { kind: 'stars', icon: '★', label: 'GitHub stars', value: starsValue }
     : userCountValue
-    ? { kind: 'users', icon: '👥', label: '사용자 수', value: userCountValue }
+    ? { kind: 'users', icon: null, label: '사용자 수', value: userCountValue }
     : null;
 
   const handleCompareToggle = () => {
@@ -71,9 +74,11 @@ const ToolCard = ({ tool, reasonTags }) => {
               둘 다 없으면 렌더하지 않는다(빈 강조 금지). */}
           {headlineMetric && (
             <div className="card-headline-metric">
-              <span className="headline-metric-icon" aria-hidden="true">
-                {headlineMetric.icon}
-              </span>
+              {headlineMetric.icon && (
+                <span className="headline-metric-icon" aria-hidden="true">
+                  {headlineMetric.icon}
+                </span>
+              )}
               <span className="headline-metric-value">{headlineMetric.value}</span>
               <span className="sr-only">{headlineMetric.label}</span>
             </div>
