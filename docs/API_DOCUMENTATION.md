@@ -450,7 +450,18 @@ curl "http://localhost:8000/api/recommendations"
             "billing_period": "free"
           }
         ],
-        "benchmarks": {}
+        "benchmarks": {
+          "MMLU": {
+            "score": 86.4,
+            "source": "Artificial Analysis",
+            "unit": "percent"
+          },
+          "GPQA Diamond": {
+            "score": 53.6,
+            "source": "Artificial Analysis",
+            "unit": "percent"
+          }
+        }
       }
     ],
     "total_tools": 3
@@ -458,6 +469,12 @@ curl "http://localhost:8000/api/recommendations"
   "error": null
 }
 ```
+
+> `benchmarks`는 `benchmark_type → { score, source, unit }` 형태의 중첩 객체입니다.
+> - `score`: 숫자 점수(없으면 `null`)
+> - `source`: 출처(예: `"Artificial Analysis"`) — 프론트에서 점수 아래 보조 텍스트로 표기
+> - `unit`: `"percent"`면 만점 맥락(`/100`)으로 표시, 그 외 단위는 접미사로 표기(예: `"elo"`)
+> 벤치마크가 없는 도구는 `"benchmarks": {}` (빈 객체)를 반환합니다.
 
 > 비교 대상 ID가 모두 존재하지 않으면 HTTP 404 (`TOOL_NOT_FOUND`)를 반환합니다.
 > 비교 도구 개수가 2개 미만이거나 5개 초과면, 또는 ID가 숫자가 아니면 HTTP 400 (`INVALID_PARAMETERS`)를 반환합니다.

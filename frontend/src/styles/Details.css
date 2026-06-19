@@ -91,6 +91,13 @@
   font-size: var(--font-size-sm);
 }
 
+/* 가격 요약 pill(#4): "얼마인가"는 헤더 메타 중 최우선 신호 → 텍스트를 primary 톤·
+   700으로 올려 같은 줄의 중립 pill보다 도드라지게 한다(신규 색 토큰 없이 위계만 상향). */
+.meta .price-summary-pill {
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
 .detail-tags {
   display: flex;
   flex-wrap: wrap;

@@ -177,7 +177,8 @@ body {
 
 .hero {
   position: relative;
-  min-height: 100vh;
+  /* 첫 화면에 검색바+첫 카드행 일부가 보이도록 100vh 대신 clamp로 제한(#3). */
+  min-height: clamp(480px, 70vh, 720px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -330,7 +331,8 @@ body {
 
 .search-input {
   width: 100%;
-  padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-lg) calc(var(--spacing-lg) + 24px + var(--spacing-md));
+  /* 우측은 인라인 클리어 버튼(#15) 공간 확보(아이콘 24px + gap). */
+  padding: var(--spacing-lg) calc(var(--spacing-lg) + 24px + var(--spacing-md)) var(--spacing-lg) calc(var(--spacing-lg) + 24px + var(--spacing-md));
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-family: var(--font-family);
@@ -344,6 +346,38 @@ body {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: inset 0 0 0 2px var(--color-primary-surface-strong), 0 0 0 3px var(--color-focus-ring);
+}
+
+/* 검색 인라인 클리어 버튼(#15): 인풋 우측 절대배치, 포커스 링은 기존 토큰 재사용. */
+.search-clear {
+  position: absolute;
+  right: var(--spacing-md);
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background-color: transparent;
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-xl);
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.search-clear:hover {
+  background-color: var(--color-primary-surface);
+  color: var(--color-text-primary);
+}
+
+.search-clear:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 /* Filters */
@@ -542,7 +576,8 @@ body {
 .retry-button {
   padding: var(--spacing-sm) var(--spacing-lg);
   background-color: var(--color-error);
-  color: white;
+  /* --color-error 반전 표면 → 반전 텍스트 토큰(white 고정 시 다크모드 가독성 깨짐). */
+  color: var(--color-on-primary);
   border: none;
   border-radius: var(--radius-md);
   font-weight: 600;
@@ -601,7 +636,8 @@ body {
 
 .footer-cta {
   padding: var(--spacing-3xl) var(--spacing-lg);
-  background: linear-gradient(135deg, var(--color-primary-surface) 0%, var(--color-primary-surface) 100%);
+  /* 두 stop이 동일 토큰이던 무의미한 그라데이션을 단색으로 정리(#14). */
+  background: var(--color-primary-surface);
   border-top: 1px solid var(--color-border);
   text-align: center;
 }

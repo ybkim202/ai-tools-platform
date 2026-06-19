@@ -755,6 +755,17 @@ thead .col-score {
   font-variant-numeric: tabular-nums;
 }
 
+/* 발견 #9: 막대 점수 아래 출처 표기(작게, 보조 텍스트 톤) */
+.comparison-bar-source {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  font-variant-numeric: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* C11. 레이더 (순수 SVG) */
 .comparison-radar-wrap {
   display: flex;
@@ -795,6 +806,18 @@ thead .col-score {
 .radar-polygon {
   fill: var(--color-primary-surface);
   stroke-width: 1.5;
+}
+
+/* 발견 #8: 결측 축이 있어 열린(부분) 폴리곤은 점선 외곽으로 "불완전"을 표시 */
+.radar-polygon--partial {
+  stroke-dasharray: 4 3;
+}
+
+/* 점수 2축뿐일 때의 개곡선(선분). 채우지 않음 — 결측을 면적으로 위장하지 않음 */
+.radar-polyline {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
 }
 
 /* 무채색 명도 단계로 도구 구분(채도 금지). 마커 글리프가 의미 전달 보조. */
@@ -854,6 +877,19 @@ thead .col-score {
   color: var(--color-text-primary);
 }
 
+.radar-legend-missing {
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+/* 발견 #8: 결측 처리 방식 명시 캡션 */
+.radar-missing-caption {
+  flex-basis: 100%;
+  margin: var(--spacing-sm) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
 /* C12. 데이터 표 */
 .comparison-data-table-wrap {
   overflow-x: auto;
@@ -896,6 +932,25 @@ thead .col-score {
 }
 
 .comparison-data-empty {
+  color: var(--color-text-tertiary);
+}
+
+/* 발견 #9: 셀 내 점수 + 출처/모델 버전 스택 */
+.comparison-data-score {
+  display: block;
+}
+
+.comparison-data-source {
+  display: block;
+  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  font-variant-numeric: normal;
+}
+
+.comparison-data-caption {
+  margin: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--font-size-sm);
   color: var(--color-text-tertiary);
 }
 

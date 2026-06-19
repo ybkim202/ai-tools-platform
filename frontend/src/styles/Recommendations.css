@@ -52,12 +52,17 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--spacing-2xl);
+  /* CLS 방지(#16): 옵션 로딩 중 LoadingState(320px) → option-grid(콘텐츠 높이)로
+     교체될 때 첫 진입 1회 레이아웃 점프가 났다. 헤딩+로딩 스피너가 차지하는 높이를
+     하한으로 고정해 옵션 도착 전후 높이 변동을 흡수한다. */
+  min-height: 420px;
 }
 
 .selection-area h3 {
   font-size: var(--font-size-xl);
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-xl);
+  /* 단일 행 헤딩은 중앙 유지(탭 그룹과 정렬). */
   text-align: center;
 }
 
@@ -115,11 +120,26 @@
 .results-section h2 {
   color: var(--color-text-primary);
   font-size: var(--font-size-2xl);
-  margin-bottom: var(--spacing-xl);
-  text-align: center;
+  margin-bottom: var(--spacing-md);
+  /* 다중 줄·정보량 많은 결과 헤딩은 좌측 정렬로 가독성 확보(발견 18a).
+     탭 그룹 중앙 정렬은 유지(.recommendation-tabs). */
+  text-align: left;
 }
 
 .results-heading .results-context {
+  color: var(--color-primary-darker);
+  font-weight: 700;
+}
+
+/* 추천 근거 폴백 라벨(#11): 헤딩 직하 보조 톤 한 줄. 좌측 정렬로 헤딩과 정렬. */
+.results-basis {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  margin-bottom: var(--spacing-xl);
+  text-align: left;
+}
+
+.results-basis .results-context {
   color: var(--color-primary-darker);
   font-weight: 700;
 }

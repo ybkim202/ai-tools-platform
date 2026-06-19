@@ -261,8 +261,10 @@ const Home = () => {
               : '매주 갱신되는 AI 도구 큐레이션'}
           </div>
           <h1 className="hero-title">모든 AI 도구를<br />한곳에서 발견하세요</h1>
+          {/* 사회적 증명(#6): 규모 신호(실측 totalCount)는 위 배지가 전담하고,
+              서브카피는 가치 제안에 집중해 역할을 분리(수치 중복 제거). */}
           <p className="hero-subtitle">
-            빠르게 바뀌는 AI를 한곳에서. 지금 뜨는 도구를 발견하고, 비교하고, 나에게 맞는 걸 추천받으세요
+            라이선스·난이도·인기로 한눈에 비교하고, 조건에 맞는 도구를 추천받으세요
           </p>
           <div className="hero-cta-group">
             <a href="#tools" className="cta-button">
@@ -301,6 +303,22 @@ const Home = () => {
                 className="search-input"
                 aria-label="도구 검색"
               />
+              {/* 인라인 클리어(#15): 입력값이 있을 때만 노출. 클릭 시 입력+적용값 모두 비우고
+                  1페이지로 리셋(디바운스 대기 없이 즉시). 키보드 포커스 가능. */}
+              {searchInput !== '' && (
+                <button
+                  type="button"
+                  className="search-clear"
+                  aria-label="검색어 지우기"
+                  onClick={() => {
+                    setSearchInput('');
+                    setSearch('');
+                    setCurrentPage(1);
+                  }}
+                >
+                  <span aria-hidden="true">×</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -479,8 +497,9 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Footer CTA */}
-      {!loading && tools.length > 0 && (
+      {/* Footer CTA — 빈 결과(dead-end #13)에서도 비교/추천 경로를 유지한다.
+          에러 상태에서만 숨김(다시 시도가 1차 액션). */}
+      {!loading && !error && (
         <section className="footer-cta">
           <div className="container">
             <h2>AI는 매주 바뀝니다. 계속 따라잡으세요</h2>
