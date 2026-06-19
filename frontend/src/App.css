@@ -172,7 +172,8 @@ textarea {
   height: 20px;
   padding: 0 var(--spacing-xs);
   background-color: var(--color-primary-darker);
-  color: white;
+  /* 배경(--color-primary-darker)이 다크모드에서 밝게 반전하므로 반전 텍스트 토큰 사용. */
+  color: var(--color-on-primary);
   border-radius: var(--radius-full);
   font-size: var(--font-size-sm);
   font-weight: 700;

@@ -576,7 +576,8 @@ body {
 .retry-button {
   padding: var(--spacing-sm) var(--spacing-lg);
   background-color: var(--color-error);
-  color: white;
+  /* --color-error 반전 표면 → 반전 텍스트 토큰(white 고정 시 다크모드 가독성 깨짐). */
+  color: var(--color-on-primary);
   border: none;
   border-radius: var(--radius-md);
   font-weight: 600;

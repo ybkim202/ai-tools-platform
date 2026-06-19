@@ -263,25 +263,17 @@ const Compare = () => {
                   </td>
                 ))}
               </tr>
-              {/* 벤치마크 — 결정축. 타입별 최고 점수 셀 강조(#2). 타입은 읽을 라벨, 점수는 /100(#9). */}
+              {/* 벤치마크 — 결정축. 강조는 "타입별 최고" 항목 단위(benchmark-item-best)로만
+                  한다(#4). 셀 전체 틴트를 쓰면 5개 타입 중 1개만 최고여도 셀이 "전반적 최고"로
+                  오독되므로 셀 레벨 is-best는 두지 않는다. 타입은 읽을 라벨, 점수는 /100(#9). */}
               <tr className="decision-row">
                 <td className="label">벤치마크</td>
                 {comparisonData.map((tool) => {
                   const entries = tool.benchmarks
                     ? Object.entries(tool.benchmarks)
                     : [];
-                  const isBest =
-                    canHighlight &&
-                    entries.some(([type, value]) => {
-                      const n = benchmarkScore(value);
-                      return (
-                        n !== null &&
-                        maxBenchmarkByType[type] !== undefined &&
-                        n === maxBenchmarkByType[type]
-                      );
-                    });
                   return (
-                    <td key={tool.id} className={isBest ? 'is-best' : undefined}>
+                    <td key={tool.id}>
                       {entries.length > 0 ? (
                         <div className="benchmark-list">
                           {entries.map(([type, value]) => {
@@ -316,7 +308,7 @@ const Compare = () => {
                           })}
                         </div>
                       ) : (
-                        <span className="cell-coming-soon">준비 중</span>
+                        <span className="cell-empty">-</span>
                       )}
                     </td>
                   );
@@ -496,7 +488,7 @@ const Compare = () => {
                         )}
                       </div>
                     ) : (
-                      <span className="cell-coming-soon">준비 중</span>
+                      <span className="cell-empty">-</span>
                     )}
                   </dd>
                 </div>

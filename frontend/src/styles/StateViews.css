@@ -154,7 +154,9 @@
 .state-cta-error {
   padding: var(--spacing-md) var(--spacing-xl);
   background-color: var(--color-error);
-  color: white;
+  /* --color-error는 다크모드에서 밝은 색으로 반전하므로 텍스트도 반전 토큰을 써야
+     항상 대비가 유지된다(white 고정 시 다크모드에서 밝은 배경+흰 글씨로 사라짐). */
+  color: var(--color-on-primary);
   border: none;
   border-radius: var(--radius-md);
   font-family: var(--font-family);
@@ -173,12 +175,6 @@
 .state-cta-error:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--color-focus-ring);
-}
-
-/* Compare cell inline "coming soon" */
-.cell-coming-soon {
-  color: var(--color-text-tertiary);
-  font-size: var(--font-size-sm);
 }
 
 /* Recommendations disabled option chips */
