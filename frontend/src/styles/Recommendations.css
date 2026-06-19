@@ -121,7 +121,7 @@
   color: var(--color-text-primary);
   font-size: var(--font-size-2xl);
   margin-bottom: var(--spacing-md);
-  /* 다중 줄·정보량 많은 결과 헤딩은 좌측 정렬로 가독성 확보(#18a).
+  /* 다중 줄·정보량 많은 결과 헤딩은 좌측 정렬로 가독성 확보(발견 18a).
      탭 그룹 중앙 정렬은 유지(.recommendation-tabs). */
   text-align: left;
 }
