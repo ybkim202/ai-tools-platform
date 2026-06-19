@@ -214,6 +214,19 @@ const Recommendations = () => {
             <span className="results-context">'{selectedValue}'</span>
             에게 추천하는 도구 {recommendations.length}개
           </h2>
+          {/* 추천 근거 폴백(#11): 백엔드가 matched_tags를 주면 카드별 근거가 뜨지만,
+              일부/전부 비어 있으면 근거가 증발해 일반 목록과 구분되지 않는다.
+              근거가 빠진 카드가 하나라도 있으면 결과 영역에 맥락 라벨을 한 줄 둔다
+              (동어반복 대신 "무엇을 기준으로 골랐는지"를 명시). */}
+          {recommendations.some(
+            (tool) =>
+              !Array.isArray(tool.matched_tags) || tool.matched_tags.length === 0
+          ) && (
+            <p className="results-basis">
+              <span className="results-context">'{selectedValue}'</span>
+              {selectedTab === 'task' ? ' 업무' : ' 직업'} 기준으로 선별한 추천이에요
+            </p>
+          )}
           <div className="tools-grid">
             {recommendations.map((tool) => (
               <ToolCard

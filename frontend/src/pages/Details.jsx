@@ -13,7 +13,7 @@ import {
   formatMetric,
   formatUserCount,
 } from '../utils/format';
-import { difficultyDot } from '../utils/difficulty';
+import { difficultyDot, difficultyLabel } from '../utils/difficulty';
 import { safeHttpUrl } from '../utils/url';
 import {
   LoadingState,
@@ -192,6 +192,23 @@ const Details = () => {
     ...(Array.isArray(selectedTool.tags) ? selectedTool.tags : []),
   ];
 
+  // 헤더 가격 요약(#4): "얼마인가"를 결정 직전 헤더 meta에 한 줄로 끌어올린다.
+  // 상세 가격 섹션(.price 2xl/700)은 그대로 유지 — 여기선 요약만.
+  // 규칙: 무료 플랜(price 0)이 하나라도 있으면 "무료 플랜 있음", 아니면 유효 양수
+  // 최저가를 "시작가 $N"으로. 유효 가격이 전혀 없으면 요약 생략(거짓 단정 금지).
+  const pricingPlans = Array.isArray(selectedTool.pricing) ? selectedTool.pricing : [];
+  const numericPrices = pricingPlans
+    .map((p) => Number(p.price))
+    .filter((n) => Number.isFinite(n) && n >= 0);
+  const hasFreePlan = numericPrices.some((n) => n === 0);
+  const minPaidPrice = numericPrices.filter((n) => n > 0).sort((a, b) => a - b)[0];
+  let priceSummary = null;
+  if (hasFreePlan) {
+    priceSummary = '무료 플랜 있음';
+  } else if (Number.isFinite(minPaidPrice)) {
+    priceSummary = `시작가 ${formatPrice(minPaidPrice)}`;
+  }
+
   return (
     <div className="details-page">
       <button className="back-btn" onClick={handleBack}>
@@ -228,13 +245,24 @@ const Details = () => {
               </span>
             )}
 
-            {/* 난이도: 카드의 semantic 색+점 배지 재사용(평이한 회색 pill 대신 위계 보존). */}
+            {/* 가격 요약(#4): "얼마인가"를 헤더에서 즉시 답한다. 아이콘+텍스트로
+                의미 전달(색 단독 금지). 상세 금액 위계는 아래 가격 섹션이 담당. */}
+            {priceSummary && (
+              <span className="meta-pill price-summary-pill">
+                <span className="price-summary-icon" aria-hidden="true">₩</span>
+                {priceSummary}
+              </span>
+            )}
+
+            {/* 난이도: 카드의 semantic 색+점 배지 재사용(평이한 회색 pill 대신 위계 보존).
+                라벨은 difficulty.js의 displayLabel류 유틸을 통과시켜 점 문자와 일관되게
+                "보통"처럼 표시(raw enum 누출 방지, #12). */}
             {selectedTool.difficulty && (
               <span className={`difficulty-badge ${selectedTool.difficulty}`}>
                 <span className="difficulty-dot" aria-hidden="true">
                   {difficultyDot(selectedTool.difficulty)}
                 </span>
-                {selectedTool.difficulty}
+                {difficultyLabel(selectedTool.difficulty)}
               </span>
             )}
 
@@ -262,7 +290,7 @@ const Details = () => {
             <div className="detail-tags">
               {detailTags.map((tag) => (
                 <span key={tag} className="status-badge">
-                  {tag}
+                  {displayLabel(tag)}
                 </span>
               ))}
             </div>
@@ -331,8 +359,10 @@ const Details = () => {
           )}
         </section>
 
-        {/* 벤치마크 — 항상 섹션 렌더(숨김 금지) */}
-        <section className="benchmark-section">
+        {/* 벤치마크 — 항상 섹션 렌더(숨김 금지). 비동기 도착을 스크린리더에 알리도록
+            aria-busy로 로딩 상태 노출(#18b). 내부 StateViews role=status/alert와
+            중복 안내가 나지 않게 컨테이너는 aria-live 없이 aria-busy만 둔다. */}
+        <section className="benchmark-section" aria-busy={benchLoading}>
           <h2>성능 벤치마크</h2>
           {benchLoading ? (
             <LoadingState message="벤치마크를 불러오는 중..." />
@@ -363,8 +393,8 @@ const Details = () => {
           )}
         </section>
 
-        {/* 뉴스 — 항상 섹션 렌더(숨김 금지) */}
-        <section className="news-section">
+        {/* 뉴스 — 항상 섹션 렌더(숨김 금지). 비동기 도착 안내용 aria-busy(#18b). */}
+        <section className="news-section" aria-busy={newsLoading}>
           <h2>최신 뉴스</h2>
           {newsLoading ? (
             <LoadingState message="뉴스를 불러오는 중..." />
@@ -425,7 +455,7 @@ const Details = () => {
 
         {/* 관련 도구 — 같은 카테고리(자기 제외). 항상 섹션 렌더 + 상태뷰(레이아웃 점프/증발 방지) */}
         {relatedCategory && (
-          <section className="related-section">
+          <section className="related-section" aria-busy={relatedLoading}>
             <h2>관련 도구</h2>
             {relatedLoading ? (
               <LoadingState message="관련 도구를 불러오는 중..." />

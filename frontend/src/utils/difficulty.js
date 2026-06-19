@@ -31,6 +31,31 @@ export function difficultyDot(difficulty) {
   return DIFFICULTY_DOTS[difficulty] ?? FALLBACK_DOT;
 }
 
+// 난이도 표시 라벨 매핑(한/영 enum 양쪽 → 한글 표시 라벨로 정규화).
+// difficultyDot과 동일 단일 출처 원칙: 라벨 매핑도 인라인 금지, 여기서만 관리.
+// 점 문자(○◐●)와 라벨 텍스트("쉬움/보통/어려움")의 일관성을 보장한다.
+//   쉬움/easy → '쉬움' · 보통/medium → '보통' · 어려움/hard → '어려움'
+// 미매핑 값은 원문을 그대로 노출(거짓 단정 금지, raw enum 누출보다 원문 유지가 안전).
+const DIFFICULTY_LABELS = {
+  쉬움: '쉬움',
+  easy: '쉬움',
+  보통: '보통',
+  medium: '보통',
+  어려움: '어려움',
+  hard: '어려움',
+};
+
+/**
+ * 난이도 값에 대응하는 한글 표시 라벨을 반환한다.
+ * 매핑되지 않은 값은 원문을 그대로 반환한다(점 문자 FALLBACK과 동일 철학).
+ * @param {string} difficulty - 난이도 enum(한글 또는 영문)
+ * @returns {string} 표시 라벨
+ */
+export function difficultyLabel(difficulty) {
+  if (!difficulty) return '';
+  return DIFFICULTY_LABELS[difficulty] ?? difficulty;
+}
+
 // 정렬용 난이도 rank 매핑(한/영 enum 양쪽 지원).
 // difficultyDot과 동일 단일 출처 원칙: 인라인 매핑 금지.
 //   쉬움/easy = 0, 보통/medium = 1, 어려움/hard = 2

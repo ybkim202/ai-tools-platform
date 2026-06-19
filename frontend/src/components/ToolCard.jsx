@@ -4,7 +4,7 @@ import { useUIStore } from '../stores/toolStore';
 import { formatUserCount, formatMetric } from '../utils/format';
 import { safeHttpUrl } from '../utils/url';
 import { handleLogoError, resolveLogoSrc } from '../utils/logoFallback';
-import { difficultyDot } from '../utils/difficulty';
+import { difficultyDot, difficultyLabel } from '../utils/difficulty';
 import ExternalLinkIcon from './ExternalLinkIcon';
 import '../styles/ToolCard.css';
 
@@ -133,7 +133,7 @@ const ToolCard = ({ tool, reasonTags }) => {
                   <span className="difficulty-dot" aria-hidden="true">
                     {difficultyDot(tool.difficulty)}
                   </span>
-                  {tool.difficulty}
+                  {difficultyLabel(tool.difficulty)}
                 </span>
               </div>
             )}
