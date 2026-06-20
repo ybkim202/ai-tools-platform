@@ -32,17 +32,20 @@ def compare_tools(
         
         # 각 ID별로 도구 조회
         comparison = []
-        
+        _dbg_phase = "start"  # DEBUG(임시): 실패 단계 추적 — 진단 후 제거.
+
         for tool_id in tool_ids:
             # 도구 정보 조회
+            _dbg_phase = f"tool_query id={tool_id}"
             tool_query = "SELECT id, name, category, user_count, difficulty, official_url, logo_url, is_open_source FROM tools WHERE id = :tool_id"
             tool_result = db.execute(text(tool_query), {"tool_id": tool_id})
             tool_row = tool_result.fetchone()
-            
+
             if not tool_row:
                 continue
-            
+
             # 가격 정보 조회
+            _dbg_phase = f"pricing_query id={tool_id}"
             pricing_query = "SELECT plan_name, price, currency, billing_period FROM pricing WHERE tool_id = :tool_id"
             pricing_result = db.execute(text(pricing_query), {"tool_id": tool_id})
             pricing = [
@@ -57,6 +60,7 @@ def compare_tools(
             
             # 벤치마크 정보 조회 — 점수와 함께 출처(source)·단위(unit)를 반환해
             # 비교 화면이 "이 점수 믿어도 되나" 질문에 답하도록 한다(구체성=신뢰).
+            _dbg_phase = f"benchmark_query id={tool_id}"
             benchmark_query = (
                 "SELECT benchmark_type, score, source, unit "
                 "FROM benchmarks WHERE tool_id = :tool_id"
@@ -101,13 +105,18 @@ def compare_tools(
         # 커스텀 예외(ToolNotFound→404, InvalidParameters→400)는
         # 표준 예외 핸들러로 전달되도록 그대로 재발생한다.
         raise
-    except Exception:
+    except Exception as exc:
         logger.exception("도구 비교 중 오류 발생")
         return {
             "success": False,
             "data": None,
             "error": {
                 "code": "DATABASE_ERROR",
-                "message": "데이터베이스 조회 중 오류가 발생했습니다."
+                "message": "데이터베이스 조회 중 오류가 발생했습니다.",
+                # DEBUG(임시): prod traceback 접근 불가로 실제 예외를 응답에 노출.
+                # 원인 확인 즉시 이 3줄 제거(원복 PR).
+                "debug_type": type(exc).__name__,
+                "debug_detail": str(exc)[:500],
+                "debug_phase": _dbg_phase,
             }
         }
