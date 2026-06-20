@@ -124,7 +124,7 @@ const Benchmarks = () => {
     } catch (err) {
       setCategories([]);
       setAllRows([]);
-      setError(handleApiError(err).message);
+      setError(handleApiError(err));
     } finally {
       setLoading(false);
     }
@@ -289,7 +289,7 @@ const Benchmarks = () => {
         {loading ? (
           <LoadingState message="벤치마크를 불러오는 중..." />
         ) : error ? (
-          <ErrorState onRetry={fetchAll} message={error} />
+          <ErrorState onRetry={fetchAll} message={error?.message} errorId={error?.errorId} />
         ) : allRows.length === 0 ? (
           <EmptyNoDataState
             title="아직 등록된 벤치마크가 없습니다"

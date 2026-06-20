@@ -47,8 +47,7 @@ const Compare = () => {
       const list = response.data?.data?.comparison;
       setComparisonData(Array.isArray(list) ? list : []);
     } catch (err) {
-      const error = handleApiError(err);
-      setError(error.message);
+      setError(handleApiError(err));
     } finally {
       setLoading(false);
     }
@@ -170,7 +169,7 @@ const Compare = () => {
 
       {loading && <LoadingState message="비교 정보를 불러오는 중..." />}
       {!loading && error && (
-        <ErrorState message={error} onRetry={fetchComparison} />
+        <ErrorState message={error?.message} errorId={error?.errorId} onRetry={fetchComparison} />
       )}
 
       {/* 선택은 했으나 결과가 0건: 일부/전체 ID가 DB에 없는 경우 침묵 방지 */}

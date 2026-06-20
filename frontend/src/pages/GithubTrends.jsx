@@ -112,7 +112,7 @@ const GithubTrends = () => {
           : derivedPages
       );
     } catch (err) {
-      setError(handleApiError(err).message);
+      setError(handleApiError(err));
     } finally {
       setLoading(false);
     }
@@ -271,7 +271,8 @@ const GithubTrends = () => {
           ) : error ? (
             <ErrorState
               onRetry={() => fetchTrending(period, activeTheme, currentPage)}
-              message={error}
+              message={error?.message}
+              errorId={error?.errorId}
             />
           ) : repos.length === 0 ? (
             isFiltered ? (

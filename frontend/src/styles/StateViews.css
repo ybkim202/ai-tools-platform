@@ -110,6 +110,15 @@
   margin: 0;
 }
 
+/* 상관관계 ID — 보조 메타라 가장 약한 위계(작게·3차색·등폭으로 복사 용이). */
+.state-error .error-id {
+  margin: var(--spacing-xs) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  font-family: var(--font-family-mono, monospace);
+  user-select: all;
+}
+
 /* CTA buttons */
 .state-cta-primary {
   padding: var(--spacing-md) var(--spacing-xl);

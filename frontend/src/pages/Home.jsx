@@ -227,8 +227,7 @@ const Home = () => {
         }
       }
     } catch (err) {
-      const error = handleApiError(err);
-      setError(error.message);
+      setError(handleApiError(err));
       setTools([]);
     } finally {
       setLoading(false);
@@ -424,7 +423,7 @@ const Home = () => {
 
           {/* Error State */}
           {error && !loading && (
-            <ErrorState message={error} onRetry={fetchTools} />
+            <ErrorState message={error?.message} errorId={error?.errorId} onRetry={fetchTools} />
           )}
 
           {/* Tools Grid */}
