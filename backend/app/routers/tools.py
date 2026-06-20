@@ -5,7 +5,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import datetime
 from ..database import get_db
-from ..exceptions import ToolNotFound
+from ..exceptions import ToolNotFound, db_error
 
 logger = logging.getLogger(__name__)
 
@@ -177,14 +177,7 @@ def get_tools(
         }
     
     except Exception:
-        logger.exception("도구 조회 중 오류 발생")
-        return {
-            "success": False,
-            "error": {
-                "code": "DATABASE_ERROR",
-                "message": "데이터베이스 조회 중 오류가 발생했습니다."
-            }
-        }
+        return db_error(logger, "도구 조회 중 오류 발생")
 
 # ==================== Tools 메타 (필터 옵션) ====================
 # 주의: 경로 매칭 우선순위 때문에 반드시 "/{tool_id}" 보다 위에 등록한다.
@@ -260,15 +253,7 @@ def get_tools_meta(db: Session = Depends(get_db)):
         }
 
     except Exception:
-        logger.exception("메타데이터 조회 중 오류 발생")
-        return {
-            "success": False,
-            "data": None,
-            "error": {
-                "code": "DATABASE_ERROR",
-                "message": "데이터베이스 조회 중 오류가 발생했습니다.",
-            },
-        }
+        return db_error(logger, "메타데이터 조회 중 오류 발생")
 
 
 # ==================== Tools 상세 조회 ====================
@@ -381,11 +366,4 @@ def get_tool_detail(tool_id: int, db: Session = Depends(get_db)):
         # 커스텀 예외는 핸들러(HTTP 404)로 전달되도록 재발생
         raise
     except Exception:
-        logger.exception("도구 조회 중 오류 발생")
-        return {
-            "success": False,
-            "error": {
-                "code": "DATABASE_ERROR",
-                "message": "데이터베이스 조회 중 오류가 발생했습니다."
-            }
-        }
+        return db_error(logger, "도구 조회 중 오류 발생")

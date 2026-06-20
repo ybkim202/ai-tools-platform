@@ -111,10 +111,16 @@ API Key 유무와 무관하게, 모든 공개 라우터(`tools`/`recommendations
   "data": null,
   "error": {
     "code": "ERROR_CODE",
-    "message": "에러 메시지"
+    "message": "에러 메시지",
+    "error_id": "1a2b3c4d"
   }
 }
 ```
+
+> `error_id`는 서버측 오류(`DATABASE_ERROR`·`INTERNAL_ERROR` 등 5xx)에만 포함되는 짧은
+> 상관관계 ID입니다. **같은 id가 서버 로그 라인에도 남으므로**, 장애 신고 시 이 id로
+> 로그의 traceback을 바로 찾을 수 있습니다(내부 메시지·스택은 응답에 노출하지 않음).
+> 예상된 클라이언트 오류(404·400·422 등)에는 포함되지 않습니다.
 
 ### **에러 코드**
 

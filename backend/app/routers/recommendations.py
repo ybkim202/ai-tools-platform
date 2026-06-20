@@ -4,6 +4,7 @@ from fastapi import APIRouter, Query, Depends
 from sqlalchemy import text, bindparam
 from sqlalchemy.orm import Session
 from ..database import get_db
+from ..exceptions import db_error
 
 logger = logging.getLogger(__name__)
 
@@ -172,12 +173,4 @@ def get_recommendations(
         }
 
     except Exception:
-        logger.exception("추천 조회 중 오류 발생")
-        return {
-            "success": False,
-            "data": None,
-            "error": {
-                "code": "DATABASE_ERROR",
-                "message": "데이터베이스 조회 중 오류가 발생했습니다."
-            }
-        }
+        return db_error(logger, "추천 조회 중 오류 발생")
