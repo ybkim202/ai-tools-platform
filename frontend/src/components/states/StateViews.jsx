@@ -79,6 +79,7 @@ export const EmptyNoDataState = ({
 export const ErrorState = ({
   title = '서버에 연결할 수 없습니다',
   message,
+  errorId,
   onRetry,
   retryLabel = '다시 시도',
 }) => (
@@ -92,6 +93,9 @@ export const ErrorState = ({
           {retryLabel}
         </button>
       )}
+      {/* 서버측 오류(5xx)에만 실리는 상관관계 ID. 신고 시 이 코드로 로그를 추적한다.
+          선택 메타라 작게/약하게 — 4xx 등 id가 없으면 렌더하지 않는다. */}
+      {errorId && <p className="error-id">오류 코드: {errorId}</p>}
     </div>
   </div>
 );

@@ -84,8 +84,7 @@ const Recommendations = () => {
       setFeatureStatus(status);
       setRecommendations(data);
     } catch (err) {
-      const apiError = handleApiError(err);
-      setError(apiError.message);
+      setError(handleApiError(err));
     } finally {
       setLoading(false);
     }
@@ -203,7 +202,7 @@ const Recommendations = () => {
       {loading && <LoadingState message="추천을 불러오는 중..." />}
 
       {!loading && error && (
-        <ErrorState message={error} onRetry={handleRetry} />
+        <ErrorState message={error?.message} errorId={error?.errorId} onRetry={handleRetry} />
       )}
 
       {!loading && !error && recommendations.length > 0 && (

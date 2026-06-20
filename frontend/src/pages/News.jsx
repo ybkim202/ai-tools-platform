@@ -47,7 +47,7 @@ const News = () => {
       setTrending(res.data?.data || []);
       setTrendingPeriod(res.data?.period_days || 7);
     } catch (err) {
-      setTrendingError(handleApiError(err).message);
+      setTrendingError(handleApiError(err));
     } finally {
       setTrendingLoading(false);
     }
@@ -69,7 +69,7 @@ const News = () => {
       const pages = Number(res.data?.pagination?.pages) || 1;
       setTotalPages(pages);
     } catch (err) {
-      setNewsError(handleApiError(err).message);
+      setNewsError(handleApiError(err));
     } finally {
       setNewsLoading(false);
     }
@@ -132,7 +132,7 @@ const News = () => {
           {trendingLoading ? (
             <LoadingState message="트렌딩을 불러오는 중..." />
           ) : trendingError ? (
-            <ErrorState onRetry={fetchTrending} message={trendingError} />
+            <ErrorState onRetry={fetchTrending} message={trendingError?.message} errorId={trendingError?.errorId} />
           ) : trending.length === 0 ? (
             <EmptyNoDataState
               message="아직 수집된 트렌딩 데이터가 없어요(자동 수집 준비 중)."
@@ -223,7 +223,7 @@ const News = () => {
           {newsLoading ? (
             <LoadingState message="뉴스를 불러오는 중..." />
           ) : newsError ? (
-            <ErrorState onRetry={() => fetchNews(currentPage, search)} message={newsError} />
+            <ErrorState onRetry={() => fetchNews(currentPage, search)} message={newsError?.message} errorId={newsError?.errorId} />
           ) : news.length === 0 ? (
             isSearching ? (
               <EmptyFilteredState

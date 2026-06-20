@@ -25,6 +25,9 @@ apiClient.interceptors.response.use(
       );
       apiError.response = response;
       apiError.code = body.error?.code || 'API_ERROR';
+      // 서버측 오류(5xx)에 실린 상관관계 ID. 응답↔서버 로그를 잇는 식별자라
+      // ErrorState에 노출해 사용자가 장애 신고 시 전달할 수 있게 한다.
+      apiError.errorId = body.error?.error_id;
       return Promise.reject(apiError);
     }
     return response;
@@ -199,8 +202,10 @@ export const handleApiError = (error) => {
     const errorData = error.response.data;
     const message = errorData?.error?.message || '요청 처리 중 오류가 발생했습니다.';
     const code = errorData?.error?.code || 'UNKNOWN_ERROR';
-    
-    return { message, code, status: error.response.status };
+    // error_id: 서버 5xx에만 실린다(예상된 4xx에는 없음). 없으면 undefined.
+    const errorId = errorData?.error?.error_id;
+
+    return { message, code, status: error.response.status, errorId };
   } else if (error.request) {
     // 요청을 보냈지만 응답이 없음
     return {

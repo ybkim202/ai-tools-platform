@@ -146,7 +146,8 @@ const Details = () => {
     return (
       <div className="details-page">
         <ErrorState
-          message={detailError}
+          message={detailError?.message}
+          errorId={detailError?.errorId}
           onRetry={() => fetchToolDetail(id)}
         />
       </div>

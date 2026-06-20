@@ -55,7 +55,7 @@ export const useToolStore = create((set, get) => ({
       // 404(찾을 수 없음)는 빈상태로, 그 외(네트워크/5xx)는 detailError로 분리.
       const isNotFound = error.status === 404;
       set({
-        detailError: isNotFound ? null : error.message,
+        detailError: isNotFound ? null : error,
         selectedTool: null,
         loading: false,
       });
