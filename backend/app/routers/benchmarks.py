@@ -4,6 +4,7 @@ from fastapi import APIRouter, Query, Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from ..database import get_db
+from ..exceptions import db_error
 
 logger = logging.getLogger(__name__)
 
@@ -98,16 +99,9 @@ def get_benchmarks(
                 "pages": (total + limit - 1) // limit
             }
         }
-    
+
     except Exception:
-        logger.exception("벤치마크 조회 중 오류 발생")
-        return {
-            "success": False,
-            "error": {
-                "code": "DATABASE_ERROR",
-                "message": "데이터베이스 조회 중 오류가 발생했습니다."
-            }
-        }
+        return db_error(logger, "벤치마크 조회 중 오류 발생")
 
 # ==================== 도구별 벤치마크 요약 ====================
 @router.get("/summary/{tool_id}")
@@ -171,16 +165,9 @@ def get_benchmark_summary(
                 "average_score": round(avg_score, 2)
             }
         }
-    
+
     except Exception:
-        logger.exception("벤치마크 조회 중 오류 발생")
-        return {
-            "success": False,
-            "error": {
-                "code": "DATABASE_ERROR",
-                "message": "데이터베이스 조회 중 오류가 발생했습니다."
-            }
-        }
+        return db_error(logger, "벤치마크 조회 중 오류 발생")
 
 # ==================== 벤치마크 종류 목록 ====================
 @router.get("/types")
@@ -218,14 +205,7 @@ def get_benchmark_types(db: Session = Depends(get_db)):
         }
 
     except Exception:
-        logger.exception("벤치마크 조회 중 오류 발생")
-        return {
-            "success": False,
-            "error": {
-                "code": "DATABASE_ERROR",
-                "message": "데이터베이스 조회 중 오류가 발생했습니다."
-            }
-        }
+        return db_error(logger, "벤치마크 조회 중 오류 발생")
 
 
 # ==================== 카테고리 목록(섹션 메타) ====================
@@ -260,14 +240,7 @@ def get_benchmark_categories(db: Session = Depends(get_db)):
         return {"success": True, "data": categories}
 
     except Exception:
-        logger.exception("벤치마크 카테고리 조회 중 오류 발생")
-        return {
-            "success": False,
-            "error": {
-                "code": "DATABASE_ERROR",
-                "message": "데이터베이스 조회 중 오류가 발생했습니다.",
-            },
-        }
+        return db_error(logger, "벤치마크 카테고리 조회 중 오류 발생")
 
 
 # ==================== 다축 비교 매트릭스 ====================
@@ -346,11 +319,4 @@ def get_benchmark_matrix(
         }
 
     except Exception:
-        logger.exception("벤치마크 매트릭스 조회 중 오류 발생")
-        return {
-            "success": False,
-            "error": {
-                "code": "DATABASE_ERROR",
-                "message": "데이터베이스 조회 중 오류가 발생했습니다.",
-            },
-        }
+        return db_error(logger, "벤치마크 매트릭스 조회 중 오류 발생")

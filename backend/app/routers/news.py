@@ -4,6 +4,7 @@ from fastapi import APIRouter, Query, Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from ..database import get_db
+from ..exceptions import db_error
 
 logger = logging.getLogger(__name__)
 
@@ -104,16 +105,9 @@ def get_news(
                 "pages": (total + limit - 1) // limit
             }
         }
-    
+
     except Exception:
-        logger.exception("뉴스 조회 중 오류 발생")
-        return {
-            "success": False,
-            "error": {
-                "code": "DATABASE_ERROR",
-                "message": "데이터베이스 조회 중 오류가 발생했습니다."
-            }
-        }
+        return db_error(logger, "뉴스 조회 중 오류 발생")
 
 # ==================== 최근 뉴스 (모든 도구) ====================
 @router.get("/trending")
@@ -155,13 +149,6 @@ def get_trending_news(
             "data": news,
             "period_days": days
         }
-    
+
     except Exception:
-        logger.exception("뉴스 조회 중 오류 발생")
-        return {
-            "success": False,
-            "error": {
-                "code": "DATABASE_ERROR",
-                "message": "데이터베이스 조회 중 오류가 발생했습니다."
-            }
-        }
+        return db_error(logger, "뉴스 조회 중 오류 발생")
