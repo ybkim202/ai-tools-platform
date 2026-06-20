@@ -41,8 +41,9 @@
 - **MUST**: 모든 DB 접근은 parameterized. SQLAlchemy `text()`는 `:name` 바인딩을 쓴다 — `%(name)s` 금지. (근거 G7)
 - **MUST**: 프론트 필터/추천 옵션값은 실제 DB 카테고리·태그와 동기화. 임의 하드코딩 목록 금지. (근거 G5/G6)
 - **MUST**: 색·간격·라운드는 [docs/DESIGN.md](docs/DESIGN.md) 토큰만 사용(인라인 hex 금지). 버튼 pill 금지.
-- **MUST**: API 응답은 `{success, data, error}` 포맷 유지.
+- **MUST**: API 응답은 `{success, data, error}` 포맷 유지. 라우터 `except`는 `exceptions.py`의 `db_error(logger, "작업명")`로 통일(error_id 추적성). (근거 G/4.7)
 - **MUST**: API 계약(경로·파라미터·응답) 변경 시 프론트 `services/api.js` + API 문서를 함께 갱신.
+- **NEVER**: `is_open_source`를 raw 컬럼으로 SELECT. 실제 컬럼 아님 — `github_repo` 유무로 파생(`tools.py` 규칙). raw 조회 시 엔드포인트 500. (근거 4.6)
 
 ## 코드 컨벤션 (요약 — 세부는 GOVERNANCE.md)
 

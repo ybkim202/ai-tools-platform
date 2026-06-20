@@ -96,6 +96,12 @@ SQLAlchemy `text()`에 psycopg2 스타일 `%(name)s`를 쓰지 않는다(런타�
 ### 4.5 레이트리밋 (G13) — **MUST 실제 적용**
 `auth.py`의 `check_rate_limit`이 정의만 되고 라우터에 연결되지 않았다. 의존성으로 실제 연결하거나, README의 "분당 100요청" 문구를 실상에 맞게 정정한다.
 
+### 4.6 라이선스(`is_open_source`)는 파생값 — **NEVER raw 컬럼 SELECT**
+`is_open_source`는 `tools` 테이블의 **실제 컬럼이 아니다**. `github_repo`(있으면 오픈소스)에서 파생한다. 라우터에서 라이선스를 노출할 때는 `tools.py`/상세와 동일하게 `github_repo`를 조회해 `is_open_source = (github_repo is not None)`로 계산한다. `SELECT ... is_open_source FROM tools`처럼 raw 컬럼으로 조회하면 `column "is_open_source" does not exist`로 **해당 엔드포인트 전체가 500**이 된다(실제 사고: compare.py가 PR #55~#67까지 상시 장애였음). 카드·필터가 "이미 쓰니 컬럼이 있겠지"는 함정 — 그것도 파생값을 쓴 것이다.
+
+### 4.7 예외 추적성 (error_id) — **MUST 공통 헬퍼/핸들러 경유**
+라우터 `except Exception`에서 응답을 직접 조립하지 말고 `app/exceptions.py`의 `db_error(logger, "<작업명>")`를 쓴다. 이 헬퍼는 짧은 `error_id`를 생성해 **서버 로그(traceback)와 응답 `error.error_id`에 동시에** 남긴다. 모든 예외를 generic `DATABASE_ERROR`로 뭉뚱그리면 원인이 가려진다(실제로 compare 장애 원인을 1주+ 못 찾음). **prod 디버깅 절차**: 사용자/화면(ErrorState "오류 코드: …")에서 받은 `error_id`로 Railway 로그를 grep → 해당 traceback 확인. 5xx에만 부여(4xx 예상 오류엔 없음). 내부 메시지·스택은 응답에 노출하지 않는다.
+
 > 위 항목들의 **실제 코드 패치는 이 문서의 범위가 아니다**(규칙 고정만). 패치는 PROJECT_OVERVIEW 10장 P0 로드맵을 따른다.
 
 ---
