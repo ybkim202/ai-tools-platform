@@ -10,6 +10,7 @@ import {
   benchmarkTypeLabel,
   benchmarkScore,
   benchmarkSource,
+  benchmarkSnapshot,
   formatBenchmarkScore,
 } from '../utils/benchmark';
 import ExternalLinkIcon from '../components/ExternalLinkIcon';
@@ -278,6 +279,7 @@ const Compare = () => {
                           {entries.map(([type, value]) => {
                             const n = benchmarkScore(value);
                             const source = benchmarkSource(value);
+                            const snapshot = benchmarkSnapshot(value);
                             const typeBest =
                               canHighlight &&
                               n !== null &&
@@ -297,9 +299,12 @@ const Compare = () => {
                                   {formatBenchmarkScore(value)}
                                   {typeBest && <BestBadge />}
                                 </span>
-                                {source && (
+                                {/* 출처 · 신선도(언제 측정) — 점수 신뢰 맥락(구체성=신뢰). */}
+                                {(source || snapshot) && (
                                   <span className="benchmark-source">
-                                    {source}
+                                    {[source, snapshot]
+                                      .filter(Boolean)
+                                      .join(' · ')}
                                   </span>
                                 )}
                               </div>
@@ -457,6 +462,7 @@ const Compare = () => {
                           ([type, value]) => {
                             const n = benchmarkScore(value);
                             const source = benchmarkSource(value);
+                            const snapshot = benchmarkSnapshot(value);
                             const typeBest =
                               canHighlight &&
                               n !== null &&
@@ -476,9 +482,12 @@ const Compare = () => {
                                   {formatBenchmarkScore(value)}
                                   {typeBest && <BestBadge />}
                                 </span>
-                                {source && (
+                                {/* 출처 · 신선도(언제 측정) — 점수 신뢰 맥락(구체성=신뢰). */}
+                                {(source || snapshot) && (
                                   <span className="benchmark-source">
-                                    {source}
+                                    {[source, snapshot]
+                                      .filter(Boolean)
+                                      .join(' · ')}
                                   </span>
                                 )}
                               </div>

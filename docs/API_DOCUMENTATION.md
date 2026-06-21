@@ -460,12 +460,16 @@ curl "http://localhost:8000/api/recommendations"
           "MMLU": {
             "score": 86.4,
             "source": "Artificial Analysis",
-            "unit": "percent"
+            "unit": "percent",
+            "max_score": 100,
+            "collected_date": "2026-06-01T00:00:00"
           },
           "GPQA Diamond": {
             "score": 53.6,
             "source": "Artificial Analysis",
-            "unit": "percent"
+            "unit": "percent",
+            "max_score": 100,
+            "collected_date": "2026-06-01T00:00:00"
           }
         }
       }
@@ -476,10 +480,13 @@ curl "http://localhost:8000/api/recommendations"
 }
 ```
 
-> `benchmarks`는 `benchmark_type → { score, source, unit }` 형태의 중첩 객체입니다.
+> `benchmarks`는 `benchmark_type → { score, source, unit, max_score, collected_date }` 형태의 중첩 객체입니다.
+> 같은 `benchmark_type`이 여러 행이면 `collected_date` 기준 **최신 1행**만 반환합니다.
 > - `score`: 숫자 점수(없으면 `null`)
 > - `source`: 출처(예: `"Artificial Analysis"`) — 프론트에서 점수 아래 보조 텍스트로 표기
 > - `unit`: `"percent"`면 만점 맥락(`/100`)으로 표시, 그 외 단위는 접미사로 표기(예: `"elo"`)
+> - `max_score`: `unit` 파생 만점 — `percent`→`100`, 그 외(`elo` 등)→`null`(상한 없음). 프론트가 `/100` 매직넘버를 하드코딩하지 않도록 명시.
+> - `collected_date`: 측정 신선도(없으면 `null`). 점수 옆 `YYYY-MM`로 표기.
 > 벤치마크가 없는 도구는 `"benchmarks": {}` (빈 객체)를 반환합니다.
 
 > 비교 대상 ID가 모두 존재하지 않으면 HTTP 404 (`TOOL_NOT_FOUND`)를 반환합니다.
@@ -624,7 +631,8 @@ curl "http://localhost:8000/api/news/trending"
       "collected_date": "2026-06-04T00:00:00",
       "category": "추론",
       "model_version": "GPT-5.5",
-      "unit": "percent"
+      "unit": "percent",
+      "max_score": 100
     }
   ],
   "pagination": {
@@ -636,7 +644,7 @@ curl "http://localhost:8000/api/news/trending"
 }
 ```
 
-**필드 (additive)**: `category`(추론/코딩/수학/멀티모달/선호/종합), `model_version`(어느 모델 점수인지), `unit`(`percent`|`elo`). `score`는 항상 raw(정규화 전). `unit='elo'`(LMArena)는 0~100 percent와 스케일이 다르다.
+**필드 (additive)**: `category`(추론/코딩/수학/멀티모달/선호/종합), `model_version`(어느 모델 점수인지), `unit`(`percent`|`elo`), `max_score`(`unit` 파생 만점 — `percent`→`100`, `elo`→`null`). `score`는 항상 raw(정규화 전). `unit='elo'`(LMArena)는 0~100 percent와 스케일이 다르다(만점 없음 → `max_score: null`).
 
 ### **GET /api/benchmarks/summary/{tool_id}**
 
@@ -657,7 +665,8 @@ curl "http://localhost:8000/api/news/trending"
         "collected_date": "2026-06-04T00:00:00",
         "category": "추론",
         "model_version": "GPT-5.5",
-        "unit": "percent"
+        "unit": "percent",
+        "max_score": 100
       }
     },
     "average_score": 93.5
@@ -675,8 +684,8 @@ curl "http://localhost:8000/api/news/trending"
 {
   "success": true,
   "data": [
-    { "type": "GPQA Diamond", "category": "추론", "unit": "percent", "count": 4 },
-    { "type": "LMArena Elo", "category": "선호", "unit": "elo", "count": 3 }
+    { "type": "GPQA Diamond", "category": "추론", "unit": "percent", "max_score": 100, "count": 4 },
+    { "type": "LMArena Elo", "category": "선호", "unit": "elo", "max_score": null, "count": 3 }
   ]
 }
 ```
@@ -710,11 +719,11 @@ curl "http://localhost:8000/api/news/trending"
   "success": true,
   "data": {
     "category": "추론",
-    "types": [ {"type": "GPQA Diamond", "unit": "percent"}, {"type": "MMLU-Pro", "unit": "percent"} ],
+    "types": [ {"type": "GPQA Diamond", "unit": "percent", "max_score": 100}, {"type": "MMLU-Pro", "unit": "percent", "max_score": 100} ],
     "tools": [
       {
         "tool_id": 4, "tool_name": "ChatGPT",
-        "scores": { "GPQA Diamond": {"score": 93.5, "unit": "percent", "model_version": "GPT-5.5", "source": "..."} }
+        "scores": { "GPQA Diamond": {"score": 93.5, "unit": "percent", "max_score": 100, "model_version": "GPT-5.5", "source": "...", "collected_date": "2026-06-04T00:00:00"} }
       }
     ]
   }

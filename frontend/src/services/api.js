@@ -88,8 +88,10 @@ export const recommendationsAPI = {
 export const compareAPI = {
   // 도구 비교
   // 응답: { success, data: { comparison: [...], total_tools: N }, error }.
-  // 각 도구의 benchmarks는 중첩 객체:
-  //   { "MMLU": { score: 86.4, source: "Artificial Analysis", unit: "percent" }, ... }
+  // 각 도구의 benchmarks는 중첩 객체(같은 type은 collected_date 최신 1행):
+  //   { "MMLU": { score: 86.4, source: "Artificial Analysis", unit: "percent",
+  //               max_score: 100, collected_date: "2026-06-01..." }, ... }
+  //   max_score: unit 파생 만점(percent→100, elo→null). collected_date: 측정 신선도.
   //   (구버전은 값=숫자였음. utils/benchmark.js의 benchmarkScore가 양쪽을 흡수.)
   compareTools: (toolIds) => {
     return apiClient.get('/compare', {
@@ -161,7 +163,8 @@ export const benchmarksAPI = {
     return apiClient.get(`/benchmarks/summary/${toolId}`);
   },
 
-  // 벤치마크 종류. 응답에 category·unit 포함(프론트가 type→category 매핑을 DB 기준으로).
+  // 벤치마크 종류. 응답에 category·unit·max_score 포함(프론트가 type→category 매핑을
+  // DB 기준으로, 만점 맥락을 unit 파생값으로 — 매직넘버 100 하드코딩 제거).
   getBenchmarkTypes: () => {
     return apiClient.get('/benchmarks/types');
   },
@@ -173,9 +176,11 @@ export const benchmarksAPI = {
 
   // 다축 비교 매트릭스(카테고리 또는 지정 도구들의 type×tool 최신 점수, 1콜).
   // params: { category?: string, tool_ids?: '1,2,3' }
-  //   -> { success, data: { category, types:[{type,unit}],
-  //        tools:[{tool_id,tool_name,scores:{type:{score,unit,model_version,source}}}] } }
+  //   -> { success, data: { category, types:[{type,unit,max_score}],
+  //        tools:[{tool_id,tool_name,scores:{type:{score,unit,max_score,model_version,
+  //        source,collected_date}}}] } }
   //   score는 항상 raw(정규화 전). 표시용 정규화는 프론트 책임.
+  //   max_score: unit 파생 만점(percent→100, elo→null). collected_date: 측정 신선도.
   getBenchmarkMatrix: (params = {}) => {
     return apiClient.get('/benchmarks/matrix', { params });
   },
