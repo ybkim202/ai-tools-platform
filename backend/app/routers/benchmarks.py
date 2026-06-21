@@ -38,7 +38,7 @@ def get_benchmarks(
         # 카테고리 섹션·스케일 표시의 근거. 기존 소비자(필드 추가만 보므로) 무영향.
         query = """
         SELECT b.id, b.tool_id, t.name, b.benchmark_type, b.score, b.source,
-               b.collected_date, b.category, b.model_version, b.unit
+               b.collected_date, b.category, b.model_version, b.unit, t.logo_url
         FROM benchmarks b
         INNER JOIN tools t ON b.tool_id = t.id
         WHERE 1=1
@@ -96,6 +96,7 @@ def get_benchmarks(
                 "model_version": row[8],
                 "unit": row[9] or "percent",
                 "max_score": max_for_unit(row[9]),
+                "logo_url": row[10],
             }
             for row in result.fetchall()
         ]

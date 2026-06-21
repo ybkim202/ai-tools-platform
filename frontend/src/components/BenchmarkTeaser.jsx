@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { benchmarksAPI } from '../services/api';
 import { benchmarkTypeLabel, formatBenchmarkScore } from '../utils/benchmark';
+import { resolveLogoSrc, handleLogoError } from '../utils/logoFallback';
 import '../styles/Curated.css';
 
 // 랜딩 성능 벤치마크 프리뷰 — 2단 대시보드: 좌(벤치마크 기준 목록) / 우(가로 막대
@@ -130,7 +131,8 @@ const BenchmarkTeaser = () => {
             </span>
             <span className="bench-graph-unit">{unitHint}</span>
           </p>
-          <ul className="bench-bars" aria-live="polite">
+          {/* key=type 으로 탭 전환마다 리스트를 remount → 막대 등장 애니메이션 재생. */}
+          <ul className="bench-bars" aria-live="polite" key={current.type}>
             {current.rows.map((row, idx) => (
               <li key={row.id} className="bench-bar-row">
                 <Link
@@ -140,7 +142,14 @@ const BenchmarkTeaser = () => {
                   <span className="bench-bar-rank" aria-hidden="true">
                     {idx + 1}
                   </span>
-                  {row.tool_name}
+                  <img
+                    src={resolveLogoSrc(row.logo_url, row.tool_name)}
+                    alt=""
+                    className="bench-bar-logo"
+                    loading="lazy"
+                    onError={handleLogoError}
+                  />
+                  <span className="bench-bar-toolname">{row.tool_name}</span>
                 </Link>
                 <div className="bench-bar-track" aria-hidden="true">
                   <div
