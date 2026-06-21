@@ -236,9 +236,6 @@ const TrendNav = ({ closeMenu }) => {
 
 function App() {
   const { theme, toggleDarkMode } = useUIStore();
-  const compareCount = useUIStore(
-    (state) => state.selectedToolsForCompare.length
-  );
   const openCompare = useUIStore((state) => state.openCompare);
   // 헤더 패널 enum(검색/메뉴 상호배타). 메뉴 열림 여부는 이 enum에서 파생.
   const activeHeaderPanel = useUIStore((state) => state.activeHeaderPanel);
@@ -380,17 +377,11 @@ function App() {
               ref={navMenuRef}
               className={`navbar-menu${menuOpen ? ' navbar-menu-open' : ''}`}
             >
-              {/* 링크 그룹: 데스크톱 가로 / 모바일 세로 패널 */}
+              {/* 링크 그룹: 데스크톱 가로 / 모바일 세로 패널.
+                  추천(랜딩 #recommend)·비교(모달)는 페이지가 아니므로 상단 네비에서
+                  제외하고 슬림화 — 추천은 홈/용도 칩, 비교는 카드 버튼·트레이로 도달
+                  (IA 재설계 §9 마무리). */}
               <div className="nav-links">
-                <NavLink
-                  to="/about"
-                  onClick={closeMenu}
-                  className={({ isActive }) =>
-                    `nav-link${isActive ? ' nav-link-active' : ''}`
-                  }
-                >
-                  소개
-                </NavLink>
                 <NavLink
                   to="/explore"
                   onClick={closeMenu}
@@ -400,30 +391,6 @@ function App() {
                 >
                   탐색
                 </NavLink>
-                {/* 추천은 랜딩 임베드(/#recommend) — 독립 페이지 은퇴(IA 재설계 §9). */}
-                <Link to="/#recommend" onClick={closeMenu} className="nav-link">
-                  추천
-                </Link>
-                {/* 비교는 모달로 그 자리에서 — 페이지 이동 없음(IA 재설계 §9). */}
-                <button
-                  type="button"
-                  className="nav-link nav-link-compare"
-                  onClick={() => {
-                    openCompare();
-                    closeMenu();
-                  }}
-                >
-                  비교
-                  {compareCount > 0 && (
-                    <span
-                      className="nav-badge"
-                      aria-label={`비교 담긴 도구 ${compareCount}개`}
-                    >
-                      {compareCount}
-                    </span>
-                  )}
-                </button>
-                <TrendNav closeMenu={closeMenu} />
                 <NavLink
                   to="/leaderboard"
                   onClick={closeMenu}
@@ -441,6 +408,16 @@ function App() {
                   }
                 >
                   벤치마크
+                </NavLink>
+                <TrendNav closeMenu={closeMenu} />
+                <NavLink
+                  to="/about"
+                  onClick={closeMenu}
+                  className={({ isActive }) =>
+                    `nav-link${isActive ? ' nav-link-active' : ''}`
+                  }
+                >
+                  소개
                 </NavLink>
               </div>
               <button
