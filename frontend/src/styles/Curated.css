@@ -1,0 +1,173 @@
+/* ========================================
+   CURATED SECTIONS (랜딩 큐레이션 — 카테고리별 인기 Top N)
+   Artificial Analysis 지향: 편집된 큐레이션·여백 위계. 토큰만(인라인 hex 금지).
+   ======================================== */
+
+.curated-section {
+  max-width: 1200px;
+  margin: 0 auto var(--spacing-3xl);
+  padding: 0 var(--spacing-lg);
+}
+
+.curated-section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.curated-section-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.curated-see-all {
+  flex-shrink: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.curated-see-all:hover {
+  text-decoration: underline;
+}
+
+.curated-see-all:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+/* Top N 미니 카드 그리드 — ol(순위 의미). 데스크톱 최대 5열, 반응형 축소. */
+.curated-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--spacing-md);
+}
+
+.curated-card {
+  min-width: 0;
+}
+
+.curated-card-link {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  height: 100%;
+  padding: var(--spacing-md);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--transition-normal);
+}
+
+.curated-card-link:hover {
+  border-color: var(--color-primary);
+}
+
+.curated-card-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.curated-rank {
+  flex-shrink: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+  width: 1.2em;
+  text-align: center;
+}
+
+.curated-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  object-fit: contain;
+  background-color: var(--color-background);
+  flex-shrink: 0;
+}
+
+.curated-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.curated-name {
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.curated-card-link:hover .curated-name {
+  color: var(--color-primary);
+}
+
+.curated-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.curated-metric {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.curated-metric-icon {
+  color: var(--color-primary);
+}
+
+.curated-metric--empty {
+  color: var(--color-text-tertiary);
+}
+
+/* 성능 보조 칩(벤치 데이터 있는 도구만). 약한 위계 — 보조 신호. */
+.curated-bench-chip {
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--spacing-xs);
+  line-height: 1.5;
+}
+
+/* 반응형: 5→3→2열 */
+@media (max-width: 1024px) {
+  .curated-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .curated-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .curated-section {
+    margin-bottom: var(--spacing-2xl);
+  }
+}

@@ -358,6 +358,32 @@ body {
 }
 
 /* ========================================
+   CURATED LANDING (큐레이션 본문 + 전체 탐색 CTA)
+   ======================================== */
+
+.curated-wrap {
+  padding-top: var(--spacing-2xl);
+}
+
+.explore-cta {
+  padding: var(--spacing-2xl) var(--spacing-lg) var(--spacing-3xl);
+  text-align: center;
+}
+
+.explore-cta .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.explore-cta-text {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* ========================================
    SEARCH & FILTER SECTION
    ======================================== */
 
