@@ -163,10 +163,41 @@
   padding: 0 var(--spacing-lg);
 }
 
-.bench-teaser-sub {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+/* 벤치마크 토글 탭 — 작은 칩(border + radius-md, pill 아님). 모바일 가로 스크롤. */
+.bench-teaser-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
   margin: 0 0 var(--spacing-lg);
+}
+
+.bench-teaser-tab {
+  padding: var(--spacing-xs) var(--spacing-md);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.bench-teaser-tab:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.bench-teaser-tab.active {
+  border-color: var(--color-primary);
+  color: var(--color-on-primary);
+  background-color: var(--color-primary-darker);
+}
+
+.bench-teaser-tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .bench-teaser-list {
