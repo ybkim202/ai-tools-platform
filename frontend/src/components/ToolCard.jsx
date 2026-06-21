@@ -146,7 +146,10 @@ const ToolCard = ({ tool, reasonTags }) => {
         </div>
       </Link>
 
-      {/* 매칭 근거 (추천 전용, 링크 바깥) */}
+      {/* 매칭 근거 (추천 전용, 링크 바깥). 추천 맥락의 핵심 지표 = "왜 추천됐나" =
+          매칭 강도. 일치 개수를 강조색·세미볼드로 승격(헤드라인급)하고, 구체 태그는
+          보조 텍스트로 강등(정보 위계: 강도 > 태그 나열). 색 단독 금지 → 체크 아이콘
+          + 숫자 + 텍스트 라벨 병행. */}
       {Array.isArray(reasonTags) && reasonTags.length > 0 && (
         <div className="match-reason">
           <span className="match-reason-icon" aria-hidden="true">
@@ -160,7 +163,10 @@ const ToolCard = ({ tool, reasonTags }) => {
               />
             </svg>
           </span>
-          <span>{reasonTags.join(' · ')} 태그 일치</span>
+          <span className="match-reason-strength">
+            태그 {reasonTags.length}개 일치
+          </span>
+          <span className="match-reason-tags">{reasonTags.join(' · ')}</span>
         </div>
       )}
 

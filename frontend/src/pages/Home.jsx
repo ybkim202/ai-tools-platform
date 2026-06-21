@@ -66,6 +66,10 @@ const Home = () => {
   // 메타 로드 실패 시에만 '전체' 단일 칩으로 폴백.
   const [categories, setCategories] = useState(['전체']);
   const [difficulties, setDifficulties] = useState(['전체']);
+  // 용도(task) 칩: hero 아래 "용도로 바로 찾기" 빠른 진입(TAAFT 태스크 우선 동선,
+  // Futurepedia식 hero-아래 칩 — 2-CTA 결정 무회귀). DB 메타(tags.type='task')로만
+  // 채운다(하드코딩 금지 G5/G6). 비면 섹션 자체를 렌더하지 않는다(빈 약속 금지).
+  const [tasks, setTasks] = useState([]);
 
   const isFiltered =
     search !== '' ||
@@ -106,6 +110,9 @@ const Home = () => {
         }
         if (Array.isArray(meta.difficulties) && meta.difficulties.length > 0) {
           setDifficulties(['전체', ...meta.difficulties]);
+        }
+        if (Array.isArray(meta.tasks)) {
+          setTasks(meta.tasks);
         }
       })
       .catch(() => {
@@ -284,6 +291,31 @@ const Home = () => {
         </div>
         <div className="hero-gradient"></div>
       </section>
+
+      {/* 용도로 바로 찾기 — task 우선 진입(hero 아래 칩 행, CTA와 비경쟁).
+          DB tasks 가 있을 때만 렌더. 최대 8개로 제한(과밀 방지)하고 /recommendations
+          로 type=task & value 를 딥링크해 선택 상태로 진입시킨다. */}
+      {tasks.length > 0 && (
+        <section className="task-quicknav" aria-label="용도로 바로 찾기">
+          <div className="container task-quicknav-inner">
+            <span className="task-quicknav-label">용도로 바로 찾기</span>
+            <ul className="task-quicknav-list">
+              {tasks.slice(0, 8).map((task) => (
+                <li key={task}>
+                  <Link
+                    className="task-quicknav-chip"
+                    to={`/recommendations?type=task&value=${encodeURIComponent(
+                      task
+                    )}`}
+                  >
+                    {task}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
 
       {/* Search & Filter Section */}
       <section className="search-filter" id="tools">
