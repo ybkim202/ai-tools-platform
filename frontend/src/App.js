@@ -9,6 +9,7 @@ import {
 } from 'react-router-dom';
 import Home from './pages/Home';
 import About from './pages/About';
+import Explore from './pages/Explore';
 import Compare from './pages/Compare';
 import Details from './pages/Details';
 import Recommendations from './pages/Recommendations';
@@ -356,6 +357,15 @@ function App() {
                   소개
                 </NavLink>
                 <NavLink
+                  to="/explore"
+                  onClick={closeMenu}
+                  className={({ isActive }) =>
+                    `nav-link${isActive ? ' nav-link-active' : ''}`
+                  }
+                >
+                  탐색
+                </NavLink>
+                <NavLink
                   to="/recommendations"
                   onClick={closeMenu}
                   className={({ isActive }) =>
@@ -422,6 +432,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
+            <Route path="/explore" element={<Explore />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/recommendations" element={<Recommendations />} />
             <Route path="/news" element={<News />} />
