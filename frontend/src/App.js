@@ -5,14 +5,15 @@ import {
   Route,
   NavLink,
   Link,
+  Navigate,
   useLocation,
+  useSearchParams,
 } from 'react-router-dom';
 import Home from './pages/Home';
 import About from './pages/About';
 import Explore from './pages/Explore';
 import Compare from './pages/Compare';
 import Details from './pages/Details';
-import Recommendations from './pages/Recommendations';
 import News from './pages/News';
 import GithubTrends from './pages/GithubTrends';
 import Benchmarks from './pages/Benchmarks';
@@ -21,6 +22,14 @@ import NotFound from './pages/NotFound';
 import { useUIStore } from './stores/toolStore';
 import ExternalLinkIcon from './components/ExternalLinkIcon';
 import './App.css';
+
+// 구 /recommendations 는 랜딩 임베드 패널(/#recommend)로 이전됐다(IA 재설계 §9).
+// 공유 링크 보존: ?type=&value= 쿼리를 유지한 채 /…#recommend 로 리다이렉트한다.
+function RecommendationsRedirect() {
+  const [sp] = useSearchParams();
+  const qs = sp.toString();
+  return <Navigate to={`/${qs ? `?${qs}` : ''}#recommend`} replace />;
+}
 
 // 트렌드 하위 라우트 정의(드롭다운 + 모바일 그룹 공유 진실).
 const TREND_ITEMS = [
@@ -365,15 +374,10 @@ function App() {
                 >
                   탐색
                 </NavLink>
-                <NavLink
-                  to="/recommendations"
-                  onClick={closeMenu}
-                  className={({ isActive }) =>
-                    `nav-link${isActive ? ' nav-link-active' : ''}`
-                  }
-                >
+                {/* 추천은 랜딩 임베드(/#recommend) — 독립 페이지 은퇴(IA 재설계 §9). */}
+                <Link to="/#recommend" onClick={closeMenu} className="nav-link">
                   추천
-                </NavLink>
+                </Link>
                 <NavLink
                   to="/compare"
                   onClick={closeMenu}
@@ -434,7 +438,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/compare" element={<Compare />} />
-            <Route path="/recommendations" element={<Recommendations />} />
+            <Route path="/recommendations" element={<RecommendationsRedirect />} />
             <Route path="/news" element={<News />} />
             <Route path="/trends/github" element={<GithubTrends />} />
             <Route path="/benchmarks" element={<Benchmarks />} />
