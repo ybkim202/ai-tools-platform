@@ -337,6 +337,19 @@
   color: var(--color-primary);
 }
 
+/* 매칭 강도(헤드라인급) — 추천 맥락의 핵심 지표. 강조색·세미볼드로 승격. */
+.match-reason-strength {
+  flex-shrink: 0;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* 구체 태그(보조) — 강도보다 약하게(2차색). 좁은 폭에서 줄바꿈 허용. */
+.match-reason-tags {
+  color: var(--color-text-tertiary);
+  min-width: 0;
+}
+
 .match-reason .status-badge {
   margin-left: var(--spacing-xs);
 }

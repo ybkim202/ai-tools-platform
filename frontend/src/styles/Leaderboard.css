@@ -1,0 +1,257 @@
+/* ========================================
+   LEADERBOARD (인기 랭킹)
+   page-header/page-title 등은 App.css 전역 정의를 재사용한다.
+   값은 전부 토큰만 사용(인라인 hex 금지). 버튼 pill 금지.
+   ======================================== */
+
+.leaderboard-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--spacing-3xl) var(--spacing-lg) var(--spacing-4xl);
+}
+
+.leaderboard-rank-container {
+  margin-top: var(--spacing-2xl);
+}
+
+.leaderboard-page .page-subtitle a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+/* 랭킹 리스트 = 의미상 순서 목록(ol). 시각 순위는 rank-num 이 전담. */
+.rank-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.rank-item {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--transition-normal);
+}
+
+.rank-item:hover {
+  border-color: var(--color-primary);
+}
+
+.rank-item--picked {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-surface);
+}
+
+/* 순위 숫자 — 상위 3위는 강조색·굵게(숫자 자체가 의미라 색 단독 아님). */
+.rank-num {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.rank-num--top {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* 도구 정체성(로고+이름+카테고리) */
+.rank-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.rank-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  object-fit: contain;
+  background-color: var(--color-background);
+  flex-shrink: 0;
+}
+
+.rank-name-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rank-name {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rank-identity:hover .rank-name {
+  color: var(--color-primary);
+}
+
+.rank-category {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+/* 핵심 지표(인기) — 승격: 크게·강조색. */
+.rank-metric {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--spacing-xs);
+  white-space: nowrap;
+}
+
+.rank-metric-icon {
+  color: var(--color-primary);
+}
+
+.rank-metric-value {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.rank-metric-empty {
+  color: var(--color-text-tertiary);
+}
+
+/* 라이선스(보조 메타) — 강등: 작게·2차색. */
+.rank-license {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.rank-license-dot {
+  color: var(--color-text-tertiary);
+}
+
+.rank-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.rank-visit {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  background-color: var(--color-primary-darker);
+  color: var(--color-on-primary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color var(--transition-normal);
+}
+
+.rank-visit:hover {
+  background-color: var(--color-primary);
+}
+
+.rank-compare {
+  padding: var(--spacing-xs) var(--spacing-md);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.rank-compare:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.rank-compare.active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: var(--color-primary-surface);
+}
+
+.rank-compare:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rank-visit:focus-visible,
+.rank-compare:focus-visible,
+.rank-identity:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.rank-caption {
+  margin-top: var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+/* 태블릿: 2줄 — (순위·이름·액션) / (인기지표·라이선스). 정보 누락 0. */
+@media (max-width: 768px) {
+  .rank-item {
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'num identity actions'
+      'num metric   license';
+    gap: var(--spacing-xs) var(--spacing-md);
+  }
+  .rank-num {
+    grid-area: num;
+  }
+  .rank-identity {
+    grid-area: identity;
+  }
+  .rank-actions {
+    grid-area: actions;
+    justify-self: end;
+  }
+  .rank-metric {
+    grid-area: metric;
+  }
+  .rank-license {
+    grid-area: license;
+    justify-self: end;
+  }
+}
+
+/* 모바일: 순위 옆으로 정체성·지표/라이선스·액션을 3줄 스택. */
+@media (max-width: 480px) {
+  .rank-item {
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'num identity identity'
+      'num metric   license'
+      'num actions  actions';
+  }
+  .rank-actions {
+    grid-area: actions;
+    justify-self: start;
+    margin-top: var(--spacing-xs);
+  }
+  .rank-license {
+    justify-self: end;
+  }
+}

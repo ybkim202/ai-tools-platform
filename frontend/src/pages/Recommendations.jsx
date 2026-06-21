@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { recommendationsAPI, toolsAPI, handleApiError } from '../services/api';
 import ToolCard from '../components/ToolCard';
 import CompareTray from '../components/CompareTray';
@@ -16,6 +17,8 @@ const Recommendations = () => {
   const [error, setError] = React.useState(null);
   const [selectedTab, setSelectedTab] = useState('task');
   const [selectedValue, setSelectedValue] = useState('');
+  // Home 용도 칩 등에서 ?type=&value= 로 진입 시 초기 선택을 흡수(딥링크).
+  const [searchParams] = useSearchParams();
   // 'ready' | 'coming_soon' — 0건 시 EmptyFiltered vs EmptyNoData 판별.
   const [featureStatus, setFeatureStatus] = useState('ready');
 
@@ -68,7 +71,7 @@ const Recommendations = () => {
     return cleanup;
   }, [loadOptions]);
 
-  const fetchRecommendations = async (type, value) => {
+  const fetchRecommendations = useCallback(async (type, value) => {
     setLoading(true);
     setError(null);
     try {
@@ -88,7 +91,23 @@ const Recommendations = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Home 용도 칩 딥링크 진입: ?type=task&value=글쓰기 → 해당 탭/값 선택 + 1회 조회.
+  // 옵션(meta) 로드 완료 후 한 번만 적용한다(deepLinkApplied 가드로 중복 fetch 방지).
+  // 값이 옵션 목록에 없어도 조회는 시도한다(서버가 결과/빈상태로 응답).
+  const deepLinkApplied = React.useRef(false);
+  useEffect(() => {
+    if (deepLinkApplied.current || optionsStatus !== 'ready') return;
+    const type = searchParams.get('type');
+    const value = searchParams.get('value');
+    if ((type === 'task' || type === 'profession') && value) {
+      deepLinkApplied.current = true;
+      setSelectedTab(type);
+      setSelectedValue(value);
+      fetchRecommendations(type, value);
+    }
+  }, [optionsStatus, searchParams, fetchRecommendations]);
 
   const handleSelect = (value) => {
     setSelectedValue(value);

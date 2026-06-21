@@ -15,6 +15,7 @@ import Recommendations from './pages/Recommendations';
 import News from './pages/News';
 import GithubTrends from './pages/GithubTrends';
 import Benchmarks from './pages/Benchmarks';
+import Leaderboard from './pages/Leaderboard';
 import NotFound from './pages/NotFound';
 import { useUIStore } from './stores/toolStore';
 import ExternalLinkIcon from './components/ExternalLinkIcon';
@@ -382,6 +383,15 @@ function App() {
                 </NavLink>
                 <TrendNav closeMenu={closeMenu} />
                 <NavLink
+                  to="/leaderboard"
+                  onClick={closeMenu}
+                  className={({ isActive }) =>
+                    `nav-link${isActive ? ' nav-link-active' : ''}`
+                  }
+                >
+                  랭킹
+                </NavLink>
+                <NavLink
                   to="/benchmarks"
                   onClick={closeMenu}
                   className={({ isActive }) =>
@@ -417,6 +427,7 @@ function App() {
             <Route path="/news" element={<News />} />
             <Route path="/trends/github" element={<GithubTrends />} />
             <Route path="/benchmarks" element={<Benchmarks />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/details/:id" element={<Details />} />
             {/* catch-all: 오타/없는 경로 → 빈 main 대신 복귀 동선 제공 */}
             <Route path="*" element={<NotFound />} />

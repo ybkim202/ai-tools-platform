@@ -265,3 +265,35 @@
 - **Compare**: 결정 보조(최저가/최고점수 강조) — 가격 `null`→`0` 강제·벤치 type 불일치 정합성 선행 / 가로 스크롤 시각 힌트(sticky·잉크헤더 충돌 → 라이브·JS) / 벤치 출처(compare 응답 구조 변경).
 - **Benchmarks**: 카테고리를 `/api/benchmarks/categories`로 동기화(frontend-react + tools-data-curator·api-contract-guardian) / 레이더 결측 꼭짓점 처리 / resting 대비 재검토 / 상단 stale 주석 동기화(코드=사실) / 전역 freshness 표기.
 - **Home 잔여(낮음)**: 검색 인라인 클리어(×), footer-cta 무의미 그라데이션 단순화.
+
+## 8. 핵심 지표 1개 승격 — 정보구조 재설계 (2026-06 · `/wiki-ux-plan`)
+
+> 7장 컨펌의 횡단 결함("정보 위계 평탄화" — 카드·비교표·상세가 핵심 결정축과 부가 메타를 동일 비중 나열)을 **경쟁 레퍼런스 분석**으로 재설계한 결과. 근거: Artificial Analysis(합성 지표 1개를 히어로/카드 1순위로 승격, 점수에 출처·단위·만점·신선도 항상 부착, 우열=정렬+색+글리프 3채널) · There's An AI For That(태스크 우선 동선 + 랭킹 1급) · Futurepedia(popular 랭킹 정확도, **칩은 hero 아래 행**으로 CTA와 비경쟁).
+
+### 8.1 핵심 설계 원칙 — 전 화면 공유 "강조 문법"
+
+핵심 지표 **1개에만** 크기↑ + 잉크 강조색 + (선택)글리프를 부여하고 나머지는 회색 메타로 강등한다. 승격 **축 자체는 "카드 ⊆ 상세 ⊆ 비교"에서 동일(=인기)** — 깊이 들어갈수록 신호가 *추가*될 뿐 축이 바뀌지 않아 멘탈모델이 끊기지 않는다. Benchmarks는 다른 렌즈(성능)지만 **같은 강조 문법**을 재사용한다. (근거: wiki [[ui-디자인-실무-컨펌-체크리스트-라인-계층-정보우선순위]] §5, [[ux-전환-심리-ab-테스트-페이월-가격표시-부킹]] B evaluative ease, [[ui-디자인-기초-시그니파이어-위계-타이포-색-다크모드-상태]] B/E/F)
+
+### 8.2 화면별 "핵심 지표 1개"
+
+| 화면 | 핵심 지표 1개 | 데이터 근거 | 상태 |
+|------|--------------|------------|------|
+| ToolCard | 인기(github_stars→user_count) | tools | ✅ 기구현 |
+| Details/Compare | 인기(동일 축) + 2순위 가격·성능 | tools·pricing·benchmarks | ✅ 기구현(우열강조 포함) |
+| Benchmarks | 점수 + 출처·단위·만점·신선도 | benchmarks(unit 파생 max_score, collected_date) | ✅ 계약 확장(PR #71) |
+| 추천 | **매칭 강도(일치 태그 수)** | recommendations.matched_tags | ✅ 구현(헤드라인 승격) |
+| Home hero | 전체 도구 수 + **용도(task) 빠른 진입** | tools.meta.tasks | ✅ 구현(hero 아래 칩 행) |
+| 랭킹(신규) | 인기(사용자 수) 순위 | tools sort_by=popularity | ✅ 신규 화면 |
+
+### 8.3 구현 결과 (이번 작업)
+
+- **벤치마크 계약 확장(PR #71)**: `max_score`(unit 파생 — percent→100, elo→null) + `collected_date`를 compare/benchmarks 응답에 명시 → 프론트 `/100` 매직넘버 제거. Compare 신선도 표기 + 최신행 보장(DISTINCT ON), Details elo `/100` 오표기 정합성 수정.
+- **Home 용도 칩**: hero 아래 "용도로 바로 찾기" 칩 행(DB tasks 기반, 최대 8개) → `/recommendations?type=task&value=` 딥링크. 2-CTA 결정 무회귀(Futurepedia 패턴).
+- **추천 매칭강도 헤드라인**: ToolCard match-reason을 "태그 N개 일치"(강조색·세미볼드)로 승격, 구체 태그는 보조 텍스트로 강등.
+- **랭킹 화면 신설**: `/leaderboard` + 네비 "랭킹". 인기(사용자 수) 순위 — 서버 정렬(`sort_by=popularity`) 그대로, 상위 3위 강조, 행별 인기 지표 승격. Benchmarks(성능 축)와 별개 축(인기)으로 분리.
+
+### 8.4 보류/후속
+
+- Benchmarks.jsx 로컬 `formatScore`를 `utils/benchmark.js`로 수렴(SSOT, 현재 출력 동일이라 비차단).
+- `/api/benchmarks/matrix` 엔드포인트는 프론트 미사용(dead) — 소비 계획 없으면 제거 검토.
+- 랭킹 화면 카테고리 필터·페이지네이션(현재 상위 50개 단순 표시).
