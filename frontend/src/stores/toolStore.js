@@ -201,8 +201,12 @@ export const useUIStore = create((set) => ({
   // 비교 선택 도구의 id->name 캐시. 선택 시점(ToolCard)에 이름을 함께 보관해
   // 비교 결과 일부 누락 시 "어떤 도구가 빠졌는지" 표시하는 데 사용(추가 API 호출 없음).
   compareNamesById: storedCompare.names,
+  // 비교 모달 오픈 상태(IA 재설계 §9 — /compare 페이지 이동 대신 그 자리 오버레이).
+  isCompareOpen: false,
 
   // 액션
+  openCompare: () => set({ isCompareOpen: true }),
+  closeCompare: () => set({ isCompareOpen: false }),
   toggleSidebar: () =>
     set((state) => ({
       sidebarOpen: !state.sidebarOpen,

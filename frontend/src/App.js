@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -12,7 +12,7 @@ import {
 import Home from './pages/Home';
 import About from './pages/About';
 import Explore from './pages/Explore';
-import Compare from './pages/Compare';
+import CompareModal from './components/CompareModal';
 import Details from './pages/Details';
 import News from './pages/News';
 import GithubTrends from './pages/GithubTrends';
@@ -29,6 +29,31 @@ function RecommendationsRedirect() {
   const [sp] = useSearchParams();
   const qs = sp.toString();
   return <Navigate to={`/${qs ? `?${qs}` : ''}#recommend`} replace />;
+}
+
+// 구 /compare?ids= 딥링크 폴백 — 비교는 이제 모달이다(IA 재설계 §9). ids 를
+// 선택에 반영하고 모달을 연 뒤 홈으로 돌려보낸다(모달이 전역 오버레이로 뜬다).
+function CompareDeepLink() {
+  const [sp] = useSearchParams();
+  const openCompare = useUIStore((s) => s.openCompare);
+  const clearCompareList = useUIStore((s) => s.clearCompareList);
+  const addToolForCompare = useUIStore((s) => s.addToolForCompare);
+  const applied = useRef(false);
+  useEffect(() => {
+    if (applied.current) return;
+    applied.current = true;
+    const ids = (sp.get('ids') || '')
+      .split(',')
+      .map((s) => parseInt(s.trim(), 10))
+      .filter((n) => Number.isInteger(n));
+    if (ids.length > 0) {
+      clearCompareList();
+      // 이름은 미상(딥링크) — 비교 결과 fetch 가 실제 이름을 채운다.
+      ids.forEach((id) => addToolForCompare(id));
+    }
+    openCompare();
+  }, [sp, openCompare, clearCompareList, addToolForCompare]);
+  return <Navigate to="/" replace />;
 }
 
 // 트렌드 하위 라우트 정의(드롭다운 + 모바일 그룹 공유 진실).
@@ -214,6 +239,7 @@ function App() {
   const compareCount = useUIStore(
     (state) => state.selectedToolsForCompare.length
   );
+  const openCompare = useUIStore((state) => state.openCompare);
   // 헤더 패널 enum(검색/메뉴 상호배타). 메뉴 열림 여부는 이 enum에서 파생.
   const activeHeaderPanel = useUIStore((state) => state.activeHeaderPanel);
   const toggleHeaderPanel = useUIStore((state) => state.toggleHeaderPanel);
@@ -378,12 +404,14 @@ function App() {
                 <Link to="/#recommend" onClick={closeMenu} className="nav-link">
                   추천
                 </Link>
-                <NavLink
-                  to="/compare"
-                  onClick={closeMenu}
-                  className={({ isActive }) =>
-                    `nav-link nav-link-compare${isActive ? ' nav-link-active' : ''}`
-                  }
+                {/* 비교는 모달로 그 자리에서 — 페이지 이동 없음(IA 재설계 §9). */}
+                <button
+                  type="button"
+                  className="nav-link nav-link-compare"
+                  onClick={() => {
+                    openCompare();
+                    closeMenu();
+                  }}
                 >
                   비교
                   {compareCount > 0 && (
@@ -394,7 +422,7 @@ function App() {
                       {compareCount}
                     </span>
                   )}
-                </NavLink>
+                </button>
                 <TrendNav closeMenu={closeMenu} />
                 <NavLink
                   to="/leaderboard"
@@ -437,7 +465,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/explore" element={<Explore />} />
-            <Route path="/compare" element={<Compare />} />
+            <Route path="/compare" element={<CompareDeepLink />} />
             <Route path="/recommendations" element={<RecommendationsRedirect />} />
             <Route path="/news" element={<News />} />
             <Route path="/trends/github" element={<GithubTrends />} />
@@ -472,12 +500,16 @@ function App() {
               <Link to="/about" className="footer-link">
                 소개
               </Link>
-              <Link to="/recommendations" className="footer-link">
+              <Link to="/#recommend" className="footer-link">
                 추천
               </Link>
-              <Link to="/compare" className="footer-link">
+              <button
+                type="button"
+                className="footer-link footer-link-button"
+                onClick={openCompare}
+              >
                 비교
-              </Link>
+              </button>
               <Link to="/news" className="footer-link">
                 뉴스
               </Link>
@@ -504,6 +536,9 @@ function App() {
             <p className="footer-copyright">&copy; 2026 AITools</p>
           </div>
         </footer>
+
+        {/* 비교 모달 — 전역 오버레이(어느 화면에서든 그 자리에서 비교). */}
+        <CompareModal />
       </div>
     </Router>
   );
