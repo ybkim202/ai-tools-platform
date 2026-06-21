@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { toolsAPI, benchmarksAPI, handleApiError } from '../services/api';
 import CuratedSection from '../components/CuratedSection';
+import BenchmarkTeaser from '../components/BenchmarkTeaser';
 import RecommendationPanel from '../components/RecommendationPanel';
 import { LoadingState, ErrorState } from '../components/states/StateViews';
 import '../styles/Home.css';
@@ -187,6 +188,9 @@ const Home = () => {
           </>
         )}
       </div>
+
+      {/* 성능 벤치마크 프리뷰 + CTA — 대표 벤치마크 상위 도구를 맛보기로(데이터 없으면 미렌더). */}
+      <BenchmarkTeaser />
 
       {/* 맞춤 추천 — 직무/업무 기반(독립 페이지 은퇴, 랜딩 임베드). */}
       <RecommendationPanel />
