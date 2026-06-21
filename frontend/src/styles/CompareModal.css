@@ -1,0 +1,120 @@
+/* ========================================
+   COMPARE MODAL (비교 모달 오버레이)
+   비교 표 본문 스타일은 Compare.css(.compare-embedded 하위)에서 재사용.
+   값은 전부 토큰만(인라인 hex 금지).
+   ======================================== */
+
+.compare-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background-color: var(--color-overlay);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--spacing-2xl) var(--spacing-lg);
+  overflow-y: auto;
+}
+
+.compare-modal {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 1100px;
+  max-height: calc(100vh - var(--spacing-4xl));
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+}
+
+.compare-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  background-color: var(--color-background);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.compare-modal-title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.compare-modal-count {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.compare-modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.compare-modal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  font-size: var(--font-size-xl);
+  line-height: 1;
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.compare-modal-close:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.compare-modal-close:focus-visible,
+.compare-modal-header-actions .ghost-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.compare-modal-body {
+  padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-2xl);
+  overflow-y: auto;
+}
+
+/* 임베드 비교 본문: 페이지 래퍼 여백 제거(모달이 패딩 제공). */
+.compare-embedded {
+  min-height: 0;
+}
+
+@media (max-width: 640px) {
+  .compare-modal-overlay {
+    padding: 0;
+  }
+  .compare-modal {
+    max-width: 100%;
+    max-height: 100vh;
+    height: 100vh;
+    border: none;
+    border-radius: 0;
+  }
+  .compare-modal-header {
+    border-radius: 0;
+  }
+  .compare-modal-body {
+    padding: var(--spacing-md) var(--spacing-lg) var(--spacing-2xl);
+  }
+}

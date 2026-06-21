@@ -159,6 +159,15 @@ textarea {
   min-height: 40px;
 }
 
+/* <button> 으로 렌더되는 nav-link(비교 모달 트리거 등): UA 버튼 크롬 제거. */
+button.nav-link,
+button.footer-link {
+  background: none;
+  border: none;
+  font-family: inherit;
+  text-decoration: none;
+}
+
 /* 비교 카운터 배지: 숫자 텍스트로 의미 전달(색 단독 아님) */
 .nav-link-compare {
   gap: var(--spacing-xs);

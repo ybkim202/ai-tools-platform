@@ -1,11 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { useUIStore } from '../stores/toolStore';
 
 /**
  * CompareTray (F4) — 비교 선택 트레이.
  * store(useUIStore)를 자립 구독한다(props 없음). 선택 도구가 0개면 렌더하지 않는다.
- * Home·Recommendations 두 곳에 마운트해 "담기 → 비교하기" 동선을 일관되게 노출.
+ * "비교하기"는 페이지 이동 대신 비교 모달을 그 자리에서 연다(IA 재설계 §9).
  * 시각/위치는 기존 .compare-tray 규칙(styles/Home.css)을 그대로 재사용.
  */
 const CompareTray = () => {
@@ -13,6 +12,7 @@ const CompareTray = () => {
     (state) => state.selectedToolsForCompare
   );
   const clearCompareList = useUIStore((state) => state.clearCompareList);
+  const openCompare = useUIStore((state) => state.openCompare);
   const compareCount = selectedToolsForCompare.length;
 
   if (compareCount === 0) {
@@ -27,9 +27,9 @@ const CompareTray = () => {
         </span>
       </div>
       <div className="compare-tray-actions">
-        <Link to="/compare" className="btn btn-primary">
+        <button type="button" className="btn btn-primary" onClick={openCompare}>
           비교하기 →
-        </Link>
+        </button>
         <button type="button" className="ghost-button" onClick={clearCompareList}>
           비우기
         </button>

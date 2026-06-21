@@ -32,7 +32,9 @@ const BestBadge = () => (
   </span>
 );
 
-const Compare = () => {
+// embedded=true 면 모달 본문으로 렌더(페이지 헤더/래퍼 생략 — 모달 크롬이 제목·
+// 카운터·초기화·닫기를 제공). 기본(false)은 단독 페이지 형태(딥링크 폴백 대비).
+const Compare = ({ embedded = false }) => {
   const { selectedToolsForCompare, compareNamesById, clearCompareList } =
     useUIStore();
   const [comparisonData, setComparisonData] = React.useState(null);
@@ -133,40 +135,43 @@ const Compare = () => {
 
   if (selectedToolsForCompare.length === 0) {
     return (
-      <div className="compare-page">
+      <div className={embedded ? 'compare-embedded' : 'compare-page'}>
         <EmptyNoDataState
           title="비교할 도구를 선택해주세요"
-          message="홈에서 도구의 '비교' 버튼을 누르면 여기서 나란히 비교할 수 있어요."
+          message="목록에서 도구의 '비교' 버튼을 누르면 여기서 나란히 비교할 수 있어요."
           badge={null}
           icon={<SearchEmptyIcon />}
           ctaLabel="도구 탐색하기"
-          ctaTo="/"
+          ctaTo="/explore"
         />
       </div>
     );
   }
 
   return (
-    <div className="compare-page">
-      <div className="page-header">
-        <p className="page-eyebrow">비교</p>
-        <h1 className="page-title">AI 도구 비교</h1>
-        <p className="page-subtitle">
-          {selectedToolsForCompare.length}개의 도구를 나란히 비교하고 있습니다
-        </p>
-        <div className="page-header-actions">
-          <span className="counter-pill" aria-live="polite">
-            선택 {selectedToolsForCompare.length} / 5
-          </span>
-          <button
-            type="button"
-            className="ghost-button"
-            onClick={clearCompareList}
-          >
-            초기화
-          </button>
+    <div className={embedded ? 'compare-embedded' : 'compare-page'}>
+      {/* 단독 페이지에서만 헤더 — 모달 임베드 시 크롬(제목·카운터·초기화·닫기)은 모달이 제공. */}
+      {!embedded && (
+        <div className="page-header">
+          <p className="page-eyebrow">비교</p>
+          <h1 className="page-title">AI 도구 비교</h1>
+          <p className="page-subtitle">
+            {selectedToolsForCompare.length}개의 도구를 나란히 비교하고 있습니다
+          </p>
+          <div className="page-header-actions">
+            <span className="counter-pill" aria-live="polite">
+              선택 {selectedToolsForCompare.length} / 5
+            </span>
+            <button
+              type="button"
+              className="ghost-button"
+              onClick={clearCompareList}
+            >
+              초기화
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {loading && <LoadingState message="비교 정보를 불러오는 중..." />}
       {!loading && error && (
