@@ -1,0 +1,14 @@
+/* ========================================
+   EXPLORE (/explore — 전체 도구 탐색)
+   page-header 는 App.css 전역, 탐색 UI(search-filter/tools-section)는 Home.css 를
+   ToolBrowser 가 들고 온다. 여기선 헤더↔탐색 간 간격만 조율(토큰만).
+   ======================================== */
+
+.explore-page .page-header {
+  margin-bottom: var(--spacing-lg);
+}
+
+/* 헤더 바로 아래라 탐색 검색바 상단 여백을 줄여 이중 간격을 줄인다. */
+.explore-page .search-filter {
+  padding-top: var(--spacing-xl);
+}
