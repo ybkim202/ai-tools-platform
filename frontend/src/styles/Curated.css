@@ -156,51 +156,95 @@
   line-height: 1.5;
 }
 
-/* ── 성능 벤치마크 프리뷰(랜딩) ─────────────────────────── */
+/* ── 성능 벤치마크 프리뷰(랜딩) — 2단 대시보드 ───────────── */
 .bench-teaser {
   max-width: 1200px;
   margin: 0 auto var(--spacing-3xl);
   padding: 0 var(--spacing-lg);
 }
 
-/* 벤치마크 토글 탭 — 작은 칩(border + radius-md, pill 아님). 모바일 가로 스크롤. */
-.bench-teaser-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
-  margin: 0 0 var(--spacing-lg);
+/* 좌(기준 목록) / 우(그래프) 2단. 모바일에서 세로 스택. */
+.bench-teaser-split {
+  display: grid;
+  grid-template-columns: minmax(160px, 30%) 1fr;
+  gap: var(--spacing-xl);
+  align-items: start;
 }
 
-.bench-teaser-tab {
-  padding: var(--spacing-xs) var(--spacing-md);
+/* 좌: 벤치마크 기준 세로 탭 */
+.bench-teaser-criteria {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.bench-teaser-crit {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  padding: var(--spacing-sm) var(--spacing-md);
   background-color: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  border-left: 2px solid var(--color-border);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
   color: var(--color-text-secondary);
   font-family: var(--font-family);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-normal);
 }
 
-.bench-teaser-tab:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+.bench-teaser-crit:hover {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
 }
 
-.bench-teaser-tab.active {
-  border-color: var(--color-primary);
-  color: var(--color-on-primary);
-  background-color: var(--color-primary-darker);
+.bench-teaser-crit.active {
+  background-color: var(--color-surface);
+  border-left-color: var(--color-primary);
+  color: var(--color-text-primary);
 }
 
-.bench-teaser-tab:focus-visible {
+.bench-teaser-crit:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
-.bench-teaser-list {
+.bench-crit-name {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.bench-crit-meta {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-tertiary);
+}
+
+/* 우: 가로 막대 그래프 */
+.bench-teaser-graph {
+  min-width: 0;
+}
+
+.bench-graph-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  margin: 0 0 var(--spacing-md);
+}
+
+.bench-graph-title {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.bench-graph-unit {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+.bench-bars {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -209,58 +253,96 @@
   gap: var(--spacing-sm);
 }
 
-.bench-teaser-link {
-  display: flex;
+/* 행: 이름 | 막대(가변) | 점수 */
+.bench-bar-row {
+  display: grid;
+  grid-template-columns: minmax(72px, 28%) 1fr auto;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md) var(--spacing-lg);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  text-decoration: none;
-  color: inherit;
-  transition: border-color var(--transition-normal);
+  gap: var(--spacing-sm);
 }
 
-.bench-teaser-link:hover {
-  border-color: var(--color-primary);
-}
-
-.bench-teaser-link:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--color-focus-ring);
-}
-
-.bench-teaser-rank {
-  flex-shrink: 0;
-  font-size: var(--font-size-sm);
-  font-weight: 700;
-  color: var(--color-text-tertiary);
-  font-variant-numeric: tabular-nums;
-  width: 1.2em;
-  text-align: center;
-}
-
-.bench-teaser-name {
-  flex: 1;
+.bench-bar-name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   min-width: 0;
+  font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--color-text-primary);
+  text-decoration: none;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.bench-teaser-link:hover .bench-teaser-name {
+.bench-bar-name:hover {
   color: var(--color-primary);
 }
 
-/* 점수(핵심 지표 승격) — 크게·강조. */
-.bench-teaser-score {
+.bench-bar-name:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+.bench-bar-rank {
   flex-shrink: 0;
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.bench-bar-track {
+  height: 10px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.bench-bar-fill {
+  height: 100%;
+  background-color: var(--color-text-tertiary);
+  border-radius: var(--radius-full);
+  transition: width var(--transition-normal);
+}
+
+/* 1위 막대는 잉크 강조(색 단독 아님 — 순위 숫자·점수 텍스트 병행). */
+.bench-bar-fill.is-top {
+  background-color: var(--color-primary);
+}
+
+.bench-bar-score {
+  font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bench-bar-fill {
+    transition: none;
+  }
+}
+
+/* 모바일: 기준 목록을 가로 스크롤, 그래프는 아래로 스택 */
+@media (max-width: 720px) {
+  .bench-teaser-split {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+  .bench-teaser-criteria {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .bench-teaser-crit {
+    border-left: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+  .bench-teaser-crit.active {
+    border-color: var(--color-primary);
+    border-left-color: var(--color-primary);
+  }
 }
 
 /* 반응형: 5→3→2열 */
