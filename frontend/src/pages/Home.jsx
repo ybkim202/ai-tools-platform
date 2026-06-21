@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { toolsAPI, benchmarksAPI, handleApiError } from '../services/api';
 import CuratedSection from '../components/CuratedSection';
+import RecommendationPanel from '../components/RecommendationPanel';
 import { LoadingState, ErrorState } from '../components/states/StateViews';
 import '../styles/Home.css';
 
@@ -138,9 +139,7 @@ const Home = () => {
                 <li key={task}>
                   <Link
                     className="task-quicknav-chip"
-                    to={`/recommendations?type=task&value=${encodeURIComponent(
-                      task
-                    )}`}
+                    to={`/?type=task&value=${encodeURIComponent(task)}#recommend`}
                   >
                     {task}
                   </Link>
@@ -189,6 +188,9 @@ const Home = () => {
         )}
       </div>
 
+      {/* 맞춤 추천 — 직무/업무 기반(독립 페이지 은퇴, 랜딩 임베드). */}
+      <RecommendationPanel />
+
       {/* Footer CTA — 비교/추천 경로 유지. */}
       <section className="footer-cta">
         <div className="container">
@@ -198,9 +200,9 @@ const Home = () => {
             <Link to="/compare" className="btn btn-primary">
               도구 비교
             </Link>
-            <Link to="/recommendations" className="btn btn-secondary">
+            <a href="#recommend" className="btn btn-secondary">
               맞춤 추천
-            </Link>
+            </a>
           </div>
         </div>
       </section>
