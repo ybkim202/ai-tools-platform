@@ -153,7 +153,7 @@ export const trendingAPI = {
 
 // ==================== Benchmarks API ====================
 export const benchmarksAPI = {
-  // 벤치마크 조회
+  // 벤치마크 조회. 응답 행에 logo_url(tools JOIN 파생) 포함 — 랜딩 프리뷰 등 시각용.
   getBenchmarks: (params = {}) => {
     return apiClient.get('/benchmarks', { params });
   },

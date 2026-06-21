@@ -632,7 +632,8 @@ curl "http://localhost:8000/api/news/trending"
       "category": "추론",
       "model_version": "GPT-5.5",
       "unit": "percent",
-      "max_score": 100
+      "max_score": 100,
+      "logo_url": "https://.../favicon.ico"
     }
   ],
   "pagination": {
@@ -644,7 +645,7 @@ curl "http://localhost:8000/api/news/trending"
 }
 ```
 
-**필드 (additive)**: `category`(추론/코딩/수학/멀티모달/선호/종합), `model_version`(어느 모델 점수인지), `unit`(`percent`|`elo`), `max_score`(`unit` 파생 만점 — `percent`→`100`, `elo`→`null`). `score`는 항상 raw(정규화 전). `unit='elo'`(LMArena)는 0~100 percent와 스케일이 다르다(만점 없음 → `max_score: null`).
+**필드 (additive)**: `category`(추론/코딩/수학/멀티모달/선호/종합), `model_version`(어느 모델 점수인지), `unit`(`percent`|`elo`), `max_score`(`unit` 파생 만점 — `percent`→`100`, `elo`→`null`), `logo_url`(도구 로고 — `tools` JOIN 파생, 랜딩 프리뷰 등 시각용). `score`는 항상 raw(정규화 전). `unit='elo'`(LMArena)는 0~100 percent와 스케일이 다르다(만점 없음 → `max_score: null`).
 
 ### **GET /api/benchmarks/summary/{tool_id}**
 
