@@ -5,6 +5,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from ..database import get_db
 from ..exceptions import AIToolsException, ToolNotFound, InvalidParameters, db_error
+from .benchmarks import max_for_unit
 
 logger = logging.getLogger(__name__)
 
@@ -57,11 +58,15 @@ def compare_tools(
                 for row in pricing_result.fetchall()
             ]
             
-            # 벤치마크 정보 조회 — 점수와 함께 출처(source)·단위(unit)를 반환해
-            # 비교 화면이 "이 점수 믿어도 되나" 질문에 답하도록 한다(구체성=신뢰).
+            # 벤치마크 정보 조회 — 점수와 함께 출처(source)·단위(unit)·만점(max_score)·
+            # 신선도(collected_date)를 반환해 비교 화면이 "이 점수 믿어도 되나" 질문에
+            # 답하도록 한다(구체성=신뢰). 같은 benchmark_type 이 여러 행이면 최신 1행만
+            # (DISTINCT ON + collected_date DESC) — 과거엔 임의 행을 덮어써 비결정적이었다.
             benchmark_query = (
-                "SELECT benchmark_type, score, source, unit "
-                "FROM benchmarks WHERE tool_id = :tool_id"
+                "SELECT DISTINCT ON (benchmark_type) "
+                "  benchmark_type, score, source, unit, collected_date "
+                "FROM benchmarks WHERE tool_id = :tool_id "
+                "ORDER BY benchmark_type, collected_date DESC"
             )
             benchmark_result = db.execute(text(benchmark_query), {"tool_id": tool_id})
             benchmarks = {}
@@ -70,6 +75,8 @@ def compare_tools(
                     "score": float(row[1]),
                     "source": row[2],
                     "unit": row[3] or "percent",
+                    "max_score": max_for_unit(row[3]),
+                    "collected_date": str(row[4]) if row[4] else None,
                 }
             
             comparison.append({

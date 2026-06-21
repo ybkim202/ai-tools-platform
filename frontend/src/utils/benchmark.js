@@ -78,8 +78,34 @@ export function benchmarkUnit(value) {
 }
 
 /**
+ * 벤치마크 항목의 만점(천장)을 안전하게 꺼낸다(없으면 null).
+ * 백엔드가 unit 에서 파생해 내려준다(percent→100, elo→null). 프론트가 "/100"
+ * 같은 매직넘버를 하드코딩하지 않도록 만점 맥락의 단일 출처로 쓴다.
+ * @param {object|number|string|null} value - benchmarks[type] 값
+ * @returns {number|null} 유한한 만점, 없으면 null
+ */
+export function benchmarkMaxScore(value) {
+  if (value === null || typeof value !== 'object') return null;
+  const n = Number(value.max_score);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+/**
+ * 벤치마크 항목의 측정 신선도(collected_date)를 'YYYY-MM'로 꺼낸다(없으면 null).
+ * 점수에 "언제 측정" 맥락을 붙여 신뢰를 만든다(구체성=신뢰).
+ * @param {object|number|string|null} value - benchmarks[type] 값
+ * @returns {string|null}
+ */
+export function benchmarkSnapshot(value) {
+  if (value === null || typeof value !== 'object') return null;
+  const m = String(value.collected_date || '').match(/^(\d{4})-(\d{2})/);
+  return m ? `${m[1]}-${m[2]}` : null;
+}
+
+/**
  * 벤치마크 점수를 단위 맥락과 함께 표시 문자열로 만든다.
- * - unit==='percent'(또는 미지정): formatScore로 `N/100` (만점 맥락 유지)
+ * - unit==='percent'(또는 미지정): formatScore로 `N/만점` (만점은 응답 max_score,
+ *   없으면 100 폴백 — 구버전/누락 호환)
  * - 그 외 unit: `N <unit>` (예: "1280 elo") — 거짓 만점 맥락을 만들지 않음
  * - 점수 없음/비정상: FALLBACK_DASH('-')
  * @param {object|number|string|null} value - benchmarks[type] 값
@@ -90,7 +116,8 @@ export function formatBenchmarkScore(value) {
   if (score === null) return FALLBACK_DASH;
   const unit = benchmarkUnit(value);
   if (unit === null || unit === 'percent') {
-    return formatScore(score);
+    const max = benchmarkMaxScore(value);
+    return formatScore(score, Number.isFinite(max) ? max : 100);
   }
   return `${score} ${unit}`;
 }

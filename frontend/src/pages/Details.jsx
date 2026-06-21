@@ -14,6 +14,7 @@ import {
   formatUserCount,
 } from '../utils/format';
 import { difficultyDot, difficultyLabel } from '../utils/difficulty';
+import { formatBenchmarkScore, benchmarkSnapshot } from '../utils/benchmark';
 import { safeHttpUrl } from '../utils/url';
 import {
   LoadingState,
@@ -373,13 +374,22 @@ const Details = () => {
           ) : hasBenchmarks ? (
             <>
               <div className="benchmark-grid">
-                {Object.entries(benchmarks.benchmarks).map(([type, data]) => (
-                  <div key={type} className="benchmark-card">
-                    <h3>{type}</h3>
-                    <div className="score">{formatScore(data.score)}</div>
-                    <p className="source">{data.source}</p>
-                  </div>
-                ))}
+                {Object.entries(benchmarks.benchmarks).map(([type, data]) => {
+                  // 점수는 unit·만점 인지 포맷(formatBenchmarkScore): percent→N/만점,
+                  // elo→"N elo"(거짓 /100 금지). 출처·신선도를 함께 노출(구체성=신뢰).
+                  const snapshot = benchmarkSnapshot(data);
+                  return (
+                    <div key={type} className="benchmark-card">
+                      <h3>{type}</h3>
+                      <div className="score">{formatBenchmarkScore(data)}</div>
+                      {(data.source || snapshot) && (
+                        <p className="source">
+                          {[data.source, snapshot].filter(Boolean).join(' · ')}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
               <p className="average">평균 점수: {formatScore(benchmarks.average_score)}</p>
             </>

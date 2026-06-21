@@ -10,6 +10,16 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/benchmarks", tags=["benchmarks"])
 
+
+def max_for_unit(unit):
+    """단위에서 만점(천장)을 파생한다 — percent → 100, 그 외(elo 등) → None(상한 없음).
+
+    별도 max_score 컬럼을 두지 않는다: unit 이 이미 척도 천장을 인코딩하므로
+    파생이 단일 출처다(헌법 — 무분별 컬럼 추가 금지). 응답에 명시적으로 실어
+    프론트가 "/100" 같은 매직넘버를 하드코딩하지 않게 한다(만점 맥락의 SSOT).
+    """
+    return 100.0 if (unit or "percent") == "percent" else None
+
 # ==================== 벤치마크 조회 ====================
 @router.get("")
 def get_benchmarks(
@@ -85,10 +95,11 @@ def get_benchmarks(
                 "category": row[7],
                 "model_version": row[8],
                 "unit": row[9] or "percent",
+                "max_score": max_for_unit(row[9]),
             }
             for row in result.fetchall()
         ]
-        
+
         return {
             "success": True,
             "data": benchmarks,
@@ -148,6 +159,7 @@ def get_benchmark_summary(
                 "category": row[4],
                 "model_version": row[5],
                 "unit": row[6] or "percent",
+                "max_score": max_for_unit(row[6]),
             }
         
         # 평균 점수
@@ -194,6 +206,7 @@ def get_benchmark_types(db: Session = Depends(get_db)):
                 "type": row[0],
                 "category": row[1],
                 "unit": row[2] or "percent",
+                "max_score": max_for_unit(row[2]),
                 "count": row[3],
             }
             for row in result.fetchall()
@@ -257,7 +270,7 @@ def get_benchmark_matrix(
 
     SQL Injection 불변식: category 는 :category 바인딩, tool_ids 는 정수 파싱 후
     :id0,:id1 동적 placeholder 로만 전달(f-string 값 보간 없음).
-    응답: {category, types:[{type,unit}], tools:[{tool_id,tool_name,scores:{type:{score,unit,model_version,source}}}]}
+    응답: {category, types:[{type,unit,max_score}], tools:[{tool_id,tool_name,scores:{type:{score,unit,max_score,model_version,source,collected_date}}}]}
     """
     try:
         where = ["b.category IS NOT NULL"]
@@ -286,7 +299,7 @@ def get_benchmark_matrix(
         query = (
             "SELECT DISTINCT ON (b.tool_id, b.benchmark_type) "
             "  b.tool_id, t.name, b.benchmark_type, b.score, b.unit, "
-            "  b.model_version, b.source, b.category "
+            "  b.model_version, b.source, b.category, b.collected_date "
             "FROM benchmarks b "
             "INNER JOIN tools t ON b.tool_id = t.id "
             f"WHERE {where_sql} "
@@ -299,18 +312,23 @@ def get_benchmark_matrix(
         tools_map = {}
         for r in rows:
             tid, tname, btype, score, unit = r[0], r[1], r[2], float(r[3]), (r[4] or "percent")
-            model_version, source = r[5], r[6]
+            model_version, source, collected_date = r[5], r[6], r[8]
             type_unit.setdefault(btype, unit)
             if tid not in tools_map:
                 tools_map[tid] = {"tool_id": tid, "tool_name": tname, "scores": {}}
             tools_map[tid]["scores"][btype] = {
                 "score": score,
                 "unit": unit,
+                "max_score": max_for_unit(unit),
                 "model_version": model_version,
                 "source": source,
+                "collected_date": str(collected_date) if collected_date else None,
             }
 
-        types = [{"type": t, "unit": u} for t, u in sorted(type_unit.items())]
+        types = [
+            {"type": t, "unit": u, "max_score": max_for_unit(u)}
+            for t, u in sorted(type_unit.items())
+        ]
         tools = sorted(tools_map.values(), key=lambda x: x["tool_name"].lower())
 
         return {
