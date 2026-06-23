@@ -70,6 +70,8 @@ textarea {
   justify-content: space-between;
   align-items: center;
   height: 64px;
+  /* GNB 링크 중앙 절대배치(데스크톱)의 기준 컨테이너. */
+  position: relative;
 }
 
 .navbar-logo {
@@ -143,6 +145,17 @@ textarea {
   display: flex;
   gap: var(--spacing-md);
   align-items: center;
+}
+
+/* 데스크톱: GNB 링크를 바 중앙 정렬(로고=좌, 테마 토글=우, 링크=중앙).
+   nav-links 를 컨테이너 기준 절대 중앙배치 → 로고·토글 폭과 무관하게 정확히 중앙.
+   모바일(≤768px)은 드롭다운 패널이라 static 유지(이 쿼리 미적용). */
+@media (min-width: 769px) {
+  .nav-links {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
 }
 
 .nav-link {
