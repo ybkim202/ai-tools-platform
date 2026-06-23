@@ -379,6 +379,8 @@ curl "http://localhost:8000/api/tools/4"
       "category": "생성형AI",
       "user_count": 100000000,
       "difficulty": "쉬움",
+      "logo_url": "https://...",
+      "official_url": "https://openai.com/chatgpt",
       "reason": "'콘텐츠작성' 작업에 최적화된 도구입니다.",
       "matched_tags": ["콘텐츠작성", "코딩"]
     }
@@ -394,6 +396,7 @@ curl "http://localhost:8000/api/tools/4"
 }
 ```
 
+- `logo_url`·`official_url`: 카드 로고 표시용(프론트 `resolveLogoSrc` — logo_url 없으면 official_url 도메인 파비콘, 그것도 없으면 레터 아바타). 추천 카루셀이 ToolCard를 그대로 쓰므로 다른 목록과 동일 필드 제공.
 - `matched_tags`: 매칭 근거 태그 이름 배열.
   - `task` 추천: 각 도구가 가진 `type='task'` 태그 이름들(요청한 task 포함).
   - `profession` 추천: 각 도구가 가진 `type='profession'` 태그 이름들(요청한 profession 포함).
