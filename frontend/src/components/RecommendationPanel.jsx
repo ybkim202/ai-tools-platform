@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useLocation } from 'react-router-dom';
 import { recommendationsAPI, toolsAPI, handleApiError } from '../services/api';
 import ToolCard from './ToolCard';
-import CompareTray from './CompareTray';
 import {
   LoadingState,
   EmptyFilteredState,
@@ -242,7 +241,6 @@ const RecommendationPanel = () => {
 
       {!loading && !error && recommendations.length > 0 && (
         <div className="results-section" role="region" aria-live="polite">
-          <CompareTray />
           <div className="results-head-row">
             <h3 className="results-heading">
               <span className="results-context">'{selectedValue}'</span>

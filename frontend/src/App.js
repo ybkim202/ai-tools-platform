@@ -13,6 +13,7 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Explore from './pages/Explore';
 import CompareModal from './components/CompareModal';
+import CompareTray from './components/CompareTray';
 import Details from './pages/Details';
 import News from './pages/News';
 import GithubTrends from './pages/GithubTrends';
@@ -514,7 +515,8 @@ function App() {
           </div>
         </footer>
 
-        {/* 비교 모달 — 전역 오버레이(어느 화면에서든 그 자리에서 비교). */}
+        {/* 비교 독 + 모달 — 전역. 어느 화면에서든 담으면 하단 독이 뜨고, 비교하기로 모달. */}
+        <CompareTray />
         <CompareModal />
       </div>
     </Router>

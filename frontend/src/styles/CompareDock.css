@@ -1,0 +1,189 @@
+/* ========================================
+   COMPARE DOCK (전역 비교 독 — iOS 하단 도크식)
+   화면 하단 중앙에 떠 있는 플로팅 바. 어느 화면에서든 담으면 슬라이드업.
+   토큰만 사용(인라인 hex 금지). 새 클래스(.compare-dock*)로 기존 .compare-tray 와 분리.
+   ======================================== */
+
+.compare-dock {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--spacing-xl) + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 900; /* 모달(1000)보다 아래 */
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  max-width: min(720px, calc(100vw - 2 * var(--spacing-lg)));
+  padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-lg);
+  animation: compareDockUp var(--transition-normal) ease-out both;
+}
+
+@keyframes compareDockUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 16px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .compare-dock {
+    animation: none;
+  }
+}
+
+.compare-dock-count {
+  flex-shrink: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.compare-dock-count strong {
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.compare-dock-count-max {
+  color: var(--color-text-tertiary);
+}
+
+/* 선택 도구 칩 — 가로 스크롤(많아도 독 폭 유지). */
+.compare-dock-chips {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.compare-dock-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.compare-dock-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+  padding: var(--spacing-xs) var(--spacing-xs) var(--spacing-xs) var(--spacing-md);
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  max-width: 160px;
+}
+
+.compare-dock-chip-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compare-dock-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  font-size: var(--font-size-base);
+  line-height: 1;
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius-full);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.compare-dock-chip-remove:hover {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+.compare-dock-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+.compare-dock-compare {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--color-primary-darker);
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: var(--radius-full);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--transition-fast);
+}
+
+.compare-dock-compare:hover {
+  background-color: var(--color-primary);
+}
+
+.compare-dock-clear {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius-full);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.compare-dock-clear:hover {
+  color: var(--color-text-primary);
+}
+
+.compare-dock-compare:focus-visible,
+.compare-dock-clear:focus-visible,
+.compare-dock-chip-remove:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+/* 독이 떠 있을 때 본문 하단 여백(마지막 콘텐츠 가림 방지). */
+body.has-compare-dock {
+  padding-bottom: 96px;
+}
+
+/* 모바일: 거의 풀폭, 칩 영역이 가로 스크롤로 공간 확보. */
+@media (max-width: 640px) {
+  .compare-dock {
+    left: var(--spacing-md);
+    right: var(--spacing-md);
+    transform: none;
+    max-width: none;
+    bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom, 0px));
+  }
+  @keyframes compareDockUp {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

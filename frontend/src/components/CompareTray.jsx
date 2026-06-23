@@ -1,36 +1,69 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useUIStore } from '../stores/toolStore';
+import '../styles/CompareDock.css';
 
 /**
- * CompareTray (F4) — 비교 선택 트레이.
- * store(useUIStore)를 자립 구독한다(props 없음). 선택 도구가 0개면 렌더하지 않는다.
- * "비교하기"는 페이지 이동 대신 비교 모달을 그 자리에서 연다(IA 재설계 §9).
- * 시각/위치는 기존 .compare-tray 규칙(styles/Home.css)을 그대로 재사용.
+ * CompareTray — 전역 비교 독(iOS 하단 도크식).
+ * App 에 1회 전역 마운트한다. store(useUIStore)를 자립 구독해 선택 도구가 1개 이상이면
+ * 어느 화면에서든 화면 하단에 플로팅 바로 슬라이드업한다. 0개면 렌더하지 않는다.
+ * "비교하기"는 전역 비교 모달을 그 자리에서 연다(라우트 이동 없음).
  */
 const CompareTray = () => {
-  const selectedToolsForCompare = useUIStore(
-    (state) => state.selectedToolsForCompare
-  );
-  const clearCompareList = useUIStore((state) => state.clearCompareList);
-  const openCompare = useUIStore((state) => state.openCompare);
-  const compareCount = selectedToolsForCompare.length;
+  const selected = useUIStore((s) => s.selectedToolsForCompare);
+  const namesById = useUIStore((s) => s.compareNamesById);
+  const removeToolForCompare = useUIStore((s) => s.removeToolForCompare);
+  const clearCompareList = useUIStore((s) => s.clearCompareList);
+  const openCompare = useUIStore((s) => s.openCompare);
+  const count = selected.length;
 
-  if (compareCount === 0) {
-    return null;
-  }
+  // 독이 떠 있는 동안 본문 하단에 여백을 줘 마지막 콘텐츠가 가리지 않게 한다.
+  useEffect(() => {
+    const cls = 'has-compare-dock';
+    document.body.classList.toggle(cls, count > 0);
+    return () => document.body.classList.remove(cls);
+  }, [count]);
+
+  if (count === 0) return null;
 
   return (
-    <div className="compare-tray">
-      <div className="compare-tray-left">
-        <span className="counter-pill" aria-live="polite">
-          비교함 {compareCount} / 5
-        </span>
-      </div>
-      <div className="compare-tray-actions">
-        <button type="button" className="btn btn-primary" onClick={openCompare}>
-          비교하기 →
+    <div className="compare-dock" role="region" aria-label="비교할 도구">
+      <span className="compare-dock-count" aria-live="polite">
+        비교 <strong>{count}</strong>
+        <span className="compare-dock-count-max">/5</span>
+      </span>
+
+      <ul className="compare-dock-chips">
+        {selected.map((id) => {
+          const name = namesById[id] || `#${id}`;
+          return (
+            <li key={id} className="compare-dock-chip">
+              <span className="compare-dock-chip-name">{name}</span>
+              <button
+                type="button"
+                className="compare-dock-chip-remove"
+                aria-label={`${name} 비교에서 제거`}
+                onClick={() => removeToolForCompare(id)}
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+
+      <div className="compare-dock-actions">
+        <button
+          type="button"
+          className="compare-dock-compare"
+          onClick={openCompare}
+        >
+          비교하기
         </button>
-        <button type="button" className="ghost-button" onClick={clearCompareList}>
+        <button
+          type="button"
+          className="compare-dock-clear"
+          onClick={clearCompareList}
+        >
           비우기
         </button>
       </div>
