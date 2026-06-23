@@ -31,85 +31,70 @@
   margin-top: var(--spacing-sm);
 }
 
+/* 미니멀 언더라인 세그먼트 탭(채움 버튼 대신). */
 .recommendation-tabs {
   display: flex;
   justify-content: center;
-  gap: var(--spacing-md);
-  max-width: 1200px;
-  margin: 0 auto var(--spacing-2xl);
-  padding: 0 var(--spacing-lg);
+  gap: var(--spacing-xl);
+  margin: 0 auto var(--spacing-xl);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .recommendation-tabs .tab {
-  padding: var(--spacing-md) var(--spacing-xl);
+  padding: var(--spacing-sm) var(--spacing-xs);
+  margin-bottom: -1px; /* 컨테이너 보더 위로 활성 언더라인 정렬 */
   background-color: transparent;
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  border: none;
+  border-bottom: 2px solid transparent;
   font-family: var(--font-family);
   font-size: var(--font-size-base);
   font-weight: 600;
   cursor: pointer;
-  min-height: 36px;
-  transition: border-color var(--transition-fast),
-    color var(--transition-fast), background-color var(--transition-fast);
+  transition: color var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .recommendation-tabs .tab:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  color: var(--color-text-primary);
 }
 
 .recommendation-tabs .tab.active {
-  background-color: var(--color-primary-darker);
-  color: var(--color-on-primary);
-  border-color: var(--color-primary-darker);
-  box-shadow: 0 0 0 3px var(--color-primary-surface-strong);
+  color: var(--color-text-primary);
+  border-bottom-color: var(--color-primary);
 }
 
 .recommendation-tabs .tab:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--color-focus-ring);
+  border-radius: var(--radius-sm);
 }
 
+/* 박스 없이 가벼운 칩 영역(중앙). CLS 방지로 모달/로딩 높이 변동을 흡수할 최소 높이만. */
 .selection-area {
-  max-width: 1000px;
-  margin: 0 auto var(--spacing-3xl);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-2xl);
-  /* CLS 방지(#16): 옵션 로딩 중 LoadingState(320px) → option-grid(콘텐츠 높이)로
-     교체될 때 첫 진입 1회 레이아웃 점프가 났다. 헤딩+로딩 스피너가 차지하는 높이를
-     하한으로 고정해 옵션 도착 전후 높이 변동을 흡수한다. */
-  min-height: 420px;
+  max-width: 720px;
+  margin: 0 auto var(--spacing-2xl);
+  min-height: 96px;
 }
 
-.selection-area h3 {
-  font-size: var(--font-size-xl);
-  color: var(--color-text-primary);
-  margin-bottom: var(--spacing-xl);
-  /* 단일 행 헤딩은 중앙 유지(탭 그룹과 정렬). */
-  text-align: center;
+.option-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-sm);
 }
 
-.option-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: var(--spacing-md);
-}
-
+/* 가벼운 선택 칩 — 비활성은 은은한 보더, 활성만 잉크 채움(링 제거). */
 .option-btn {
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-xs) var(--spacing-md);
   border: 1px solid var(--color-border);
-  background-color: var(--color-background);
+  background-color: transparent;
   border-radius: var(--radius-md);
   font-family: var(--font-family);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   font-weight: 600;
   cursor: pointer;
-  color: var(--color-text-primary);
-  min-height: 36px;
+  color: var(--color-text-secondary);
   transition: border-color var(--transition-fast),
     color var(--transition-fast), background-color var(--transition-fast);
 }
@@ -123,7 +108,6 @@
   background-color: var(--color-primary-darker);
   color: var(--color-on-primary);
   border-color: var(--color-primary-darker);
-  box-shadow: 0 0 0 3px var(--color-primary-surface-strong);
 }
 
 .option-btn:focus-visible {
@@ -184,18 +168,6 @@
 }
 
 @media (max-width: 768px) {
-  .recommendation-tabs {
-    flex-wrap: wrap;
-  }
-
-  .selection-area {
-    padding: var(--spacing-xl);
-  }
-
-  .option-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .tools-grid {
     grid-template-columns: 1fr;
     gap: var(--spacing-lg);
