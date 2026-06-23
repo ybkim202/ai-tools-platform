@@ -60,7 +60,7 @@
   /* 모달/오버레이 배경(라이트·다크 공통 — 어두운 막). */
   --color-overlay: rgba(0, 0, 0, 0.5);
   /* 글래스모피즘(반투명 + backdrop blur) — surface 톤의 반투명 + 라이트 림. */
-  --color-glass-bg: rgba(249, 250, 251, 0.72);
+  --color-glass-bg: rgba(249, 250, 251, 0.6);
   --color-glass-border: rgba(255, 255, 255, 0.6);
 
   /* Border Radius */
