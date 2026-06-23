@@ -51,10 +51,11 @@ const ToolCard = ({ tool, reasonTags }) => {
         {/* 헤더 */}
         <div className="card-header">
           <img
-            src={resolveLogoSrc(tool.logo_url, tool.name)}
+            src={resolveLogoSrc(tool.logo_url, tool.name, tool.official_url)}
             alt={tool.name}
             className="card-logo"
             loading="lazy"
+            data-official-url={tool.official_url || ''}
             onError={handleLogoError}
           />
           <div className="card-title-info">

@@ -87,6 +87,14 @@ def main(argv=None) -> int:
         ),
     )
     parser.add_argument(
+        "--check-logos",
+        action="store_true",
+        help=(
+            "tools.logo_url 의 생사를 점검해 logo_status/logo_checked_at 를 기록한다"
+            "(표시는 안 바꿈 — 프론트가 자가치유. 운영 관측용, 멱등). 주 1회 잡."
+        ),
+    )
+    parser.add_argument(
         "--limit",
         type=int,
         default=50,
@@ -127,6 +135,19 @@ def main(argv=None) -> int:
         finally:
             conn.close()
         logger.info("=== 신규 도구 발견 완료: 신규 %d 건 ===", n)
+        return 0
+
+    if args.check_logos:
+        from collectors import check_logos
+        from collectors.base import get_connection
+
+        logger.info("=== 로고 헬스체크 시작 ===")
+        conn = get_connection()
+        try:
+            broken = check_logos(conn)
+        finally:
+            conn.close()
+        logger.info("=== 로고 헬스체크 완료: broken %d 건 ===", broken)
         return 0
 
     from collectors import collect_all

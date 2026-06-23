@@ -38,7 +38,8 @@ def get_benchmarks(
         # 카테고리 섹션·스케일 표시의 근거. 기존 소비자(필드 추가만 보므로) 무영향.
         query = """
         SELECT b.id, b.tool_id, t.name, b.benchmark_type, b.score, b.source,
-               b.collected_date, b.category, b.model_version, b.unit, t.logo_url
+               b.collected_date, b.category, b.model_version, b.unit, t.logo_url,
+               t.official_url
         FROM benchmarks b
         INNER JOIN tools t ON b.tool_id = t.id
         WHERE 1=1
@@ -97,6 +98,9 @@ def get_benchmarks(
                 "unit": row[9] or "percent",
                 "max_score": max_for_unit(row[9]),
                 "logo_url": row[10],
+                # 로고 폴백 체인용: 큐레이션 logo_url 부패 시 프론트가 도메인 파비콘으로
+                # 자가치유(resolveLogoSrc/handleLogoError). 표시 전용 파생값.
+                "official_url": row[11],
             }
             for row in result.fetchall()
         ]

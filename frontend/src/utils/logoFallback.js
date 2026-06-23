@@ -44,23 +44,61 @@ export const makeLetterAvatar = (name) => {
 // 빈 이름 경로의 기본 폴백(중립 BULLET 아바타).
 const FALLBACK_LOGO = makeLetterAvatar('');
 
-// 로고 src 선제 해석: logo_url이 빈 문자열/null/undefined면 브라우저가 onError를
-// 안정적으로 발화하지 않으므로(빈 src), 처음부터 레터-아바타를 채워 깨진 이미지
-// 아이콘 노출을 방지한다. 값이 있으면 그대로 사용하고 onError가 폴백을 담당한다.
-export const resolveLogoSrc = (logoUrl, name) => {
-  const url = (logoUrl || '').trim();
-  return url || makeLetterAvatar(name);
+// Google s2 파비콘 서비스: official_url 도메인에서 로고를 파생한다(키 불필요·PNG 일관).
+// 큐레이션 logo_url 은 시간이 지나면 부패하므로(favicon.ico 404·자산경로 변경·봇 403),
+// 도메인 기반 파비콘을 1차 폴백으로 두면 사이트가 로고를 바꿔도 자가치유된다.
+const GOOGLE_FAVICON = 'https://www.google.com/s2/favicons';
+
+// official_url → Google s2 파비콘 URL. 도메인 추출 실패 시 null(레터-아바타로 폴백).
+// 카드 40px·상세 96px 를 고려해 sz=128(선명도 확보). 순수 함수.
+export const faviconFromUrl = (officialUrl, size = 128) => {
+  const raw = (officialUrl || '').trim();
+  if (!raw) return null;
+  try {
+    const host = new URL(raw).hostname;
+    if (!host) return null;
+    return `${GOOGLE_FAVICON}?domain=${encodeURIComponent(host)}&sz=${size}`;
+  } catch {
+    return null; // 상대경로 등 파싱 불가 URL
+  }
 };
 
-// onError 핸들러: 무한 루프 방지를 위해 한 번만 폴백으로 교체한다.
+// 로고 src 선제 해석: logo_url이 빈 문자열/null/undefined면 브라우저가 onError를
+// 안정적으로 발화하지 않으므로(빈 src), 처음부터 폴백을 채워 깨진 이미지 아이콘
+// 노출을 방지한다. 큐레이션 로고가 없으면 official_url 도메인 파비콘을 우선 시도하고
+// (자동 발견 도구는 logo_url 이 비어도 official_url 은 있다), 그것도 없으면 레터-아바타.
+// 값이 있으면 그대로 사용하고 onError 가 폴백 체인을 담당한다.
+export const resolveLogoSrc = (logoUrl, name, officialUrl) => {
+  const url = (logoUrl || '').trim();
+  if (url) return url;
+  return faviconFromUrl(officialUrl) || makeLetterAvatar(name);
+};
+
+// onError 핸들러: 2단 폴백 체인. 큐레이션 로고 실패 → 도메인 파비콘 → 레터-아바타.
+// 단계는 data-fallback-step 으로 추적해 무한 루프를 막는다(레터-아바타는 data URI 라
+// 다시 onError 가 나지 않으므로 항상 종착). official_url 은 img 의 data-official-url
+// 에서 읽는다(컴포넌트가 주입).
 export const handleLogoError = (event) => {
   const img = event.currentTarget;
-  if (img.dataset.fallbackApplied === 'true') {
+  const step = img.dataset.fallbackStep || 'curated';
+  const name = (img.alt || '').trim();
+
+  // 1단계: 큐레이션 logo_url 실패 → official_url 도메인 파비콘으로 자가치유 시도.
+  if (step === 'curated') {
+    const favicon = faviconFromUrl(img.dataset.officialUrl);
+    img.dataset.fallbackStep = favicon ? 'favicon' : 'avatar';
+    img.src = favicon || makeLetterAvatar(name);
     return;
   }
-  img.dataset.fallbackApplied = 'true';
-  const name = (img.alt || '').trim();
-  img.src = makeLetterAvatar(name);
+
+  // 2단계: 파비콘도 실패 → 레터-아바타(최종).
+  if (step === 'favicon') {
+    img.dataset.fallbackStep = 'avatar';
+    img.src = makeLetterAvatar(name);
+    return;
+  }
+
+  // 'avatar': 최종 단계 — 더 교체하지 않는다(무한 루프 방지).
 };
 
 export default FALLBACK_LOGO;

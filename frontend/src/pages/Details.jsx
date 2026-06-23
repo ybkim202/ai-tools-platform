@@ -219,10 +219,11 @@ const Details = () => {
 
       <div className="details-header">
         <img
-          src={resolveLogoSrc(selectedTool.logo_url, selectedTool.name)}
+          src={resolveLogoSrc(selectedTool.logo_url, selectedTool.name, selectedTool.official_url)}
           alt={selectedTool.name}
           className="logo"
           loading="lazy"
+          data-official-url={selectedTool.official_url || ''}
           onError={handleLogoError}
         />
         <div className="header-info">

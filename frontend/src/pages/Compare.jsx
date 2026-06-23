@@ -230,10 +230,11 @@ const Compare = ({ embedded = false }) => {
                       aria-label={`${tool.name} 상세 보기`}
                     >
                       <img
-                        src={resolveLogoSrc(tool.logo_url, tool.name)}
+                        src={resolveLogoSrc(tool.logo_url, tool.name, tool.official_url)}
                         alt={tool.name}
                         className="table-logo"
                         loading="lazy"
+                        data-official-url={tool.official_url || ''}
                         onError={handleLogoError}
                       />
                       <span>{tool.name}</span>
@@ -424,10 +425,11 @@ const Compare = ({ embedded = false }) => {
                   aria-label={`${tool.name} 상세 보기`}
                 >
                   <img
-                    src={resolveLogoSrc(tool.logo_url, tool.name)}
+                    src={resolveLogoSrc(tool.logo_url, tool.name, tool.official_url)}
                     alt={tool.name}
                     className="table-logo"
                     loading="lazy"
+                    data-official-url={tool.official_url || ''}
                     onError={handleLogoError}
                   />
                   <span className="comparison-card-name">{tool.name}</span>
