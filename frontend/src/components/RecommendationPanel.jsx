@@ -190,9 +190,8 @@ const RecommendationPanel = () => {
         }
       >
         <div className="options">
-          <h3>{selectedTab === 'task' ? '업무를 선택하세요' : '직업을 선택하세요'}</h3>
           {options.length > 0 ? (
-            <div className="option-grid">
+            <div className="option-chips">
               {options.map((opt) => (
                 <button
                   key={opt}
