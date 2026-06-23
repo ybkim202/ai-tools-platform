@@ -59,6 +59,9 @@
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
   /* 모달/오버레이 배경(라이트·다크 공통 — 어두운 막). */
   --color-overlay: rgba(0, 0, 0, 0.5);
+  /* 글래스모피즘(반투명 + backdrop blur) — surface 톤의 반투명 + 라이트 림. */
+  --color-glass-bg: rgba(249, 250, 251, 0.72);
+  --color-glass-border: rgba(255, 255, 255, 0.6);
 
   /* Border Radius */
   --radius-sm: 4px;
@@ -78,6 +81,8 @@
   :root:not([data-theme="light"]) {
     --color-background: #121212;
     --color-surface: #1C1C1C;
+    --color-glass-bg: rgba(28, 28, 28, 0.64);
+    --color-glass-border: rgba(255, 255, 255, 0.1);
     --color-border: #313131;
     --color-text-primary: #EDEDED;
     --color-text-secondary: #999999;
@@ -113,6 +118,8 @@
 :root[data-theme="dark"] {
   --color-background: #121212;
   --color-surface: #1C1C1C;
+  --color-glass-bg: rgba(28, 28, 28, 0.64);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
   --color-border: #313131;
   --color-text-primary: #EDEDED;
   --color-text-secondary: #999999;

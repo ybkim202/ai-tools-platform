@@ -15,11 +15,33 @@
   gap: var(--spacing-md);
   max-width: min(720px, calc(100vw - 2 * var(--spacing-lg)));
   padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm) var(--spacing-lg);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
+  /* 글래스모피즘: 반투명 + backdrop blur. backdrop-filter 미지원/투명도 감소 시
+     아래 @supports·@media 가 불투명 surface 로 폴백한다. */
+  background-color: var(--color-glass-bg);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-lg);
   animation: compareDockUp var(--transition-normal) ease-out both;
+}
+
+/* backdrop-filter 미지원 브라우저: 불투명 surface 로 폴백(가독성 유지). */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .compare-dock {
+    background-color: var(--color-surface);
+    border-color: var(--color-border);
+  }
+}
+
+/* 투명도 감소 선호 시 블러·반투명 제거(접근성). */
+@media (prefers-reduced-transparency: reduce) {
+  .compare-dock {
+    background-color: var(--color-surface);
+    border-color: var(--color-border);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 @keyframes compareDockUp {
