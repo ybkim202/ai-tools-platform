@@ -76,71 +76,71 @@
 /* 자동: OS 다크 + 수동 미지정(data-theme="light" 아님)일 때만 */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-background: #0D1117;
-    --color-surface: #161B22;
-    --color-border: #2A2F37;
-    --color-text-primary: #E6EDF3;
-    --color-text-secondary: #9198A1;
-    --color-text-tertiary: #6E7681;
-    /* Ink accent inverts to light ink on dark canvas (중성 저채도) */
-    --color-primary: #E6EDF3;
-    --color-primary-dark: #CDD5DD;
-    --color-primary-darker: #B6BFC9;
-    --color-primary-surface: rgba(230, 237, 243, 0.06);
-    --color-primary-surface-strong: rgba(230, 237, 243, 0.10);
-    --color-primary-border: rgba(230, 237, 243, 0.18);
-    --color-focus-ring: rgba(230, 237, 243, 0.30);
+    --color-background: #121212;
+    --color-surface: #1C1C1C;
+    --color-border: #313131;
+    --color-text-primary: #EDEDED;
+    --color-text-secondary: #999999;
+    --color-text-tertiary: #787878;
+    /* Ink accent inverts to light ink on dark canvas (무채색 · 채도 0) */
+    --color-primary: #EDEDED;
+    --color-primary-dark: #D5D5D5;
+    --color-primary-darker: #C0C0C0;
+    --color-primary-surface: rgba(237, 237, 237, 0.06);
+    --color-primary-surface-strong: rgba(237, 237, 237, 0.10);
+    --color-primary-border: rgba(237, 237, 237, 0.18);
+    --color-focus-ring: rgba(237, 237, 237, 0.30);
     /* Dark ink text on light-ink accent surface */
-    --color-on-primary: #0D1117;
-    /* Semantic → dark 중성 저채도 그레이(GitHub 다크 계열, 명도↓·채도↓). 의미는 명도+점(○◐●)+텍스트로 전달 */
-    --color-success: #9198A1;
-    --color-warning: #C2C9D1;
-    --color-error: #E6EDF3;
-    --color-error-dark: #C2C9D1;
-    --color-error-surface: rgba(230, 237, 243, 0.06);
-    --color-error-border: rgba(230, 237, 243, 0.18);
+    --color-on-primary: #121212;
+    /* Semantic → dark 순수 그레이(채도 0, 명도만 차등). 의미는 명도+점(○◐●)+텍스트로 전달 */
+    --color-success: #999999;
+    --color-warning: #CACACA;
+    --color-error: #EDEDED;
+    --color-error-dark: #CACACA;
+    --color-error-surface: rgba(237, 237, 237, 0.06);
+    --color-error-border: rgba(237, 237, 237, 0.18);
     /* Difficulty badge → dark 중성 그레이. 명도 단조: hard > medium > easy */
-    --difficulty-easy-bg: rgba(230, 237, 243, 0.05);
-    --difficulty-easy-ink: #9198A1;
-    --difficulty-medium-bg: rgba(230, 237, 243, 0.09);
-    --difficulty-medium-ink: #C2C9D1;
-    --difficulty-hard-bg: rgba(230, 237, 243, 0.13);
-    --difficulty-hard-ink: #E6EDF3;
+    --difficulty-easy-bg: rgba(237, 237, 237, 0.05);
+    --difficulty-easy-ink: #999999;
+    --difficulty-medium-bg: rgba(237, 237, 237, 0.09);
+    --difficulty-medium-ink: #CACACA;
+    --difficulty-hard-bg: rgba(237, 237, 237, 0.13);
+    --difficulty-hard-ink: #EDEDED;
   }
 }
 
 /* 수동 오버라이드: OS 무관 다크 강제 */
 :root[data-theme="dark"] {
-  --color-background: #0D1117;
-  --color-surface: #161B22;
-  --color-border: #2A2F37;
-  --color-text-primary: #E6EDF3;
-  --color-text-secondary: #9198A1;
-  --color-text-tertiary: #6E7681;
+  --color-background: #121212;
+  --color-surface: #1C1C1C;
+  --color-border: #313131;
+  --color-text-primary: #EDEDED;
+  --color-text-secondary: #999999;
+  --color-text-tertiary: #787878;
   /* Ink accent inverts to light ink on dark canvas (중성 저채도) */
-  --color-primary: #E6EDF3;
-  --color-primary-dark: #CDD5DD;
-  --color-primary-darker: #B6BFC9;
-  --color-primary-surface: rgba(230, 237, 243, 0.06);
-  --color-primary-surface-strong: rgba(230, 237, 243, 0.10);
-  --color-primary-border: rgba(230, 237, 243, 0.18);
-  --color-focus-ring: rgba(230, 237, 243, 0.30);
+  --color-primary: #EDEDED;
+  --color-primary-dark: #D5D5D5;
+  --color-primary-darker: #C0C0C0;
+  --color-primary-surface: rgba(237, 237, 237, 0.06);
+  --color-primary-surface-strong: rgba(237, 237, 237, 0.10);
+  --color-primary-border: rgba(237, 237, 237, 0.18);
+  --color-focus-ring: rgba(237, 237, 237, 0.30);
   /* Dark ink text on light-ink accent surface */
-  --color-on-primary: #0D1117;
+  --color-on-primary: #121212;
   /* Semantic → dark 중성 저채도 그레이(GitHub 다크 계열, 명도↓·채도↓). 의미는 명도+점(○◐●)+텍스트로 전달 */
-  --color-success: #9198A1;
-  --color-warning: #C2C9D1;
-  --color-error: #E6EDF3;
-  --color-error-dark: #C2C9D1;
-  --color-error-surface: rgba(230, 237, 243, 0.06);
-  --color-error-border: rgba(230, 237, 243, 0.18);
+  --color-success: #999999;
+  --color-warning: #CACACA;
+  --color-error: #EDEDED;
+  --color-error-dark: #CACACA;
+  --color-error-surface: rgba(237, 237, 237, 0.06);
+  --color-error-border: rgba(237, 237, 237, 0.18);
   /* Difficulty badge → dark 중성 그레이. 명도 단조: hard > medium > easy */
-  --difficulty-easy-bg: rgba(230, 237, 243, 0.05);
-  --difficulty-easy-ink: #9198A1;
-  --difficulty-medium-bg: rgba(230, 237, 243, 0.09);
-  --difficulty-medium-ink: #C2C9D1;
-  --difficulty-hard-bg: rgba(230, 237, 243, 0.13);
-  --difficulty-hard-ink: #E6EDF3;
+  --difficulty-easy-bg: rgba(237, 237, 237, 0.05);
+  --difficulty-easy-ink: #999999;
+  --difficulty-medium-bg: rgba(237, 237, 237, 0.09);
+  --difficulty-medium-ink: #CACACA;
+  --difficulty-hard-bg: rgba(237, 237, 237, 0.13);
+  --difficulty-hard-ink: #EDEDED;
 }
 
 /* ========================================
