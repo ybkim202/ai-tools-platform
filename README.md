@@ -18,7 +18,8 @@
 | 벤치마크 | ✅ 동작 (`benchmarks` · LLM 적재 · 만점/신선도 표기) |
 | 뉴스/깃헙 트렌드 | ⏳ 수집 파이프라인 완비, **0행 시작 → cron 수집 후 점등** |
 | 도구 자동 갱신·발견 | ✅ 인기지표(GitHub stars·HN points) 일 1회 갱신 + 신규 AI 도구 자동 발견(Hacker News "Show HN", 주 1회, 키 불필요) |
-| 자동 데이터 수집 (collectors + GitHub Actions cron) | ⏳ 구현됨, 상시 자동 실행은 아님 (APScheduler 기본 비활성 · 뉴스 매일 `0 0 * * *` · 도구 발견 주간 `0 0 * * 1`) |
+| 자동 데이터 수집 (collectors + GitHub Actions cron) | ⏳ 구현됨, 상시 자동 실행은 아님 (APScheduler 기본 비활성 · 뉴스 매일 `0 0 * * *` · 도구 발견 주간 `0 0 * * 1` · 로고 헬스체크 주간 `0 1 * * 1`) |
+| 도구 로고 | ✅ 자가치유 — 큐레이션 `logo_url` 부패 시 `official_url` 도메인 파비콘(Google s2)→레터아바타로 폴백. 주간 헬스체크가 부패 로고를 `logo_status='broken'`으로 표시(운영 관측) |
 
 **화면 구성(IA, 2026-06 재설계)**: 홈(`/`)은 전체 그리드 대신 **카테고리별 인기 Top N 큐레이션 + 맞춤 추천**을 보여주고, 전체 도구는 **`/explore`**(검색·필터·정렬)로 분리. 비교는 **전역 모달**(`/compare?ids=`는 모달 오픈 딥링크 폴백), 추천은 랜딩 임베드(`/recommendations`는 `/#recommend` 리다이렉트). 네비 = 탐색·랭킹·벤치마크·트렌드▾·소개. 설계·구현 이력: [docs/UX_REVIEW.md §9](./docs/UX_REVIEW.md).
 
@@ -99,7 +100,8 @@ open http://localhost:8000/docs                   # Swagger UI
 | 변수 | 위치 | 설명 |
 |---|---|---|
 | `DATABASE_URL` | 백엔드 | PostgreSQL 접속 문자열 (필수) |
-| `ALLOWED_ORIGINS` | 백엔드 | CORS 허용 오리진(콤마 구분). 미설정 시 `localhost:3000`만 허용 |
+| `ALLOWED_ORIGINS` | 백엔드 | CORS 허용 오리진(콤마 구분, 정확 일치). 미설정 시 `localhost:3000`만 허용 |
+| `ALLOWED_ORIGIN_REGEX` | 백엔드 | (선택) CORS 허용 오리진 정규식. Vercel 프리뷰처럼 도메인이 매번 바뀌는 경우 패턴으로 허용. 예) `https://ai-tools-platform-.*\.vercel\.app`. 미설정 시 정규식 매칭 비활성 |
 | `API_KEY` / `API_KEYS` | 백엔드 | (선택) `X-API-Key` 인증용. 미설정 시 인증 없이 공개 |
 | `REACT_APP_API_URL` | 프론트(빌드) | 백엔드 API 베이스 URL (`.../api`) |
 
@@ -162,8 +164,8 @@ ai-tools-platform/
 │   │   ├── auth.py            # 선택적 API Key · 레이트리밋
 │   │   ├── exceptions.py      # 표준 에러 핸들러
 │   │   └── routers/           # tools · recommendations · compare · news · benchmarks · trends
-│   ├── collectors/            # 수집 파이프라인 (base · rss · github · producthunt · github_trending · tools_metrics · tools_discover)
-│   ├── collect.py             # 수집 진입점 (--backfill-translations: 번역 백필 · --discover-tools: HN 신규 도구 발견)
+│   ├── collectors/            # 수집 파이프라인 (base · rss · github · producthunt · github_trending · tools_metrics · tools_discover · logo_health)
+│   ├── collect.py             # 수집 진입점 (--backfill-translations: 번역 백필 · --discover-tools: HN 신규 도구 발견 · --check-logos: 로고 헬스체크)
 │   ├── scheduler.py           # APScheduler (기본 비활성)
 │   ├── schema.sql             # 테이블 정본 DDL
 │   ├── init_db.py             # schema.sql 실행 러너
