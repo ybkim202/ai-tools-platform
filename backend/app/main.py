@@ -26,9 +26,19 @@ allowed_origins = [
     if origin.strip()
 ]
 
+# 정규식 오리진(선택). Vercel 프리뷰는 커밋마다 도메인이 바뀌어
+# (ai-tools-platform-git-<브랜치>-<해시>-<팀>.vercel.app) 정확 일치 목록으로는
+# 매번 등록할 수 없다. ALLOWED_ORIGIN_REGEX 로 프로젝트 프리뷰 패턴을 허용한다.
+#   예) ALLOWED_ORIGIN_REGEX=https://ai-tools-platform-.*\.vercel\.app
+# 프로젝트명으로 스코프를 좁혀 임의의 *.vercel.app 을 열지 않는다(allow_credentials
+# 가 False 이고 공개 읽기 데이터라 위험은 낮지만 최소 권한 유지). 미설정 시 None →
+# 정규식 매칭 비활성(기존 정확 일치 목록만 동작).
+allowed_origin_regex = os.getenv("ALLOWED_ORIGIN_REGEX", "").strip() or None
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
+    allow_origin_regex=allowed_origin_regex,
     # 프론트는 쿠키/크레덴셜을 사용하지 않으므로 False 로 둔다.
     allow_credentials=False,
     # 최소 권한: 실제 사용하는 메서드/헤더만 허용한다.
