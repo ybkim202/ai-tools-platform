@@ -30,6 +30,14 @@ const RecommendationPanel = () => {
 
   const sectionRef = useRef(null);
   const resultsAnchorRef = useRef(null);
+  const carouselRef = useRef(null);
+
+  // 카루셀 좌우 이동: 보이는 폭의 80%만큼 부드럽게 스크롤(스냅으로 카드에 정렬).
+  const scrollCarousel = useCallback((dir) => {
+    const el = carouselRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: 'smooth' });
+  }, []);
 
   const scrollToPanel = useCallback(() => {
     requestAnimationFrame(() => {
@@ -236,10 +244,31 @@ const RecommendationPanel = () => {
       {!loading && !error && recommendations.length > 0 && (
         <div className="results-section" role="region" aria-live="polite">
           <CompareTray />
-          <h3 className="results-heading">
-            <span className="results-context">'{selectedValue}'</span>
-            에게 추천하는 도구 {recommendations.length}개
-          </h3>
+          <div className="results-head-row">
+            <h3 className="results-heading">
+              <span className="results-context">'{selectedValue}'</span>
+              에게 추천하는 도구 {recommendations.length}개
+            </h3>
+            {/* 카루셀 좌우 이동(데스크톱). 모바일은 스와이프 — CSS로 숨김. */}
+            <div className="rec-carousel-nav" aria-hidden="true">
+              <button
+                type="button"
+                className="rec-carousel-btn"
+                aria-label="이전 도구 보기"
+                onClick={() => scrollCarousel(-1)}
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                className="rec-carousel-btn"
+                aria-label="다음 도구 보기"
+                onClick={() => scrollCarousel(1)}
+              >
+                ›
+              </button>
+            </div>
+          </div>
           {recommendations.every(
             (tool) =>
               !Array.isArray(tool.matched_tags) || tool.matched_tags.length === 0
@@ -249,19 +278,22 @@ const RecommendationPanel = () => {
               {selectedTab === 'task' ? ' 업무' : ' 직업'} 기준으로 선별한 추천이에요
             </p>
           )}
-          <div className="tools-grid">
+          {/* 가로 슬라이드(scroll-snap). 네이티브 스크롤이라 키보드·터치 접근성 유지. */}
+          <ul className="rec-carousel" ref={carouselRef}>
             {recommendations.map((tool) => (
-              <ToolCard
-                key={tool.id}
-                tool={tool}
-                reasonTags={
-                  Array.isArray(tool.matched_tags) && tool.matched_tags.length > 0
-                    ? tool.matched_tags
-                    : undefined
-                }
-              />
+              <li key={tool.id} className="rec-carousel-item">
+                <ToolCard
+                  tool={tool}
+                  reasonTags={
+                    Array.isArray(tool.matched_tags) &&
+                    tool.matched_tags.length > 0
+                      ? tool.matched_tags
+                      : undefined
+                  }
+                />
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       )}
 

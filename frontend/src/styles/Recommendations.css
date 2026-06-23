@@ -153,9 +153,89 @@
   text-align: left;
 }
 
+/* 결과 헤딩 + 카루셀 네비를 한 줄에. */
+.results-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.results-heading {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  color: var(--color-text-primary);
+  text-align: left;
+}
+
 .results-heading .results-context {
   color: var(--color-primary-darker);
   font-weight: 700;
+}
+
+/* 카루셀 좌우 네비(데스크톱). 모바일은 스와이프 → 숨김. */
+.rec-carousel-nav {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+.rec-carousel-btn {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xl);
+  line-height: 1;
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.rec-carousel-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.rec-carousel-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+/* 가로 슬라이드: 네이티브 scroll-snap(키보드·터치 접근성 유지). 스크롤바는 숨기고
+   화살표·스냅으로 어포던스 제공. 카드 폭 고정 + 스냅 정렬. */
+.rec-carousel {
+  display: flex;
+  gap: var(--spacing-xl);
+  list-style: none;
+  margin: 0;
+  padding: var(--spacing-xs); /* 카드 focus ring 잘림 방지 */
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: var(--spacing-xs);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+
+.rec-carousel::-webkit-scrollbar {
+  display: none; /* WebKit */
+}
+
+.rec-carousel-item {
+  flex: 0 0 300px;
+  max-width: 85vw;
+  scroll-snap-align: start;
+}
+
+@media (max-width: 768px) {
+  .rec-carousel-nav {
+    display: none;
+  }
 }
 
 /* 추천 근거 폴백 라벨(#11): 헤딩 직하 보조 톤 한 줄. 좌측 정렬로 헤딩과 정렬. */
