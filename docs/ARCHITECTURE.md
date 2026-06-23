@@ -355,7 +355,7 @@ Local Machine
 
 GitHub Actions (collect.yml, 매일 cron) ──▶ Railway/DB 수집 적재
 
-CORS: ALLOWED_ORIGINS 화이트리스트, allow_credentials=False
+CORS: ALLOWED_ORIGINS 화이트리스트(정확 일치) + ALLOWED_ORIGIN_REGEX(선택, Vercel 프리뷰 등 동적 도메인), allow_credentials=False
 ```
 
 ### **배포 프로세스**
@@ -427,7 +427,7 @@ API Gateway
 ## 🔒 **보안**
 
 ### **백엔드**
-- CORS: ALLOWED_ORIGINS 화이트리스트(와일드카드 아님), allow_credentials=False
+- CORS: ALLOWED_ORIGINS 화이트리스트(와일드카드 아님) + ALLOWED_ORIGIN_REGEX(선택, 프로젝트 스코프 정규식 — Vercel 프리뷰 도메인 허용용), allow_credentials=False
 - Rate Limiting: 인메모리 적용 (다중 워커 환경 한계 잔존)
 - 환경변수로 민감 정보 관리 (하드코딩 시크릿 없음)
 - SQL Injection 방지: SQLAlchemy `text()` + `:name` 파라미터 바인딩

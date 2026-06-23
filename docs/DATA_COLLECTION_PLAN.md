@@ -336,6 +336,30 @@ DATABASE_URL='...' [MYMEMORY_EMAIL='you@example.com'] python collect.py --backfi
 
 ---
 
+## 🖼️ **로고 헬스체크 (구현됨)**
+
+`collectors/logo_health.py` 가 `tools.logo_url` 의 생사를 점검한다. `logo_url` 은 수동 큐레이션 외부 URL 이라 사이트 개편·자산경로 변경·`favicon.ico` 제거로 시간이 지나면 부패한다(점검 시점 78개 중 42개 깨짐).
+
+### **표시(자가치유)는 프론트가, 관측은 이 잡이 담당 — 역할 분리**
+- **표시**: 프론트 `utils/logoFallback.js` 가 2단 폴백 체인으로 자가치유한다 — 큐레이션 `logo_url` → `official_url` 도메인의 Google s2 파비콘(`https://www.google.com/s2/favicons?domain=…&sz=128`, 키 불필요·PNG 일관) → 레터-아바타. 화면은 절대 깨지지 않는다.
+- **관측**: 이 잡은 표시를 바꾸지 않는다. `logo_url` 을 probe 해 `tools.logo_status('ok'|'broken')`·`logo_checked_at` 에 기록한다. 운영자는 `SELECT name, logo_url FROM tools WHERE logo_status='broken' ORDER BY name;` 로 수동 교체 대상(특히 대표 도구)을 선별한다.
+
+### **구조적 보호**
+`logo_url` 자체는 절대 자동 수정하지 않는다(수동 큐레이션 존중 — `tools_metrics` 와 동일 원칙). UPDATE SET 절에 `logo_status`/`logo_checked_at` 만 등장한다.
+
+### **probe 동작·보안**
+- `classify_logo(status, content_type)` 순수 함수로 분류: 200 + (image/* 또는 빈 content-type)이면 `ok`, 그 외 `broken`. content-type 생략 서버(일부 favicon)를 오탐하지 않는다.
+- 일반 브라우저 UA 로 probe(봇 403 오탐 방지). 재시도 없음(깨진 URL 이 기대값이라 retry-storm 회피). body 미수신(`stream=True` 후 헤더만).
+- SSRF 심층방어: `http`/`https` 외 스킴은 fetch 전 거부, 리다이렉트 `MAX_REDIRECTS=3` 제한(probe 대상은 운영자 제어 `logo_url` 뿐이라 실위험은 낮으나 가드 명시).
+- 항목별 savepoint 격리, psycopg2 `%s` 바인딩(헌법 G7). 매 실행이 전체 재점검(멱등 스냅샷).
+
+### **등록/실행**
+- 일일 `collect_all` 에 넣지 않는다(일일 잡 경량 유지 — `discover_tools` 와 동일 패턴). `cd backend && DATABASE_URL=... python collect.py --check-logos` 로 호출.
+- GitHub Actions `check-logos.yml` 가 주 1회(`0 1 * * 1`, 월요일 01:00 UTC) 자동 실행. `DATABASE_URL` secret 만 있으면 동작(키 불필요).
+- **선행 조건**: `tools.logo_status`/`logo_checked_at` 컬럼이 먼저 존재해야 한다(`schema.sql` 에 `ADD COLUMN IF NOT EXISTS` 로 멱등 추가됨 → `init_db.py` 재실행 시 자동 적용).
+
+---
+
 ## 🌐 **웹 크롤링**
 
 ### **라이브러리**
