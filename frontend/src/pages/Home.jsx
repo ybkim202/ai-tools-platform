@@ -15,7 +15,6 @@ const TOP_PER_CATEGORY = 5;
 
 const Home = () => {
   const [totalTools, setTotalTools] = useState(0);
-  const [tasks, setTasks] = useState([]);
   const [sections, setSections] = useState([]); // [{ category, tools }]
   const [benchmarkIds, setBenchmarkIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
@@ -39,7 +38,6 @@ const Home = () => {
       if (Number.isFinite(Number(meta.total_tools))) {
         setTotalTools(Number(meta.total_tools));
       }
-      if (Array.isArray(meta.tasks)) setTasks(meta.tasks);
 
       // 벤치마크 보유 tool_id 집합(성능 보조 칩 근거).
       const benchRows = benchRes?.data?.data || [];
@@ -130,27 +128,6 @@ const Home = () => {
         <div className="hero-gradient"></div>
       </section>
 
-      {/* 용도로 바로 찾기 — task(직무/용도) 우선 진입. 카테고리(도구 종류)와 다른 축. */}
-      {tasks.length > 0 && (
-        <section className="task-quicknav" aria-label="용도로 바로 찾기">
-          <div className="container task-quicknav-inner">
-            <span className="task-quicknav-label">용도로 바로 찾기</span>
-            <ul className="task-quicknav-list">
-              {tasks.slice(0, 8).map((task) => (
-                <li key={task}>
-                  <Link
-                    className="task-quicknav-chip"
-                    to={`/?type=task&value=${encodeURIComponent(task)}#recommend`}
-                  >
-                    {task}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      )}
-
       {/* 큐레이션 본문 — 카테고리별 인기 Top N */}
       <div className="curated-wrap">
         {loading ? (
@@ -195,18 +172,15 @@ const Home = () => {
       {/* 맞춤 추천 — 직무/업무 기반(독립 페이지 은퇴, 랜딩 임베드). */}
       <RecommendationPanel />
 
-      {/* Footer CTA — 비교/추천 경로 유지. */}
+      {/* Footer CTA — 단일 CTA로 마무리(전체 탐색 유도). */}
       <section className="footer-cta">
         <div className="container">
-          <h2>AI는 매주 바뀝니다. 계속 따라잡으세요</h2>
-          <p>지금 뜨는 도구, 벤치마크, 맞춤 추천까지 한곳에서 확인하세요</p>
+          <h2>당신에게 맞는 AI 도구를 찾아보세요</h2>
+          <p>카테고리·인기·성능으로 한눈에 비교하고 바로 선택하세요</p>
           <div className="cta-buttons">
-            <Link to="/compare" className="btn btn-primary">
-              도구 비교
+            <Link to="/explore" className="btn btn-primary">
+              모든 도구 탐색
             </Link>
-            <a href="#recommend" className="btn btn-secondary">
-              맞춤 추천
-            </a>
           </div>
         </div>
       </section>
