@@ -12,12 +12,16 @@ const AVATAR_FONT =
 // 빈/공백 이름의 중립 placeholder(부정 함의 없는 BULLET)
 const EMPTY_GLYPH = '•';
 
-// SVG <text> 내용 XML 이스케이프(글자가 & < > 일 수 있음 — load-bearing).
+// SVG XML 이스케이프(글자가 & < > " ' 일 수 있음 — load-bearing).
+// 현재 glyph 는 <text> 자식 노드에만 들어가 " ' 는 불필요하지만, 이 함수가 향후
+// 속성값에 재사용돼도 안전하도록 따옴표까지 이스케이프한다(심층방어).
 const escapeXml = (s) =>
   s
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 
 // 도구명에서 첫 "문자"(코드포인트 단위 — 이모지/서로게이트 안전) 추출.
 const firstGlyph = (name) => {

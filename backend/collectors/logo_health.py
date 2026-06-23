@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import logging
 from typing import Optional
+from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,13 @@ PROBE_UA = (
 )
 # 재시도 없음: 깨진 URL 이 기대값(전체의 절반 가량)이라 retry-storm 을 피한다.
 PROBE_TIMEOUT = 8  # 초
+
+# SSRF 심층방어: probe 대상은 수동 큐레이션된 logo_url(신뢰 경계 안)뿐이지만,
+# 잘못된/악의적 값이 섞여도 내부망·메타데이터 엔드포인트로 새지 않도록 가드를 둔다.
+#  - http/https 만 허용(file:// 등 차단. data:/javascript: 은 requests 가 어차피 거부).
+#  - 리다이렉트 추종은 짧게 제한(리다이렉트 체인으로 내부 주소 우회 표면 축소).
+ALLOWED_SCHEMES = ("http", "https")
+MAX_REDIRECTS = 3
 
 
 def classify_logo(status_code: Optional[int], content_type: Optional[str]) -> str:
@@ -74,8 +82,17 @@ def _probe(url: str) -> str:
         logger.error("requests 미설치 — 로고 헬스체크 건너뜀")
         return "broken"
 
+    # SSRF 심층방어: http/https 가 아닌 스킴은 fetch 자체를 하지 않고 broken 처리.
+    scheme = (urlparse(url).scheme or "").lower()
+    if scheme not in ALLOWED_SCHEMES:
+        logger.debug("로고 probe 스킴 거부(broken): %s — scheme=%r", url, scheme)
+        return "broken"
+
     try:
-        resp = requests.get(
+        # 세션 단위로 리다이렉트 추종 횟수를 제한한다(초과 시 TooManyRedirects → broken).
+        session = requests.Session()
+        session.max_redirects = MAX_REDIRECTS
+        resp = session.get(
             url,
             headers={"User-Agent": PROBE_UA},
             timeout=PROBE_TIMEOUT,
@@ -86,6 +103,7 @@ def _probe(url: str) -> str:
             return classify_logo(resp.status_code, resp.headers.get("Content-Type"))
         finally:
             resp.close()
+            session.close()
     except Exception as e:
         logger.debug("로고 probe 실패(broken): %s — %s", url, e)
         return "broken"
