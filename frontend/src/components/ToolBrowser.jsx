@@ -1,9 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toolsAPI, handleApiError } from '../services/api';
-import { useUIStore } from '../stores/toolStore';
 import ToolCard from './ToolCard';
-import CompareTray from './CompareTray';
 import Pagination from './Pagination';
 import { LoadingState, EmptyFilteredState, ErrorState } from './states/StateViews';
 import '../styles/Home.css';
@@ -25,7 +23,6 @@ const SORT_LABELS = { popularity: '인기순', name: '이름순', difficulty: '�
 const SORT_OPTIONS = ['popularity', 'name', 'difficulty'];
 
 const ToolBrowser = () => {
-  const compareCount = useUIStore((s) => s.selectedToolsForCompare.length);
   // 딥링크: /explore?search=q&category=디자인 진입 시 초기값으로 1회 흡수(공유 링크).
   const [searchParams] = useSearchParams();
 
@@ -353,12 +350,8 @@ const ToolBrowser = () => {
       </section>
 
       {/* Tools Section */}
-      <section
-        className={`tools-section ${compareCount > 0 ? 'has-compare-tray' : ''}`}
-      >
+      <section className="tools-section">
         <div className="container">
-          <CompareTray />
-
           {activeFilters.length > 0 && (
             <div className="active-filters" role="status" aria-live="polite">
               {activeFilters.map((f) => (

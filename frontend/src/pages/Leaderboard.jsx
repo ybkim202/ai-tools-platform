@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { toolsAPI, handleApiError } from '../services/api';
 import { useUIStore } from '../stores/toolStore';
-import CompareTray from '../components/CompareTray';
 import {
   LoadingState,
   EmptyNoDataState,
@@ -78,9 +77,6 @@ const Leaderboard = () => {
       </div>
 
       <div className="leaderboard-rank-container">
-        {/* 비교 트레이 — store 자립 구독, 선택 도구 있을 때만 렌더(Home과 동일). */}
-        <CompareTray />
-
         {loading ? (
           <LoadingState message="랭킹을 불러오는 중..." />
         ) : error ? (
