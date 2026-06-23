@@ -81,7 +81,8 @@ def get_recommendations(
         # 업무별 추천
         if task:
             query = """
-            SELECT DISTINCT t.id, t.name, t.category, t.user_count, t.difficulty
+            SELECT DISTINCT t.id, t.name, t.category, t.user_count, t.difficulty,
+                   t.logo_url, t.official_url
             FROM tools t
             INNER JOIN tool_tags tt ON t.id = tt.tool_id
             INNER JOIN tags tg ON tt.tag_id = tg.id
@@ -100,6 +101,10 @@ def get_recommendations(
                     "category": row[2],
                     "user_count": row[3],
                     "difficulty": row[4],
+                    # 로고 표시용(ToolCard resolveLogoSrc): logo_url 없으면 official_url
+                    # 도메인 파비콘으로 자가치유. 없으면 카드가 레터 아바타로 폴백.
+                    "logo_url": row[5],
+                    "official_url": row[6],
                     "reason": f"'{task}' 작업에 최적화된 도구입니다.",
                     "matched_tags": tag_map.get(row[0], [])
                 }
@@ -109,7 +114,8 @@ def get_recommendations(
         # 직업별 추천
         elif profession:
             query = """
-            SELECT DISTINCT t.id, t.name, t.category, t.user_count, t.difficulty
+            SELECT DISTINCT t.id, t.name, t.category, t.user_count, t.difficulty,
+                   t.logo_url, t.official_url
             FROM tools t
             INNER JOIN tool_tags tt ON t.id = tt.tool_id
             INNER JOIN tags tg ON tt.tag_id = tg.id
@@ -128,6 +134,8 @@ def get_recommendations(
                     "category": row[2],
                     "user_count": row[3],
                     "difficulty": row[4],
+                    "logo_url": row[5],
+                    "official_url": row[6],
                     "reason": f"{profession}들이 많이 사용하는 도구입니다.",
                     "matched_tags": tag_map.get(row[0], [])
                 }
@@ -137,7 +145,7 @@ def get_recommendations(
         # 둘 다 없으면 인기 도구 반환
         else:
             query = """
-            SELECT id, name, category, user_count, difficulty
+            SELECT id, name, category, user_count, difficulty, logo_url, official_url
             FROM tools
             ORDER BY user_count DESC
             LIMIT :limit
@@ -150,6 +158,8 @@ def get_recommendations(
                     "category": row[2],
                     "user_count": row[3],
                     "difficulty": row[4],
+                    "logo_url": row[5],
+                    "official_url": row[6],
                     "reason": "현재 가장 인기 있는 도구입니다."
                 }
                 for row in result.fetchall()
