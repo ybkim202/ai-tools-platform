@@ -117,10 +117,11 @@ const Leaderboard = () => {
 
                   <Link to={`/details/${tool.id}`} className="rank-identity">
                     <img
-                      src={resolveLogoSrc(tool.logo_url, tool.name)}
+                      src={resolveLogoSrc(tool.logo_url, tool.name, tool.official_url)}
                       alt=""
                       className="rank-logo"
                       loading="lazy"
+                      data-official-url={tool.official_url || ''}
                       onError={handleLogoError}
                     />
                     <span className="rank-name-group">

@@ -143,10 +143,11 @@ const BenchmarkTeaser = () => {
                     {idx + 1}
                   </span>
                   <img
-                    src={resolveLogoSrc(row.logo_url, row.tool_name)}
+                    src={resolveLogoSrc(row.logo_url, row.tool_name, row.official_url)}
                     alt=""
                     className="bench-bar-logo"
                     loading="lazy"
+                    data-official-url={row.official_url || ''}
                     onError={handleLogoError}
                   />
                   <span className="bench-bar-toolname">{row.tool_name}</span>

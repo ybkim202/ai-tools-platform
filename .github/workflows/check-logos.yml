@@ -1,0 +1,43 @@
+name: 로고 헬스체크
+
+# tools.logo_url 이 실제로 이미지로 로드되는지 점검해 logo_status/logo_checked_at 에
+# 기록한다(표시는 바꾸지 않음 — 프론트가 도메인 파비콘→레터-아바타로 자가치유).
+# - 큐레이션 logo_url 은 시간이 지나면 부패(404/403/자산경로 변경)하므로 주기 점검으로
+#   "어떤 도구의 로고가 죽었는지"를 운영자에게 노출한다(수동 교체 대상 선별).
+# - 키 불필요. DATABASE_URL 만 있으면 동작. 일일 collect.yml 과 분리한 주 1회 잡.
+# - DATABASE_URL 미설정이면 잡은 안내 후 종료(에러로 떨어지지 않음).
+#
+# 운영 확인:
+#   SELECT name, logo_url FROM tools WHERE logo_status='broken' ORDER BY name;
+
+on:
+  schedule:
+    - cron: '0 1 * * 1'   # 매주 월요일 01:00 UTC (discover-tools 00:00 와 겹치지 않게 1시간 뒤)
+  workflow_dispatch: {}    # 수동 실행 버튼
+
+# 동시 실행 방지(주기+수동 겹침 방지)
+concurrency:
+  group: check-logos
+  cancel-in-progress: false
+
+jobs:
+  check-logos:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: 로고 헬스체크 실행
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::warning::DATABASE_URL secret 미설정 — 헬스체크를 건너뜁니다. (Settings→Secrets→Actions 에 추가하세요)"
+            exit 0
+          fi
+          python collect.py --check-logos

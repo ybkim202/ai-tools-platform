@@ -53,6 +53,14 @@ ALTER TABLE tools ADD COLUMN IF NOT EXISTS hn_object_id      VARCHAR(20);
 ALTER TABLE tools ADD COLUMN IF NOT EXISTS hn_points         INTEGER;
 ALTER TABLE tools ADD COLUMN IF NOT EXISTS metrics_synced_at TIMESTAMP;
 ALTER TABLE tools ADD COLUMN IF NOT EXISTS source            VARCHAR(30) NOT NULL DEFAULT 'manual';
+-- 로고 헬스체크(collectors/logo_health) 결과. 표시는 프론트가 도메인 파비콘→레터-아바타로
+-- 자가치유하므로 화면은 안 깨진다. 이 컬럼은 "어떤 큐레이션 logo_url 이 부패했는지"를
+-- 운영자에게 노출하는 관측용이다(수동 교체 대상 선별). logo_url 자체는 자동 수정하지 않는다.
+--   logo_status     : 'ok' | 'broken' | NULL(미점검). 주 1회 잡이 갱신.
+--   logo_checked_at : 마지막 점검 시각. 운영 쿼리:
+--     SELECT name, logo_url FROM tools WHERE logo_status='broken' ORDER BY name;
+ALTER TABLE tools ADD COLUMN IF NOT EXISTS logo_status       VARCHAR(20);
+ALTER TABLE tools ADD COLUMN IF NOT EXISTS logo_checked_at   TIMESTAMP;
 
 -- 자동 발견 도구 멱등키: 같은 HN story 는 1행만(부분 인덱스, hn_object_id 있는 행만).
 CREATE UNIQUE INDEX IF NOT EXISTS idx_tools_hn_object_id ON tools(hn_object_id)

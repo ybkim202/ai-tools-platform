@@ -45,10 +45,11 @@ const CuratedSection = ({ category, tools, benchmarkIds }) => {
                   {idx + 1}
                 </span>
                 <img
-                  src={resolveLogoSrc(tool.logo_url, tool.name)}
+                  src={resolveLogoSrc(tool.logo_url, tool.name, tool.official_url)}
                   alt=""
                   className="curated-logo"
                   loading="lazy"
+                  data-official-url={tool.official_url || ''}
                   onError={handleLogoError}
                 />
                 <span className="curated-body">
