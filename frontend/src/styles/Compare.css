@@ -415,7 +415,7 @@
 }
 
 /* 비교 화면 내 "도구 더 추가" 진입점 — 홈으로 안내 */
-/* 박스 제거(요청) — 안내 문구+링크만 중앙에 가볍게. */
+/* 박스 제거(요청) — 안내 문구(왼쪽 끝)·링크(오른쪽 끝) 양 끝 배치. */
 .compare-add-more {
   max-width: 1200px;
   margin: var(--spacing-xl) auto 0;
@@ -423,7 +423,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: var(--spacing-md);
 }
 
