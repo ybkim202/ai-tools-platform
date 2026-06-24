@@ -111,6 +111,27 @@ const RecommendationPanel = () => {
     }
   }, [optionsStatus, searchParams, fetchRecommendations]);
 
+  // 기본 선택(요청): 옵션 로드 후 선택값이 없으면 현재 탭의 첫 옵션을 자동 선택+조회.
+  // 탭 전환 시(selectedValue 비워짐)에도 해당 탭 첫 옵션으로 채운다. 단, 딥링크가
+  // 처리할 케이스(?type=&value=)면 양보(중복/경합 방지). 초기 로드라 스크롤은 안 한다.
+  useEffect(() => {
+    if (optionsStatus !== 'ready' || selectedValue) return;
+    const dlType = searchParams.get('type');
+    const dlValue = searchParams.get('value');
+    if (dlType && dlValue && !deepLinkApplied.current) return;
+    const opts = optionsByType[selectedTab] || [];
+    if (opts.length === 0) return;
+    setSelectedValue(opts[0]);
+    fetchRecommendations(selectedTab, opts[0]);
+  }, [
+    optionsStatus,
+    selectedValue,
+    selectedTab,
+    optionsByType,
+    searchParams,
+    fetchRecommendations,
+  ]);
+
   // #recommend 해시로 진입/이동할 때마다 패널로 스크롤(나브 '추천'·칩·리다이렉트).
   // location.key 를 deps 에 둬 같은 해시를 다시 눌러도 재스크롤된다.
   useEffect(() => {
