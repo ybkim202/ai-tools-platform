@@ -85,6 +85,9 @@
 .comparison-table table {
   width: 100%;
   border-collapse: collapse;
+  /* 툴 칼럼 폭 균등 배정 — 라벨 열은 고정폭, 나머지를 툴들이 똑같이 나눠 가짐.
+     (열별 min-width 합이 넘치면 래퍼가 가로 스크롤로 흡수) */
+  table-layout: fixed;
 }
 
 .comparison-table th,
@@ -107,6 +110,8 @@
 .comparison-table th:first-child,
 .comparison-table td:first-child {
   text-align: left;
+  /* fixed 레이아웃 기준폭(라벨 열). 나머지 폭은 툴 칼럼들이 균등 분배. */
+  width: 140px;
   min-width: 120px;
   /* 첫 열(항목 라벨) 고정 — 가로 스크롤 시 비교 기준 유지 */
   position: sticky;
@@ -277,11 +282,21 @@
   color: var(--color-text-primary);
 }
 
-/* 상세 플랜 목록 — 헤드라인 아래 보조. 위 구분선으로 분리. */
+/* 상세 플랜 목록 — 헤드라인 아래 보조. 위 구분선으로 분리 + 가로 일렬(요청).
+   칼럼 폭이 좁으면 wrap 으로 줄바꿈. 항목 사이는 세로 구분선으로 스캔성 확보. */
 .pricing-block .pricing-list {
   width: 100%;
   padding-top: var(--spacing-sm);
   border-top: 1px solid var(--color-border);
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-md);
+}
+
+.pricing-block .price-item + .price-item {
+  padding-left: var(--spacing-md);
+  border-left: 1px solid var(--color-border);
 }
 
 .pricing-list {
