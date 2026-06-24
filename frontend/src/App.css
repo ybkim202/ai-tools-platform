@@ -66,6 +66,8 @@ textarea {
 .navbar-bar {
   max-width: 100%;
   margin: 0 auto;
+  /* liquid-glass sheen(::before) 기준 + 상단 광택이 콘텐츠 뒤에 깔리도록 positioning context */
+  position: relative;
   background-color: var(--color-background);
   border: 1px solid transparent;
   border-bottom-color: var(--color-border);
@@ -85,11 +87,27 @@ textarea {
     max-width: min(1360px, calc(100% - 2 * var(--spacing-xl)));
     margin-top: var(--spacing-md);
     background-color: var(--color-glass-bg);
-    -webkit-backdrop-filter: blur(14px) saturate(160%);
-    backdrop-filter: blur(14px) saturate(160%);
+    /* liquid glass: 강화 blur + saturate + 미세 brightness(렌즈 광택감). */
+    -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.05);
+    backdrop-filter: blur(16px) saturate(180%) brightness(1.05);
     border-color: var(--color-glass-border);
     border-radius: var(--radius-2xl);
-    box-shadow: var(--shadow-md);
+    /* 외부 그림자 + 상단 경면 하이라이트(inset rim) — 유리 가장자리 광택. */
+    box-shadow: var(--shadow-md), inset 0 1px 0 0 var(--color-glass-highlight);
+  }
+
+  /* 상단 sheen 광택 — 위→투명 그라데이션을 콘텐츠 뒤에 깐다(액체 유리 질감). */
+  .navbar--floating .navbar-bar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      var(--color-glass-highlight),
+      transparent 45%
+    );
   }
 
   /* backdrop-filter 미지원 → 불투명 surface 폴백(가독성). */
@@ -100,12 +118,16 @@ textarea {
   }
 }
 
-/* 투명도 감소 선호: 글래스 제거. */
+/* 투명도 감소 선호: 글래스·광택 제거(불투명 surface + 외부 그림자만). */
 @media (prefers-reduced-transparency: reduce) {
   .navbar--floating .navbar-bar {
     background-color: var(--color-surface);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+    box-shadow: var(--shadow-md);
+  }
+  .navbar--floating .navbar-bar::before {
+    display: none;
   }
 }
 

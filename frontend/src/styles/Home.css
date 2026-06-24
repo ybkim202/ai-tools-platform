@@ -62,6 +62,8 @@
   /* 글래스모피즘(반투명 + backdrop blur) — surface 톤의 반투명 + 라이트 림. */
   --color-glass-bg: rgba(249, 250, 251, 0.6);
   --color-glass-border: rgba(255, 255, 255, 0.6);
+  /* 액체 유리(liquid glass) 경면 하이라이트/상단 sheen — 중립 흰 알파. */
+  --color-glass-highlight: rgba(255, 255, 255, 0.6);
 
   /* Border Radius */
   --radius-sm: 4px;
@@ -84,6 +86,7 @@
     --color-surface: #1C1C1C;
     --color-glass-bg: rgba(28, 28, 28, 0.64);
     --color-glass-border: rgba(255, 255, 255, 0.1);
+    --color-glass-highlight: rgba(255, 255, 255, 0.12);
     --color-border: #313131;
     --color-text-primary: #EDEDED;
     --color-text-secondary: #999999;
@@ -121,6 +124,7 @@
   --color-surface: #1C1C1C;
   --color-glass-bg: rgba(28, 28, 28, 0.64);
   --color-glass-border: rgba(255, 255, 255, 0.1);
+  --color-glass-highlight: rgba(255, 255, 255, 0.12);
   --color-border: #313131;
   --color-text-primary: #EDEDED;
   --color-text-secondary: #999999;
