@@ -103,7 +103,7 @@ textarea {
     inset: -1px;
     border-radius: inherit;
     border: 1px solid var(--color-glass-highlight);
-    filter: blur(2.5px);
+    filter: blur(1.5px);
     pointer-events: none;
   }
 
