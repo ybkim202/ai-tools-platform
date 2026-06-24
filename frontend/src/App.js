@@ -281,6 +281,16 @@ function App() {
   // 라우트 이동 등에서 모든 헤더 패널을 닫는다(검색/메뉴 공통).
   const closeMenu = closeHeaderPanel;
 
+  // GNB 변신: 페이지 맨 위에선 상단 바, 살짝이라도 스크롤하면 플로팅 글래스 독.
+  // passive 스크롤 리스너 + 같은 값 setState는 React가 리렌더 생략(저비용).
+  const [navFloating, setNavFloating] = React.useState(false);
+  useEffect(() => {
+    const onScroll = () => setNavFloating(window.scrollY > 4);
+    onScroll(); // 새로고침/복귀 시 현재 스크롤 위치 동기화
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   // Escape로 닫기 + 바깥 클릭 닫기. 메뉴 열림 동안에만 리스너 부착.
   useEffect(() => {
     if (!menuOpen) return undefined;
@@ -312,8 +322,8 @@ function App() {
   return (
     <Router>
       <div className="app">
-        {/* 네비게이션 바 */}
-        <nav className="navbar">
+        {/* 네비게이션 바 — 스크롤 시 플로팅 글래스 독으로 변신 */}
+        <nav className={`navbar${navFloating ? ' navbar--floating' : ''}`}>
           <div className="navbar-container">
             <Link
               to="/"
