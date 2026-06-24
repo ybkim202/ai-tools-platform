@@ -324,6 +324,9 @@ function App() {
       <div className="app">
         {/* 네비게이션 바 — 스크롤 시 플로팅 글래스 독으로 변신 */}
         <nav className={`navbar${navFloating ? ' navbar--floating' : ''}`}>
+          {/* navbar-bar: 맨 위=풀폭 상단 바, 스크롤 시=중앙 글래스 필(필만 1360,
+              내부 container 는 1200 그리드 유지). */}
+          <div className="navbar-bar">
           <div className="navbar-container">
             <Link
               to="/"
@@ -444,6 +447,7 @@ function App() {
                 />
               </button>
             </div>
+          </div>
           </div>
         </nav>
 
