@@ -254,6 +254,24 @@
   gap: var(--spacing-xs);
 }
 
+/* 가격 가독성: 한 줄 space-between(플랜↔가격 충돌) 대신 세로 스택 —
+   플랜 라벨은 작게·톤다운(위), 가격은 크게·강조(아래). 플랜 간 간격 확보. */
+.pricing-list {
+  gap: var(--spacing-md);
+}
+
+.price-item {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.price-item .plan {
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
 /* ── 행 위계(#4) ──────────────────────────────────────────────────
    결정축(가격·벤치마크·사용자 수)은 라벨을 강하게, 값을 키워 승격.
    메타(카테고리·라이선스·난이도·링크)는 라벨을 secondary로 톤 다운. */
