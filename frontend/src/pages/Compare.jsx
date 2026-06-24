@@ -32,6 +32,57 @@ const BestBadge = () => (
   </span>
 );
 
+// 가격 정규화(시작가) — 유효 가격 중 최저(무료=0 포함), billing_period 보존.
+// formatPrice 가 통화 무관 "$" 표기라 숫자 최저 비교가 표시와 일관(최저가 비교 안전).
+const pricingStart = (tool) => {
+  const plans = Array.isArray(tool?.pricing) ? tool.pricing : [];
+  let cheapest = null;
+  plans.forEach((p) => {
+    const n = Number(p.price);
+    if (!Number.isFinite(n) || n < 0) return;
+    if (cheapest === null || n < cheapest.price) {
+      cheapest = { price: n, billing_period: p.billing_period };
+    }
+  });
+  if (cheapest === null) return null; // 유효 가격 없음(전부 미상)
+  return {
+    value: cheapest.price,
+    headline:
+      cheapest.price === 0
+        ? '무료'
+        : `${formatPrice(cheapest.price, {
+            billingPeriod: cheapest.billing_period,
+          })} 부터`,
+  };
+};
+
+// 가격 셀(A안) — 시작가 헤드라인(무료/최저가 부터)+최저가 배지, 그 아래 플랜 상세(보조).
+const PricingCell = ({ tool, cheapest }) => {
+  const plans = Array.isArray(tool?.pricing) ? tool.pricing : [];
+  if (plans.length === 0) return <span className="cell-empty">-</span>;
+  const summary = pricingStart(tool);
+  return (
+    <div className="pricing-block">
+      {summary && (
+        <div className="price-headline">
+          <span className="price-headline-value">{summary.headline}</span>
+          {cheapest && <span className="best-badge">최저가</span>}
+        </div>
+      )}
+      <div className="pricing-list">
+        {plans.map((price, idx) => (
+          <div key={idx} className="price-item">
+            <span className="plan">{displayLabel(price.plan)}</span>
+            <span className="price">
+              {formatPrice(price.price, { billingPeriod: price.billing_period })}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // embedded=true 면 모달 본문으로 렌더(페이지 헤더/래퍼 생략 — 모달 크롬이 제목·
 // 카운터·초기화·닫기를 제공). 기본(false)은 단독 페이지 형태(딥링크 폴백 대비).
 const Compare = ({ embedded = false }) => {
@@ -111,6 +162,15 @@ const Compare = ({ embedded = false }) => {
       });
     });
     return max;
+  }, [tools, canHighlight]);
+
+  // 가격 최저 시작가(무료=0 포함). 최저가 셀 강조(A안 앵커링) 기준.
+  const minStartingPrice = React.useMemo(() => {
+    if (!canHighlight) return null;
+    const vals = tools
+      .map((t) => pricingStart(t)?.value)
+      .filter((v) => Number.isFinite(v));
+    return vals.length ? Math.min(...vals) : null;
   }, [tools, canHighlight]);
 
   // ── 가로 스크롤 시그니파이어(#10) ─────────────────────────────────
@@ -248,26 +308,20 @@ const Compare = ({ embedded = false }) => {
               {/* 가격 — 결정축 */}
               <tr className="decision-row">
                 <td className="label">가격</td>
-                {comparisonData.map((tool) => (
-                  <td key={tool.id}>
-                    {tool.pricing?.length > 0 ? (
-                      <div className="pricing-list">
-                        {tool.pricing.map((price, idx) => (
-                          <div key={idx} className="price-item">
-                            <span className="plan">{displayLabel(price.plan)}</span>
-                            <span className="price">
-                              {formatPrice(price.price, {
-                                billingPeriod: price.billing_period,
-                              })}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      '-'
-                    )}
-                  </td>
-                ))}
+                {comparisonData.map((tool) => {
+                  const isCheapest =
+                    canHighlight &&
+                    minStartingPrice !== null &&
+                    pricingStart(tool)?.value === minStartingPrice;
+                  return (
+                    <td
+                      key={tool.id}
+                      className={isCheapest ? 'is-best' : undefined}
+                    >
+                      <PricingCell tool={tool} cheapest={isCheapest} />
+                    </td>
+                  );
+                })}
               </tr>
               {/* 벤치마크 — 결정축. 강조는 "타입별 최고" 항목 단위(benchmark-item-best)로만
                   한다(#4). 셀 전체 틴트를 쓰면 5개 타입 중 1개만 최고여도 셀이 "전반적 최고"로
@@ -441,22 +495,13 @@ const Compare = ({ embedded = false }) => {
                 <div className="comparison-card-row decision-row">
                   <dt>가격</dt>
                   <dd>
-                    {tool.pricing?.length > 0 ? (
-                      <div className="pricing-list">
-                        {tool.pricing.map((price, idx) => (
-                          <div key={idx} className="price-item">
-                            <span className="plan">{displayLabel(price.plan)}</span>
-                            <span className="price">
-                              {formatPrice(price.price, {
-                                billingPeriod: price.billing_period,
-                              })}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      '-'
-                    )}
+                    {(() => {
+                      const isCheapest =
+                        canHighlight &&
+                        minStartingPrice !== null &&
+                        pricingStart(tool)?.value === minStartingPrice;
+                      return <PricingCell tool={tool} cheapest={isCheapest} />;
+                    })()}
                   </dd>
                 </div>
                 <div className="comparison-card-row decision-row">

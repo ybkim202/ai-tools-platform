@@ -254,23 +254,45 @@
   gap: var(--spacing-xs);
 }
 
-/* 가격 가독성(레퍼런스: 강한 위계 + 항목 분리 + 한눈 스캔). 한 줄 space-between
-   (플랜↔가격 충돌) 대신 중앙정렬 세로 미니카드 — 플랜 라벨 작게·톤다운(위),
-   가격 크게·강조(아래). 여러 플랜은 옅은 구분선으로 분리해 스캔성 확보. */
-.pricing-list {
+/* 가격(A안: 시작가 앵커링). 헤드라인 = 무료/최저가 부터(크게·강조), 그 아래 플랜
+   상세는 보조(작게·톤다운, 구분선으로 분리). 모두 중앙정렬(요청). */
+.pricing-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: var(--spacing-sm);
+}
+
+.price-headline {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-xs);
+}
+
+.price-headline-value {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+/* 상세 플랜 목록 — 헤드라인 아래 보조. 위 구분선으로 분리. */
+.pricing-block .pricing-list {
+  width: 100%;
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--color-border);
+}
+
+.pricing-list {
+  gap: var(--spacing-xs);
 }
 
 .price-item {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 2px;
-}
-
-.price-item + .price-item {
-  padding-top: var(--spacing-sm);
-  border-top: 1px solid var(--color-border);
+  gap: 0;
 }
 
 .price-item .plan {
@@ -279,10 +301,11 @@
   color: var(--color-text-tertiary);
 }
 
+/* 상세 가격은 보조(헤드라인이 주역) — base·secondary 로 톤다운. */
 .price-item .price {
-  font-size: var(--font-size-lg);
-  font-weight: 700;
-  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text-secondary);
 }
 
 /* ── 행 위계(#4) ──────────────────────────────────────────────────
