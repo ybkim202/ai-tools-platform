@@ -138,6 +138,20 @@ textarea {
   }
 }
 
+/* [SPIKE] LiquidGlass 활성(navbar--lg) 시 navbar-bar 자체 CSS 글래스는 끈다(이중 글래스
+   방지) — 글래스는 LiquidGlass 가 담당. 래퍼는 투명 패스스루. */
+.navbar--lg .navbar-bar {
+  background-color: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-color: transparent;
+  box-shadow: none;
+  max-width: none;
+}
+.navbar--lg .navbar-bar::before {
+  display: none;
+}
+
 .navbar-container {
   max-width: 1200px;
   margin: 0 auto;

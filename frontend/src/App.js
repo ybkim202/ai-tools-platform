@@ -14,6 +14,7 @@ import About from './pages/About';
 import Explore from './pages/Explore';
 import CompareModal from './components/CompareModal';
 import CompareTray from './components/CompareTray';
+import LiquidGlass from 'liquid-glass-react';
 import Details from './pages/Details';
 import News from './pages/News';
 import GithubTrends from './pages/GithubTrends';
@@ -291,6 +292,20 @@ function App() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // [SPIKE] liquid-glass-react 는 데스크톱 플로팅 독에만 적용(모바일 드롭다운·상단 바 영향 0).
+  const [isDesktop, setIsDesktop] = React.useState(
+    () =>
+      typeof window !== 'undefined' &&
+      window.matchMedia('(min-width: 769px)').matches
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 769px)');
+    const on = () => setIsDesktop(mq.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
+  const navLiquid = navFloating && isDesktop;
+
   // Escape로 닫기 + 바깥 클릭 닫기. 메뉴 열림 동안에만 리스너 부착.
   useEffect(() => {
     if (!menuOpen) return undefined;
@@ -323,10 +338,17 @@ function App() {
     <Router>
       <div className="app">
         {/* 네비게이션 바 — 스크롤 시 플로팅 글래스 독으로 변신 */}
-        <nav className={`navbar${navFloating ? ' navbar--floating' : ''}`}>
-          {/* navbar-bar: 맨 위=풀폭 상단 바, 스크롤 시=중앙 글래스 필(필만 1360,
-              내부 container 는 1200 그리드 유지). */}
+        <nav
+          className={`navbar${navFloating ? ' navbar--floating' : ''}${
+            navLiquid ? ' navbar--lg' : ''
+          }`}
+        >
+          {/* navbar-bar: 맨 위=풀폭 상단 바, 스크롤 시=중앙 글래스 필. [SPIKE] 데스크톱
+              플로팅 시 navbar-container 를 LiquidGlass 로 감싼다(navbar-bar 자체 글래스는
+              navbar--lg CSS 로 끔 — 이중 글래스 방지). */}
           <div className="navbar-bar">
+          {(() => {
+            const container = (
           <div className="navbar-container">
             <Link
               to="/"
@@ -447,7 +469,25 @@ function App() {
                 />
               </button>
             </div>
-          </div>
+              </div>
+            );
+            return navLiquid ? (
+              <LiquidGlass
+                className="navbar-lg"
+                cornerRadius={15}
+                padding="0px"
+                displacementScale={48}
+                blurAmount={0.06}
+                saturation={140}
+                aberrationIntensity={1.5}
+                elasticity={0}
+              >
+                {container}
+              </LiquidGlass>
+            ) : (
+              container
+            );
+          })()}
           </div>
         </nav>
 
