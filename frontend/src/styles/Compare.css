@@ -254,22 +254,35 @@
   gap: var(--spacing-xs);
 }
 
-/* 가격 가독성: 한 줄 space-between(플랜↔가격 충돌) 대신 세로 스택 —
-   플랜 라벨은 작게·톤다운(위), 가격은 크게·강조(아래). 플랜 간 간격 확보. */
+/* 가격 가독성(레퍼런스: 강한 위계 + 항목 분리 + 한눈 스캔). 한 줄 space-between
+   (플랜↔가격 충돌) 대신 중앙정렬 세로 미니카드 — 플랜 라벨 작게·톤다운(위),
+   가격 크게·강조(아래). 여러 플랜은 옅은 구분선으로 분리해 스캔성 확보. */
 .pricing-list {
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
 }
 
 .price-item {
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
   gap: 2px;
+}
+
+.price-item + .price-item {
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--color-border);
 }
 
 .price-item .plan {
   font-weight: 500;
   font-size: var(--font-size-sm);
   color: var(--color-text-tertiary);
+}
+
+.price-item .price {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
 }
 
 /* ── 행 위계(#4) ──────────────────────────────────────────────────
@@ -402,18 +415,16 @@
 }
 
 /* 비교 화면 내 "도구 더 추가" 진입점 — 홈으로 안내 */
+/* 박스 제거(요청) — 안내 문구+링크만 중앙에 가볍게. */
 .compare-add-more {
   max-width: 1200px;
   margin: var(--spacing-xl) auto 0;
-  padding: var(--spacing-lg) var(--spacing-xl);
+  padding: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: var(--spacing-md);
-  background-color: var(--color-surface);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-lg);
 }
 
 .compare-add-more-text {
