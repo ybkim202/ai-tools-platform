@@ -5,7 +5,8 @@
 
 .curated-section {
   max-width: 1200px;
-  margin: 0 auto var(--spacing-3xl);
+  /* 섹션 간 간격 ↑(요청): 3xl→4xl. */
+  margin: 0 auto var(--spacing-4xl);
   padding: 0 var(--spacing-lg);
 }
 
@@ -159,7 +160,8 @@
 /* ── 성능 벤치마크 프리뷰(랜딩) — 2단 대시보드 ───────────── */
 .bench-teaser {
   max-width: 1200px;
-  margin: 0 auto var(--spacing-3xl);
+  /* 섹션 간 간격 ↑(요청): 위·아래 4xl. */
+  margin: var(--spacing-4xl) auto;
   padding: 0 var(--spacing-lg);
 }
 

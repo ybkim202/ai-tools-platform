@@ -8,7 +8,8 @@
 .recommend-panel {
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--spacing-3xl) var(--spacing-lg) var(--spacing-2xl);
+  /* 섹션 간 간격 ↑(요청): 위 여백 3xl→4xl. */
+  padding: var(--spacing-4xl) var(--spacing-lg) var(--spacing-2xl);
   border-top: 1px solid var(--color-border);
 }
 
@@ -74,7 +75,8 @@
    한 줄에 충분히 들어오게 한다(애매한 줄바꿈 방지). CLS 방지 최소 높이. */
 .selection-area {
   max-width: none;
-  margin: 0 auto var(--spacing-2xl);
+  /* 버튼(칩)↔결과 카드 간격 축소(요청). */
+  margin: 0 auto var(--spacing-md);
   min-height: 96px;
 }
 

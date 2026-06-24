@@ -452,7 +452,9 @@ main {
   background-color: var(--color-surface);
   border-top: 1px solid var(--color-border);
   padding: var(--spacing-3xl) var(--spacing-lg);
-  margin-top: var(--spacing-4xl);
+  /* 마지막 섹션과 Footer 를 딱 붙임(요청) — 위 여백 제거. 푸터는 border-top+배경으로
+     구분되므로 air gap 없이도 명확. */
+  margin-top: 0;
 }
 
 .footer-content {
