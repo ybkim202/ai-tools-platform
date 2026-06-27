@@ -47,7 +47,6 @@ const RecommendationPanel = () => {
   const options = optionsByType[selectedTab] || [];
 
   const sectionRef = useRef(null);
-  const resultsAnchorRef = useRef(null);
   const carouselRef = useRef(null);
 
   // 카루셀 좌우 이동: 보이는 폭의 80%만큼 부드럽게 스크롤(스냅으로 카드에 정렬).
@@ -158,14 +157,9 @@ const RecommendationPanel = () => {
   }, [location.hash, location.key, scrollToPanel]);
 
   const handleSelect = (value) => {
+    // 칩 선택 시 화면 이동 없음(요청) — 결과만 갱신, 스크롤하지 않는다.
     setSelectedValue(value);
     fetchRecommendations(selectedTab, value);
-    requestAnimationFrame(() => {
-      resultsAnchorRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    });
   };
 
   const handleReset = () => {
@@ -276,8 +270,6 @@ const RecommendationPanel = () => {
           )}
         </div>
       </div>
-
-      <div ref={resultsAnchorRef} aria-hidden="true" />
 
       {loading && <LoadingState message="추천을 불러오는 중..." />}
 

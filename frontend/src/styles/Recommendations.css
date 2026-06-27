@@ -40,11 +40,12 @@
   min-height: 96px;
 }
 
-/* 컨트롤 행 — [업무별/직업별 토글] + [칩들]. 좌측 정렬, 좁으면 wrap. */
+/* 컨트롤 행 — [업무별/직업별 토글] + [칩들]. 좌측 정렬, 좁으면 wrap.
+   토글↔칩 간격(column-gap)을 크게 둬 모드 스위처를 칩 그룹과 분리(요청). */
 .rec-controls {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-sm) var(--spacing-xl);
   flex-wrap: wrap;
 }
 
@@ -215,57 +216,17 @@
   box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
-/* 슬라이드 래퍼 — 양옆 가장자리 페이드. 배경색 그라데이션 + 흐림(backdrop blur를
-   엣지로 마스킹)으로 좌우 카드 정보가 자연스럽게 fade-out 되는 시각 연출(요청). */
 .rec-carousel-wrap {
   position: relative;
 }
 
-.rec-carousel-wrap::before,
-.rec-carousel-wrap::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 56px;
-  z-index: 2;
-  pointer-events: none; /* 스크롤·클릭은 통과 */
-}
-
-.rec-carousel-wrap::before {
-  left: 0;
-  background: linear-gradient(
-    to right,
-    var(--color-background),
-    transparent
-  );
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
-  -webkit-mask-image: linear-gradient(to right, var(--color-primary) 35%, transparent);
-  mask-image: linear-gradient(to right, var(--color-primary) 35%, transparent);
-}
-
-.rec-carousel-wrap::after {
-  right: 0;
-  background: linear-gradient(to left, var(--color-background), transparent);
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
-  -webkit-mask-image: linear-gradient(to left, var(--color-primary) 35%, transparent);
-  mask-image: linear-gradient(to left, var(--color-primary) 35%, transparent);
-}
-
-/* backdrop-filter 미지원/투명도 비선호 시 그라데이션만으로 폴백. */
-@media (prefers-reduced-transparency: reduce) {
-  .rec-carousel-wrap::before,
-  .rec-carousel-wrap::after {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-}
-
 /* 가로 슬라이드: 네이티브 scroll-snap(키보드·터치 접근성 유지). 스크롤바는 숨기고
-   화살표·스냅으로 어포던스 제공. 카드 폭 고정 + 스냅 정렬. */
+   화살표·스냅으로 어포던스 제공. 카드 폭 고정 + 스냅 정렬.
+   엣지 페이드(요청): 스크롤 컨테이너 자체를 mask로 양옆을 투명하게 → 가장자리에서
+   넘치는 카드가 자연스럽게 fade-out(배경색 없이 카드 정보만 흐려져 잘 안 보임).
+   solid 구간은 알파만 쓰는 mask라 토큰(--color-primary, 불투명) 사용. */
 .rec-carousel {
+  --rec-edge-fade: 84px;
   display: flex;
   gap: var(--spacing-xl);
   list-style: none;
@@ -276,6 +237,20 @@
   scroll-padding-left: var(--spacing-xs);
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none; /* Firefox */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    var(--color-primary) var(--rec-edge-fade),
+    var(--color-primary) calc(100% - var(--rec-edge-fade)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    var(--color-primary) var(--rec-edge-fade),
+    var(--color-primary) calc(100% - var(--rec-edge-fade)),
+    transparent 100%
+  );
 }
 
 .rec-carousel::-webkit-scrollbar {
@@ -283,7 +258,8 @@
 }
 
 .rec-carousel-item {
-  flex: 0 0 300px;
+  /* 1200 컨테이너에서 ~4개가 보이도록 폭 조정(가장자리는 mask로 fade). */
+  flex: 0 0 270px;
   max-width: 85vw;
   scroll-snap-align: start;
 }

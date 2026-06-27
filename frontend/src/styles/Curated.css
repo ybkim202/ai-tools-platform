@@ -632,3 +632,20 @@
     display: none; /* 칩이 좁아지므로 카운트는 생략 */
   }
 }
+
+/* 깃헙 트렌드 프리뷰 그리드 — 랜딩에선 4열 고정(전체 페이지 auto-fill과 구분). */
+.repo-grid--teaser {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 900px) {
+  .repo-grid--teaser {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .repo-grid--teaser {
+    grid-template-columns: 1fr;
+  }
+}

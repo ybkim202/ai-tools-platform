@@ -4,6 +4,7 @@ import { toolsAPI, benchmarksAPI, handleApiError } from '../services/api';
 import CuratedHeroWidget from '../components/CuratedHeroWidget';
 import TypingHeadline from '../components/TypingHeadline';
 import BenchmarkTeaser from '../components/BenchmarkTeaser';
+import GithubTrendTeaser from '../components/GithubTrendTeaser';
 import RecommendationPanel from '../components/RecommendationPanel';
 import { LoadingState, ErrorState } from '../components/states/StateViews';
 import { CATEGORY_HERO_COPY, DEFAULT_HERO_COPY } from '../utils/categoryMeta';
@@ -12,7 +13,7 @@ import '../styles/Home.css';
 // 랜딩(/). IA 재설계 §9 — 큐레이션 우선: 전체 111개 그리드를 노출하던 첫 화면을
 // "카테고리별 인기 Top N 엄선"으로 바꾼다. 전체 탐색은 /explore 로 이동(ToolBrowser).
 // 큐레이션 기준 = 인기 기본 + 성능 보조(벤치 데이터 있는 도구에만 칩).
-const FEATURED_CATEGORIES = 8; // 첫 화면에 노출할 카테고리 수(나머지는 /explore).
+const FEATURED_CATEGORIES = 7; // 첫 화면에 노출할 카테고리 수(나머지는 /explore).
 const TOP_PER_CATEGORY = 5;
 const ROTATE_MS = 4500; // Hero 카테고리 자동 회전 간격.
 // Hero 큐레이션에서 제외할 카테고리(요청) — 전체 탐색(/explore)에는 그대로 존재.
@@ -185,6 +186,9 @@ const Home = () => {
 
       {/* 맞춤 추천 — 직무/업무 기반(독립 페이지 은퇴, 랜딩 임베드). Hero 다음 배치. */}
       <RecommendationPanel />
+
+      {/* 깃헙 트렌드 프리뷰 — 추천 다음. 급부상 오픈소스 맛보기(데이터 없으면 미렌더). */}
+      <GithubTrendTeaser />
 
       {/* 성능 벤치마크 프리뷰 + CTA — 대표 벤치마크 상위 도구를 맛보기로(데이터 없으면 미렌더). */}
       <BenchmarkTeaser />
