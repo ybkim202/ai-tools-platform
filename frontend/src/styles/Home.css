@@ -241,9 +241,13 @@ body {
   height: 16px;
 }
 
-/* 타이핑 헤드라인 — 카테고리 회전 시 한 글자씩. 줄 수 변동 대비 min-height로 CLS 방지. */
+/* 타이핑 헤드라인 — 카테고리 회전 시 한 글자씩. 줄 수 변동 대비 min-height로 CLS 방지.
+   한글 줄바꿈: keep-all로 어절(단어) 중간이 아닌 공백에서만 줄바꿈 + balance로 양줄 균형. */
 .hero-title--typing {
   min-height: calc(clamp(28px, 8vw, 48px) * 1.2 * 2); /* 최대 2줄 높이 예약 */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  text-wrap: balance;
 }
 
 /* 타이핑 커서 — 잉크 막대, 깜빡임. 입력 중엔 상시 표시, 완료 후 깜빡. */

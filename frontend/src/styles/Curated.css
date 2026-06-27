@@ -496,9 +496,10 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* 우: 인기 툴 세로 리스트 */
+/* 우: 인기 툴 세로 리스트 — 카드 폭 축소(요청). 헤더·리스트 함께 좁히고 좌측 정렬. */
 .curated-hero-list {
   min-width: 0;
+  max-width: 400px;
 }
 
 .curated-hero-list-head {
@@ -532,6 +533,28 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
+}
+
+/* 카테고리 전환 시 부드러운 fade+slide(remount key 기반). 모션 민감 사용자는 생략. */
+.curated-hero-fade {
+  animation: curated-fade-in var(--transition-normal) ease-out;
+}
+
+@keyframes curated-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .curated-hero-fade {
+    animation: none;
+  }
 }
 
 .curated-hero-tool {

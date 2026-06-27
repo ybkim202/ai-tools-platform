@@ -15,6 +15,8 @@ import '../styles/Home.css';
 const FEATURED_CATEGORIES = 8; // 첫 화면에 노출할 카테고리 수(나머지는 /explore).
 const TOP_PER_CATEGORY = 5;
 const ROTATE_MS = 4500; // Hero 카테고리 자동 회전 간격.
+// Hero 큐레이션에서 제외할 카테고리(요청) — 전체 탐색(/explore)에는 그대로 존재.
+const EXCLUDED_CATEGORIES = new Set(['특수목적', '콘텐츠생성', '데이터분석']);
 
 const Home = () => {
   const [totalTools, setTotalTools] = useState(0);
@@ -52,7 +54,7 @@ const Home = () => {
       // 카테고리별 버킷(인기순 유지) → 도구 수 많은 순으로 상위 N 카테고리 선정.
       const buckets = new Map();
       tools.forEach((t) => {
-        if (!t.category) return;
+        if (!t.category || EXCLUDED_CATEGORIES.has(t.category)) return;
         if (!buckets.has(t.category)) buckets.set(t.category, []);
         buckets.get(t.category).push(t);
       });

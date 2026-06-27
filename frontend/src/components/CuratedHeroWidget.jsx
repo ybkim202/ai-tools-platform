@@ -108,7 +108,11 @@ const CuratedHeroWidget = ({
               <span aria-hidden="true"> →</span>
             </Link>
           </div>
-          <ol className="curated-hero-tools">
+          {/* key=카테고리 → 전환 시 remount되며 fade-in 애니메이션(부드러운 전환). */}
+          <ol
+            key={current.category}
+            className="curated-hero-tools curated-hero-fade"
+          >
             {current.tools.map((tool, idx) => {
               const metric = popularityMetric(tool);
               const hasBench = benchmarkIds?.has(tool.id);
@@ -121,15 +125,18 @@ const CuratedHeroWidget = ({
                     <span className="curated-rank" aria-hidden="true">
                       {idx + 1}
                     </span>
+                    {/* 로고 폴백 체인(ToolCard와 동일): alt=name + data-official-url를
+                        넘겨야 onError가 도메인 파비콘→레터아바타로 자가치유한다. */}
                     <img
                       src={resolveLogoSrc(
                         tool.logo_url,
                         tool.name,
                         tool.official_url
                       )}
-                      alt=""
+                      alt={tool.name}
                       className="curated-logo"
                       loading="lazy"
+                      data-official-url={tool.official_url || ''}
                       onError={handleLogoError}
                     />
                     <span className="curated-hero-tool-body">

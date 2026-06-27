@@ -32,47 +32,7 @@
   margin-top: var(--spacing-sm);
 }
 
-/* 미니멀 언더라인 세그먼트 탭(채움 버튼 대신). */
-.recommendation-tabs {
-  display: flex;
-  justify-content: center;
-  gap: var(--spacing-xl);
-  margin: 0 auto var(--spacing-xl);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.recommendation-tabs .tab {
-  padding: var(--spacing-sm) var(--spacing-xs);
-  margin-bottom: -1px; /* 컨테이너 보더 위로 활성 언더라인 정렬 */
-  background-color: transparent;
-  color: var(--color-text-secondary);
-  border: none;
-  border-bottom: 2px solid transparent;
-  font-family: var(--font-family);
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  cursor: pointer;
-  transition: color var(--transition-fast),
-    border-color var(--transition-fast);
-}
-
-.recommendation-tabs .tab:hover {
-  color: var(--color-text-primary);
-}
-
-.recommendation-tabs .tab.active {
-  color: var(--color-text-primary);
-  border-bottom-color: var(--color-primary);
-}
-
-.recommendation-tabs .tab:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--color-focus-ring);
-  border-radius: var(--radius-sm);
-}
-
-/* 박스 없이 가벼운 칩 영역(중앙). 최대폭은 컬럼 그리드(패널 1200)에 맞춰 칩이
-   한 줄에 충분히 들어오게 한다(애매한 줄바꿈 방지). CLS 방지 최소 높이. */
+/* 박스 없이 가벼운 칩 영역. 최대폭은 컬럼 그리드(패널 1200). CLS 방지 최소 높이. */
 .selection-area {
   max-width: none;
   /* 버튼(칩)↔결과 카드 간격 축소(요청). */
@@ -80,15 +40,62 @@
   min-height: 96px;
 }
 
+/* 컨트롤 행 — [업무별/직업별 토글] + [칩들]. 좌측 정렬, 좁으면 wrap. */
+.rec-controls {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+/* 업무별 ⇄ 직업별 단일 토글 — 칩 좌측. 잉크 채움으로 모드 스위처임을 강조. */
+.rec-mode-toggle {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: 1px solid var(--color-primary-darker);
+  background-color: var(--color-primary-darker);
+  color: var(--color-on-primary);
+  border-radius: var(--radius-full);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.rec-mode-toggle:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.rec-mode-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.rec-mode-swap {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
 .option-chips {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--spacing-sm);
+  flex: 1;
+  min-width: 0;
 }
 
-/* 가벼운 선택 칩 — 비활성은 은은한 보더, 활성만 잉크 채움(링 제거). */
+/* 가벼운 선택 칩(아이콘+텍스트) — 비활성은 은은한 보더, 활성만 잉크 채움(링 제거). */
 .option-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   padding: var(--spacing-xs) var(--spacing-md);
   border: 1px solid var(--color-border);
   background-color: transparent;
@@ -100,6 +107,21 @@
   color: var(--color-text-secondary);
   transition: border-color var(--transition-fast),
     color var(--transition-fast), background-color var(--transition-fast);
+}
+
+/* 칩 아이콘 — 비활성 보조톤, hover/활성은 색 상속(텍스트와 동조). */
+.option-btn-icon {
+  flex-shrink: 0;
+  color: var(--color-text-tertiary);
+  transition: color var(--transition-fast);
+}
+
+.option-btn:hover .option-btn-icon {
+  color: var(--color-primary);
+}
+
+.option-btn.active .option-btn-icon {
+  color: currentColor;
 }
 
 .option-btn:hover {
@@ -135,8 +157,7 @@
   color: var(--color-text-primary);
   font-size: var(--font-size-2xl);
   margin-bottom: var(--spacing-md);
-  /* 다중 줄·정보량 많은 결과 헤딩은 좌측 정렬로 가독성 확보(발견 18a).
-     탭 그룹 중앙 정렬은 유지(.recommendation-tabs). */
+  /* 다중 줄·정보량 많은 결과 헤딩은 좌측 정렬로 가독성 확보(발견 18a). */
   text-align: left;
 }
 
@@ -192,6 +213,54 @@
 .rec-carousel-btn:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+/* 슬라이드 래퍼 — 양옆 가장자리 페이드. 배경색 그라데이션 + 흐림(backdrop blur를
+   엣지로 마스킹)으로 좌우 카드 정보가 자연스럽게 fade-out 되는 시각 연출(요청). */
+.rec-carousel-wrap {
+  position: relative;
+}
+
+.rec-carousel-wrap::before,
+.rec-carousel-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 56px;
+  z-index: 2;
+  pointer-events: none; /* 스크롤·클릭은 통과 */
+}
+
+.rec-carousel-wrap::before {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    var(--color-background),
+    transparent
+  );
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  -webkit-mask-image: linear-gradient(to right, var(--color-primary) 35%, transparent);
+  mask-image: linear-gradient(to right, var(--color-primary) 35%, transparent);
+}
+
+.rec-carousel-wrap::after {
+  right: 0;
+  background: linear-gradient(to left, var(--color-background), transparent);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  -webkit-mask-image: linear-gradient(to left, var(--color-primary) 35%, transparent);
+  mask-image: linear-gradient(to left, var(--color-primary) 35%, transparent);
+}
+
+/* backdrop-filter 미지원/투명도 비선호 시 그라데이션만으로 폴백. */
+@media (prefers-reduced-transparency: reduce) {
+  .rec-carousel-wrap::before,
+  .rec-carousel-wrap::after {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 /* 가로 슬라이드: 네이티브 scroll-snap(키보드·터치 접근성 유지). 스크롤바는 숨기고
