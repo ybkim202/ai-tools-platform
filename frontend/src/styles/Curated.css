@@ -5,19 +5,27 @@
 
 .curated-section {
   max-width: 1200px;
-  /* 섹션 간 간격 ↑(요청): 3xl→4xl. */
-  margin: 0 auto var(--spacing-4xl);
+  /* 섹션 간 간격(요청): 4xl→5xl. DESIGN.md 스페이싱 스케일 정본. */
+  margin: 0 auto var(--spacing-5xl);
   padding: 0 var(--spacing-lg);
 }
 
 .curated-section-header {
   display: flex;
-  align-items: baseline;
+  align-items: flex-end;
   justify-content: space-between;
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-lg);
   padding-bottom: var(--spacing-sm);
   border-bottom: 1px solid var(--color-border);
+}
+
+/* 제목 + 한 줄 설명(소제목)을 세로로 묶는 헤딩 블록. */
+.curated-section-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .curated-section-title {
@@ -26,6 +34,13 @@
   color: var(--color-text-primary);
   margin: 0;
   letter-spacing: -0.3px;
+}
+
+/* 섹션 제목 아래 보조 설명 한 줄(작게) — 맞춤추천 서브타이틀과 동일 톤. */
+.curated-section-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
 }
 
 .curated-see-all {
@@ -160,8 +175,8 @@
 /* ── 성능 벤치마크 프리뷰(랜딩) — 2단 대시보드 ───────────── */
 .bench-teaser {
   max-width: 1200px;
-  /* 섹션 간 간격 ↑(요청): 위·아래 4xl. */
-  margin: var(--spacing-4xl) auto;
+  /* 섹션 간 간격(요청): 위·아래 5xl. DESIGN.md 스페이싱 스케일 정본. */
+  margin: var(--spacing-5xl) auto;
   padding: 0 var(--spacing-lg);
 }
 

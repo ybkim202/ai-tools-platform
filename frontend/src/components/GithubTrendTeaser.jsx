@@ -59,9 +59,14 @@ const GithubTrendTeaser = () => {
   return (
     <section className="curated-section" aria-labelledby="trend-teaser-title">
       <div className="curated-section-header">
-        <h2 id="trend-teaser-title" className="curated-section-title">
-          깃헙 트렌드
-        </h2>
+        <div className="curated-section-heading">
+          <h2 id="trend-teaser-title" className="curated-section-title">
+            깃헙 트렌드
+          </h2>
+          <p className="curated-section-subtitle">
+            이번 주 빠르게 떠오르는 오픈소스 AI 프로젝트
+          </p>
+        </div>
         <Link className="curated-see-all" to="/trends/github">
           트렌드 전체 보기
           <span aria-hidden="true"> →</span>

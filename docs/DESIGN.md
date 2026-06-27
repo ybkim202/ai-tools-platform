@@ -105,11 +105,12 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 
 ### Spacing System
 - **Base unit:** 4px. 정본: [Home.css:20-29](../frontend/src/styles/Home.css#L20-L29).
-- **Tokens:** `{spacing.xs}` 4px · `{spacing.sm}` 8px · `{spacing.md}` 12px · `{spacing.lg}` 16px · `{spacing.xl}` 24px · `{spacing.2xl}` 32px · `{spacing.3xl}` 48px · `{spacing.4xl}` 64px.
+- **Tokens:** `{spacing.xs}` 4px · `{spacing.sm}` 8px · `{spacing.md}` 12px · `{spacing.lg}` 16px · `{spacing.xl}` 24px · `{spacing.2xl}` 32px · `{spacing.3xl}` 48px · `{spacing.4xl}` 64px · `{spacing.5xl}` 96px.
 - **카드 내부 패딩:** `{spacing.xl}` 24px (ToolCard, feature 카드). 테이블 셀: `{spacing.lg}` 16px.
 - **버튼 패딩:** 1차 CTA `{spacing.lg} {spacing.2xl}` (16px 32px), 일반 버튼 `{spacing.md} {spacing.xl}` (12px 24px), 소형 `{spacing.sm} {spacing.lg}` (8px 16px).
 - **입력 패딩:** `{spacing.lg}` 16px (검색 입력은 좌측 아이콘 폭만큼 가산).
 - **섹션 수직 패딩:** `{spacing.3xl}` 48px (데스크톱), 모바일 `{spacing.2xl}` 32px.
+- **랜딩 주요 섹션 간 간격:** `{spacing.5xl}` 96px — 홈(`/`)의 큰 섹션(Hero·맞춤추천·깃헙트렌드·벤치마크) 사이 일관 간격. `.curated-section`/`.bench-teaser` margin, `.recommend-panel` 상단 padding에 적용.
 
 ### Grid & Container
 - **최대 콘텐츠 폭:** 1200px (`.container`, [Home.css:92-96](../frontend/src/styles/Home.css#L92-L96)), 좌우 `{spacing.lg}` 16px 패딩.
@@ -118,7 +119,7 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 - **추천/필터:** 필터는 칩(`{filter-btn}`) 가로 wrap, 추천 결과는 카드 그리드 재사용.
 
 ### Whitespace Philosophy
-캔버스(흰색)가 여백이다. 섹션은 흰 공백의 갭이 아니라 **surface 상승 + 헤어라인**으로 나뉜다. 카드 내부는 `{spacing.xl}` 24px로 숨 쉬게 하고, 섹션 간은 `{spacing.3xl}` 48px. 데이터가 밀집된 비교 테이블은 셀 패딩을 `{spacing.lg}` 16px로 유지해 밀도와 가독성의 균형을 잡는다.
+캔버스(흰색)가 여백이다. 섹션은 흰 공백의 갭이 아니라 **surface 상승 + 헤어라인**으로 나뉜다. 카드 내부는 `{spacing.xl}` 24px로 숨 쉬게 하고, 일반 섹션 간은 `{spacing.3xl}` 48px, **랜딩 주요 섹션 간은 `{spacing.5xl}` 96px**로 더 크게 띄워 큐레이션의 호흡을 만든다. 데이터가 밀집된 비교 테이블은 셀 패딩을 `{spacing.lg}` 16px로 유지해 밀도와 가독성의 균형을 잡는다.
 
 ---
 
