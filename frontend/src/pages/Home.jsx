@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { toolsAPI, benchmarksAPI, handleApiError } from '../services/api';
-import CuratedSection from '../components/CuratedSection';
+import CuratedHeroWidget from '../components/CuratedHeroWidget';
 import BenchmarkTeaser from '../components/BenchmarkTeaser';
 import RecommendationPanel from '../components/RecommendationPanel';
 import { LoadingState, ErrorState } from '../components/states/StateViews';
@@ -72,8 +72,8 @@ const Home = () => {
 
   return (
     <div className="home">
-      {/* Hero — 간결한 가치 + 1차 진입(전체 탐색). 큐레이션이 본문이라 hero는 가볍게. */}
-      <section className="hero">
+      {/* Hero 2단 — 좌: 문구·CTA(좌측정렬), 우: 큐레이션 위젯(좌 카테고리/우 툴 리스트). */}
+      <section className="hero hero--split">
         <div className="hero-content">
           <div className="hero-badge">
             {totalTools > 0
@@ -125,46 +125,24 @@ const Home = () => {
             </Link>
           </div>
         </div>
+
+        {/* 우측: 카테고리별 인기 Top N 큐레이션 위젯 */}
+        <div className="hero-curated">
+          {loading ? (
+            <LoadingState message="추천 도구를 불러오는 중..." />
+          ) : error ? (
+            <ErrorState
+              message={error?.message}
+              errorId={error?.errorId}
+              onRetry={fetchLanding}
+            />
+          ) : (
+            <CuratedHeroWidget sections={sections} benchmarkIds={benchmarkIds} />
+          )}
+        </div>
+
         <div className="hero-gradient"></div>
       </section>
-
-      {/* 큐레이션 본문 — 카테고리별 인기 Top N */}
-      <div className="curated-wrap">
-        {loading ? (
-          <LoadingState message="추천 도구를 불러오는 중..." />
-        ) : error ? (
-          <ErrorState
-            message={error?.message}
-            errorId={error?.errorId}
-            onRetry={fetchLanding}
-          />
-        ) : (
-          <>
-            {sections.map((sec) => (
-              <CuratedSection
-                key={sec.category}
-                category={sec.category}
-                tools={sec.tools}
-                benchmarkIds={benchmarkIds}
-              />
-            ))}
-
-            {/* 전체 탐색 유도 — 큐레이션은 일부, 전부는 여기서. */}
-            <section className="explore-cta">
-              <div className="container">
-                <p className="explore-cta-text">
-                  {totalTools > 0
-                    ? `전체 ${totalTools}개 도구를 검색·필터로 직접 살펴보세요`
-                    : '전체 도구를 검색·필터로 직접 살펴보세요'}
-                </p>
-                <Link to="/explore" className="btn btn-primary">
-                  전체 도구 탐색하기
-                </Link>
-              </div>
-            </section>
-          </>
-        )}
-      </div>
 
       {/* 성능 벤치마크 프리뷰 + CTA — 대표 벤치마크 상위 도구를 맛보기로(데이터 없으면 미렌더). */}
       <BenchmarkTeaser />

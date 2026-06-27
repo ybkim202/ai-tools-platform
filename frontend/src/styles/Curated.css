@@ -387,3 +387,152 @@
     margin-bottom: var(--spacing-2xl);
   }
 }
+
+/* ========================================
+   HERO 큐레이션 위젯 — 좌 카테고리 세로탭 / 우 인기 툴 세로리스트(벤치마크 프리뷰식)
+   ======================================== */
+.curated-hero {
+  width: 100%;
+}
+
+.curated-hero-split {
+  display: grid;
+  grid-template-columns: minmax(120px, 34%) 1fr;
+  gap: var(--spacing-lg);
+  align-items: start;
+}
+
+/* 좌: 카테고리 세로 탭 */
+.curated-hero-cats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.curated-hero-cat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  text-align: left;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-left: 2px solid var(--color-border);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  color: var(--color-text-secondary);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.curated-hero-cat:hover {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+.curated-hero-cat.active {
+  background-color: var(--color-surface);
+  border-left-color: var(--color-primary);
+  color: var(--color-text-primary);
+}
+
+.curated-hero-cat:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.curated-hero-cat-count {
+  flex-shrink: 0;
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 우: 인기 툴 세로 리스트 */
+.curated-hero-list {
+  min-width: 0;
+}
+
+.curated-hero-list-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+.curated-hero-list-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.curated-hero-tools {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.curated-hero-tool {
+  min-width: 0;
+}
+
+.curated-hero-tool-link {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--transition-normal);
+}
+
+.curated-hero-tool-link:hover {
+  border-color: var(--color-primary);
+}
+
+.curated-hero-tool-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.curated-hero-tool-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.curated-hero-tool-link:hover .curated-name {
+  color: var(--color-primary);
+}
+
+/* 반응형: 좁으면 카테고리 가로 wrap + 리스트 아래로 스택. */
+@media (max-width: 560px) {
+  .curated-hero-split {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  .curated-hero-cats {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .curated-hero-cat {
+    border-left: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+  .curated-hero-cat.active {
+    border-color: var(--color-primary);
+  }
+}

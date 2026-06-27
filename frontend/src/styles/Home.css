@@ -201,6 +201,38 @@ body {
   overflow: hidden;
 }
 
+/* Hero 2단 변형 — 좌: 문구·CTA(좌측정렬) / 우: 큐레이션 위젯. 컬럼 그리드(1200) 폭. */
+.hero--split {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  align-items: center;
+  gap: var(--spacing-4xl);
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 0; /* 위젯 높이에 맞춤(고정 vh 해제) */
+  text-align: left;
+}
+
+.hero--split .hero-content {
+  max-width: none;
+  text-align: left;
+}
+
+.hero--split .hero-cta-group {
+  justify-content: flex-start;
+}
+
+.hero--split .hero-curated {
+  min-width: 0; /* 그리드 셀 오버플로 방지 */
+}
+
+@media (max-width: 900px) {
+  .hero--split {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2xl);
+  }
+}
+
 .hero-gradient {
   position: absolute;
   top: 0;
