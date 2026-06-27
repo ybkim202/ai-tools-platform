@@ -49,11 +49,11 @@ const RecommendationPanel = () => {
   const sectionRef = useRef(null);
   const carouselRef = useRef(null);
 
-  // 카루셀 좌우 이동: 보이는 폭의 80%만큼 부드럽게 스크롤(스냅으로 카드에 정렬).
+  // 카루셀 좌우 이동: 보이는 폭(=4개)만큼 한 페이지씩 스크롤(스냅으로 카드 경계 정렬).
   const scrollCarousel = useCallback((dir) => {
     const el = carouselRef.current;
     if (!el) return;
-    el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: 'smooth' });
+    el.scrollBy({ left: dir * el.clientWidth, behavior: 'smooth' });
   }, []);
 
   const scrollToPanel = useCallback(() => {

@@ -235,10 +235,23 @@
   display: none; /* WebKit */
 }
 
+/* 한 화면에 정확히 4개(데스크톱) — 카드 폭 = (가용폭 − 갭 3개) / 4. 가장자리 잘림 없음.
+   태블릿 2개, 모바일 1개로 단계 축소. */
 .rec-carousel-item {
-  flex: 0 0 300px;
-  max-width: 85vw;
+  flex: 0 0 calc((100% - 3 * var(--spacing-xl)) / 4);
   scroll-snap-align: start;
+}
+
+@media (max-width: 900px) {
+  .rec-carousel-item {
+    flex-basis: calc((100% - var(--spacing-xl)) / 2); /* 2개 */
+  }
+}
+
+@media (max-width: 560px) {
+  .rec-carousel-item {
+    flex-basis: 100%; /* 1개 */
+  }
 }
 
 @media (max-width: 768px) {

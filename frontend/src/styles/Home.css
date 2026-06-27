@@ -242,13 +242,15 @@ body {
   height: 16px;
 }
 
-/* 타이핑 헤드라인 — 카테고리 회전 시 한 글자씩. 줄 수 변동 대비 min-height로 CLS 방지.
-   한글 줄바꿈: keep-all로 어절(단어) 중간이 아닌 공백에서만 줄바꿈 + balance로 양줄 균형. */
+/* 타이핑 헤드라인 — 카테고리 회전 시 한 글자씩.
+   줄바꿈: 카피에 명시한 '\n'을 pre-line으로 그대로 렌더(결정적 2줄) → 타이핑 중
+   브라우저가 줄을 다시 계산하지 않아 흔들림(jitter) 없음. balance 제거(키 입력마다
+   재배치되며 텍스트가 떨리던 원인). 2줄 높이를 min-height로 예약해 세로 점프도 방지. */
 .hero-title--typing {
-  min-height: calc(clamp(28px, 8vw, 48px) * 1.2 * 2); /* 최대 2줄 높이 예약 */
+  min-height: calc(clamp(28px, 8vw, 48px) * 1.2 * 2); /* 2줄 높이 예약 */
+  white-space: pre-line;
   word-break: keep-all;
   overflow-wrap: break-word;
-  text-wrap: balance;
 }
 
 /* 타이핑 커서 — 잉크 막대, 깜빡임. 입력 중엔 상시 표시, 완료 후 깜빡. */
