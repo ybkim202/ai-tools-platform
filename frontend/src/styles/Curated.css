@@ -28,8 +28,9 @@
   min-width: 0;
 }
 
+/* 섹션 제목 — 랜딩 전 섹션 동일 크기(2xl). recommend-panel-title·footer-cta h2와 통일. */
 .curated-section-title {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-2xl);
   font-weight: 700;
   color: var(--color-text-primary);
   margin: 0;

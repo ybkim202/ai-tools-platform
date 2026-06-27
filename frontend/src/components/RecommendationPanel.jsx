@@ -317,25 +317,22 @@ const RecommendationPanel = () => {
               {selectedTab === 'task' ? ' 업무' : ' 직업'} 기준으로 선별한 추천이에요
             </p>
           )}
-          {/* 가로 슬라이드(scroll-snap). 네이티브 스크롤이라 키보드·터치 접근성 유지.
-              래퍼 양옆에 배경색 그라데이션 + 흐림 마스크 오버레이로 가장자리 카드를 페이드. */}
-          <div className="rec-carousel-wrap">
-            <ul className="rec-carousel" ref={carouselRef}>
-              {recommendations.map((tool) => (
-                <li key={tool.id} className="rec-carousel-item">
-                  <ToolCard
-                    tool={tool}
-                    reasonTags={
-                      Array.isArray(tool.matched_tags) &&
-                      tool.matched_tags.length > 0
-                        ? tool.matched_tags
-                        : undefined
-                    }
-                  />
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* 가로 슬라이드(scroll-snap). 네이티브 스크롤이라 키보드·터치 접근성 유지. */}
+          <ul className="rec-carousel" ref={carouselRef}>
+            {recommendations.map((tool) => (
+              <li key={tool.id} className="rec-carousel-item">
+                <ToolCard
+                  tool={tool}
+                  reasonTags={
+                    Array.isArray(tool.matched_tags) &&
+                    tool.matched_tags.length > 0
+                      ? tool.matched_tags
+                      : undefined
+                  }
+                />
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

@@ -8,8 +8,8 @@
 .recommend-panel {
   max-width: 1200px;
   margin: 0 auto;
-  /* 섹션 간 간격(요청): 위 여백 4xl→5xl. DESIGN.md 스페이싱 스케일 정본. */
-  padding: var(--spacing-5xl) var(--spacing-lg) var(--spacing-2xl);
+  /* 섹션 간 간격(요청): 상·하 5xl로 다음 섹션(깃헙트렌드)과 간격 통일. DESIGN.md 정본. */
+  padding: var(--spacing-5xl) var(--spacing-lg);
   border-top: 1px solid var(--color-border);
 }
 
@@ -216,42 +216,19 @@
   box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
-.rec-carousel-wrap {
-  position: relative;
-}
-
 /* 가로 슬라이드: 네이티브 scroll-snap(키보드·터치 접근성 유지). 스크롤바는 숨기고
-   화살표·스냅으로 어포던스 제공. 카드 폭 고정 + 스냅 정렬.
-   엣지 페이드(요청): 좌우 padding = fade 폭으로 둬서 중앙 4개 카드는 solid 영역
-   안에 꽉 차고(=페이드 안 됨), 그 바깥(0번째·5번째 카드 자리, 즉 좌우 padding/peek)
-   에서만 카드가 fade-out 된다. mask solid 구간은 알파만 쓰므로 토큰(--color-primary). */
+   화살표·스냅으로 어포던스 제공. 카드 폭 고정 + 스냅 정렬. */
 .rec-carousel {
-  --rec-edge-fade: 48px;
   display: flex;
   gap: var(--spacing-xl);
   list-style: none;
   margin: 0;
-  /* 상하 xs(focus ring), 좌우는 fade 폭 → 첫/마지막 카드가 solid 영역에서 시작/종료 */
-  padding: var(--spacing-xs) var(--rec-edge-fade);
+  padding: var(--spacing-xs); /* 카드 focus ring 잘림 방지 */
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  scroll-padding-left: var(--rec-edge-fade);
+  scroll-padding-left: var(--spacing-xs);
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none; /* Firefox */
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    var(--color-primary) var(--rec-edge-fade),
-    var(--color-primary) calc(100% - var(--rec-edge-fade)),
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    var(--color-primary) var(--rec-edge-fade),
-    var(--color-primary) calc(100% - var(--rec-edge-fade)),
-    transparent 100%
-  );
 }
 
 .rec-carousel::-webkit-scrollbar {
@@ -259,8 +236,7 @@
 }
 
 .rec-carousel-item {
-  /* 1200 컨테이너(좌우 padding 제외)에서 4개가 꽉 차도록: (1168 - 96)/4 - gap ≈ 250. */
-  flex: 0 0 250px;
+  flex: 0 0 300px;
   max-width: 85vw;
   scroll-snap-align: start;
 }
