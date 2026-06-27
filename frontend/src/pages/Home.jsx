@@ -2,16 +2,19 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { toolsAPI, benchmarksAPI, handleApiError } from '../services/api';
 import CuratedHeroWidget from '../components/CuratedHeroWidget';
+import TypingHeadline from '../components/TypingHeadline';
 import BenchmarkTeaser from '../components/BenchmarkTeaser';
 import RecommendationPanel from '../components/RecommendationPanel';
 import { LoadingState, ErrorState } from '../components/states/StateViews';
+import { CATEGORY_HERO_COPY, DEFAULT_HERO_COPY } from '../utils/categoryMeta';
 import '../styles/Home.css';
 
 // 랜딩(/). IA 재설계 §9 — 큐레이션 우선: 전체 111개 그리드를 노출하던 첫 화면을
 // "카테고리별 인기 Top N 엄선"으로 바꾼다. 전체 탐색은 /explore 로 이동(ToolBrowser).
 // 큐레이션 기준 = 인기 기본 + 성능 보조(벤치 데이터 있는 도구에만 칩).
-const FEATURED_CATEGORIES = 6; // 첫 화면에 노출할 카테고리 수(나머지는 /explore).
+const FEATURED_CATEGORIES = 8; // 첫 화면에 노출할 카테고리 수(나머지는 /explore).
 const TOP_PER_CATEGORY = 5;
+const ROTATE_MS = 4500; // Hero 카테고리 자동 회전 간격.
 
 const Home = () => {
   const [totalTools, setTotalTools] = useState(0);
@@ -19,6 +22,9 @@ const Home = () => {
   const [benchmarkIds, setBenchmarkIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // Hero 큐레이션 위젯 — 활성 카테고리 + 자동 회전(헤드라인 타이핑과 동기). hover/포커스 시 일시정지.
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [paused, setPaused] = useState(false);
 
   const fetchLanding = useCallback(async () => {
     setLoading(true);
@@ -70,6 +76,30 @@ const Home = () => {
     fetchLanding();
   }, [fetchLanding]);
 
+  // 섹션 적재 시 첫 카테고리를 활성화(현재 활성이 더 이상 존재하지 않으면 보정).
+  useEffect(() => {
+    if (!sections.length) return;
+    setActiveCategory((prev) =>
+      prev && sections.some((s) => s.category === prev)
+        ? prev
+        : sections[0].category
+    );
+  }, [sections]);
+
+  // 자동 회전 — activeCategory 변경마다 타이머 재시작(수동 선택도 타이머 리셋). hover/포커스 시 정지.
+  useEffect(() => {
+    if (paused || sections.length < 2 || !activeCategory) return undefined;
+    const idx = sections.findIndex((s) => s.category === activeCategory);
+    const timer = setTimeout(() => {
+      const next = sections[(idx + 1) % sections.length];
+      setActiveCategory(next.category);
+    }, ROTATE_MS);
+    return () => clearTimeout(timer);
+  }, [activeCategory, sections, paused]);
+
+  const heroCopy =
+    (activeCategory && CATEGORY_HERO_COPY[activeCategory]) || DEFAULT_HERO_COPY;
+
   return (
     <div className="home">
       {/* Hero 2단 — 좌: 문구·CTA(좌측정렬), 우: 큐레이션 위젯(좌 카테고리/우 툴 리스트).
@@ -84,9 +114,7 @@ const Home = () => {
               ? `AI 도구 ${totalTools}개 · 매주 갱신`
               : '매주 갱신되는 AI 도구 큐레이션'}
           </div>
-          <h1 className="hero-title">
-            지금 주목할 AI 도구를<br />엄선해 보여드립니다
-          </h1>
+          <TypingHeadline text={heroCopy} />
           <p className="hero-subtitle">
             용도별로 가장 인기 있는 도구를 먼저 만나고, 필요하면 전체를 탐색하세요
           </p>
@@ -141,7 +169,13 @@ const Home = () => {
               onRetry={fetchLanding}
             />
           ) : (
-            <CuratedHeroWidget sections={sections} benchmarkIds={benchmarkIds} />
+            <CuratedHeroWidget
+              sections={sections}
+              benchmarkIds={benchmarkIds}
+              active={activeCategory}
+              onSelect={setActiveCategory}
+              onPauseChange={setPaused}
+            />
           )}
         </div>
         </div>

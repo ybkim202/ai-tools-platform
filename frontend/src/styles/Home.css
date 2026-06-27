@@ -229,6 +229,55 @@ body {
   justify-content: flex-start;
 }
 
+/* Hero CTA 크기 축소(요청) — 큰 1차 CTA 톤다운. 보조 CTA도 동일 크기 상속. */
+.hero--split .cta-button {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-base);
+  border-radius: var(--radius-md);
+}
+
+.hero--split .cta-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* 타이핑 헤드라인 — 카테고리 회전 시 한 글자씩. 줄 수 변동 대비 min-height로 CLS 방지. */
+.hero-title--typing {
+  min-height: calc(clamp(28px, 8vw, 48px) * 1.2 * 2); /* 최대 2줄 높이 예약 */
+}
+
+/* 타이핑 커서 — 잉크 막대, 깜빡임. 입력 중엔 상시 표시, 완료 후 깜빡. */
+.type-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background-color: var(--color-primary);
+  animation: caret-blink 1s step-end infinite;
+}
+
+.type-caret--idle {
+  animation: caret-blink 1.1s step-end infinite;
+}
+
+@keyframes caret-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .type-caret {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 .hero-split-inner .hero-curated {
   min-width: 0; /* 그리드 셀 오버플로 방지 */
 }
