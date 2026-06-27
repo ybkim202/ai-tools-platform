@@ -72,8 +72,12 @@ const Home = () => {
 
   return (
     <div className="home">
-      {/* Hero 2단 — 좌: 문구·CTA(좌측정렬), 우: 큐레이션 위젯(좌 카테고리/우 툴 리스트). */}
+      {/* Hero 2단 — 좌: 문구·CTA(좌측정렬), 우: 큐레이션 위젯(좌 카테고리/우 툴 리스트).
+          배경(그라디언트+도트패턴)은 전체폭, 콘텐츠는 컬럼 그리드(1200) 폭으로 제한. */}
       <section className="hero hero--split">
+        <div className="hero-gradient"></div>
+        <div className="hero-bg-pattern" aria-hidden="true"></div>
+        <div className="hero-split-inner">
         <div className="hero-content">
           <div className="hero-badge">
             {totalTools > 0
@@ -140,15 +144,14 @@ const Home = () => {
             <CuratedHeroWidget sections={sections} benchmarkIds={benchmarkIds} />
           )}
         </div>
-
-        <div className="hero-gradient"></div>
+        </div>
       </section>
+
+      {/* 맞춤 추천 — 직무/업무 기반(독립 페이지 은퇴, 랜딩 임베드). Hero 다음 배치. */}
+      <RecommendationPanel />
 
       {/* 성능 벤치마크 프리뷰 + CTA — 대표 벤치마크 상위 도구를 맛보기로(데이터 없으면 미렌더). */}
       <BenchmarkTeaser />
-
-      {/* 맞춤 추천 — 직무/업무 기반(독립 페이지 은퇴, 랜딩 임베드). */}
-      <RecommendationPanel />
 
       {/* Footer CTA — 단일 CTA로 마무리(전체 탐색 유도). */}
       <section className="footer-cta">

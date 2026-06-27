@@ -411,8 +411,7 @@
 
 .curated-hero-cat {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  align-items: center;
   gap: var(--spacing-sm);
   text-align: left;
   padding: var(--spacing-sm) var(--spacing-md);
@@ -442,6 +441,26 @@
 .curated-hero-cat:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+/* 카테고리 라인 아이콘 — 비활성은 보조톤, 활성은 잉크(primary). */
+.curated-hero-cat-icon {
+  flex-shrink: 0;
+  color: var(--color-text-tertiary);
+  transition: color var(--transition-normal);
+}
+
+.curated-hero-cat:hover .curated-hero-cat-icon,
+.curated-hero-cat.active .curated-hero-cat-icon {
+  color: var(--color-primary);
+}
+
+.curated-hero-cat-name {
+  flex: 1; /* 이름이 남은 폭을 차지 → count는 우측 정렬 */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .curated-hero-cat-count {

@@ -201,16 +201,23 @@ body {
   overflow: hidden;
 }
 
-/* Hero 2단 변형 — 좌: 문구·CTA(좌측정렬) / 우: 큐레이션 위젯. 컬럼 그리드(1200) 폭. */
+/* Hero 2단 변형 — 배경은 전체폭(.hero 기반 min-height 유지), 콘텐츠만 1200 그리드.
+   좌: 문구·CTA(좌측정렬) / 우: 큐레이션 위젯(수직 가운데). */
 .hero--split {
+  text-align: left;
+}
+
+/* 콘텐츠 래퍼 — 컬럼 그리드(1200) 폭의 2단. align-items center로 우측 위젯 수직 중앙. */
+.hero-split-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1.1fr;
   align-items: center;
   gap: var(--spacing-4xl);
-  max-width: 1200px;
-  margin: 0 auto;
-  min-height: 0; /* 위젯 높이에 맞춤(고정 vh 해제) */
-  text-align: left;
 }
 
 .hero--split .hero-content {
@@ -222,12 +229,43 @@ body {
   justify-content: flex-start;
 }
 
-.hero--split .hero-curated {
+.hero-split-inner .hero-curated {
   min-width: 0; /* 그리드 셀 오버플로 방지 */
 }
 
+/* 전체폭 배경: 우측 위젯 뒤 은은한 잉크 헤일로(radial) — 깊이감, 매우 옅게. */
+.hero--split .hero-gradient {
+  background: radial-gradient(
+    55% 80% at 72% 35%,
+    var(--color-primary) 0%,
+    transparent 62%
+  );
+  opacity: 0.06;
+}
+
+/* 도트 그리드 패턴 — 헤일로 영역으로 페이드(마스크). 토큰 보더색, 저강도. */
+.hero-bg-pattern {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
+  background-size: 22px 22px;
+  opacity: 0.45;
+  -webkit-mask-image: radial-gradient(
+    ellipse 75% 60% at 72% 38%,
+    #000 0%,
+    transparent 72%
+  );
+  mask-image: radial-gradient(
+    ellipse 75% 60% at 72% 38%,
+    #000 0%,
+    transparent 72%
+  );
+  pointer-events: none;
+}
+
 @media (max-width: 900px) {
-  .hero--split {
+  .hero-split-inner {
     grid-template-columns: 1fr;
     gap: var(--spacing-2xl);
   }
