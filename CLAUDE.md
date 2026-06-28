@@ -6,7 +6,7 @@
 
 **AITools** — AI 도구를 탐색·비교·추천받는 풀스택 웹 플랫폼.
 **정직한 현재 상태**: 탐색·비교·추천·벤치마크 동작(데이터 적재 완료). **뉴스·깃헙트렌드는 0행 시작 → 수집 cron으로 점등.** (진단 정본: [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md))
-**IA(2026-06 재설계)**: 홈 `/`=큐레이션 랜딩(카테고리별 인기 Top N)+추천 임베드, 전체 도구는 `/explore`(검색·필터·정렬). 비교=전역 모달(`/compare?ids=`는 모달 딥링크), 추천=랜딩 `#recommend`(`/recommendations`는 리다이렉트), 인기 랭킹=`/leaderboard`. 정본: [docs/UX_REVIEW.md §9](docs/UX_REVIEW.md). 전체 그리드가 `/`에 없다고 놀라지 말 것 — 의도된 분리.
+**IA(2026-06 재설계)**: 홈 `/`=큐레이션 랜딩 — 2단 Hero(우측 카테고리 큐레이션 위젯·자동회전) + 추천 임베드 + 깃헙트렌드·벤치마크 프리뷰(0행이면 미렌더), 전체 도구는 `/explore`(검색·필터·정렬). 비교=전역 모달(`/compare?ids=`는 모달 딥링크), 추천=랜딩 `#recommend`(`/recommendations`는 리다이렉트), 인기 랭킹=`/leaderboard`. 정본: [docs/UX_REVIEW.md §9](docs/UX_REVIEW.md)(랜딩 고도화 §9.7). 전체 그리드가 `/`에 없다고 놀라지 말 것 — 의도된 분리.
 
 ## 실제 기술 스택 (fact 기준 — 문서 주장과 다를 수 있음)
 
