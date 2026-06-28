@@ -73,7 +73,7 @@ AITools는 Linear의 절제된 시스템 미감을 **라이트 캔버스**에서
 
 > 시맨틱 색은 **배지·상태**에만. Linear처럼 마케팅 면에 무분별하게 뿌리지 않는다. 색만으로 의미를 전달하지 말고 항상 텍스트/아이콘을 동반한다(접근성).
 
-> **다크모드 = 저채도 중성 그레이 (명도↓·채도↓, GitHub 다크 계열).** 캔버스도 더 어둡고(`background` #0D1117 / `surface` #161B22 / `border` #2A2F37) 중성적이다. 시맨틱 색(success/warning/error)도 다크에선 그레이스케일로 재정의된다(success #9198A1, warning #C2C9D1, error #E6EDF3). 의미는 **명도 + 점 문자(○◐●) + 텍스트 라벨**로 전달한다.
+> **다크모드 캔버스는 중성 그레이**(`background` #121212 / `surface` #1C1C1C / `border` #313131)지만, **시맨틱 색은 유채색을 유지한다**(정책 갱신, 상단 참조) — 다크 튜닝값: success `#4ADE80`(녹) / warning `#FB923C`(주) / error `#F87171`(적), 난이도 잉크는 이 토큰을 참조하고 배지 배경은 저알파 동색 틴트다. 의미는 **색 + 점 문자(○◐●) + 텍스트 라벨** 다중 채널로 전달한다(색 단독 금지).
 
 ### Note
 순흑(`#000000`)을 텍스트나 배경에 쓰지 않는다 — Ink는 #111827이다. 다크모드 캔버스도 순흑이 아닌 #0D1117(slate)다.
@@ -259,10 +259,10 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 ### Badges
 
 **`difficulty-badge`** — 난이도. inline-flex, 점(○◐●)+텍스트(색맹 대응), `{type.caption}`/600, 라운드 `{rounded.full}`, 패딩 `{spacing.xs} {spacing.md}`.
-- **점 문자는 난이도 3단계를 단조 증가하는 채움 정도로 표현한다**: 쉬움/easy `○`(빈 원) < 보통/medium `◐`(반 채움) < 어려움/hard `●`(꽉 채움). 매핑은 `utils/difficulty.js`(`difficultyDot`)가 단일 출처이며 한글/영문 enum 양쪽을 처리하고, 미매핑 값은 중립 점 `◌`로 폴백한다. 다크모드(채도 0)에서 색과 독립된 시각 채널 역할을 한다.
+- **점 문자는 난이도 3단계를 단조 증가하는 채움 정도로 표현한다**: 쉬움/easy `○`(빈 원) < 보통/medium `◐`(반 채움) < 어려움/hard `●`(꽉 채움). 매핑은 `utils/difficulty.js`(`difficultyDot`)가 단일 출처이며 한글/영문 enum 양쪽을 처리하고, 미매핑 값은 중립 점 `◌`로 폴백한다. 색과 독립된 시각 채널이라 라이트·다크 양쪽에서 색 단독 의존을 막는다(접근성).
 - 배경/잉크는 `--difficulty-{easy,medium,hard}-{bg,ink}` 6종 토큰 경유(raw rgba 직접 사용 금지).
 - easy: `--difficulty-easy-bg`(라이트 success 10%) / `--difficulty-easy-ink`. medium: `--difficulty-medium-bg`(warning 12%) / `--difficulty-medium-ink`. hard: `--difficulty-hard-bg`(error 10%) / `--difficulty-hard-ink`.
-- **다크 예외**: 무채색 흰색(#E6EDF3) 저알파 틴트 배경(easy 5% / medium 9% / hard 13%)에 명도 단조 잉크(easy #9198A1 < medium #C2C9D1 < hard #E6EDF3). 어려움이 가장 밝다(최고 강조).
+- **다크**: 유채색 잉크(easy `#4ADE80` 녹 / medium `#FB923C` 주 / hard `#F87171` 적, `--color-success/warning/error` 참조)에 저알파 동색 틴트 배경(easy 10% / medium 12% / hard 14%). 점 문자(○◐●)가 색과 독립된 채널로 함께 작동한다.
 
 **`status-badge`** — 일반 상태 pill. 배경 `{colors.surface}`, 텍스트 `{colors.text-secondary}`, `{type.caption}`, 라운드 `{rounded.full}`, 패딩 `{spacing.xs} {spacing.sm}`.
 

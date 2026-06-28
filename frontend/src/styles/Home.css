@@ -114,20 +114,20 @@
     --color-on-primary: #121212;
     /* 브랜드 포인트 — 다크 워드마크 커서: 터미널 그린(유채색 포인트 허용). */
     --brand-cursor: #86EFAC;
-    /* Semantic → dark 그레이(명도 차등) 기본. 의미는 명도+점(○◐●)+텍스트 + 필요 시 유채색 시맨틱 허용 */
-    --color-success: #999999;
-    --color-warning: #CACACA;
-    --color-error: #EDEDED;
-    --color-error-dark: #CACACA;
-    --color-error-surface: rgba(237, 237, 237, 0.06);
-    --color-error-border: rgba(237, 237, 237, 0.18);
-    /* Difficulty badge → dark 중성 그레이. 명도 단조: hard > medium > easy */
-    --difficulty-easy-bg: rgba(237, 237, 237, 0.05);
-    --difficulty-easy-ink: #999999;
-    --difficulty-medium-bg: rgba(237, 237, 237, 0.09);
-    --difficulty-medium-ink: #CACACA;
-    --difficulty-hard-bg: rgba(237, 237, 237, 0.13);
-    --difficulty-hard-ink: #EDEDED;
+    /* Semantic → dark 유채색(다중 채널 유지: 색 + 점(○◐●) + 텍스트 라벨). */
+    --color-success: #4ADE80;
+    --color-warning: #FB923C;
+    --color-error: #F87171;
+    --color-error-dark: #EF4444;
+    --color-error-surface: rgba(248, 113, 113, 0.10);
+    --color-error-border: rgba(248, 113, 113, 0.30);
+    /* Difficulty badge → dark 유채색 잉크 + 저알파 동색 틴트. easy 녹 / medium 주 / hard 적. */
+    --difficulty-easy-bg: rgba(74, 222, 128, 0.10);
+    --difficulty-easy-ink: var(--color-success);
+    --difficulty-medium-bg: rgba(251, 146, 60, 0.12);
+    --difficulty-medium-ink: var(--color-warning);
+    --difficulty-hard-bg: rgba(248, 113, 113, 0.14);
+    --difficulty-hard-ink: var(--color-error);
   }
 }
 
@@ -154,20 +154,20 @@
   --color-on-primary: #121212;
   /* 브랜드 포인트 — 다크 워드마크 커서: 터미널 그린(유채색 포인트 허용). */
   --brand-cursor: #86EFAC;
-  /* Semantic → dark 그레이 기본(명도 차등). 의미는 명도+점(○◐●)+텍스트 + 필요 시 유채색 시맨틱 허용 */
-  --color-success: #999999;
-  --color-warning: #CACACA;
-  --color-error: #EDEDED;
-  --color-error-dark: #CACACA;
-  --color-error-surface: rgba(237, 237, 237, 0.06);
-  --color-error-border: rgba(237, 237, 237, 0.18);
-  /* Difficulty badge → dark 중성 그레이. 명도 단조: hard > medium > easy */
-  --difficulty-easy-bg: rgba(237, 237, 237, 0.05);
-  --difficulty-easy-ink: #999999;
-  --difficulty-medium-bg: rgba(237, 237, 237, 0.09);
-  --difficulty-medium-ink: #CACACA;
-  --difficulty-hard-bg: rgba(237, 237, 237, 0.13);
-  --difficulty-hard-ink: #EDEDED;
+  /* Semantic → dark 유채색(다중 채널 유지: 색 + 점(○◐●) + 텍스트 라벨). */
+  --color-success: #4ADE80;
+  --color-warning: #FB923C;
+  --color-error: #F87171;
+  --color-error-dark: #EF4444;
+  --color-error-surface: rgba(248, 113, 113, 0.10);
+  --color-error-border: rgba(248, 113, 113, 0.30);
+  /* Difficulty badge → dark 유채색 잉크 + 저알파 동색 틴트. easy 녹 / medium 주 / hard 적. */
+  --difficulty-easy-bg: rgba(74, 222, 128, 0.10);
+  --difficulty-easy-ink: var(--color-success);
+  --difficulty-medium-bg: rgba(251, 146, 60, 0.12);
+  --difficulty-medium-ink: var(--color-warning);
+  --difficulty-hard-bg: rgba(248, 113, 113, 0.14);
+  --difficulty-hard-ink: var(--color-error);
 }
 
 /* ========================================
