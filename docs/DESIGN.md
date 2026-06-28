@@ -143,6 +143,45 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 
 ---
 
+## Glassmorphism (Liquid Glass)
+
+콘텐츠 **위에 떠 있는/상승한 레이어**에만 쓰는 반투명 + `backdrop-filter` 처리. 정본 토큰·유틸: [Home.css](../frontend/src/styles/Home.css) (`:root` 의 `--color-glass-*`·`--glass-*` 토큰, `.glass-strong`/`.glass-soft` 유틸).
+
+### 원칙 · 사용 시점
+- **허용:** 떠 있는 레이어 — GNB 플로팅 독, Compare 모달, Compare 독(트레이), Hero 배지. **+ 강조 surface 1개**(예: 추천 히어로 카드)까지 콘텐츠에 확장 가능.
+- **금지:** 일반 도구 카드 그리드 전체, 본문 버튼, 텍스트 위 직접 적용.
+- **남용 가드:** **한 화면에 글래스 면 최대 2개**(떠 있는 레이어 + 강조 1). 그 이상이면 위계가 무너진다. 글래스는 "위에 떠 있음"의 신호지 장식이 아니다.
+
+### 토큰
+| Token | Light | Dark | 용도 |
+|---|---|---|---|
+| `--color-glass-bg` | `rgba(249,250,251,.6)` | `rgba(28,28,28,.64)` | 반투명 패널 배경 |
+| `--color-glass-border` | `rgba(255,255,255,.6)` | `rgba(255,255,255,.1)` | 글래스 보더 |
+| `--color-glass-highlight` | `rgba(255,255,255,.6)` | `rgba(255,255,255,.12)` | 경면 sheen·rim(strong 전용) |
+| `--glass-blur/saturate/brightness-strong` | `16px / 180% / 1.05` | 동일 | strong 티어 필터 |
+| `--glass-blur/saturate-soft` | `14px / 160%` | 동일 | soft 티어 필터 |
+
+### 2티어 레시피
+| 티어 | 필터 | 광택 | 적용처 |
+|---|---|---|---|
+| **strong** (`.glass-strong`) | `blur(16) saturate(180%) brightness(1.05)` | inset sheen + `::after` 번짐 rim(1px, blur 1.5px) | Compare 모달, **GNB 독** |
+| **soft** (`.glass-soft`) | `blur(14) saturate(160%)` | 없음(평평) | Compare 독, Hero 배지, 강조 카드 |
+
+- **적용 방법:** 단순 면은 `.glass-strong`/`.glass-soft` 유틸 클래스. 커스텀 그림자·라운드가 필요한 컴포넌트(모달=`shadow-lg`, 독=`shadow-md`)는 유틸 대신 `--glass-*` 토큰을 자체 규칙에서 직접 참조한다(box-shadow 합성 충돌 회피).
+- **Liquid 광택은 strong 티어 전용**. soft는 광택 없이 깔끔하게.
+
+### 필수 폴백 (접근성 — 빠뜨리지 말 것)
+- `@supports not (backdrop-filter)` → 불투명 `{colors.surface}` 배경(가독성 보장).
+- `@media (prefers-reduced-transparency: reduce)` → 불투명 + 광택(`::after`) 제거.
+- `@media (prefers-reduced-motion: reduce)` → 글래스 표면의 트랜지션/모핑 애니메이션 제거.
+- 위 폴백은 `.glass-*` 유틸에 한 번 집약돼 있다. 토큰을 직접 쓰는 컴포넌트는 같은 폴백을 컴포넌트 CSS에 동봉한다.
+
+### 주의
+- `--color-glass-*`·overlay 의 rgba 리터럴은 **`Home.css :root`(토큰 정본)에서만** 정의한다(토큰 가드 G). 사용처 CSS엔 `var(--…)`로만.
+- **미적용(예정):** GNB 독(`App.css`)은 strong 값과 동일하나 아직 토큰/유틸로 이전 전(리브랜드 WIP와 충돌 회피). 리브랜드 머지 후 `.glass-strong` 또는 토큰 참조로 정리.
+
+---
+
 ## Shapes
 
 ### Border Radius Scale

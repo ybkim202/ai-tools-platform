@@ -17,12 +17,15 @@
   overflow-y: auto;
 }
 
-/* 패널 = GNB와 동일 글래스(반투명 + backdrop blur + 글래스 보더 + 번짐 stroke). */
+/* 패널 = glass-strong 티어(GNB 독과 동일). 값은 --glass-*-strong 토큰. DESIGN.md 참조.
+   커스텀 그림자(shadow-lg)·라운드가 있어 .glass-strong 유틸 대신 토큰을 직접 참조. */
 .compare-modal {
   position: relative;
   background-color: var(--color-glass-bg);
-  -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.05);
-  backdrop-filter: blur(16px) saturate(180%) brightness(1.05);
+  -webkit-backdrop-filter: blur(var(--glass-blur-strong))
+    saturate(var(--glass-saturate-strong)) brightness(var(--glass-brightness-strong));
+  backdrop-filter: blur(var(--glass-blur-strong))
+    saturate(var(--glass-saturate-strong)) brightness(var(--glass-brightness-strong));
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-2xl);
   width: 100%;
