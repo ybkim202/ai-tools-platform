@@ -85,6 +85,9 @@
 .comparison-table table {
   width: 100%;
   border-collapse: collapse;
+  /* 툴 칼럼 폭 균등 배정 — 라벨 열은 고정폭, 나머지를 툴들이 똑같이 나눠 가짐.
+     (열별 min-width 합이 넘치면 래퍼가 가로 스크롤로 흡수) */
+  table-layout: fixed;
 }
 
 .comparison-table th,
@@ -107,6 +110,8 @@
 .comparison-table th:first-child,
 .comparison-table td:first-child {
   text-align: left;
+  /* fixed 레이아웃 기준폭(라벨 열). 나머지 폭은 툴 칼럼들이 균등 분배. */
+  width: 140px;
   min-width: 120px;
   /* 첫 열(항목 라벨) 고정 — 가로 스크롤 시 비교 기준 유지 */
   position: sticky;
@@ -254,6 +259,70 @@
   gap: var(--spacing-xs);
 }
 
+/* 가격(A안: 시작가 앵커링). 헤드라인 = 무료/최저가 부터(크게·강조), 그 아래 플랜
+   상세는 보조(작게·톤다운, 구분선으로 분리). 모두 중앙정렬(요청). */
+.pricing-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.price-headline {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-xs);
+}
+
+.price-headline-value {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+/* 상세 플랜 목록 — 헤드라인 아래 보조. 위 구분선으로 분리 + 가로 일렬(요청).
+   칼럼 폭이 좁으면 wrap 으로 줄바꿈. 항목 사이는 세로 구분선으로 스캔성 확보. */
+.pricing-block .pricing-list {
+  width: 100%;
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--color-border);
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-md);
+}
+
+.pricing-block .price-item + .price-item {
+  padding-left: var(--spacing-md);
+  border-left: 1px solid var(--color-border);
+}
+
+.pricing-list {
+  gap: var(--spacing-xs);
+}
+
+.price-item {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+}
+
+.price-item .plan {
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+/* 상세 가격은 보조(헤드라인이 주역) — base·secondary 로 톤다운. */
+.price-item .price {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
 /* ── 행 위계(#4) ──────────────────────────────────────────────────
    결정축(가격·벤치마크·사용자 수)은 라벨을 강하게, 값을 키워 승격.
    메타(카테고리·라이선스·난이도·링크)는 라벨을 secondary로 톤 다운. */
@@ -384,18 +453,16 @@
 }
 
 /* 비교 화면 내 "도구 더 추가" 진입점 — 홈으로 안내 */
+/* 박스 제거(요청) — 안내 문구(왼쪽 끝)·링크(오른쪽 끝) 양 끝 배치. */
 .compare-add-more {
   max-width: 1200px;
   margin: var(--spacing-xl) auto 0;
-  padding: var(--spacing-lg) var(--spacing-xl);
+  padding: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-md);
-  background-color: var(--color-surface);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-lg);
 }
 
 .compare-add-more-text {

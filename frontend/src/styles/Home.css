@@ -43,6 +43,7 @@
   --spacing-2xl: 32px;
   --spacing-3xl: 48px;
   --spacing-4xl: 64px;
+  --spacing-5xl: 96px; /* 섹션 간 간격(랜딩 주요 섹션 사이) — DESIGN.md 스페이싱 스케일 참조. */
 
   /* Typography */
   --font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -57,14 +58,28 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
-  /* 모달/오버레이 배경(라이트·다크 공통 — 어두운 막). */
-  --color-overlay: rgba(0, 0, 0, 0.5);
+  /* 모달/오버레이 배경(라이트·다크 공통 — 어두운 막). 글래스 패널이 뒤 콘텐츠를
+     은은히 비추도록 약간 낮춤(0.5→0.4). */
+  --color-overlay: rgba(0, 0, 0, 0.4);
+  /* 글래스모피즘(반투명 + backdrop blur) — surface 톤의 반투명 + 라이트 림. */
+  --color-glass-bg: rgba(249, 250, 251, 0.6);
+  --color-glass-border: rgba(255, 255, 255, 0.6);
+  /* 액체 유리(liquid glass) 경면 하이라이트/상단 sheen — 중립 흰 알파. */
+  --color-glass-highlight: rgba(255, 255, 255, 0.6);
+  /* 글래스 레시피 2티어 값(블러·채도·명도) — DESIGN.md Glassmorphism 정본.
+     strong: 모달·GNB(+광택 rim). soft: Compare 독·Hero 배지·강조 카드. 모드 무관(다크 동일). */
+  --glass-blur-strong: 16px;
+  --glass-saturate-strong: 180%;
+  --glass-brightness-strong: 1.05;
+  --glass-blur-soft: 14px;
+  --glass-saturate-soft: 160%;
 
   /* Border Radius */
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
   --radius-xl: 12px;
+  --radius-2xl: 15px;
   --radius-full: 9999px;
 
   /* Transitions */
@@ -78,6 +93,9 @@
   :root:not([data-theme="light"]) {
     --color-background: #121212;
     --color-surface: #1C1C1C;
+    --color-glass-bg: rgba(28, 28, 28, 0.64);
+    --color-glass-border: rgba(255, 255, 255, 0.1);
+    --color-glass-highlight: rgba(255, 255, 255, 0.12);
     --color-border: #313131;
     --color-text-primary: #EDEDED;
     --color-text-secondary: #999999;
@@ -113,6 +131,9 @@
 :root[data-theme="dark"] {
   --color-background: #121212;
   --color-surface: #1C1C1C;
+  --color-glass-bg: rgba(28, 28, 28, 0.64);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+  --color-glass-highlight: rgba(255, 255, 255, 0.12);
   --color-border: #313131;
   --color-text-primary: #EDEDED;
   --color-text-secondary: #999999;
@@ -188,6 +209,131 @@ body {
   overflow: hidden;
 }
 
+/* Hero 2단 변형 — 배경은 전체폭(.hero 기반 min-height 유지), 콘텐츠만 1200 그리드.
+   좌: 문구·CTA(좌측정렬) / 우: 큐레이션 위젯(수직 가운데). */
+.hero--split {
+  text-align: left;
+}
+
+/* 콘텐츠 래퍼 — 컬럼 그리드(1200) 폭의 2단. align-items center로 우측 위젯 수직 중앙. */
+.hero-split-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  align-items: center;
+  gap: var(--spacing-4xl);
+}
+
+.hero--split .hero-content {
+  max-width: none;
+  text-align: left;
+}
+
+.hero--split .hero-cta-group {
+  justify-content: flex-start;
+}
+
+/* Hero CTA 크기 축소(요청) — 큰 1차 CTA 톤다운. 보조 CTA도 동일 크기 상속. */
+.hero--split .cta-button {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-base);
+  border-radius: var(--radius-md);
+}
+
+.hero--split .cta-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* 타이핑 헤드라인 — 카테고리 회전 시 한 글자씩.
+   줄바꿈: 카피에 명시한 '\n'을 pre-line으로 그대로 렌더(결정적 2줄) → 타이핑 중
+   브라우저가 줄을 다시 계산하지 않아 흔들림(jitter) 없음. balance 제거(키 입력마다
+   재배치되며 텍스트가 떨리던 원인). 2줄 높이를 min-height로 예약해 세로 점프도 방지. */
+.hero-title--typing {
+  min-height: calc(clamp(28px, 8vw, 48px) * 1.2 * 2); /* 2줄 높이 예약 */
+  white-space: pre-line;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* 타이핑 커서 — 잉크 막대, 깜빡임. 입력 중엔 상시 표시, 완료 후 깜빡. */
+.type-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background-color: var(--color-primary);
+  animation: caret-blink 1s step-end infinite;
+}
+
+.type-caret--idle {
+  animation: caret-blink 1.1s step-end infinite;
+}
+
+@keyframes caret-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .type-caret {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+.hero-split-inner .hero-curated {
+  min-width: 0; /* 그리드 셀 오버플로 방지 */
+}
+
+/* 전체폭 배경: 우측 위젯 뒤 은은한 잉크 헤일로(radial) — 깊이감, 매우 옅게. */
+.hero--split .hero-gradient {
+  background: radial-gradient(
+    55% 80% at 72% 35%,
+    var(--color-primary) 0%,
+    transparent 62%
+  );
+  opacity: 0.06;
+}
+
+/* 도트 그리드 패턴 — 헤일로 영역으로 페이드(마스크). 토큰 보더색, 저강도. */
+.hero-bg-pattern {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
+  background-size: 22px 22px;
+  opacity: 0.45;
+  -webkit-mask-image: radial-gradient(
+    ellipse 75% 60% at 72% 38%,
+    #000 0%,
+    transparent 72%
+  );
+  mask-image: radial-gradient(
+    ellipse 75% 60% at 72% 38%,
+    #000 0%,
+    transparent 72%
+  );
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .hero-split-inner {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2xl);
+  }
+}
+
 .hero-gradient {
   position: absolute;
   top: 0;
@@ -207,15 +353,19 @@ body {
 
 .hero-badge {
   display: inline-block;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  background-color: var(--color-primary-surface-strong);
-  border: 1px solid var(--color-primary-border);
+  /* 내부 여백 축소(요청): sm/lg → xs/md. */
+  padding: var(--spacing-xs) var(--spacing-md);
+  /* 글래스 배경(요청) — GNB/모달과 동일 토큰. */
+  background-color: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-full);
   color: var(--color-primary-darker);
   font-size: var(--font-size-sm);
   font-weight: 600;
   margin-bottom: var(--spacing-xl);
-  backdrop-filter: blur(10px);
+  /* glass-soft 티어 값(--glass-*-soft)으로 통일. DESIGN.md Glassmorphism 참조. */
+  -webkit-backdrop-filter: blur(var(--glass-blur-soft)) saturate(var(--glass-saturate-soft));
+  backdrop-filter: blur(var(--glass-blur-soft)) saturate(var(--glass-saturate-soft));
 }
 
 .hero-title {
@@ -1048,5 +1198,64 @@ body {
 
   .tools-grid {
     gap: var(--spacing-lg);
+  }
+}
+
+/* ========================================
+   GLASS UTILITIES (글래스모피즘 2티어) — DESIGN.md "Glassmorphism" 정본.
+   값은 :root 의 --glass-* 토큰에서. 떠있는/상승 레이어 + 강조 surface 1개에만 사용.
+   커스텀 그림자·라운드가 필요한 컴포넌트(모달·독)는 토큰을 직접 참조(아래 클래스 미사용).
+   ======================================== */
+.glass-strong,
+.glass-soft {
+  background-color: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+}
+
+/* strong — 모달·GNB 등 주요 떠있는 레이어. 광택(inset sheen + ::after rim) 포함. */
+.glass-strong {
+  position: relative;
+  -webkit-backdrop-filter: blur(var(--glass-blur-strong))
+    saturate(var(--glass-saturate-strong)) brightness(var(--glass-brightness-strong));
+  backdrop-filter: blur(var(--glass-blur-strong))
+    saturate(var(--glass-saturate-strong)) brightness(var(--glass-brightness-strong));
+  box-shadow: inset 0 1px 0 0 var(--color-glass-highlight);
+}
+
+.glass-strong::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid var(--color-glass-highlight);
+  filter: blur(1.5px);
+  pointer-events: none;
+}
+
+/* soft — 독·배지·강조 카드. 광택 없는 평평한 글래스. */
+.glass-soft {
+  -webkit-backdrop-filter: blur(var(--glass-blur-soft))
+    saturate(var(--glass-saturate-soft));
+  backdrop-filter: blur(var(--glass-blur-soft)) saturate(var(--glass-saturate-soft));
+}
+
+/* 필수 폴백 ① backdrop-filter 미지원 → 불투명 surface(가독성). */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-strong,
+  .glass-soft {
+    background-color: var(--color-surface);
+  }
+}
+
+/* 필수 폴백 ② 투명도 감소 선호 → 불투명 + 광택 제거. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass-strong,
+  .glass-soft {
+    background-color: var(--color-surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .glass-strong::after {
+    display: none;
   }
 }

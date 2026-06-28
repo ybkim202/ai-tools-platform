@@ -1,17 +1,23 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { toolsAPI, benchmarksAPI, handleApiError } from '../services/api';
-import CuratedSection from '../components/CuratedSection';
+import CuratedHeroWidget from '../components/CuratedHeroWidget';
+import TypingHeadline from '../components/TypingHeadline';
 import BenchmarkTeaser from '../components/BenchmarkTeaser';
+import GithubTrendTeaser from '../components/GithubTrendTeaser';
 import RecommendationPanel from '../components/RecommendationPanel';
 import { LoadingState, ErrorState } from '../components/states/StateViews';
+import { CATEGORY_HERO_COPY, DEFAULT_HERO_COPY } from '../utils/categoryMeta';
 import '../styles/Home.css';
 
 // 랜딩(/). IA 재설계 §9 — 큐레이션 우선: 전체 111개 그리드를 노출하던 첫 화면을
 // "카테고리별 인기 Top N 엄선"으로 바꾼다. 전체 탐색은 /explore 로 이동(ToolBrowser).
 // 큐레이션 기준 = 인기 기본 + 성능 보조(벤치 데이터 있는 도구에만 칩).
-const FEATURED_CATEGORIES = 6; // 첫 화면에 노출할 카테고리 수(나머지는 /explore).
+const FEATURED_CATEGORIES = 7; // 첫 화면에 노출할 카테고리 수(나머지는 /explore).
 const TOP_PER_CATEGORY = 5;
+const ROTATE_MS = 4500; // Hero 카테고리 자동 회전 간격.
+// Hero 큐레이션에서 제외할 카테고리(요청) — 전체 탐색(/explore)에는 그대로 존재.
+const EXCLUDED_CATEGORIES = new Set(['특수목적', '콘텐츠생성', '데이터분석']);
 
 const Home = () => {
   const [totalTools, setTotalTools] = useState(0);
@@ -19,6 +25,9 @@ const Home = () => {
   const [benchmarkIds, setBenchmarkIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // Hero 큐레이션 위젯 — 활성 카테고리 + 자동 회전(헤드라인 타이핑과 동기). hover/포커스 시 일시정지.
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [paused, setPaused] = useState(false);
 
   const fetchLanding = useCallback(async () => {
     setLoading(true);
@@ -46,7 +55,7 @@ const Home = () => {
       // 카테고리별 버킷(인기순 유지) → 도구 수 많은 순으로 상위 N 카테고리 선정.
       const buckets = new Map();
       tools.forEach((t) => {
-        if (!t.category) return;
+        if (!t.category || EXCLUDED_CATEGORIES.has(t.category)) return;
         if (!buckets.has(t.category)) buckets.set(t.category, []);
         buckets.get(t.category).push(t);
       });
@@ -70,19 +79,45 @@ const Home = () => {
     fetchLanding();
   }, [fetchLanding]);
 
+  // 섹션 적재 시 첫 카테고리를 활성화(현재 활성이 더 이상 존재하지 않으면 보정).
+  useEffect(() => {
+    if (!sections.length) return;
+    setActiveCategory((prev) =>
+      prev && sections.some((s) => s.category === prev)
+        ? prev
+        : sections[0].category
+    );
+  }, [sections]);
+
+  // 자동 회전 — activeCategory 변경마다 타이머 재시작(수동 선택도 타이머 리셋). hover/포커스 시 정지.
+  useEffect(() => {
+    if (paused || sections.length < 2 || !activeCategory) return undefined;
+    const idx = sections.findIndex((s) => s.category === activeCategory);
+    const timer = setTimeout(() => {
+      const next = sections[(idx + 1) % sections.length];
+      setActiveCategory(next.category);
+    }, ROTATE_MS);
+    return () => clearTimeout(timer);
+  }, [activeCategory, sections, paused]);
+
+  const heroCopy =
+    (activeCategory && CATEGORY_HERO_COPY[activeCategory]) || DEFAULT_HERO_COPY;
+
   return (
     <div className="home">
-      {/* Hero — 간결한 가치 + 1차 진입(전체 탐색). 큐레이션이 본문이라 hero는 가볍게. */}
-      <section className="hero">
+      {/* Hero 2단 — 좌: 문구·CTA(좌측정렬), 우: 큐레이션 위젯(좌 카테고리/우 툴 리스트).
+          배경(그라디언트+도트패턴)은 전체폭, 콘텐츠는 컬럼 그리드(1200) 폭으로 제한. */}
+      <section className="hero hero--split">
+        <div className="hero-gradient"></div>
+        <div className="hero-bg-pattern" aria-hidden="true"></div>
+        <div className="hero-split-inner">
         <div className="hero-content">
           <div className="hero-badge">
             {totalTools > 0
               ? `AI 도구 ${totalTools}개 · 매주 갱신`
               : '매주 갱신되는 AI 도구 큐레이션'}
           </div>
-          <h1 className="hero-title">
-            지금 주목할 AI 도구를<br />엄선해 보여드립니다
-          </h1>
+          <TypingHeadline text={heroCopy} />
           <p className="hero-subtitle">
             용도별로 가장 인기 있는 도구를 먼저 만나고, 필요하면 전체를 탐색하세요
           </p>
@@ -125,52 +160,38 @@ const Home = () => {
             </Link>
           </div>
         </div>
-        <div className="hero-gradient"></div>
+
+        {/* 우측: 카테고리별 인기 Top N 큐레이션 위젯 */}
+        <div className="hero-curated">
+          {loading ? (
+            <LoadingState message="추천 도구를 불러오는 중..." />
+          ) : error ? (
+            <ErrorState
+              message={error?.message}
+              errorId={error?.errorId}
+              onRetry={fetchLanding}
+            />
+          ) : (
+            <CuratedHeroWidget
+              sections={sections}
+              benchmarkIds={benchmarkIds}
+              active={activeCategory}
+              onSelect={setActiveCategory}
+              onPauseChange={setPaused}
+            />
+          )}
+        </div>
+        </div>
       </section>
 
-      {/* 큐레이션 본문 — 카테고리별 인기 Top N */}
-      <div className="curated-wrap">
-        {loading ? (
-          <LoadingState message="추천 도구를 불러오는 중..." />
-        ) : error ? (
-          <ErrorState
-            message={error?.message}
-            errorId={error?.errorId}
-            onRetry={fetchLanding}
-          />
-        ) : (
-          <>
-            {sections.map((sec) => (
-              <CuratedSection
-                key={sec.category}
-                category={sec.category}
-                tools={sec.tools}
-                benchmarkIds={benchmarkIds}
-              />
-            ))}
+      {/* 맞춤 추천 — 직무/업무 기반(독립 페이지 은퇴, 랜딩 임베드). Hero 다음 배치. */}
+      <RecommendationPanel />
 
-            {/* 전체 탐색 유도 — 큐레이션은 일부, 전부는 여기서. */}
-            <section className="explore-cta">
-              <div className="container">
-                <p className="explore-cta-text">
-                  {totalTools > 0
-                    ? `전체 ${totalTools}개 도구를 검색·필터로 직접 살펴보세요`
-                    : '전체 도구를 검색·필터로 직접 살펴보세요'}
-                </p>
-                <Link to="/explore" className="btn btn-primary">
-                  전체 도구 탐색하기
-                </Link>
-              </div>
-            </section>
-          </>
-        )}
-      </div>
+      {/* 깃헙 트렌드 프리뷰 — 추천 다음. 급부상 오픈소스 맛보기(데이터 없으면 미렌더). */}
+      <GithubTrendTeaser />
 
       {/* 성능 벤치마크 프리뷰 + CTA — 대표 벤치마크 상위 도구를 맛보기로(데이터 없으면 미렌더). */}
       <BenchmarkTeaser />
-
-      {/* 맞춤 추천 — 직무/업무 기반(독립 페이지 은퇴, 랜딩 임베드). */}
-      <RecommendationPanel />
 
       {/* Footer CTA — 단일 CTA로 마무리(전체 탐색 유도). */}
       <section className="footer-cta">

@@ -8,7 +8,8 @@
 .recommend-panel {
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--spacing-3xl) var(--spacing-lg) var(--spacing-2xl);
+  /* 섹션 간 간격(요청): 상·하 5xl로 다음 섹션(깃헙트렌드)과 간격 통일. DESIGN.md 정본. */
+  padding: var(--spacing-5xl) var(--spacing-lg);
   border-top: 1px solid var(--color-border);
 }
 
@@ -31,65 +32,75 @@
   margin-top: var(--spacing-sm);
 }
 
-/* 미니멀 언더라인 세그먼트 탭(채움 버튼 대신). */
-.recommendation-tabs {
-  display: flex;
-  justify-content: center;
-  gap: var(--spacing-xl);
-  margin: 0 auto var(--spacing-xl);
-  border-bottom: 1px solid var(--color-border);
+/* 박스 없이 가벼운 칩 영역. 최대폭은 컬럼 그리드(패널 1200). CLS 방지 최소 높이. */
+.selection-area {
+  max-width: none;
+  /* 버튼(칩)↔결과 카드 간격 축소(요청). */
+  margin: 0 auto var(--spacing-md);
+  min-height: 96px;
 }
 
-.recommendation-tabs .tab {
-  padding: var(--spacing-sm) var(--spacing-xs);
-  margin-bottom: -1px; /* 컨테이너 보더 위로 활성 언더라인 정렬 */
-  background-color: transparent;
-  color: var(--color-text-secondary);
-  border: none;
-  border-bottom: 2px solid transparent;
+/* 컨트롤 행 — [업무별/직업별 토글] + [칩들]. 좌측 정렬, 좁으면 wrap.
+   토글↔칩 간격(column-gap)을 크게 둬 모드 스위처를 칩 그룹과 분리(요청). */
+.rec-controls {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm) var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
+/* 업무별 ⇄ 직업별 단일 토글 — 칩 좌측. 잉크 채움으로 모드 스위처임을 강조. */
+.rec-mode-toggle {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: 1px solid var(--color-primary-darker);
+  background-color: var(--color-primary-darker);
+  color: var(--color-on-primary);
+  border-radius: var(--radius-full);
   font-family: var(--font-family);
-  font-size: var(--font-size-base);
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
   cursor: pointer;
-  transition: color var(--transition-fast),
+  transition: background-color var(--transition-fast),
     border-color var(--transition-fast);
 }
 
-.recommendation-tabs .tab:hover {
-  color: var(--color-text-primary);
+.rec-mode-toggle:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
-.recommendation-tabs .tab.active {
-  color: var(--color-text-primary);
-  border-bottom-color: var(--color-primary);
-}
-
-.recommendation-tabs .tab:focus-visible {
+.rec-mode-toggle:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--color-focus-ring);
-  border-radius: var(--radius-sm);
 }
 
-/* 박스 없이 가벼운 칩 영역(중앙). CLS 방지로 모달/로딩 높이 변동을 흡수할 최소 높이만. */
-.selection-area {
-  max-width: 720px;
-  margin: 0 auto var(--spacing-2xl);
-  min-height: 96px;
+.rec-mode-swap {
+  flex-shrink: 0;
+  opacity: 0.85;
 }
 
 .option-chips {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--spacing-sm);
+  flex: 1;
+  min-width: 0;
 }
 
-/* 가벼운 선택 칩 — 비활성은 은은한 보더, 활성만 잉크 채움(링 제거). */
+/* 가벼운 선택 칩(아이콘+텍스트) — 비활성은 은은한 보더, 활성만 잉크 채움(링 제거). */
 .option-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   padding: var(--spacing-xs) var(--spacing-md);
   border: 1px solid var(--color-border);
   background-color: transparent;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   font-family: var(--font-family);
   font-size: var(--font-size-sm);
   font-weight: 600;
@@ -97,6 +108,21 @@
   color: var(--color-text-secondary);
   transition: border-color var(--transition-fast),
     color var(--transition-fast), background-color var(--transition-fast);
+}
+
+/* 칩 아이콘 — 비활성 보조톤, hover/활성은 색 상속(텍스트와 동조). */
+.option-btn-icon {
+  flex-shrink: 0;
+  color: var(--color-text-tertiary);
+  transition: color var(--transition-fast);
+}
+
+.option-btn:hover .option-btn-icon {
+  color: var(--color-primary);
+}
+
+.option-btn.active .option-btn-icon {
+  color: currentColor;
 }
 
 .option-btn:hover {
@@ -132,8 +158,7 @@
   color: var(--color-text-primary);
   font-size: var(--font-size-2xl);
   margin-bottom: var(--spacing-md);
-  /* 다중 줄·정보량 많은 결과 헤딩은 좌측 정렬로 가독성 확보(발견 18a).
-     탭 그룹 중앙 정렬은 유지(.recommendation-tabs). */
+  /* 다중 줄·정보량 많은 결과 헤딩은 좌측 정렬로 가독성 확보(발견 18a). */
   text-align: left;
 }
 
@@ -210,10 +235,23 @@
   display: none; /* WebKit */
 }
 
+/* 한 화면에 정확히 4개(데스크톱) — 카드 폭 = (가용폭 − 갭 3개) / 4. 가장자리 잘림 없음.
+   태블릿 2개, 모바일 1개로 단계 축소. */
 .rec-carousel-item {
-  flex: 0 0 300px;
-  max-width: 85vw;
+  flex: 0 0 calc((100% - 3 * var(--spacing-xl)) / 4);
   scroll-snap-align: start;
+}
+
+@media (max-width: 900px) {
+  .rec-carousel-item {
+    flex-basis: calc((100% - var(--spacing-xl)) / 2); /* 2개 */
+  }
+}
+
+@media (max-width: 560px) {
+  .rec-carousel-item {
+    flex-basis: 100%; /* 1개 */
+  }
 }
 
 @media (max-width: 768px) {

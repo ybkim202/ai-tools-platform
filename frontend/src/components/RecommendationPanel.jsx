@@ -8,7 +8,26 @@ import {
   EmptyNoDataState,
   ErrorState,
 } from './states/StateViews';
+import { REC_ICON_PATHS, REC_FALLBACK_ICON } from '../utils/categoryMeta';
 import '../styles/Recommendations.css';
+
+// 업무/직업 칩 라인 아이콘 — 무채색(currentColor).
+const RecIcon = ({ value }) => (
+  <svg
+    className="option-btn-icon"
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d={REC_ICON_PATHS[value] || REC_FALLBACK_ICON} />
+  </svg>
+);
 
 // 맞춤 추천 패널 — 랜딩(/#recommend)에 임베드한다(IA 재설계 §9, 독립 페이지 은퇴).
 // 직무(profession)/업무(task) 토글 + DB 메타 옵션 + 매칭 결과(ToolCard reasonTags).
@@ -28,14 +47,13 @@ const RecommendationPanel = () => {
   const options = optionsByType[selectedTab] || [];
 
   const sectionRef = useRef(null);
-  const resultsAnchorRef = useRef(null);
   const carouselRef = useRef(null);
 
-  // 카루셀 좌우 이동: 보이는 폭의 80%만큼 부드럽게 스크롤(스냅으로 카드에 정렬).
+  // 카루셀 좌우 이동: 보이는 폭(=4개)만큼 한 페이지씩 스크롤(스냅으로 카드 경계 정렬).
   const scrollCarousel = useCallback((dir) => {
     const el = carouselRef.current;
     if (!el) return;
-    el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: 'smooth' });
+    el.scrollBy({ left: dir * el.clientWidth, behavior: 'smooth' });
   }, []);
 
   const scrollToPanel = useCallback(() => {
@@ -111,6 +129,27 @@ const RecommendationPanel = () => {
     }
   }, [optionsStatus, searchParams, fetchRecommendations]);
 
+  // 기본 선택(요청): 옵션 로드 후 선택값이 없으면 현재 탭의 첫 옵션을 자동 선택+조회.
+  // 탭 전환 시(selectedValue 비워짐)에도 해당 탭 첫 옵션으로 채운다. 단, 딥링크가
+  // 처리할 케이스(?type=&value=)면 양보(중복/경합 방지). 초기 로드라 스크롤은 안 한다.
+  useEffect(() => {
+    if (optionsStatus !== 'ready' || selectedValue) return;
+    const dlType = searchParams.get('type');
+    const dlValue = searchParams.get('value');
+    if (dlType && dlValue && !deepLinkApplied.current) return;
+    const opts = optionsByType[selectedTab] || [];
+    if (opts.length === 0) return;
+    setSelectedValue(opts[0]);
+    fetchRecommendations(selectedTab, opts[0]);
+  }, [
+    optionsStatus,
+    selectedValue,
+    selectedTab,
+    optionsByType,
+    searchParams,
+    fetchRecommendations,
+  ]);
+
   // #recommend 해시로 진입/이동할 때마다 패널로 스크롤(나브 '추천'·칩·리다이렉트).
   // location.key 를 deps 에 둬 같은 해시를 다시 눌러도 재스크롤된다.
   useEffect(() => {
@@ -118,14 +157,9 @@ const RecommendationPanel = () => {
   }, [location.hash, location.key, scrollToPanel]);
 
   const handleSelect = (value) => {
+    // 칩 선택 시 화면 이동 없음(요청) — 결과만 갱신, 스크롤하지 않는다.
     setSelectedValue(value);
     fetchRecommendations(selectedTab, value);
-    requestAnimationFrame(() => {
-      resultsAnchorRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    });
   };
 
   const handleReset = () => {
@@ -142,6 +176,10 @@ const RecommendationPanel = () => {
     setError(null);
     setFeatureStatus('ready');
   };
+
+  // 업무별 ⇄ 직업별 단일 토글(기본 업무별). 누를 때마다 반대 기준으로 전환.
+  const toggleMode = () =>
+    handleTabChange(selectedTab === 'task' ? 'profession' : 'task');
 
   const handleRetry = () => {
     if (selectedValue) fetchRecommendations(selectedTab, selectedValue);
@@ -163,53 +201,59 @@ const RecommendationPanel = () => {
         </p>
       </div>
 
-      <div className="recommendation-tabs" role="tablist" aria-label="추천 기준">
-        <button
-          type="button"
-          role="tab"
-          id="rec-tab-task"
-          aria-selected={selectedTab === 'task'}
-          aria-controls="rec-tabpanel"
-          className={`tab ${selectedTab === 'task' ? 'active' : ''}`}
-          onClick={() => handleTabChange('task')}
-        >
-          업무별
-        </button>
-        <button
-          type="button"
-          role="tab"
-          id="rec-tab-profession"
-          aria-selected={selectedTab === 'profession'}
-          aria-controls="rec-tabpanel"
-          className={`tab ${selectedTab === 'profession' ? 'active' : ''}`}
-          onClick={() => handleTabChange('profession')}
-        >
-          직업별
-        </button>
-      </div>
-
       <div
         className="selection-area"
-        role="tabpanel"
-        id="rec-tabpanel"
-        aria-labelledby={
-          selectedTab === 'task' ? 'rec-tab-task' : 'rec-tab-profession'
-        }
+        role="group"
+        aria-label="추천 분류 선택"
       >
         <div className="options">
           {options.length > 0 ? (
-            <div className="option-chips">
-              {options.map((opt) => (
-                <button
-                  key={opt}
-                  type="button"
-                  aria-pressed={selectedValue === opt}
-                  className={`option-btn ${selectedValue === opt ? 'active' : ''}`}
-                  onClick={() => handleSelect(opt)}
+            <div className="rec-controls">
+              {/* 업무별/직업별 단일 토글 — 칩 좌측. 기본 업무별, 클릭 시 직업별로 전환. */}
+              <button
+                type="button"
+                className="rec-mode-toggle"
+                onClick={toggleMode}
+                aria-label={`현재 ${
+                  selectedTab === 'task' ? '업무별' : '직업별'
+                } 추천 — 눌러서 ${
+                  selectedTab === 'task' ? '직업별' : '업무별'
+                }로 전환`}
+              >
+                <span className="rec-mode-label">
+                  {selectedTab === 'task' ? '업무별' : '직업별'}
+                </span>
+                <svg
+                  className="rec-mode-swap"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
                 >
-                  {opt}
-                </button>
-              ))}
+                  <path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3" />
+                </svg>
+              </button>
+
+              {/* 칩 — 토글 우측, 좌측 정렬. 각 업무/직업에 아이콘 동반. */}
+              <div className="option-chips">
+                {options.map((opt) => (
+                  <button
+                    key={opt}
+                    type="button"
+                    aria-pressed={selectedValue === opt}
+                    className={`option-btn ${selectedValue === opt ? 'active' : ''}`}
+                    onClick={() => handleSelect(opt)}
+                  >
+                    <RecIcon value={opt} />
+                    {opt}
+                  </button>
+                ))}
+              </div>
             </div>
           ) : optionsStatus === 'loading' ? (
             <LoadingState message="선택지를 불러오는 중..." />
@@ -226,8 +270,6 @@ const RecommendationPanel = () => {
           )}
         </div>
       </div>
-
-      <div ref={resultsAnchorRef} aria-hidden="true" />
 
       {loading && <LoadingState message="추천을 불러오는 중..." />}
 

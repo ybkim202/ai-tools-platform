@@ -105,11 +105,12 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 
 ### Spacing System
 - **Base unit:** 4px. 정본: [Home.css:20-29](../frontend/src/styles/Home.css#L20-L29).
-- **Tokens:** `{spacing.xs}` 4px · `{spacing.sm}` 8px · `{spacing.md}` 12px · `{spacing.lg}` 16px · `{spacing.xl}` 24px · `{spacing.2xl}` 32px · `{spacing.3xl}` 48px · `{spacing.4xl}` 64px.
+- **Tokens:** `{spacing.xs}` 4px · `{spacing.sm}` 8px · `{spacing.md}` 12px · `{spacing.lg}` 16px · `{spacing.xl}` 24px · `{spacing.2xl}` 32px · `{spacing.3xl}` 48px · `{spacing.4xl}` 64px · `{spacing.5xl}` 96px.
 - **카드 내부 패딩:** `{spacing.xl}` 24px (ToolCard, feature 카드). 테이블 셀: `{spacing.lg}` 16px.
 - **버튼 패딩:** 1차 CTA `{spacing.lg} {spacing.2xl}` (16px 32px), 일반 버튼 `{spacing.md} {spacing.xl}` (12px 24px), 소형 `{spacing.sm} {spacing.lg}` (8px 16px).
 - **입력 패딩:** `{spacing.lg}` 16px (검색 입력은 좌측 아이콘 폭만큼 가산).
 - **섹션 수직 패딩:** `{spacing.3xl}` 48px (데스크톱), 모바일 `{spacing.2xl}` 32px.
+- **랜딩 주요 섹션 간 간격:** `{spacing.5xl}` 96px — 홈(`/`)의 큰 섹션(Hero·맞춤추천·깃헙트렌드·벤치마크) 사이 일관 간격. `.curated-section`/`.bench-teaser` margin, `.recommend-panel` 상단 padding에 적용.
 
 ### Grid & Container
 - **최대 콘텐츠 폭:** 1200px (`.container`, [Home.css:92-96](../frontend/src/styles/Home.css#L92-L96)), 좌우 `{spacing.lg}` 16px 패딩.
@@ -118,7 +119,7 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 - **추천/필터:** 필터는 칩(`{filter-btn}`) 가로 wrap, 추천 결과는 카드 그리드 재사용.
 
 ### Whitespace Philosophy
-캔버스(흰색)가 여백이다. 섹션은 흰 공백의 갭이 아니라 **surface 상승 + 헤어라인**으로 나뉜다. 카드 내부는 `{spacing.xl}` 24px로 숨 쉬게 하고, 섹션 간은 `{spacing.3xl}` 48px. 데이터가 밀집된 비교 테이블은 셀 패딩을 `{spacing.lg}` 16px로 유지해 밀도와 가독성의 균형을 잡는다.
+캔버스(흰색)가 여백이다. 섹션은 흰 공백의 갭이 아니라 **surface 상승 + 헤어라인**으로 나뉜다. 카드 내부는 `{spacing.xl}` 24px로 숨 쉬게 하고, 일반 섹션 간은 `{spacing.3xl}` 48px, **랜딩 주요 섹션 간은 `{spacing.5xl}` 96px**로 더 크게 띄워 큐레이션의 호흡을 만든다. 데이터가 밀집된 비교 테이블은 셀 패딩을 `{spacing.lg}` 16px로 유지해 밀도와 가독성의 균형을 잡는다.
 
 ---
 
@@ -139,6 +140,45 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 - **데이터 카드와 비교 테이블**이 시각적 주인공. 사진·일러스트 의존 없음.
 - 분위기 그라데이션 없음. **예외 1곳**: 히어로 배경 그라데이션을 **opacity 0.05**로 극히 옅게. **단일 잉크**(`primary → primary-darker`)만 쓰며, 기존 2차 보라(#764ba2)는 제거했다. footer-cta도 2차 보라를 제거하고 잉크 틴트(`primary-surface`) 단색으로 평면화. 그 외 어떤 면에도 그라데이션 금지.
 - 스포트라이트 카드·네온 글로우 없음. 강조는 잉크 틴트 + 가중치로만.
+
+---
+
+## Glassmorphism (Liquid Glass)
+
+콘텐츠 **위에 떠 있는/상승한 레이어**에만 쓰는 반투명 + `backdrop-filter` 처리. 정본 토큰·유틸: [Home.css](../frontend/src/styles/Home.css) (`:root` 의 `--color-glass-*`·`--glass-*` 토큰, `.glass-strong`/`.glass-soft` 유틸).
+
+### 원칙 · 사용 시점
+- **허용:** 떠 있는 레이어 — GNB 플로팅 독, Compare 모달, Compare 독(트레이), Hero 배지. **+ 강조 surface 1개**(예: 추천 히어로 카드)까지 콘텐츠에 확장 가능.
+- **금지:** 일반 도구 카드 그리드 전체, 본문 버튼, 텍스트 위 직접 적용.
+- **남용 가드:** **한 화면에 글래스 면 최대 2개**(떠 있는 레이어 + 강조 1). 그 이상이면 위계가 무너진다. 글래스는 "위에 떠 있음"의 신호지 장식이 아니다.
+
+### 토큰
+| Token | Light | Dark | 용도 |
+|---|---|---|---|
+| `--color-glass-bg` | `rgba(249,250,251,.6)` | `rgba(28,28,28,.64)` | 반투명 패널 배경 |
+| `--color-glass-border` | `rgba(255,255,255,.6)` | `rgba(255,255,255,.1)` | 글래스 보더 |
+| `--color-glass-highlight` | `rgba(255,255,255,.6)` | `rgba(255,255,255,.12)` | 경면 sheen·rim(strong 전용) |
+| `--glass-blur/saturate/brightness-strong` | `16px / 180% / 1.05` | 동일 | strong 티어 필터 |
+| `--glass-blur/saturate-soft` | `14px / 160%` | 동일 | soft 티어 필터 |
+
+### 2티어 레시피
+| 티어 | 필터 | 광택 | 적용처 |
+|---|---|---|---|
+| **strong** (`.glass-strong`) | `blur(16) saturate(180%) brightness(1.05)` | inset sheen + `::after` 번짐 rim(1px, blur 1.5px) | Compare 모달, **GNB 독** |
+| **soft** (`.glass-soft`) | `blur(14) saturate(160%)` | 없음(평평) | Compare 독, Hero 배지, 강조 카드 |
+
+- **적용 방법:** 단순 면은 `.glass-strong`/`.glass-soft` 유틸 클래스. 커스텀 그림자·라운드가 필요한 컴포넌트(모달=`shadow-lg`, 독=`shadow-md`)는 유틸 대신 `--glass-*` 토큰을 자체 규칙에서 직접 참조한다(box-shadow 합성 충돌 회피).
+- **Liquid 광택은 strong 티어 전용**. soft는 광택 없이 깔끔하게.
+
+### 필수 폴백 (접근성 — 빠뜨리지 말 것)
+- `@supports not (backdrop-filter)` → 불투명 `{colors.surface}` 배경(가독성 보장).
+- `@media (prefers-reduced-transparency: reduce)` → 불투명 + 광택(`::after`) 제거.
+- `@media (prefers-reduced-motion: reduce)` → 글래스 표면의 트랜지션/모핑 애니메이션 제거.
+- 위 폴백은 `.glass-*` 유틸에 한 번 집약돼 있다. 토큰을 직접 쓰는 컴포넌트는 같은 폴백을 컴포넌트 CSS에 동봉한다.
+
+### 주의
+- `--color-glass-*`·overlay 의 rgba 리터럴은 **`Home.css :root`(토큰 정본)에서만** 정의한다(토큰 가드 G). 사용처 CSS엔 `var(--…)`로만.
+- **미적용(예정):** GNB 독(`App.css`)은 strong 값과 동일하나 아직 토큰/유틸로 이전 전(리브랜드 WIP와 충돌 회피). 리브랜드 머지 후 `.glass-strong` 또는 토큰 참조로 정리.
 
 ---
 

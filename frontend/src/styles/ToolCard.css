@@ -250,6 +250,8 @@
   align-items: center;
   justify-content: center;
   gap: var(--spacing-xs);
+  /* 좁은 카드(추천 카루셀 4열 등)에서 '방문하기'/'비교'가 줄바꿈되지 않도록 고정. */
+  white-space: nowrap;
 }
 
 .btn {

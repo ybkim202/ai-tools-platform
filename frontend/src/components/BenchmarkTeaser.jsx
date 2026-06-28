@@ -79,9 +79,14 @@ const BenchmarkTeaser = () => {
   return (
     <section className="bench-teaser" aria-labelledby="bench-teaser-title">
       <div className="curated-section-header">
-        <h2 id="bench-teaser-title" className="curated-section-title">
-          성능 벤치마크
-        </h2>
+        <div className="curated-section-heading">
+          <h2 id="bench-teaser-title" className="curated-section-title">
+            성능 벤치마크
+          </h2>
+          <p className="curated-section-subtitle">
+            주요 모델을 같은 기준으로 평가한 성능 점수
+          </p>
+        </div>
         <Link className="curated-see-all" to="/benchmarks">
           벤치마크 전체 보기
           <span aria-hidden="true"> →</span>
