@@ -331,11 +331,13 @@ function App() {
             <Link
               to="/"
               className="navbar-logo"
-              aria-label="AITools 홈"
+              aria-label="Grepity 홈"
               onClick={closeHeaderPanel}
             >
               <span className="navbar-logo-mark" aria-hidden="true" />
-              <span className="navbar-logo-word">AITools</span>
+              <span className="navbar-logo-word" aria-hidden="true">
+                <span className="navbar-logo-type">grepity</span>
+              </span>
             </Link>
 
             {/* 모바일 전용 햄버거 토글(데스크톱은 CSS로 숨김). 색 단독 금지 → aria-label로 의미 전달 */}
@@ -477,13 +479,13 @@ function App() {
               <Link
                 to="/"
                 className="footer-brand-title"
-                aria-label="AITools 홈"
+                aria-label="Grepity 홈"
               >
                 <span className="footer-brand-mark" aria-hidden="true" />
-                <span>AITools</span>
+                <span className="footer-brand-word">grepity</span>
               </Link>
               <p className="footer-tagline">
-                모든 AI 도구를 한곳에서 비교하고 추천받으세요.
+                쏟아지는 AI 중, 당신에게 맞는 것만 골라드려요.
               </p>
             </div>
 
@@ -525,7 +527,7 @@ function App() {
             </nav>
 
             {/* 블록3: 카피라이트 */}
-            <p className="footer-copyright">&copy; 2026 AITools</p>
+            <p className="footer-copyright">&copy; 2026 Grepity</p>
           </div>
         </footer>
 
