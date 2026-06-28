@@ -483,7 +483,7 @@ function App() {
                 <span className="footer-brand-word">grepity</span>
               </Link>
               <p className="footer-tagline">
-                모든 AI 도구를 한곳에서 비교하고 추천받으세요.
+                쏟아지는 AI 중, 당신에게 맞는 것만 골라드려요.
               </p>
             </div>
 

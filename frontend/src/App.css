@@ -218,7 +218,11 @@ textarea {
   color: var(--color-text-primary);
 }
 
-/* 커서 블록: 워드마크 끝. 잉크 토큰으로 라이트/다크 자동 반전. */
+/* 커서 블록: 워드마크 끝. 잉크 토큰으로 라이트/다크 자동 반전(무채색 유지). */
+@keyframes grepity-caret {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
 .navbar-logo-word::after {
   content: '';
   display: inline-block;
@@ -226,7 +230,15 @@ textarea {
   height: 0.9em;
   margin-left: 0.12em;
   vertical-align: -0.08em;
-  background-color: var(--color-text-primary);
+  background-color: var(--brand-cursor);
+  animation: grepity-caret 1.2s steps(1, end) infinite;
+}
+/* 모션 민감 사용자: 깜빡임 정지(상시 표시). */
+@media (prefers-reduced-motion: reduce) {
+  .navbar-logo-word::after,
+  .footer-brand-word::after {
+    animation: none;
+  }
 }
 
 .navbar-menu {
@@ -533,7 +545,8 @@ main {
   height: 0.9em;
   margin-left: 0.12em;
   vertical-align: -0.08em;
-  background-color: var(--color-text-primary);
+  background-color: var(--brand-cursor);
+  animation: grepity-caret 1.2s steps(1, end) infinite;
 }
 
 .footer-tagline {

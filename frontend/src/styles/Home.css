@@ -27,6 +27,8 @@
   --color-focus-ring: rgba(17, 24, 39, 0.28);
   /* Text/icon color on solid ink-accent surfaces (CTA, active chip). Light: white on dark ink. */
   --color-on-primary: #FFFFFF;
+  /* 브랜드 포인트 — 워드마크 커서. 라이트=잉크, 다크=터미널 그린(아래 다크 블록). */
+  --brand-cursor: var(--color-text-primary);
   --color-background: #FFFFFF;
   --color-surface: #F9FAFB;
   --color-border: #E5E7EB;
@@ -110,7 +112,9 @@
     --color-focus-ring: rgba(237, 237, 237, 0.30);
     /* Dark ink text on light-ink accent surface */
     --color-on-primary: #121212;
-    /* Semantic → dark 순수 그레이(채도 0, 명도만 차등). 의미는 명도+점(○◐●)+텍스트로 전달 */
+    /* 브랜드 포인트 — 다크 워드마크 커서: 터미널 그린(유채색 포인트 허용). */
+    --brand-cursor: #86EFAC;
+    /* Semantic → dark 그레이(명도 차등) 기본. 의미는 명도+점(○◐●)+텍스트 + 필요 시 유채색 시맨틱 허용 */
     --color-success: #999999;
     --color-warning: #CACACA;
     --color-error: #EDEDED;
@@ -148,7 +152,9 @@
   --color-focus-ring: rgba(237, 237, 237, 0.30);
   /* Dark ink text on light-ink accent surface */
   --color-on-primary: #121212;
-  /* Semantic → dark 중성 저채도 그레이(GitHub 다크 계열, 명도↓·채도↓). 의미는 명도+점(○◐●)+텍스트로 전달 */
+  /* 브랜드 포인트 — 다크 워드마크 커서: 터미널 그린(유채색 포인트 허용). */
+  --brand-cursor: #86EFAC;
+  /* Semantic → dark 그레이 기본(명도 차등). 의미는 명도+점(○◐●)+텍스트 + 필요 시 유채색 시맨틱 허용 */
   --color-success: #999999;
   --color-warning: #CACACA;
   --color-error: #EDEDED;
