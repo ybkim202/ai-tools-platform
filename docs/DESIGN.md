@@ -149,7 +149,7 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 
 ### Decorative Depth
 - **데이터 카드와 비교 테이블**이 시각적 주인공. 사진·일러스트 의존 없음.
-- 분위기 그라데이션 없음. **예외 1곳**: 히어로 배경 그라데이션을 **opacity 0.05**로 극히 옅게. **단일 잉크**(`primary → primary-darker`)만 쓰며, 기존 2차 보라(#764ba2)는 제거했다. footer-cta도 2차 보라를 제거하고 잉크 틴트(`primary-surface`) 단색으로 평면화. 그 외 어떤 면에도 그라데이션 금지.
+- 분위기 그라데이션 없음. **예외**: 히어로 배경 — 기본 히어로는 잉크 그라데이션 **opacity 0.05**, 2단 Hero(`hero--split`)는 우측 위젯 뒤 **단일 잉크 radial 헤일로 ≤0.06 + 도트 그리드 패턴**(`{colors.border}`, 엣지로 마스크 페이드). 모두 **단일 잉크**만(`primary → primary-darker`), 채도색 금지. footer-cta도 잉크 틴트(`primary-surface`) 단색 평면화. 그 외 어떤 면에도 그라데이션 금지.
 - 스포트라이트 카드·네온 글로우 없음. 강조는 잉크 틴트 + 가중치로만.
 
 ---
@@ -252,7 +252,13 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 
 **`active-filter-chip`** — 활성 필터 칩. 배경 `{colors.primary-surface-strong}`(잉크 틴트), 1px `{colors.primary-border}`, 텍스트 `{colors.primary-darker}`(라이트 #030712 / 다크 #B6BFC9, 틴트 면 위 AA), `{type.caption}`/600, 라운드 `{rounded.full}`. 형식 `[라벨: 값 ×]` — 라벨 텍스트 항상 포함(색 단독 의미전달 금지). × 제거 버튼은 별도 클릭영역, 호버 시 `{colors.error}`.
 
-**`hero-badge`** — 히어로 상단 pill 배지. 배경 `{colors.primary-surface-strong}`, 1px `{colors.primary-border}`, 텍스트 `{colors.primary-darker}`(AA), `{type.caption}`/600, 라운드 `{rounded.full}`, backdrop-blur.
+**`hero-badge`** — 히어로 상단 pill 배지. **글래스(soft 티어)** 배경 `{colors.glass-bg}` + 1px `{colors.glass-border}` + `backdrop-filter: blur(14) saturate(160%)`, 텍스트 `{colors.primary-darker}`(AA), `{type.caption}`/600, 패딩 `{spacing.xs} {spacing.md}`(축소), 라운드 `{rounded.full}`. → Glassmorphism 섹션 참조.
+
+**`hero--split`** — 랜딩 2단 Hero. 좌: 가치 카피(타이핑 헤드라인)+CTA(좌측정렬, `cta-button` 크기 축소 — 패딩 `{spacing.sm} {spacing.lg}`·`{type.body}`), 우: 큐레이션 위젯(`hero-split-inner` 1200 그리드, 위젯 수직 중앙). 배경은 전체폭 — 단일 잉크 radial 헤일로(≤0.06) + 도트 그리드(`{colors.border}`, 마스크 페이드). 데코 깊이 규칙(아래) 준수.
+
+**`curated-hero` (CuratedHeroWidget)** — 벤치마크 프리뷰형 2단. 좌: 아이콘 전용 카테고리 레일(hover 시 이름 핀 확장, 무채색 라인 아이콘 — 이모지 금지), 우: 인기 Top 5 세로 리스트(로고 폴백은 ToolCard와 동일 `alt`+`data-official-url` 체인). 4.5초 자동 회전, 전환 fade. 아이콘·카피 정본 `utils/categoryMeta.js`.
+
+**`curated-section-title` / `curated-section-subtitle`** — 랜딩 섹션 헤더. 제목은 전 섹션 `{type.h2}` 24px 통일(recommend-panel·footer h2와 동일), 제목 아래 한 줄 소제목(`{type.caption}`·`{colors.text-secondary}`). 섹션 간 간격은 `{spacing.5xl}` 96px.
 
 **`counter-pill`** — 비교 선택 카운터("3 / 5"). 전역 기본은 배경 `{colors.surface}`, 1px `{colors.border}`, `{colors.text-secondary}`. 비교 트레이 안(`.compare-tray .counter-pill`)에서는 잉크 틴트(`{colors.primary-surface-strong}` + `{colors.primary-border}` + `{colors.primary-darker}`)로 강조.
 
