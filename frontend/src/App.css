@@ -1,3 +1,12 @@
+/* 브랜드 워드마크 전용 폰트 — IBM Plex Mono SemiBold(600). 셀프호스트(OFL). */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('./assets/IBMPlexMono-SemiBold.woff2') format('woff2');
+}
+
 a {
   text-decoration: none;
   color: inherit;
@@ -175,8 +184,8 @@ textarea {
   height: 28px;
   flex-shrink: 0;
   background-color: var(--color-text-primary);
-  -webkit-mask: url('./assets/aitools-logo.svg') center / contain no-repeat;
-  mask: url('./assets/aitools-logo.svg') center / contain no-repeat;
+  -webkit-mask: url('./assets/grepity-mark.svg') center / contain no-repeat;
+  mask: url('./assets/grepity-mark.svg') center / contain no-repeat;
 }
 
 /* 다크모드 토글 아이콘(sun/moon): 로고와 동일한 mask+잉크 토큰 방식.
@@ -200,11 +209,24 @@ textarea {
   mask-image: url('./assets/moon.svg');
 }
 
+/* 브랜드 워드마크 grepity — IBM Plex Mono 600, 자간 타이트, 끝에 블록 커서. */
 .navbar-logo-word {
+  font-family: 'IBM Plex Mono', var(--font-family);
   font-size: var(--font-size-xl);
-  font-weight: 700;
-  letter-spacing: -0.2px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
   color: var(--color-text-primary);
+}
+
+/* 커서 블록: 워드마크 끝. 잉크 토큰으로 라이트/다크 자동 반전. */
+.navbar-logo-word::after {
+  content: '';
+  display: inline-block;
+  width: 0.46em;
+  height: 0.9em;
+  margin-left: 0.12em;
+  vertical-align: -0.08em;
+  background-color: var(--color-text-primary);
 }
 
 .navbar-menu {
@@ -494,8 +516,24 @@ main {
   height: 24px;
   flex-shrink: 0;
   background-color: var(--color-text-primary);
-  -webkit-mask: url('./assets/aitools-logo.svg') center / contain no-repeat;
-  mask: url('./assets/aitools-logo.svg') center / contain no-repeat;
+  -webkit-mask: url('./assets/grepity-mark.svg') center / contain no-repeat;
+  mask: url('./assets/grepity-mark.svg') center / contain no-repeat;
+}
+
+/* 푸터 워드마크 — 헤더와 동일 IBM Plex Mono 600 + 커서. */
+.footer-brand-word {
+  font-family: 'IBM Plex Mono', var(--font-family);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+.footer-brand-word::after {
+  content: '';
+  display: inline-block;
+  width: 0.46em;
+  height: 0.9em;
+  margin-left: 0.12em;
+  vertical-align: -0.08em;
+  background-color: var(--color-text-primary);
 }
 
 .footer-tagline {
