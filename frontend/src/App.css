@@ -159,7 +159,8 @@ textarea {
 .navbar-logo {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  /* gap 0: 평소엔 심볼만. 워드 노출 시 간격은 .navbar-logo-type margin-left가 담당. */
+  gap: 0;
   font-size: var(--font-size-xl);
   font-weight: 700;
   font-family: var(--font-family);
@@ -209,8 +210,11 @@ textarea {
   mask-image: url('./assets/moon.svg');
 }
 
-/* 브랜드 워드마크 grepity — IBM Plex Mono 600, 자간 타이트, 끝에 블록 커서. */
+/* GNB 브랜드 워드마크 grepity — IBM Plex Mono 600. 평소엔 심볼만 보이고,
+   로고 hover/focus 시 글자가 타자기처럼 펼쳐지며(steps) 나타난다. 떼면 역타이핑. */
 .navbar-logo-word {
+  display: inline-flex;
+  align-items: center;
   font-family: 'IBM Plex Mono', var(--font-family);
   font-size: var(--font-size-xl);
   font-weight: 600;
@@ -218,7 +222,22 @@ textarea {
   color: var(--color-text-primary);
 }
 
-/* 커서 블록: 워드마크 끝. 잉크 토큰으로 라이트/다크 자동 반전(무채색 유지). */
+/* 타이핑 클립: max-width 0(숨김) ↔ hover 시 펼침. steps()로 글자 단위 타자기 느낌. */
+.navbar-logo-type {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 0;
+  margin-left: 0;
+  transition: max-width 380ms steps(7, end), margin-left 200ms ease;
+}
+.navbar-logo:hover .navbar-logo-type,
+.navbar-logo:focus-visible .navbar-logo-type {
+  max-width: 8ch;
+  margin-left: var(--spacing-sm);
+}
+
+/* 블록 커서: 타이핑 중/후에만 표시(평소 숨김). 표시 시 깜빡임. */
 @keyframes grepity-caret {
   0%, 50% { opacity: 1; }
   50.01%, 100% { opacity: 0; }
@@ -228,14 +247,26 @@ textarea {
   display: inline-block;
   width: 0.46em;
   height: 0.9em;
-  margin-left: 0.12em;
-  vertical-align: -0.08em;
+  margin-left: 0.1em;
   background-color: var(--brand-cursor);
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+.navbar-logo:hover .navbar-logo-word::after,
+.navbar-logo:focus-visible .navbar-logo-word::after {
+  opacity: 1;
+  transform: scaleX(1);
   animation: grepity-caret 1.2s steps(1, end) infinite;
 }
-/* 모션 민감 사용자: 깜빡임 정지(상시 표시). */
+
+/* 모션 민감 사용자: 타자기·깜빡임 제거 → hover 시 즉시 표시. */
 @media (prefers-reduced-motion: reduce) {
-  .navbar-logo-word::after,
+  .navbar-logo-type { transition: none; }
+  .navbar-logo-word::after { transition: none; }
+  .navbar-logo:hover .navbar-logo-word::after,
+  .navbar-logo:focus-visible .navbar-logo-word::after,
   .footer-brand-word::after {
     animation: none;
   }

@@ -335,7 +335,9 @@ function App() {
               onClick={closeHeaderPanel}
             >
               <span className="navbar-logo-mark" aria-hidden="true" />
-              <span className="navbar-logo-word">grepity</span>
+              <span className="navbar-logo-word" aria-hidden="true">
+                <span className="navbar-logo-type">grepity</span>
+              </span>
             </Link>
 
             {/* 모바일 전용 햄버거 토글(데스크톱은 CSS로 숨김). 색 단독 금지 → aria-label로 의미 전달 */}
