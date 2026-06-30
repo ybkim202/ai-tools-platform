@@ -1,7 +1,6 @@
 [
   {
     "name": "ChatGPT",
-    "representative_model": "OpenAI",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg",
     "official_url": "https://openai.com/chatgpt",
     "description": "OpenAI의 대화형 AI 모델. 자연스러운 텍스트 생성, 질문 답변, 코딩 등 다양한 작업 가능",
@@ -10,14 +9,26 @@
     "difficulty": "쉬움",
     "user_count": 100000000,
     "user_count_source": "공식발표",
+    "representative_model": "OpenAI",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Pro", "price": 20, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Pro",
+        "price": 20,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "Claude",
-    "representative_model": "Anthropic",
     "logo_url": "https://www.anthropic.com/images/claude-logo.png",
     "official_url": "https://claude.ai",
     "description": "Anthropic의 AI 어시스턴트. 깊이 있는 분석, 창의적 작업, 프로그래밍에 강점",
@@ -26,9 +37,22 @@
     "difficulty": "쉬움",
     "user_count": 50000000,
     "user_count_source": "공식발표",
+    "representative_model": "Anthropic",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Pro", "price": 20, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Pro",
+        "price": 20,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -42,7 +66,13 @@
     "user_count": 30000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "API 기반", "price": 0.04, "currency": "USD", "billing_period": "per_image"}
+      {
+        "plan_name": "API 기반",
+        "price": 0.04,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -56,8 +86,20 @@
     "user_count": 20000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "Basic", "price": 10, "currency": "USD", "billing_period": "monthly"},
-      {"plan_name": "Standard", "price": 30, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "Basic",
+        "price": 10,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Standard",
+        "price": 30,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -71,7 +113,13 @@
     "user_count": 2000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "유료", "price": 10, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "유료",
+        "price": 10,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -85,13 +133,24 @@
     "user_count": 5000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Standard", "price": 12, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Standard",
+        "price": 12,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "Gemini",
-    "representative_model": "Google",
     "logo_url": "https://www.gstatic.com/images/branding/product/1x/gemini_512dp.png",
     "official_url": "https://gemini.google.com",
     "description": "Google의 멀티모달 AI 모델. 텍스트, 이미지, 비디오 등 다양한 입력 처리",
@@ -100,9 +159,22 @@
     "difficulty": "쉬움",
     "user_count": 40000000,
     "user_count_source": "공식발표",
+    "representative_model": "Google",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Advanced", "price": 20, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Advanced",
+        "price": 20,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -116,13 +188,24 @@
     "user_count": 5000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Pro", "price": 20, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Pro",
+        "price": 20,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "Stable Diffusion",
-    "github_repo": "Stability-AI/generative-models",
     "logo_url": "https://huggingface.co/front/assets/huggingface_logo-noborder.svg",
     "official_url": "https://huggingface.co/spaces/stabilityai/stable-diffusion-webui",
     "description": "오픈소스 이미지 생성 모델. 로컬에서 실행 가능하고 커스터마이징 가능",
@@ -131,8 +214,15 @@
     "difficulty": "어려움",
     "user_count": 1000000,
     "user_count_source": "커뮤니티",
+    "github_repo": "Stability-AI/generative-models",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -146,8 +236,20 @@
     "user_count": 3000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "Creator", "price": 49, "currency": "USD", "billing_period": "monthly"},
-      {"plan_name": "Teams", "price": 125, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "Creator",
+        "price": 49,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Teams",
+        "price": 125,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -161,8 +263,20 @@
     "user_count": 2000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Pro", "price": 49, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Pro",
+        "price": 49,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -176,7 +290,13 @@
     "user_count": 1000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "Starter", "price": 30, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "Starter",
+        "price": 30,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -190,8 +310,20 @@
     "user_count": 1000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Creator", "price": 24, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Creator",
+        "price": 24,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -205,8 +337,20 @@
     "user_count": 500000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Basic", "price": 10, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Basic",
+        "price": 10,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -220,8 +364,20 @@
     "user_count": 2000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Starter", "price": 11, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Starter",
+        "price": 11,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -235,8 +391,20 @@
     "user_count": 30000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Premium", "price": 12, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Premium",
+        "price": 12,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -250,7 +418,13 @@
     "user_count": 10000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "구독포함", "price": 10, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "구독포함",
+        "price": 10,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -264,7 +438,13 @@
     "user_count": 1000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -278,8 +458,20 @@
     "user_count": 1000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Pro", "price": 12, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Pro",
+        "price": 12,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -293,8 +485,20 @@
     "user_count": 500000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Pro", "price": 19, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Pro",
+        "price": 19,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -308,8 +512,20 @@
     "user_count": 100000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Pro", "price": 13, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Pro",
+        "price": 13,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -323,7 +539,13 @@
     "user_count": 2000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -337,8 +559,20 @@
     "user_count": 10000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Pro", "price": 10, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Pro",
+        "price": 10,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -352,8 +586,20 @@
     "user_count": 3000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Pro", "price": 10, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Pro",
+        "price": 10,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -367,7 +613,13 @@
     "user_count": 50000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -381,8 +633,20 @@
     "user_count": 1000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Pro", "price": 19, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Pro",
+        "price": 19,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -396,8 +660,20 @@
     "user_count": 5000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Premium", "price": 12, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Premium",
+        "price": 12,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -411,7 +687,13 @@
     "user_count": 1000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -425,7 +707,13 @@
     "user_count": 500000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -439,8 +727,20 @@
     "user_count": 100000000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "Pro", "price": 9.99, "currency": "USD", "billing_period": "monthly"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "Pro",
+        "price": 9.99,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -454,7 +754,13 @@
     "user_count": 500000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -468,7 +774,13 @@
     "user_count": 100000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "종량제", "price": 0, "currency": "USD", "billing_period": "pay_as_you_go"}
+      {
+        "plan_name": "종량제",
+        "price": 0,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -482,7 +794,13 @@
     "user_count": 100000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -496,7 +814,13 @@
     "user_count": 50000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "종량제", "price": 0, "currency": "USD", "billing_period": "pay_as_you_go"}
+      {
+        "plan_name": "종량제",
+        "price": 0,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -510,7 +834,13 @@
     "user_count": 100000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "종량제", "price": 0, "currency": "USD", "billing_period": "pay_as_you_go"}
+      {
+        "plan_name": "종량제",
+        "price": 0,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -524,7 +854,13 @@
     "user_count": 100000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "종량제", "price": 0, "currency": "USD", "billing_period": "pay_as_you_go"}
+      {
+        "plan_name": "종량제",
+        "price": 0,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -538,7 +874,13 @@
     "user_count": 100000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "종량제", "price": 0, "currency": "USD", "billing_period": "pay_as_you_go"}
+      {
+        "plan_name": "종량제",
+        "price": 0,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -552,7 +894,13 @@
     "user_count": 100000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "종량제", "price": 0, "currency": "USD", "billing_period": "pay_as_you_go"}
+      {
+        "plan_name": "종량제",
+        "price": 0,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -566,7 +914,13 @@
     "user_count": 50000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "기업용", "price": 0, "currency": "USD", "billing_period": "custom"}
+      {
+        "plan_name": "기업용",
+        "price": 0,
+        "billing_period": "annual",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -580,8 +934,20 @@
     "user_count": 50000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"},
-      {"plan_name": "기업용", "price": 0, "currency": "USD", "billing_period": "custom"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      },
+      {
+        "plan_name": "기업용",
+        "price": 0,
+        "billing_period": "annual",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -595,12 +961,17 @@
     "user_count": 50000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "종량제", "price": 0, "currency": "USD", "billing_period": "pay_as_you_go"}
+      {
+        "plan_name": "종량제",
+        "price": 0,
+        "billing_period": "monthly",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "LangChain",
-    "github_repo": "langchain-ai/langchain",
     "logo_url": "https://langchain.com/favicon.ico",
     "official_url": "https://langchain.com",
     "description": "LLM 앱 개발 프레임워크. 여러 AI 모델을 체인으로 연결",
@@ -609,8 +980,15 @@
     "difficulty": "어려움",
     "user_count": 200000,
     "user_count_source": "오픈소스",
+    "github_repo": "langchain-ai/langchain",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -624,7 +1002,13 @@
     "user_count": 500000,
     "user_count_source": "오픈소스",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -638,12 +1022,17 @@
     "user_count": 100000,
     "user_count_source": "오픈소스",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "GPT4All",
-    "github_repo": "nomic-ai/gpt4all",
     "logo_url": "https://www.nomic.ai/favicon.ico",
     "official_url": "https://gpt4all.io",
     "description": "로컬에서 실행 가능한 오픈소스 LLM. 인터넷 연결 불필요",
@@ -652,8 +1041,15 @@
     "difficulty": "어려움",
     "user_count": 100000,
     "user_count_source": "오픈소스",
+    "github_repo": "nomic-ai/gpt4all",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -667,7 +1063,13 @@
     "user_count": 50000,
     "user_count_source": "오픈소스",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -681,12 +1083,17 @@
     "user_count": 100000,
     "user_count_source": "오픈소스",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "Alpaca",
-    "github_repo": "tatsu-lab/stanford_alpaca",
     "logo_url": "https://www.stanford.edu/favicon.ico",
     "official_url": "https://github.com/tatsu-lab/alpaca",
     "description": "Stanford의 오픈소스 채팅 모델. 경량이고 효율적",
@@ -695,8 +1102,15 @@
     "difficulty": "어려움",
     "user_count": 50000,
     "user_count_source": "오픈소스",
+    "github_repo": "tatsu-lab/stanford_alpaca",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -710,7 +1124,13 @@
     "user_count": 50000,
     "user_count_source": "오픈소스",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -724,7 +1144,13 @@
     "user_count": 50000,
     "user_count_source": "오픈소스",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -738,7 +1164,13 @@
     "user_count": 10000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "기업용", "price": 0, "currency": "USD", "billing_period": "custom"}
+      {
+        "plan_name": "기업용",
+        "price": 0,
+        "billing_period": "annual",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -752,7 +1184,13 @@
     "user_count": 50000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "기업용", "price": 0, "currency": "USD", "billing_period": "custom"}
+      {
+        "plan_name": "기업용",
+        "price": 0,
+        "billing_period": "annual",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -766,7 +1204,13 @@
     "user_count": 20000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "기업용", "price": 0, "currency": "USD", "billing_period": "custom"}
+      {
+        "plan_name": "기업용",
+        "price": 0,
+        "billing_period": "annual",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
@@ -780,12 +1224,17 @@
     "user_count": 100000,
     "user_count_source": "공식발표",
     "pricing": [
-      {"plan_name": "무료", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "무료",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "Gradio",
-    "github_repo": "gradio-app/gradio",
     "logo_url": "https://www.gradio.app/favicon.ico",
     "official_url": "https://www.gradio.app",
     "description": "ML 모델 웹 인터페이스 생성 라이브러리. 빠르게 데모 만들기",
@@ -794,13 +1243,19 @@
     "difficulty": "보통",
     "user_count": 100000,
     "user_count_source": "오픈소스",
+    "github_repo": "gradio-app/gradio",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "Streamlit",
-    "github_repo": "streamlit/streamlit",
     "logo_url": "https://streamlit.io/favicon.ico",
     "official_url": "https://streamlit.io",
     "description": "ML 앱 개발 프레임워크. Python으로 빠르게 웹앱 만들기",
@@ -809,13 +1264,19 @@
     "difficulty": "보통",
     "user_count": 500000,
     "user_count_source": "오픈소스",
+    "github_repo": "streamlit/streamlit",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "TensorFlow",
-    "github_repo": "tensorflow/tensorflow",
     "logo_url": "https://www.tensorflow.org/favicon.ico",
     "official_url": "https://www.tensorflow.org",
     "description": "Google의 오픈소스 머신러닝 프레임워크. 신경망 훈련",
@@ -824,13 +1285,19 @@
     "difficulty": "어려움",
     "user_count": 500000,
     "user_count_source": "오픈소스",
+    "github_repo": "tensorflow/tensorflow",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "PyTorch",
-    "github_repo": "pytorch/pytorch",
     "logo_url": "https://pytorch.org/favicon.ico",
     "official_url": "https://pytorch.org",
     "description": "Meta의 오픈소스 머신러닝 프레임워크. 유연한 신경망 개발",
@@ -839,13 +1306,19 @@
     "difficulty": "어려움",
     "user_count": 500000,
     "user_count_source": "오픈소스",
+    "github_repo": "pytorch/pytorch",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "Keras",
-    "github_repo": "keras-team/keras",
     "logo_url": "https://keras.io/favicon.ico",
     "official_url": "https://keras.io",
     "description": "고수준 신경망 API. TensorFlow와 통합",
@@ -854,13 +1327,19 @@
     "difficulty": "보통",
     "user_count": 200000,
     "user_count_source": "오픈소스",
+    "github_repo": "keras-team/keras",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "Scikit-learn",
-    "github_repo": "scikit-learn/scikit-learn",
     "logo_url": "https://scikit-learn.org/stable/_static/favicon.ico",
     "official_url": "https://scikit-learn.org",
     "description": "머신러닝 라이브러리. 분류, 회귀, 클러스터링",
@@ -869,13 +1348,19 @@
     "difficulty": "보통",
     "user_count": 500000,
     "user_count_source": "오픈소스",
+    "github_repo": "scikit-learn/scikit-learn",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "XGBoost",
-    "github_repo": "dmlc/xgboost",
     "logo_url": "https://xgboost.readthedocs.io/en/stable/_static/favicon.ico",
     "official_url": "https://xgboost.readthedocs.io",
     "description": "그래디언트 부스팅 라이브러리. 고성능 머신러닝",
@@ -884,13 +1369,19 @@
     "difficulty": "보통",
     "user_count": 200000,
     "user_count_source": "오픈소스",
+    "github_repo": "dmlc/xgboost",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "LightGBM",
-    "github_repo": "microsoft/LightGBM",
     "logo_url": "https://lightgbm.readthedocs.io/en/latest/_static/favicon.ico",
     "official_url": "https://lightgbm.readthedocs.io",
     "description": "경량 그래디언트 부스팅. 빠르고 효율적",
@@ -899,13 +1390,19 @@
     "difficulty": "보통",
     "user_count": 100000,
     "user_count_source": "오픈소스",
+    "github_repo": "microsoft/LightGBM",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "Pandas",
-    "github_repo": "pandas-dev/pandas",
     "logo_url": "https://pandas.pydata.org/static/favicon.ico",
     "official_url": "https://pandas.pydata.org",
     "description": "데이터 분석 라이브러리. 데이터 처리 및 분석",
@@ -914,13 +1411,19 @@
     "difficulty": "보통",
     "user_count": 1000000,
     "user_count_source": "오픈소스",
+    "github_repo": "pandas-dev/pandas",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "NumPy",
-    "github_repo": "numpy/numpy",
     "logo_url": "https://numpy.org/favicon.ico",
     "official_url": "https://numpy.org",
     "description": "수치 계산 라이브러리. 과학 컴퓨팅의 기초",
@@ -929,13 +1432,19 @@
     "difficulty": "보통",
     "user_count": 500000,
     "user_count_source": "오픈소스",
+    "github_repo": "numpy/numpy",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "Matplotlib",
-    "github_repo": "matplotlib/matplotlib",
     "logo_url": "https://matplotlib.org/stable/_static/favicon.ico",
     "official_url": "https://matplotlib.org",
     "description": "데이터 시각화 라이브러리. 그래프 및 차트 생성",
@@ -944,13 +1453,19 @@
     "difficulty": "보통",
     "user_count": 500000,
     "user_count_source": "오픈소스",
+    "github_repo": "matplotlib/matplotlib",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "Jupyter",
-    "github_repo": "jupyter/notebook",
     "logo_url": "https://jupyter.org/favicon.ico",
     "official_url": "https://jupyter.org",
     "description": "인터랙티브 노트북. 데이터 분석 및 시각화",
@@ -959,13 +1474,19 @@
     "difficulty": "쉬움",
     "user_count": 500000,
     "user_count_source": "오픈소스",
+    "github_repo": "jupyter/notebook",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "JupyterLab",
-    "github_repo": "jupyterlab/jupyterlab",
     "logo_url": "https://jupyter.org/favicon.ico",
     "official_url": "https://jupyterlab.readthedocs.io",
     "description": "Jupyter의 차세대 IDE. 향상된 개발 환경",
@@ -974,13 +1495,19 @@
     "difficulty": "쉬움",
     "user_count": 300000,
     "user_count_source": "오픈소스",
+    "github_repo": "jupyterlab/jupyterlab",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "MONAI",
-    "github_repo": "Project-MONAI/MONAI",
     "logo_url": "https://monai.io/favicon.ico",
     "official_url": "https://monai.io",
     "description": "의료 이미지 AI 프레임워크. 의료 영상 처리",
@@ -989,13 +1516,19 @@
     "difficulty": "어려움",
     "user_count": 50000,
     "user_count_source": "오픈소스",
+    "github_repo": "Project-MONAI/MONAI",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "MediaPipe",
-    "github_repo": "google-ai-edge/mediapipe",
     "logo_url": "https://mediapipe.dev/favicon.ico",
     "official_url": "https://mediapipe.dev",
     "description": "Google의 멀티미디어 처리 프레임워크. 포즈, 손 인식 등",
@@ -1004,13 +1537,19 @@
     "difficulty": "보통",
     "user_count": 100000,
     "user_count_source": "오픈소스",
+    "github_repo": "google-ai-edge/mediapipe",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "OpenCV",
-    "github_repo": "opencv/opencv",
     "logo_url": "https://opencv.org/favicon.ico",
     "official_url": "https://opencv.org",
     "description": "컴퓨터 비전 라이브러리. 이미지 처리 및 분석",
@@ -1019,13 +1558,19 @@
     "difficulty": "보통",
     "user_count": 500000,
     "user_count_source": "오픈소스",
+    "github_repo": "opencv/opencv",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "Transformers (Hugging Face)",
-    "github_repo": "huggingface/transformers",
     "logo_url": "https://huggingface.co/front/assets/huggingface_logo-noborder.svg",
     "official_url": "https://huggingface.co/transformers",
     "description": "트랜스포머 모델 라이브러리. NLP 및 비전 모델",
@@ -1034,13 +1579,19 @@
     "difficulty": "보통",
     "user_count": 300000,
     "user_count_source": "오픈소스",
+    "github_repo": "huggingface/transformers",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "spaCy",
-    "github_repo": "explosion/spaCy",
     "logo_url": "https://spacy.io/favicon.ico",
     "official_url": "https://spacy.io",
     "description": "NLP 라이브러리. 자연어 처리 및 텍스트 분석",
@@ -1049,13 +1600,19 @@
     "difficulty": "보통",
     "user_count": 200000,
     "user_count_source": "오픈소스",
+    "github_repo": "explosion/spaCy",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "NLTK",
-    "github_repo": "nltk/nltk",
     "logo_url": "https://www.nltk.org/favicon.ico",
     "official_url": "https://www.nltk.org",
     "description": "자연어 도구 키트. NLP 연구 및 교육용",
@@ -1064,13 +1621,19 @@
     "difficulty": "보통",
     "user_count": 100000,
     "user_count_source": "오픈소스",
+    "github_repo": "nltk/nltk",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "FastText",
-    "github_repo": "facebookresearch/fastText",
     "logo_url": "https://fasttext.cc/favicon.ico",
     "official_url": "https://fasttext.cc",
     "description": "Facebook의 텍스트 분류 라이브러리. 빠르고 효율적",
@@ -1079,13 +1642,19 @@
     "difficulty": "보통",
     "user_count": 100000,
     "user_count_source": "오픈소스",
+    "github_repo": "facebookresearch/fastText",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "Rasa",
-    "github_repo": "RasaHQ/rasa",
     "logo_url": "https://rasa.com/favicon.ico",
     "official_url": "https://rasa.com",
     "description": "챗봇 및 대화형 AI 프레임워크. 오픈소스 및 엔터프라이즈",
@@ -1094,13 +1663,19 @@
     "difficulty": "보통",
     "user_count": 100000,
     "user_count_source": "오픈소스",
+    "github_repo": "RasaHQ/rasa",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "Ray",
-    "github_repo": "ray-project/ray",
     "logo_url": "https://ray.io/favicon.ico",
     "official_url": "https://ray.io",
     "description": "분산 처리 프레임워크. 머신러닝 병렬 처리",
@@ -1109,13 +1684,19 @@
     "difficulty": "어려움",
     "user_count": 100000,
     "user_count_source": "오픈소스",
+    "github_repo": "ray-project/ray",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "Dask",
-    "github_repo": "dask/dask",
     "logo_url": "https://dask.org/favicon.ico",
     "official_url": "https://dask.org",
     "description": "병렬 컴퓨팅 라이브러리. 대용량 데이터 처리",
@@ -1124,13 +1705,19 @@
     "difficulty": "어려움",
     "user_count": 100000,
     "user_count_source": "오픈소스",
+    "github_repo": "dask/dask",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
   },
   {
     "name": "Celery",
-    "github_repo": "celery/celery",
     "logo_url": "https://docs.celeryproject.org/en/stable/_static/favicon.ico",
     "official_url": "https://docs.celeryproject.org",
     "description": "분산 작업 큐. 비동기 작업 처리",
@@ -1139,8 +1726,434 @@
     "difficulty": "보통",
     "user_count": 200000,
     "user_count_source": "오픈소스",
+    "github_repo": "celery/celery",
     "pricing": [
-      {"plan_name": "오픈소스", "price": 0, "currency": "USD", "billing_period": "free"}
+      {
+        "plan_name": "오픈소스",
+        "price": 0,
+        "billing_period": "free",
+        "description": "",
+        "currency": "USD"
+      }
     ]
+  },
+  {
+    "name": "Continue? Y/N",
+    "logo_url": null,
+    "official_url": "https://llmgame.scalex.dev",
+    "description": "A 60-second game about AI agent permission fatigue",
+    "category": "생산성",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "pricing": []
+  },
+  {
+    "name": "Statewright",
+    "logo_url": null,
+    "official_url": "https://github.com/statewright/statewright",
+    "description": "Visual state machines that make AI agents reliable",
+    "category": "생산성",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "statewright/statewright",
+    "pricing": []
+  },
+  {
+    "name": "AISlop",
+    "logo_url": null,
+    "official_url": "https://github.com/scanaislop/aislop",
+    "description": "a CLI for catching AI generated code smells",
+    "category": "개발도구",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "scanaislop/aislop",
+    "pricing": []
+  },
+  {
+    "name": "GlycemicGPT",
+    "logo_url": null,
+    "official_url": "https://github.com/GlycemicGPT/GlycemicGPT",
+    "description": "Open-source AI-powered diabetes management",
+    "category": "생성형AI",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "GlycemicGPT/GlycemicGPT",
+    "pricing": []
+  },
+  {
+    "name": "Open Envelope",
+    "logo_url": null,
+    "official_url": "https://openenvelope.org/docs/schema/",
+    "description": "an open schema for defining AI agent teams",
+    "category": "생산성",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "pricing": []
+  },
+  {
+    "name": "Sx",
+    "logo_url": null,
+    "official_url": "https://github.com/sleuth-io/sx",
+    "description": "an open-source package manager for AI skills, MCPs, and commands",
+    "category": "특수목적",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "sleuth-io/sx",
+    "pricing": []
+  },
+  {
+    "name": "E2a",
+    "logo_url": null,
+    "official_url": "https://github.com/Mnexa-AI/e2a",
+    "description": "Open-source email gateway for AI agents",
+    "category": "생산성",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "Mnexa-AI/e2a",
+    "pricing": []
+  },
+  {
+    "name": "Stage CLI",
+    "logo_url": null,
+    "official_url": "https://github.com/ReviewStage/stage-cli",
+    "description": "An easier way of reading your AI generated changes locally",
+    "category": "개발도구",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "ReviewStage/stage-cli",
+    "pricing": []
+  },
+  {
+    "name": "Id-agent",
+    "logo_url": null,
+    "official_url": "https://github.com/vostride/id-agent",
+    "description": "Token efficient UUID alternative for AI agents",
+    "category": "개발도구",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "vostride/id-agent",
+    "pricing": []
+  },
+  {
+    "name": "Adam",
+    "logo_url": null,
+    "official_url": "https://github.com/sqliteai/adam",
+    "description": "An embeddable cross-platform AI agent library",
+    "category": "생산성",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "sqliteai/adam",
+    "pricing": []
+  },
+  {
+    "name": "Beacon",
+    "logo_url": null,
+    "official_url": "https://github.com/Asymptote-Labs/agent-beacon",
+    "description": "The open-source layer for local AI agent visibility",
+    "category": "생산성",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "Asymptote-Labs/agent-beacon",
+    "pricing": []
+  },
+  {
+    "name": "CoreTex",
+    "logo_url": null,
+    "official_url": "https://github.com/mrdanielcasper/CoreTex",
+    "description": "An Open-Source, Unix-like, biomimetic, flat-file AI Harness",
+    "category": "특수목적",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "mrdanielcasper/CoreTex",
+    "pricing": []
+  },
+  {
+    "name": "DoodleMate",
+    "logo_url": null,
+    "official_url": "https://doodlemate.com/",
+    "description": "Animate Your Child's Hand Drawings Without Generative AI",
+    "category": "생성형AI",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "pricing": []
+  },
+  {
+    "name": "NanoCorp",
+    "logo_url": null,
+    "official_url": "https://www.nanocorp.so",
+    "description": "Create autonomous companies run by AI",
+    "category": "특수목적",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "pricing": []
+  },
+  {
+    "name": "Forge",
+    "logo_url": null,
+    "official_url": "https://github.com/antoinezambelli/forge",
+    "description": "Guardrails take an 8B model from 53% to 99% on agentic tasks",
+    "category": "생산성",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "antoinezambelli/forge",
+    "pricing": []
+  },
+  {
+    "name": "adamsreview",
+    "logo_url": null,
+    "official_url": "https://github.com/adamjgmiller/adamsreview",
+    "description": "better multi-agent PR reviews for Claude Code",
+    "category": "개발도구",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "adamjgmiller/adamsreview",
+    "pricing": []
+  },
+  {
+    "name": "Torrix",
+    "logo_url": null,
+    "official_url": "https://github.com/torrix-ai/install",
+    "description": "self hosted, LLM Observability,(no Postgres, no Redis)",
+    "category": "AI플랫폼",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "torrix-ai/install",
+    "pricing": []
+  },
+  {
+    "name": "Dari-docs",
+    "logo_url": null,
+    "official_url": "https://github.com/mupt-ai/dari-docs",
+    "description": "Optimize your docs using parallel coding agents",
+    "category": "개발도구",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "mupt-ai/dari-docs",
+    "pricing": []
+  },
+  {
+    "name": "MCPs aren't enough",
+    "logo_url": null,
+    "official_url": "https://timeglass.ai",
+    "description": "give Codex/Claude accurate memory of everything",
+    "category": "개발도구",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "pricing": []
+  },
+  {
+    "name": "Tiny-vLLM",
+    "logo_url": null,
+    "official_url": "https://github.com/jmaczan/tiny-vllm",
+    "description": "high performance LLM inference engine in C++ and CUDA",
+    "category": "생성형AI",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "jmaczan/tiny-vllm",
+    "pricing": []
+  },
+  {
+    "name": "Needle",
+    "logo_url": null,
+    "official_url": "https://github.com/cactus-compute/needle",
+    "description": "We Distilled Gemini Tool Calling into a 26M Model",
+    "category": "특수목적",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "cactus-compute/needle",
+    "pricing": []
+  },
+  {
+    "name": "Demon",
+    "logo_url": null,
+    "official_url": "https://daydreamlive.github.io/DEMON/",
+    "description": "open-source real-time music diffusion engine, 25Hz local GPU",
+    "category": "오디오편집",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "pricing": []
+  },
+  {
+    "name": "Kstack",
+    "logo_url": null,
+    "official_url": "https://github.com/kubetail-org/kstack",
+    "description": "Skill pack for monitoring/troubleshooting K8s in Claude Code",
+    "category": "개발도구",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "kubetail-org/kstack",
+    "pricing": []
+  },
+  {
+    "name": "Mnemo",
+    "logo_url": null,
+    "official_url": "https://github.com/zaydmulani09/mnemo",
+    "description": "local-first AI memory layer for any LLM (Rust, SQLite,petgraph)",
+    "category": "생성형AI",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "zaydmulani09/mnemo",
+    "pricing": []
+  },
+  {
+    "name": "Ideogram 4.0",
+    "logo_url": null,
+    "official_url": "https://github.com/ideogram-oss/ideogram4",
+    "description": "open-weight 9.3B text-to-image model",
+    "category": "이미지생성",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "ideogram-oss/ideogram4",
+    "pricing": []
+  },
+  {
+    "name": "Lathe",
+    "logo_url": null,
+    "official_url": "https://github.com/devenjarvis/lathe",
+    "description": "Use LLMs to learn a new domain, not skip past it",
+    "category": "생성형AI",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "devenjarvis/lathe",
+    "pricing": []
+  },
+  {
+    "name": "Lowfat",
+    "logo_url": null,
+    "official_url": "https://github.com/zdk/lowfat",
+    "description": "pluggable CLI filter that saved 91.8% of my LLM tokens",
+    "category": "개발도구",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "zdk/lowfat",
+    "pricing": []
+  },
+  {
+    "name": "Boxes.dev",
+    "logo_url": null,
+    "official_url": "https://boxes.dev",
+    "description": "ditch localhost; run Claude Code and Codex in the cloud",
+    "category": "개발도구",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "pricing": []
+  },
+  {
+    "name": "YourMemory",
+    "logo_url": null,
+    "official_url": "https://yourmemoryai.vercel.app/",
+    "description": "agentic memory is a pruning problem, not a hoarding problem",
+    "category": "생산성",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "pricing": []
+  },
+  {
+    "name": "Paca",
+    "logo_url": null,
+    "official_url": "https://github.com/Paca-AI/paca",
+    "description": "Lightweight Jira alternative for human-AI collaboration",
+    "category": "특수목적",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "Paca-AI/paca",
+    "pricing": []
+  },
+  {
+    "name": "Command Center",
+    "logo_url": null,
+    "official_url": "https://www.cc.dev/",
+    "description": "the AI coding env for people who care about quality",
+    "category": "개발도구",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "pricing": []
+  },
+  {
+    "name": "Nightwatch",
+    "logo_url": null,
+    "official_url": "https://github.com/ninoxAI/nightwatch",
+    "description": "The open-source, read-only AI SRE",
+    "category": "특수목적",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "github_repo": "ninoxAI/nightwatch",
+    "pricing": []
+  },
+  {
+    "name": "Extend UI",
+    "logo_url": null,
+    "official_url": "https://www.extend.ai/ui",
+    "description": "open-source UI kit for modern document apps",
+    "category": "디자인",
+    "country": null,
+    "difficulty": null,
+    "user_count": null,
+    "user_count_source": null,
+    "pricing": []
   }
 ]

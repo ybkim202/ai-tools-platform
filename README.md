@@ -40,9 +40,10 @@
 
 ### Deployment
 - **백엔드 → Railway** (Dockerfile)
-- **DB → Render** (PostgreSQL)
+- **DB → Neon** (PostgreSQL, `ap-southeast-1`) — 2026-06-30 Render 무료 만료로 이전(이전: Render). 무료 티어는 유휴 시 컴퓨트 **오토서스펜드**(첫 요청에 수백 ms 콜드스타트, 데이터는 보존). 영구 삭제 없음.
 - **프론트 → Vercel**
-- 백엔드↔DB는 교차 프로바이더라 DB 접속은 **External URL** 사용, CORS는 `ALLOWED_ORIGINS` 환경변수 필수.
+- 백엔드↔DB는 교차 프로바이더라 DB 접속은 **연결 문자열(Neon direct 엔드포인트, `sslmode=require`)** 사용, CORS는 `ALLOWED_ORIGINS` 환경변수 필수.
+- **백업·복구**: `backend/backup_db.py`(pg_dump 풀백업) · `backend/export_seeds.py`(라이브→레포 시드 baseline 갱신) · 빈 DB 재구축은 `backend/bootstrap.py`. 절차 정본 [backend/README.md](./backend/README.md).
 
 > ⚠️ 일부 옛 문서(ARCHITECTURE 등)는 TS·Tailwind·Vite를 주장하나 **실제와 다르다**. 코드가 사실이다.
 

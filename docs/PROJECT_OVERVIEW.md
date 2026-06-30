@@ -110,7 +110,7 @@
 | 스타일링 | Tailwind CSS | **순수 CSS** (`styles/*.css`) | `frontend/src/styles/`, package.json에 tailwind 없음 |
 | 상태관리 | Zustand | Zustand 설치됨 — 단 Home/Recommendations는 **로컬 useState** 사용 | `package.json:16`, `pages/Home.jsx:7-12` vs `stores/toolStore.js` |
 | ORM | SQLAlchemy | SQLAlchemy(엔진/세션만), 모델 없이 **raw SQL** | `database.py`, `routers/*.py`의 `text()` |
-| DB | PostgreSQL 15 | PostgreSQL (Render 호스팅) ✅ | `backend/load_tools_fixed.py:13` |
+| DB | PostgreSQL 15 | PostgreSQL (**Neon 호스팅**, 2026-06-30 Render 무료 만료로 이전) ✅ | `backend/load_tools_fixed.py:13` |
 | 데이터 수집 | APScheduler 자동수집 | **구현됨** — `collectors/*` + `collect.py` + `scheduler.py`(APScheduler 기본 비활성) + `.github/workflows/collect.yml`(cron) | `backend/collectors/*`, `collect.py`, `scheduler.py`, `.github/workflows/collect.yml` |
 
 > **주의**: `README.md`는 백엔드 구조를 `models/`, `schemas/`, `services/`, `config.py`로 묘사(`ARCHITECTURE.md:119-143`)하지만 실제 `backend/app/`에는 해당 폴더가 없다. 실제 구조는 `main.py / database.py / auth.py / exceptions.py / routers/`로 더 단순하다.
@@ -272,8 +272,9 @@ gantt
 
 - **[해소]** 스키마 DDL 존재 확인 — `backend/schema.sql`에 `tags`/`tool_tags`/`benchmarks`/`news`/`github_trending` 등 테이블 DDL 정의됨(`init_db.py`로 적용). 더 이상 "DDL이 보이지 않음" 아님.
 - **[해소]** SQL 바인딩 — 전 라우터 `:name` 통일로 `%(name)s` 이슈 해소(G7).
-- **[해소]** 배포 타깃 확정 — **백엔드 Railway · DB Render · 프론트 Vercel**. (고아 `render.yaml` 제거로 레포-실배포 일치)
-- **[미확정]** 운영(Render) DB가 실제로 `bootstrap` 되었는지 라이브 확인 필요(세션 로그상 점등 정황). 뉴스/깃헙트렌드는 0행 시작이라 cron 수집 후 점등.
+- **[해소]** 배포 타깃 확정 — **백엔드 Railway · DB Neon · 프론트 Vercel**. (DB는 2026-06-30 Render 무료 만료로 Neon `ap-southeast-1`로 이전. Neon 무료는 유휴 오토서스펜드·영구삭제 없음)
+- **[해소]** 운영 DB 실적재 확인됨 — 2026-06-30 Neon 복원 검증 시 tools **111**·pricing 99·tags 19·tool_tags 312·benchmarks 16·**news 155**·**github_trending 95**. 뉴스·깃헙트렌드도 cron 수집으로 점등 완료(만료 전 누적분 백업→Neon 복원).
+- **[갭→보강]** 운영 누적분이 레포 시드에 반영 안 되던 갭 → `export_seeds.py`(라이브→시드 baseline)·`backup_db.py`(pg_dump 풀백업) 도입. tools 시드 78→111 갱신.
 - 프론트엔드가 실제로 어떤 백엔드 URL(`REACT_APP_API_URL`)을 바라보며 운영되는지 (CORS는 `ALLOWED_ORIGINS` 필수).
 
 ---
