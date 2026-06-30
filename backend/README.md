@@ -199,6 +199,32 @@ ENABLE_SCHEDULER=true SCHEDULER_WORKER=true COLLECT_INTERVAL_HOURS=24 \
 - 트렌딩: 수집 후 `github_trending` 행수 확인, `GET /api/trends/github?period=weekly` ·
   `?period=monthly` 점등. period 멱등 교체이므로 재실행 시 행수는 누적되지 않고 상위 N 으로 수렴.
 
+## 백업 · 복구 · 시드 export (운영 안전망)
+
+> DB 호스팅: **Neon** (`ap-southeast-1`). 2026-06-30 Render 무료 PostgreSQL 만료로 이전. Neon 무료는 유휴 시 컴퓨트 **오토서스펜드**(첫 요청 콜드스타트, 데이터 보존)·**영구 삭제 없음**.
+> ⚠️ `pg_dump`/`pg_restore` 는 **클라이언트 버전 ≥ 서버(PG17+)** 여야 한다. macOS: `brew install libpq` → `/opt/homebrew/opt/libpq/bin/`. 대량 복원·DDL 은 Neon **direct 엔드포인트**(호스트에서 `-pooler` 제거) 사용.
+
+### 정기 백업(권장)
+시드 export 는 baseline(tools/tags/benchmarks)만 잡는다. **news/github_trending 수집 누적분까지** 보존하려면 풀 덤프가 필요하다.
+```bash
+PG_DUMP=/opt/homebrew/opt/libpq/bin/pg_dump \
+DATABASE_URL='postgresql://...neon.tech/neondb?sslmode=require' \
+python backup_db.py            # → backups/<UTC>.dump (gitignore, 레포 커밋 금지)
+```
+
+### 복구(빈 새 DB → 운영 데이터)
+- **풀 복원(권장, 누적분 포함)**: `pg_restore --no-owner --no-privileges -d "$NEW_URL" backups/<파일>.dump` → `python init_db.py`(멱등 스키마 정합).
+- **baseline 재구축(시드만)**: `DATABASE_URL=$NEW_URL python bootstrap.py` (tools 111·tags·benchmarks. news/trends 는 0행 → cron 재수집).
+- 복원 후 **Railway `DATABASE_URL` 교체** → 자동 재배포.
+
+### 시드 baseline 갱신(라이브 → 레포)
+운영 중 누적(자동 발견 도구 등)을 레포 시드에 반영해 bootstrap baseline 을 최신화한다.
+```bash
+DATABASE_URL='postgresql://...' python export_seeds.py   # tools_data.json 등 재작성
+```
+- `tools_data.json` 은 라이브 superset 이라 갱신 대상. `tags_seed.json`/`benchmarks_data.json` 은 라이브가 더 적거나 동일이면 **curated 원본 유지**(덮어쓰기 손실 주의).
+
 ## TODO (후속, 이번 범위 밖)
 
 - 수집 소스 확장(RSS 피드/리포/벤치마크), 슬랙 알림은 후속.
+- 정기 백업 자동화(GitHub Actions cron → `backup_db.py` → 아티팩트 업로드)는 후속.
