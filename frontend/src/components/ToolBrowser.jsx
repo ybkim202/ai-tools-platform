@@ -3,13 +3,14 @@ import { useSearchParams } from 'react-router-dom';
 import { toolsAPI, handleApiError } from '../services/api';
 import ToolCard from './ToolCard';
 import Pagination from './Pagination';
-import { LoadingState, EmptyFilteredState, ErrorState } from './states/StateViews';
+import { EmptyFilteredState, ErrorState } from './states/StateViews';
+import { ToolGridSkeleton } from './Skeletons';
 import '../styles/Home.css';
+import '../styles/Explore.css';
 
-// 전체 도구 탐색 UI(검색·필터·정렬·페이지네이션·그리드·비교 트레이).
-// Home(랜딩)과 Explore(전체 탐색)가 공유한다 — 중복 제거. 정렬/필터/페이지는 전부
-// 서버로 위임(sort_by/limit/offset), 클라 재정렬 없음. 카테고리/난이도 목록은 DB
-// 메타에서만 채운다(하드코딩 금지 G5/G6).
+// 전체 도구 탐색 UI — 퍼싯 사이드바(데스크톱)/필터 드로어(모바일) + 결과 그리드.
+// 정렬/필터/페이지는 전부 서버로 위임(sort_by/limit/offset), 클라 재정렬 없음.
+// 카테고리/난이도 목록은 DB 메타에서만 채운다(하드코딩 금지 G5/G6).
 const PAGE_SIZE = 21;
 const SEARCH_DEBOUNCE_MS = 300;
 // 라이선스 필터 옵션(2값 도메인이라 정적 허용 — 하드코딩 카테고리와 무관).
@@ -53,11 +54,22 @@ const ToolBrowser = () => {
   const [categories, setCategories] = useState(['전체']);
   const [difficulties, setDifficulties] = useState(['전체']);
 
+  // 모바일 필터 드로어 열림 + 카테고리 퍼싯 내 검색어(긴 목록 정리).
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [catQuery, setCatQuery] = useState('');
+
   const isFiltered =
     search !== '' ||
     selectedCategory !== '전체' ||
     selectedDifficulty !== '전체' ||
     selectedLicense !== 'all';
+
+  // 활성 퍼싯(검색 제외) 수 — 모바일 필터 버튼 배지.
+  const activeFacetCount = [
+    selectedCategory !== '전체',
+    selectedDifficulty !== '전체',
+    selectedLicense !== 'all',
+  ].filter(Boolean).length;
 
   // 난이도 필터가 활성이면 "난이도순" 정렬은 의미 없음 → 비활성 대상.
   const difficultySortDisabled = selectedDifficulty !== '전체';
@@ -94,7 +106,7 @@ const ToolBrowser = () => {
         }
       })
       .catch(() => {
-        // 메타 로드 실패: '전체'만 유지(과한 스켈레톤 회피).
+        // 메타 로드 실패: '전체'만 유지.
       });
     return () => {
       active = false;
@@ -113,12 +125,27 @@ const ToolBrowser = () => {
     return () => clearTimeout(id);
   }, [searchInput]);
 
+  // 모바일 드로어 열릴 때 body 스크롤 잠금 + ESC 닫기.
+  useEffect(() => {
+    if (!filtersOpen) return undefined;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setFiltersOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [filtersOpen]);
+
   const resetFilters = () => {
     setSearchInput('');
     setSearch('');
     setSelectedCategory('전체');
     setSelectedDifficulty('전체');
     setSelectedLicense('all');
+    setCatQuery('');
     setCurrentPage(1);
   };
 
@@ -234,124 +261,230 @@ const ToolBrowser = () => {
     }
   };
 
+  const pickCategory = (cat) => {
+    setSelectedCategory(cat);
+    setCurrentPage(1);
+  };
+  const pickDifficulty = (diff) => {
+    setSelectedDifficulty(diff);
+    setCurrentPage(1);
+  };
+  const pickLicense = (key) => {
+    setSelectedLicense(key);
+    setCurrentPage(1);
+  };
+
+  // 카테고리 퍼싯 내 검색(클라 필터) — '전체'는 항상 노출.
+  const q = catQuery.trim().toLowerCase();
+  const visibleCats = categories.filter(
+    (c) => c === '전체' || c.toLowerCase().includes(q)
+  );
+
+  // 퍼싯 옵션 버튼(재사용).
+  const FacetOption = ({ active, onClick, children }) => (
+    <button
+      type="button"
+      className={`facet-option${active ? ' active' : ''}`}
+      aria-pressed={active}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+
   return (
-    <>
-      {/* Search & Filter Section */}
-      <section className="search-filter" id="tools">
-        <div className="container">
-          {/* Search */}
-          <div className="search-wrapper">
-            <div className="search-input-group">
-              <svg
-                className="search-icon"
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-              >
-                <path
-                  d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zm4.5-4.5l3.5 3.5"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <input
-                type="text"
-                placeholder="도구 이름, 기능으로 검색..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                className="search-input"
-                aria-label="도구 검색"
-              />
-              {searchInput !== '' && (
+    <div className="explore-browser" id="tools">
+      {/* 검색(전체폭) */}
+      <div className="search-wrapper explore-search">
+        <div className="search-input-group">
+          <svg
+            className="search-icon"
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zm4.5-4.5l3.5 3.5"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+          <input
+            type="text"
+            placeholder="도구 이름, 기능으로 검색..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="search-input"
+            aria-label="도구 검색"
+          />
+          {searchInput !== '' && (
+            <button
+              type="button"
+              className="search-clear"
+              aria-label="검색어 지우기"
+              onClick={() => {
+                setSearchInput('');
+                setSearch('');
+                setCurrentPage(1);
+              }}
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="explore-layout">
+        {/* 모바일 드로어 오버레이 */}
+        <div
+          className={`explore-drawer-overlay${filtersOpen ? ' is-open' : ''}`}
+          onClick={() => setFiltersOpen(false)}
+          aria-hidden="true"
+        />
+
+        {/* 퍼싯 사이드바(데스크톱)/드로어(모바일) */}
+        <aside
+          className={`explore-sidebar${filtersOpen ? ' is-open' : ''}`}
+          aria-label="필터"
+        >
+          <div className="explore-sidebar-head">
+            <h2 className="explore-sidebar-title">필터</h2>
+            <div className="explore-sidebar-head-actions">
+              {isFiltered && (
                 <button
                   type="button"
-                  className="search-clear"
-                  aria-label="검색어 지우기"
-                  onClick={() => {
-                    setSearchInput('');
-                    setSearch('');
-                    setCurrentPage(1);
-                  }}
+                  className="ghost-button"
+                  onClick={resetFilters}
                 >
-                  <span aria-hidden="true">×</span>
+                  초기화
                 </button>
               )}
+              <button
+                type="button"
+                className="explore-sidebar-close"
+                aria-label="필터 닫기"
+                onClick={() => setFiltersOpen(false)}
+              >
+                <span aria-hidden="true">×</span>
+              </button>
             </div>
           </div>
 
-          {/* Filters */}
-          <div className="filters-section">
-            <div className="filter-group">
-              <label className="filter-label">카테고리</label>
-              <div className="filter-buttons">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    className={`filter-btn ${
-                      selectedCategory === cat ? 'active' : ''
-                    }`}
-                    aria-pressed={selectedCategory === cat}
-                    onClick={() => {
-                      setSelectedCategory(cat);
-                      setCurrentPage(1);
-                    }}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
+          {/* 카테고리 — 목록 + 목록 내 검색(긴 목록 정리) */}
+          <fieldset className="facet-group">
+            <legend className="facet-legend">카테고리</legend>
+            <input
+              type="text"
+              className="facet-search"
+              placeholder="카테고리 검색..."
+              value={catQuery}
+              onChange={(e) => setCatQuery(e.target.value)}
+              aria-label="카테고리 목록 검색"
+            />
+            <div className="facet-list facet-list--scroll" role="group">
+              {visibleCats.map((cat) => (
+                <FacetOption
+                  key={cat}
+                  active={selectedCategory === cat}
+                  onClick={() => pickCategory(cat)}
+                >
+                  {cat}
+                </FacetOption>
+              ))}
+              {visibleCats.length === 0 && (
+                <p className="facet-empty">일치하는 카테고리가 없어요</p>
+              )}
             </div>
+          </fieldset>
 
-            <div className="filter-group">
-              <label className="filter-label">난이도</label>
-              <div className="filter-buttons">
-                {difficulties.map((diff) => (
-                  <button
-                    key={diff}
-                    className={`filter-btn ${
-                      selectedDifficulty === diff ? 'active' : ''
-                    }`}
-                    aria-pressed={selectedDifficulty === diff}
-                    onClick={() => {
-                      setSelectedDifficulty(diff);
-                      setCurrentPage(1);
-                    }}
-                  >
-                    {diff}
-                  </button>
-                ))}
-              </div>
+          {/* 난이도 */}
+          <fieldset className="facet-group">
+            <legend className="facet-legend">난이도</legend>
+            <div className="facet-list facet-list--inline" role="group">
+              {difficulties.map((diff) => (
+                <FacetOption
+                  key={diff}
+                  active={selectedDifficulty === diff}
+                  onClick={() => pickDifficulty(diff)}
+                >
+                  {diff}
+                </FacetOption>
+              ))}
             </div>
+          </fieldset>
 
-            <div className="filter-group">
-              <label className="filter-label">라이선스</label>
-              <div className="filter-buttons">
-                {LICENSE_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.key}
-                    className={`filter-btn ${
-                      selectedLicense === opt.key ? 'active' : ''
-                    }`}
-                    aria-pressed={selectedLicense === opt.key}
-                    onClick={() => {
-                      setSelectedLicense(opt.key);
-                      setCurrentPage(1);
-                    }}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
+          {/* 라이선스 */}
+          <fieldset className="facet-group">
+            <legend className="facet-legend">라이선스</legend>
+            <div className="facet-list facet-list--inline" role="group">
+              {LICENSE_OPTIONS.map((opt) => (
+                <FacetOption
+                  key={opt.key}
+                  active={selectedLicense === opt.key}
+                  onClick={() => pickLicense(opt.key)}
+                >
+                  {opt.label}
+                </FacetOption>
+              ))}
+            </div>
+          </fieldset>
+        </aside>
+
+        {/* 결과 */}
+        <div className="explore-results">
+          {/* 결과 툴바: 모바일 필터 버튼 · 개수 · 정렬 */}
+          <div className="explore-results-bar">
+            <button
+              type="button"
+              className="explore-filter-toggle"
+              aria-expanded={filtersOpen}
+              onClick={() => setFiltersOpen(true)}
+            >
+              필터{activeFacetCount > 0 ? ` (${activeFacetCount})` : ''}
+            </button>
+            <p className="tools-count" aria-live="polite">
+              {loading ? '불러오는 중…' : `${totalCount}개의 AI 도구`}
+            </p>
+            <div className="tools-sort">
+              <span className="filter-label" id="tools-sort-label">
+                정렬
+              </span>
+              <div
+                className="filter-buttons tools-sort-chips"
+                role="group"
+                aria-labelledby="tools-sort-label"
+              >
+                {SORT_OPTIONS.map((key) => {
+                  const disabled =
+                    key === 'difficulty' && difficultySortDisabled;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      className={`filter-btn ${sortBy === key ? 'active' : ''}`}
+                      aria-pressed={sortBy === key}
+                      disabled={disabled}
+                      title={
+                        disabled
+                          ? '난이도로 필터 중에는 난이도순 정렬이 의미 없습니다'
+                          : undefined
+                      }
+                      onClick={() => {
+                        setSortBy(key);
+                        setCurrentPage(1);
+                      }}
+                    >
+                      {SORT_LABELS[key]}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Tools Section */}
-      <section className="tools-section">
-        <div className="container">
           {activeFilters.length > 0 && (
             <div className="active-filters" role="status" aria-live="polite">
               {activeFilters.map((f) => (
@@ -367,73 +500,31 @@ const ToolBrowser = () => {
                   </button>
                 </span>
               ))}
-              <button type="button" className="ghost-button" onClick={resetFilters}>
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={resetFilters}
+              >
                 모두 지우기
               </button>
             </div>
           )}
 
-          {loading && <LoadingState message="도구를 불러오는 중..." />}
-
-          {error && !loading && (
+          {loading ? (
+            <ToolGridSkeleton count={9} />
+          ) : error ? (
             <ErrorState
               message={error?.message}
               errorId={error?.errorId}
               onRetry={fetchTools}
             />
-          )}
-
-          {!loading && !error && tools.length > 0 && (
+          ) : tools.length > 0 ? (
             <>
-              <div className="tools-header">
-                <div className="tools-header-text">
-                  <h2 className="tools-title">발견한 도구</h2>
-                  <p className="tools-count" aria-live="polite">
-                    {totalCount}개의 AI 도구 · {SORT_LABELS[sortBy]}
-                  </p>
-                </div>
-                <div className="tools-sort">
-                  <span className="filter-label" id="tools-sort-label">
-                    정렬
-                  </span>
-                  <div
-                    className="filter-buttons tools-sort-chips"
-                    role="group"
-                    aria-labelledby="tools-sort-label"
-                  >
-                    {SORT_OPTIONS.map((key) => {
-                      const disabled =
-                        key === 'difficulty' && difficultySortDisabled;
-                      return (
-                        <button
-                          key={key}
-                          type="button"
-                          className={`filter-btn ${sortBy === key ? 'active' : ''}`}
-                          aria-pressed={sortBy === key}
-                          disabled={disabled}
-                          title={
-                            disabled
-                              ? '난이도로 필터 중에는 난이도순 정렬이 의미 없습니다'
-                              : undefined
-                          }
-                          onClick={() => {
-                            setSortBy(key);
-                            setCurrentPage(1);
-                          }}
-                        >
-                          {SORT_LABELS[key]}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
               <div className="tools-grid">
                 {tools.map((tool) => (
                   <ToolCard key={tool.id} tool={tool} />
                 ))}
               </div>
-
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
@@ -441,20 +532,20 @@ const ToolBrowser = () => {
                 ariaLabel="페이지 네비게이션"
               />
             </>
-          )}
-
-          {!loading && !error && tools.length === 0 && (
+          ) : (
             <EmptyFilteredState
               title={
-                isFiltered ? '조건에 맞는 결과가 없습니다' : '표시할 도구가 없습니다'
+                isFiltered
+                  ? '조건에 맞는 결과가 없습니다'
+                  : '표시할 도구가 없습니다'
               }
               message="필터나 검색어를 바꿔보세요"
               onReset={isFiltered ? resetFilters : undefined}
             />
           )}
         </div>
-      </section>
-    </>
+      </div>
+    </div>
   );
 };
 

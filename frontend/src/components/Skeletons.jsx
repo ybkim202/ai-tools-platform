@@ -134,6 +134,36 @@ export const TrendBentoSkeleton = () => (
   </div>
 );
 
+// 6) 탐색 그리드 — 도구 카드 스켈레톤(ToolCard 형상) N개.
+export const ToolGridSkeleton = ({ count = 9 }) => (
+  <div
+    className="tools-grid"
+    role="status"
+    aria-busy="true"
+    aria-label="도구 불러오는 중"
+  >
+    {times(count).map((_, i) => (
+      <div key={i} className="rec-card-skel">
+        <div className="rec-card-skel-head">
+          <Block w="40px" h="40px" r="var(--radius-md)" />
+          <Block w="55%" h="16px" />
+        </div>
+        <div className="rec-card-skel-lines">
+          <Block w="100%" h="12px" />
+          <Block w="90%" h="12px" />
+          <Block w="70%" h="12px" />
+        </div>
+        <Block w="45%" h="14px" />
+        <div className="rec-card-skel-foot">
+          <Block w="100%" h="40px" r="var(--radius-md)" />
+          <Block w="72px" h="40px" r="var(--radius-md)" />
+        </div>
+      </div>
+    ))}
+    <span className="sr-only">불러오는 중…</span>
+  </div>
+);
+
 // 5) 성능 벤치마크 — 좌 탭 + 우 막대 스켈레톤.
 export const BenchTeaserSkeleton = () => (
   <div
