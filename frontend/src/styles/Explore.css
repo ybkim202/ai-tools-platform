@@ -160,8 +160,38 @@
 }
 
 .facet-list--scroll .facet-option {
-  justify-content: flex-start;
+  justify-content: space-between;
   width: 100%;
+}
+
+.facet-option-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 퍼싯 카운트 배지 — 보조톤 숫자(색 단독 아님, 라벨 병행). */
+.facet-count {
+  flex-shrink: 0;
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.facet-option.active .facet-count {
+  color: var(--color-primary-darker);
+}
+
+/* 0건 등 비활성 — 흐리게, 상호작용 없음. */
+.facet-option:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.facet-option:disabled:hover {
+  background-color: transparent;
+  color: var(--color-text-secondary);
 }
 
 .facet-option:hover {
@@ -300,4 +330,17 @@
     margin-left: 0;
     width: 100%;
   }
+}
+
+/* ── 보기 밀도 토글 + 컴팩트 그리드 ── */
+.explore-viewtoggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* 촘촘히: 더 좁은 최소폭 → 열 수 증가(밀도↑). ToolCard는 반응형이라 그대로 재사용. */
+.tools-grid--compact {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--spacing-md);
 }
