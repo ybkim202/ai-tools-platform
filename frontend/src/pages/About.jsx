@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { trackEvent, toolsAPI } from '../services/api';
+import CuratedHeroLive from '../components/CuratedHeroLive';
 import '../styles/About.css';
 
 // 전환 추적: 모든 About CTA 클릭은 단일 name 사용. target으로 위치를 구분한다.
@@ -190,8 +191,14 @@ const About = () => {
   const [meta, setMeta] = useState({ totalTools: null, totalCategories: null });
   // sticky CTA 는 Hero를 지나친 뒤에만 노출(초기 시야 방해 방지).
   const [showSticky, setShowSticky] = useState(false);
+  // Hero 우측 큐레이션 위젯 데이터 유무 — 없으면 1단(카피 중앙)으로 graceful 복귀.
+  const [heroHasWidget, setHeroHasWidget] = useState(true);
   const heroRef = useRef(null);
   const [statsRef, statsInView] = useInView();
+
+  const handleHeroResolved = useCallback((hasData) => {
+    setHeroHasWidget(hasData);
+  }, []);
 
   const toolsCount = useCountUp(meta.totalTools, statsInView);
   const catCount = useCountUp(meta.totalCategories, statsInView);
@@ -240,7 +247,11 @@ const About = () => {
       <section className="about-hero" ref={heroRef}>
         <div className="hero-gradient" />
         <div className="container">
-          <div className="about-hero-grid">
+          <div
+            className={`about-hero-grid${
+              heroHasWidget ? '' : ' about-hero-grid--solo'
+            }`}
+          >
             <div className="hero-content about-hero-copy">
               <span className="hero-badge">AI 도구 비교 플랫폼</span>
               <h1 className="hero-title">
@@ -275,39 +286,12 @@ const About = () => {
               </ul>
             </div>
 
-            {/* 제품 프리뷰(장식) — 실 UI를 축약한 글래스 목업. 데이터 의존 없음. */}
-            <div className="about-hero-preview glass-soft" aria-hidden="true">
-              <div className="about-preview-head">
-                <span className="about-preview-dot" />
-                <span className="about-preview-dot" />
-                <span className="about-preview-dot" />
-                <span className="about-preview-title">나란히 비교</span>
+            {/* 제품 프리뷰 — 실제 큐레이션 위젯(실 로고·실 순위). 데이터 없으면 1단 복귀. */}
+            {heroHasWidget && (
+              <div className="about-hero-widget">
+                <CuratedHeroLive onResolved={handleHeroResolved} />
               </div>
-              <div className="about-preview-cols">
-                {[
-                  { n: 'Tool A', s: 92 },
-                  { n: 'Tool B', s: 78 },
-                  { n: 'Tool C', s: 64 },
-                ].map((t) => (
-                  <div className="about-preview-col" key={t.n}>
-                    <span className="about-preview-logo" />
-                    <span className="about-preview-name">{t.n}</span>
-                    <span className="about-preview-bar">
-                      <span
-                        className="about-preview-fill"
-                        style={{ width: `${t.s}%` }}
-                      />
-                    </span>
-                    <span className="about-preview-score">{t.s}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="about-preview-foot">
-                <span className="about-preview-chip">가격</span>
-                <span className="about-preview-chip">난이도</span>
-                <span className="about-preview-chip">벤치마크</span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </section>

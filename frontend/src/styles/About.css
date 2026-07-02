@@ -17,14 +17,33 @@
   overflow: hidden;
 }
 
-/* 2단 그리드 — 좌: 카피/CTA 앵커, 우: 제품 프리뷰 목업. */
+/* 2단 그리드 — 좌: 카피/CTA 앵커, 우: 실제 큐레이션 위젯. */
 .about-hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--spacing-3xl);
   align-items: center;
-  max-width: 1080px;
+  max-width: 1120px;
   margin: 0 auto;
+}
+
+/* 위젯 데이터 없음 → 1단 복귀(카피 중앙 정렬, 원래 About Hero 형태). */
+.about-hero-grid--solo {
+  grid-template-columns: 1fr;
+  max-width: 760px;
+}
+
+.about-hero-grid--solo .about-hero-copy {
+  text-align: center;
+}
+
+.about-hero-grid--solo .about-hero-copy .hero-title,
+.about-hero-grid--solo .about-hero-copy .hero-subtitle {
+  text-align: center;
+}
+
+.about-hero-grid--solo .about-hero-copy .about-hero-meta {
+  justify-content: center;
 }
 
 /* 좌측 카피는 좌측 정렬(2단 레이아웃). 기존 중앙정렬 오버라이드. */
@@ -44,98 +63,9 @@
   justify-content: flex-start;
 }
 
-/* 제품 프리뷰 — 실 UI(나란히 비교)를 축약한 글래스 목업. 장식(aria-hidden). */
-.about-hero-preview {
+/* 실제 큐레이션 위젯 컨테이너 — 그리드 자식 오버플로 방지. */
+.about-hero-widget {
   min-width: 0;
-  border-radius: var(--radius-3xl);
-  padding: var(--spacing-lg);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
-}
-
-.about-preview-head {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
-
-.about-preview-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: var(--radius-full);
-  background-color: var(--color-border);
-}
-
-.about-preview-title {
-  margin-left: var(--spacing-sm);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-text-secondary);
-}
-
-.about-preview-cols {
-  display: grid;
-  /* minmax(0,1fr) — 컬럼이 min-content 아래로도 줄어 좁은 폭 가로 오버플로 방지. */
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--spacing-md);
-}
-
-.about-preview-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-sm);
-  text-align: center;
-}
-
-.about-preview-logo {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-md);
-  background-color: var(--color-primary-surface);
-}
-
-.about-preview-name {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.about-preview-bar {
-  width: 100%;
-  height: 6px;
-  border-radius: var(--radius-full);
-  background-color: var(--color-primary-surface);
-  overflow: hidden;
-}
-
-.about-preview-fill {
-  display: block;
-  height: 100%;
-  border-radius: var(--radius-full);
-  background-color: var(--color-primary);
-}
-
-.about-preview-score {
-  font-size: var(--font-size-lg);
-  font-weight: 700;
-  color: var(--color-text-primary);
-}
-
-.about-preview-foot {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
-}
-
-.about-preview-chip {
-  padding: var(--spacing-xs) var(--spacing-md);
-  border-radius: var(--radius-full);
-  background-color: var(--color-primary-surface);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-text-secondary);
 }
 
 /* ── 공용 섹션 헤더(페르소나·증거 섹션 공유). */
@@ -521,10 +451,6 @@
   .about-hero-grid {
     grid-template-columns: 1fr;
     gap: var(--spacing-2xl);
-  }
-
-  .about-hero-preview {
-    max-width: min(480px, 100%);
   }
 
   .about-persona-grid,
