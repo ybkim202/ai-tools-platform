@@ -58,9 +58,18 @@ def get_tools(
             )
             params["search"] = f"%{search}%"
 
+        # 카테고리: 단일(= :category) 또는 다중(콤마구분 → IN). 다중은 정적 placeholder
+        # 이름(:cat0,:cat1,…)만 query 에 누적하고 값은 전부 params 바인딩 → 인젝션 안전.
         if category:
-            query += " AND category = :category"
-            params["category"] = category
+            cats = [c.strip() for c in category.split(",") if c.strip()]
+            if len(cats) == 1:
+                query += " AND category = :category"
+                params["category"] = cats[0]
+            elif len(cats) > 1:
+                placeholders = ", ".join(f":cat{i}" for i in range(len(cats)))
+                query += f" AND category IN ({placeholders})"
+                for i, c in enumerate(cats):
+                    params[f"cat{i}"] = c
 
         if country:
             query += " AND country = :country"
@@ -232,6 +241,37 @@ def get_tools_meta(db: Session = Depends(get_db)):
         tasks = [row[0] for row in tag_rows if row[1] == "task"]
         professions = [row[0] for row in tag_rows if row[1] == "profession"]
 
+        # 퍼싯 카운트(전역) — 각 필터값의 도구 수. 탐색 사이드바가 "(N)"·0건 비활성에
+        # 사용(기대치 설정·빈결과 예방). 전부 고정 SQL(사용자 입력 보간 없음).
+        category_count_rows = db.execute(
+            text(
+                "SELECT category, COUNT(*) FROM tools "
+                "WHERE category IS NOT NULL AND category <> '' "
+                "GROUP BY category"
+            )
+        ).fetchall()
+        category_counts = {row[0]: int(row[1]) for row in category_count_rows}
+
+        difficulty_count_rows = db.execute(
+            text(
+                "SELECT difficulty, COUNT(*) FROM tools "
+                "WHERE difficulty IS NOT NULL AND difficulty <> '' "
+                "GROUP BY difficulty"
+            )
+        ).fetchall()
+        difficulty_counts = {row[0]: int(row[1]) for row in difficulty_count_rows}
+
+        # 라이선스: github_repo 보유 = 오픈소스(is_open_source 파생 규칙과 동일).
+        license_count_rows = db.execute(
+            text(
+                "SELECT (github_repo IS NOT NULL) AS is_open, COUNT(*) "
+                "FROM tools GROUP BY (github_repo IS NOT NULL)"
+            )
+        ).fetchall()
+        license_counts = {"open": 0, "proprietary": 0}
+        for is_open, cnt in license_count_rows:
+            license_counts["open" if is_open else "proprietary"] = int(cnt)
+
         # About 페이지 Hero 앵커 수치용 실데이터 카운트.
         # 고정 SQL(사용자 입력 보간 없음). total_categories 는 추가 쿼리 없이
         # 위 distinct categories 길이를 재사용한다.
@@ -246,6 +286,9 @@ def get_tools_meta(db: Session = Depends(get_db)):
                 "difficulties": difficulties,
                 "tasks": tasks,
                 "professions": professions,
+                "category_counts": category_counts,
+                "difficulty_counts": difficulty_counts,
+                "license_counts": license_counts,
                 "total_tools": int(total_tools),
                 "total_categories": total_categories,
             },

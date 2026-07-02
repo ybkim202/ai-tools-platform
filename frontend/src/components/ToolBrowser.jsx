@@ -8,23 +8,19 @@ import { ToolGridSkeleton } from './Skeletons';
 import '../styles/Home.css';
 import '../styles/Explore.css';
 
-// 전체 도구 탐색 UI — 퍼싯 사이드바(데스크톱)/필터 드로어(모바일) + 결과 그리드.
-// 정렬/필터/페이지는 전부 서버로 위임(sort_by/limit/offset), 클라 재정렬 없음.
-// 카테고리/난이도 목록은 DB 메타에서만 채운다(하드코딩 금지 G5/G6).
+// 전체 도구 탐색 UI — 퍼싯 사이드바(카운트·다중선택)/필터 드로어(모바일) + 결과 그리드.
+// 정렬/필터/페이지는 전부 서버로 위임. 카테고리/난이도·카운트는 DB 메타에서만(하드코딩 금지).
 const PAGE_SIZE = 21;
 const SEARCH_DEBOUNCE_MS = 300;
-// 라이선스 필터 옵션(2값 도메인이라 정적 허용 — 하드코딩 카테고리와 무관).
 const LICENSE_OPTIONS = [
   { key: 'all', label: '전체', param: undefined },
   { key: 'open', label: '오픈소스', param: true },
   { key: 'prop', label: '독점', param: false },
 ];
-
 const SORT_LABELS = { popularity: '인기순', name: '이름순', difficulty: '난이도순' };
 const SORT_OPTIONS = ['popularity', 'name', 'difficulty'];
 
 const ToolBrowser = () => {
-  // 딥링크: /explore?search=q&category=디자인 진입 시 초기값으로 1회 흡수(공유 링크).
   const [searchParams] = useSearchParams();
 
   const [tools, setTools] = useState([]);
@@ -35,9 +31,11 @@ const ToolBrowser = () => {
     () => searchParams.get('search') || ''
   );
   const [search, setSearch] = useState(() => searchParams.get('search') || '');
-  const [selectedCategory, setSelectedCategory] = useState(
-    () => searchParams.get('category') || '전체'
-  );
+  // 카테고리 다중선택(Set) — 그룹 내 OR. 빈 Set = '전체'. 딥링크 단일 카테고리 흡수.
+  const [selectedCategories, setSelectedCategories] = useState(() => {
+    const c = searchParams.get('category');
+    return new Set(c ? [c] : []);
+  });
   const [selectedDifficulty, setSelectedDifficulty] = useState('전체');
   const [selectedLicense, setSelectedLicense] = useState('all');
   const [sortBy, setSortBy] = useState(() => {
@@ -47,43 +45,44 @@ const ToolBrowser = () => {
       return 'popularity';
     }
   });
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'compact'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // 카테고리/난이도는 실제 DB 메타에서 동적으로 채운다(하드코딩 목록 금지).
   const [categories, setCategories] = useState(['전체']);
   const [difficulties, setDifficulties] = useState(['전체']);
+  // 퍼싯 카운트(전역) — 메타에서. 없으면(구버전 백엔드) 카운트 미표시·전부 활성.
+  const [counts, setCounts] = useState({
+    category: {},
+    difficulty: {},
+    license: { open: 0, proprietary: 0 },
+    total: 0,
+  });
 
-  // 모바일 필터 드로어 열림 + 카테고리 퍼싯 내 검색어(긴 목록 정리).
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [catQuery, setCatQuery] = useState('');
 
   const isFiltered =
     search !== '' ||
-    selectedCategory !== '전체' ||
+    selectedCategories.size > 0 ||
     selectedDifficulty !== '전체' ||
     selectedLicense !== 'all';
 
-  // 활성 퍼싯(검색 제외) 수 — 모바일 필터 버튼 배지.
-  const activeFacetCount = [
-    selectedCategory !== '전체',
-    selectedDifficulty !== '전체',
-    selectedLicense !== 'all',
-  ].filter(Boolean).length;
+  const activeFacetCount =
+    selectedCategories.size +
+    (selectedDifficulty !== '전체' ? 1 : 0) +
+    (selectedLicense !== 'all' ? 1 : 0);
 
-  // 난이도 필터가 활성이면 "난이도순" 정렬은 의미 없음 → 비활성 대상.
   const difficultySortDisabled = selectedDifficulty !== '전체';
 
-  // 정렬값 영속화(저장). 복원은 초기 state에서 처리.
   useEffect(() => {
     try {
       sessionStorage.setItem('home-sort-by', sortBy);
     } catch {
-      // 저장 불가(프라이빗 모드 등): 영속화만 생략, 동작은 유지.
+      /* 영속화만 생략 */
     }
   }, [sortBy]);
 
-  // 난이도순이던 중 난이도 필터가 켜지면 인기순으로 폴백(중복 의미 제거).
   useEffect(() => {
     if (difficultySortDisabled && sortBy === 'difficulty') {
       setSortBy('popularity');
@@ -104,16 +103,21 @@ const ToolBrowser = () => {
         if (Array.isArray(meta.difficulties) && meta.difficulties.length > 0) {
           setDifficulties(['전체', ...meta.difficulties]);
         }
+        setCounts({
+          category: meta.category_counts || {},
+          difficulty: meta.difficulty_counts || {},
+          license: meta.license_counts || { open: 0, proprietary: 0 },
+          total: Number(meta.total_tools) || 0,
+        });
       })
       .catch(() => {
-        // 메타 로드 실패: '전체'만 유지.
+        /* 메타 실패: '전체'만 유지, 카운트 미표시 */
       });
     return () => {
       active = false;
     };
   }, []);
 
-  // 검색어 디바운스: 입력 멈춤 후 적용값(search)을 갱신 + 1페이지로 리셋.
   useEffect(() => {
     const id = setTimeout(() => {
       setSearch((prev) => {
@@ -125,7 +129,6 @@ const ToolBrowser = () => {
     return () => clearTimeout(id);
   }, [searchInput]);
 
-  // 모바일 드로어 열릴 때 body 스크롤 잠금 + ESC 닫기.
   useEffect(() => {
     if (!filtersOpen) return undefined;
     const onKey = (e) => {
@@ -142,14 +145,14 @@ const ToolBrowser = () => {
   const resetFilters = () => {
     setSearchInput('');
     setSearch('');
-    setSelectedCategory('전체');
+    setSelectedCategories(new Set());
     setSelectedDifficulty('전체');
     setSelectedLicense('all');
     setCatQuery('');
     setCurrentPage(1);
   };
 
-  // 활성 필터 칩 목록(라벨 텍스트 항상 포함 — 색 단독 의미전달 금지).
+  // ── 활성 필터 칩(라벨 텍스트 항상 포함) ──
   const activeFilters = [];
   if (search !== '') {
     activeFilters.push({
@@ -163,17 +166,21 @@ const ToolBrowser = () => {
       },
     });
   }
-  if (selectedCategory !== '전체') {
+  [...selectedCategories].forEach((cat) => {
     activeFilters.push({
-      key: 'category',
+      key: `cat:${cat}`,
       label: '카테고리',
-      value: selectedCategory,
+      value: cat,
       onRemove: () => {
-        setSelectedCategory('전체');
+        setSelectedCategories((prev) => {
+          const next = new Set(prev);
+          next.delete(cat);
+          return next;
+        });
         setCurrentPage(1);
       },
     });
-  }
+  });
   if (selectedDifficulty !== '전체') {
     activeFilters.push({
       key: 'difficulty',
@@ -203,7 +210,9 @@ const ToolBrowser = () => {
     try {
       const params = {
         search: search || undefined,
-        category: selectedCategory !== '전체' ? selectedCategory : undefined,
+        category: selectedCategories.size
+          ? [...selectedCategories].join(',')
+          : undefined,
         difficulty:
           selectedDifficulty !== '전체' ? selectedDifficulty : undefined,
         open_source: LICENSE_OPTIONS.find((o) => o.key === selectedLicense)
@@ -214,24 +223,17 @@ const ToolBrowser = () => {
       };
 
       const response = await toolsAPI.getTools(params);
-
-      if (response.data && response.data.data) {
-        setTools(response.data.data);
-      } else if (Array.isArray(response.data)) {
-        setTools(response.data);
-      } else {
-        setTools([]);
-      }
+      setTools(
+        response.data?.data ||
+          (Array.isArray(response.data) ? response.data : [])
+      );
 
       const pagination = response.data?.pagination;
       if (pagination) {
         const pages = Number(pagination.pages) || 1;
-        const total = Number(pagination.total) || 0;
         setTotalPages(pages);
-        setTotalCount(total);
-        if (currentPage > pages && pages > 0) {
-          setCurrentPage(1);
-        }
+        setTotalCount(Number(pagination.total) || 0);
+        if (currentPage > pages && pages > 0) setCurrentPage(1);
       }
     } catch (err) {
       setError(handleApiError(err));
@@ -241,7 +243,7 @@ const ToolBrowser = () => {
     }
   }, [
     search,
-    selectedCategory,
+    selectedCategories,
     selectedDifficulty,
     selectedLicense,
     sortBy,
@@ -252,18 +254,26 @@ const ToolBrowser = () => {
     fetchTools();
   }, [fetchTools]);
 
-  // 페이지 이동: 상태 변경 후 결과 영역 상단으로 스크롤(맥락 유지).
   const goToPage = (page) => {
     setCurrentPage(page);
-    const target = document.getElementById('tools');
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    document
+      .getElementById('tools')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const pickCategory = (cat) => {
-    setSelectedCategory(cat);
+  // ── 퍼싯 선택 핸들러 ──
+  const toggleCategory = (cat) => {
     setCurrentPage(1);
+    if (cat === '전체') {
+      setSelectedCategories(new Set());
+      return;
+    }
+    setSelectedCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(cat)) next.delete(cat);
+      else next.add(cat);
+      return next;
+    });
   };
   const pickDifficulty = (diff) => {
     setSelectedDifficulty(diff);
@@ -274,27 +284,40 @@ const ToolBrowser = () => {
     setCurrentPage(1);
   };
 
-  // 카테고리 퍼싯 내 검색(클라 필터) — '전체'는 항상 노출.
+  // 퍼싯별 카운트('전체'=총계). 카운트 맵이 실제로 있을 때만 표시·0건 비활성.
+  // (구버전 백엔드는 total_tools만 주고 *_counts 는 없음 → 미표시·전부 활성으로 폴백.)
+  const hasCounts = Object.keys(counts.category).length > 0;
+  const catCount = (cat) =>
+    !hasCounts ? undefined : cat === '전체' ? counts.total : counts.category[cat] ?? 0;
+  const diffCount = (diff) =>
+    !hasCounts ? undefined : diff === '전체' ? counts.total : counts.difficulty[diff] ?? 0;
+  const licenseCount = (key) => {
+    if (!hasCounts) return undefined;
+    if (key === 'all') return counts.total;
+    return key === 'open' ? counts.license.open : counts.license.proprietary;
+  };
+
   const q = catQuery.trim().toLowerCase();
   const visibleCats = categories.filter(
     (c) => c === '전체' || c.toLowerCase().includes(q)
   );
 
-  // 퍼싯 옵션 버튼(재사용).
-  const FacetOption = ({ active, onClick, children }) => (
+  // 퍼싯 옵션 — 라벨 + 카운트(있으면). 0건은 비활성('전체' 제외).
+  const FacetOption = ({ active, count, disabled, onClick, children }) => (
     <button
       type="button"
       className={`facet-option${active ? ' active' : ''}`}
       aria-pressed={active}
+      disabled={disabled}
       onClick={onClick}
     >
-      {children}
+      <span className="facet-option-label">{children}</span>
+      {count !== undefined && <span className="facet-count">{count}</span>}
     </button>
   );
 
   return (
     <div className="explore-browser" id="tools">
-      {/* 검색(전체폭) */}
       <div className="search-wrapper explore-search">
         <div className="search-input-group">
           <svg
@@ -338,14 +361,12 @@ const ToolBrowser = () => {
       </div>
 
       <div className="explore-layout">
-        {/* 모바일 드로어 오버레이 */}
         <div
           className={`explore-drawer-overlay${filtersOpen ? ' is-open' : ''}`}
           onClick={() => setFiltersOpen(false)}
           aria-hidden="true"
         />
 
-        {/* 퍼싯 사이드바(데스크톱)/드로어(모바일) */}
         <aside
           className={`explore-sidebar${filtersOpen ? ' is-open' : ''}`}
           aria-label="필터"
@@ -373,9 +394,8 @@ const ToolBrowser = () => {
             </div>
           </div>
 
-          {/* 카테고리 — 목록 + 목록 내 검색(긴 목록 정리) */}
           <fieldset className="facet-group">
-            <legend className="facet-legend">카테고리</legend>
+            <legend className="facet-legend">카테고리 (여러 개 선택 가능)</legend>
             <input
               type="text"
               className="facet-search"
@@ -385,57 +405,72 @@ const ToolBrowser = () => {
               aria-label="카테고리 목록 검색"
             />
             <div className="facet-list facet-list--scroll" role="group">
-              {visibleCats.map((cat) => (
-                <FacetOption
-                  key={cat}
-                  active={selectedCategory === cat}
-                  onClick={() => pickCategory(cat)}
-                >
-                  {cat}
-                </FacetOption>
-              ))}
+              {visibleCats.map((cat) => {
+                const n = catCount(cat);
+                const active =
+                  cat === '전체'
+                    ? selectedCategories.size === 0
+                    : selectedCategories.has(cat);
+                return (
+                  <FacetOption
+                    key={cat}
+                    active={active}
+                    count={n}
+                    disabled={cat !== '전체' && n === 0}
+                    onClick={() => toggleCategory(cat)}
+                  >
+                    {cat}
+                  </FacetOption>
+                );
+              })}
               {visibleCats.length === 0 && (
                 <p className="facet-empty">일치하는 카테고리가 없어요</p>
               )}
             </div>
           </fieldset>
 
-          {/* 난이도 */}
           <fieldset className="facet-group">
             <legend className="facet-legend">난이도</legend>
             <div className="facet-list facet-list--inline" role="group">
-              {difficulties.map((diff) => (
-                <FacetOption
-                  key={diff}
-                  active={selectedDifficulty === diff}
-                  onClick={() => pickDifficulty(diff)}
-                >
-                  {diff}
-                </FacetOption>
-              ))}
+              {difficulties.map((diff) => {
+                const n = diffCount(diff);
+                return (
+                  <FacetOption
+                    key={diff}
+                    active={selectedDifficulty === diff}
+                    count={n}
+                    disabled={diff !== '전체' && n === 0}
+                    onClick={() => pickDifficulty(diff)}
+                  >
+                    {diff}
+                  </FacetOption>
+                );
+              })}
             </div>
           </fieldset>
 
-          {/* 라이선스 */}
           <fieldset className="facet-group">
             <legend className="facet-legend">라이선스</legend>
             <div className="facet-list facet-list--inline" role="group">
-              {LICENSE_OPTIONS.map((opt) => (
-                <FacetOption
-                  key={opt.key}
-                  active={selectedLicense === opt.key}
-                  onClick={() => pickLicense(opt.key)}
-                >
-                  {opt.label}
-                </FacetOption>
-              ))}
+              {LICENSE_OPTIONS.map((opt) => {
+                const n = licenseCount(opt.key);
+                return (
+                  <FacetOption
+                    key={opt.key}
+                    active={selectedLicense === opt.key}
+                    count={n}
+                    disabled={opt.key !== 'all' && n === 0}
+                    onClick={() => pickLicense(opt.key)}
+                  >
+                    {opt.label}
+                  </FacetOption>
+                );
+              })}
             </div>
           </fieldset>
         </aside>
 
-        {/* 결과 */}
         <div className="explore-results">
-          {/* 결과 툴바: 모바일 필터 버튼 · 개수 · 정렬 */}
           <div className="explore-results-bar">
             <button
               type="button"
@@ -448,6 +483,24 @@ const ToolBrowser = () => {
             <p className="tools-count" aria-live="polite">
               {loading ? '불러오는 중…' : `${totalCount}개의 AI 도구`}
             </p>
+            <div className="explore-viewtoggle" role="group" aria-label="보기 밀도">
+              <button
+                type="button"
+                className={`filter-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                aria-pressed={viewMode === 'grid'}
+                onClick={() => setViewMode('grid')}
+              >
+                그리드
+              </button>
+              <button
+                type="button"
+                className={`filter-btn ${viewMode === 'compact' ? 'active' : ''}`}
+                aria-pressed={viewMode === 'compact'}
+                onClick={() => setViewMode('compact')}
+              >
+                촘촘히
+              </button>
+            </div>
             <div className="tools-sort">
               <span className="filter-label" id="tools-sort-label">
                 정렬
@@ -520,7 +573,11 @@ const ToolBrowser = () => {
             />
           ) : tools.length > 0 ? (
             <>
-              <div className="tools-grid">
+              <div
+                className={`tools-grid${
+                  viewMode === 'compact' ? ' tools-grid--compact' : ''
+                }`}
+              >
                 {tools.map((tool) => (
                   <ToolCard key={tool.id} tool={tool} />
                 ))}
