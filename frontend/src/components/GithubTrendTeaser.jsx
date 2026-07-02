@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { trendingAPI } from '../services/api';
 import { safeHttpUrl } from '../utils/url';
 import ExternalLinkIcon from './ExternalLinkIcon';
+import { TrendBentoSkeleton } from './Skeletons';
 import '../styles/Curated.css';
 
 // 랜딩 깃헙 트렌드 프리뷰 — Apple 벤토(Bento) 그리드. 이번 주 급부상 오픈소스 Top N을
@@ -78,6 +79,7 @@ const cellProps = (url, ownerRepo) =>
 
 const GithubTrendTeaser = () => {
   const [repos, setRepos] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let alive = true;
@@ -89,19 +91,23 @@ const GithubTrendTeaser = () => {
       })
       .catch(() => {
         if (alive) setRepos([]);
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
       });
     return () => {
       alive = false;
     };
   }, []);
 
-  if (repos.length === 0) return null;
+  // 로딩 끝났는데 0행이면 섹션 미렌더(정직성 G3). 로딩 중엔 스켈레톤(헤더 포함).
+  if (!loading && repos.length === 0) return null;
 
-  const hero = repoView(repos[0]);
+  const hero = repos[0] ? repoView(repos[0]) : null;
   const rest = repos.slice(1, TOP_N).map(repoView);
 
-  const HeroTag = hero.url ? 'a' : 'article';
-  const heroProps = hero.url
+  const HeroTag = hero?.url ? 'a' : 'article';
+  const heroProps = hero?.url
     ? {
         href: hero.url,
         target: '_blank',
@@ -127,6 +133,9 @@ const GithubTrendTeaser = () => {
         </Link>
       </div>
 
+      {loading || !hero ? (
+        <TrendBentoSkeleton />
+      ) : (
       <div className="bento-grid">
         {/* 히어로 셀(2×2): 1위 레포 — 이름·설명·큰 별점 */}
         <HeroTag className="bento-cell bento-hero trend-hero" {...heroProps}>
@@ -204,6 +213,7 @@ const GithubTrendTeaser = () => {
           );
         })}
       </div>
+      )}
     </section>
   );
 };

@@ -1,0 +1,101 @@
+/* ========================================
+   SKELETON (로딩 플레이스홀더) — Home 한정.
+   Wave shimmer. 무채색 토큰만(인라인 hex 금지). 실제 레이아웃과 크기 일치 → 콘텐츠
+   로드 후 점프 없음. prefers-reduced-motion 이면 정적(은은한 고정 명도).
+   ======================================== */
+
+.skeleton {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background-color: var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+/* wave 하이라이트 — 흰 알파(glass-highlight)가 좌→우로 흐른다(라이트·다크 공통). */
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0,
+    var(--color-glass-highlight) 50%,
+    transparent 100%
+  );
+  animation: skeletonWave 1.2s ease-in-out infinite;
+}
+
+@keyframes skeletonWave {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+    opacity: 0.5;
+    transform: none;
+  }
+}
+
+/* ── 맞춤 추천: 결과 카드 스켈레톤(ToolCard 형상) ── */
+.rec-card-skel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  height: 100%;
+  min-height: 320px;
+  padding: var(--spacing-xl);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.rec-card-skel-head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.rec-card-skel-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.rec-card-skel-foot {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: auto;
+}
+
+/* ── 큐레이션 위젯: 툴 행 본문 라인 간격 ── */
+.curated-tool-skel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── 벤토: 셀 내부 스켈레톤 라인 스택 ── */
+.bento-skel {
+  gap: var(--spacing-sm);
+  justify-content: flex-start;
+}
+
+.bento-skel-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.bento-skel-foot {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: auto;
+}

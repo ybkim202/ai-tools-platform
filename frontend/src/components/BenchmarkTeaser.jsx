@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { benchmarksAPI } from '../services/api';
 import { benchmarkTypeLabel, formatBenchmarkScore } from '../utils/benchmark';
 import { resolveLogoSrc, handleLogoError } from '../utils/logoFallback';
+import { BenchTeaserSkeleton } from './Skeletons';
 import '../styles/Curated.css';
 
 // 랜딩 성능 벤치마크 프리뷰 — 2단 대시보드: 좌(벤치마크 기준 목록) / 우(가로 막대
@@ -30,6 +31,7 @@ const barPct = (score, unit, axisMax, maxScore) => {
 const BenchmarkTeaser = () => {
   const [groups, setGroups] = useState([]); // [{ type, count, rows(top N) }]
   const [active, setActive] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let alive = true;
@@ -59,6 +61,9 @@ const BenchmarkTeaser = () => {
       })
       .catch(() => {
         if (alive) setGroups([]);
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
       });
     return () => {
       alive = false;
@@ -70,10 +75,13 @@ const BenchmarkTeaser = () => {
     [groups, active]
   );
 
-  if (!current) return null;
+  // 로딩 끝났는데 데이터 없으면 미렌더(정직성 G3). 로딩 중엔 스켈레톤(헤더 포함).
+  if (!loading && !current) return null;
 
-  const unit = current.rows[0]?.unit || 'percent';
-  const axisMax = Math.max(...current.rows.map((r) => Number(r.score) || 0));
+  const unit = current?.rows[0]?.unit || 'percent';
+  const axisMax = current
+    ? Math.max(...current.rows.map((r) => Number(r.score) || 0))
+    : 0;
   const unitHint = unit === 'elo' ? 'Elo · 상대 점수' : '100점 만점';
 
   return (
@@ -93,6 +101,9 @@ const BenchmarkTeaser = () => {
         </Link>
       </div>
 
+      {loading || !current ? (
+        <BenchTeaserSkeleton />
+      ) : (
       <div className="bench-teaser-split">
         {/* 좌: 벤치마크 기준 목록(세로 탭) */}
         <div
@@ -173,6 +184,7 @@ const BenchmarkTeaser = () => {
           </ul>
         </div>
       </div>
+      )}
     </section>
   );
 };

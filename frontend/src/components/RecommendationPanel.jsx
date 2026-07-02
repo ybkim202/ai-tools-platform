@@ -3,11 +3,14 @@ import { useSearchParams, useLocation } from 'react-router-dom';
 import { recommendationsAPI, toolsAPI, handleApiError } from '../services/api';
 import ToolCard from './ToolCard';
 import {
-  LoadingState,
   EmptyFilteredState,
   EmptyNoDataState,
   ErrorState,
 } from './states/StateViews';
+import {
+  RecommendChipsSkeleton,
+  RecommendCardsSkeleton,
+} from './Skeletons';
 import { REC_ICON_PATHS, REC_FALLBACK_ICON } from '../utils/categoryMeta';
 import '../styles/Recommendations.css';
 
@@ -256,7 +259,7 @@ const RecommendationPanel = () => {
               </div>
             </div>
           ) : optionsStatus === 'loading' ? (
-            <LoadingState message="선택지를 불러오는 중..." />
+            <RecommendChipsSkeleton />
           ) : optionsStatus === 'error' ? (
             <ErrorState
               title="선택지를 불러오지 못했습니다"
@@ -271,7 +274,11 @@ const RecommendationPanel = () => {
         </div>
       </div>
 
-      {loading && <LoadingState message="추천을 불러오는 중..." />}
+      {loading && (
+        <div className="results-section">
+          <RecommendCardsSkeleton />
+        </div>
+      )}
 
       {!loading && error && (
         <ErrorState
