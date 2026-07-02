@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { trackEvent, toolsAPI } from '../services/api';
-import CuratedHeroLive from '../components/CuratedHeroLive';
+import heroVisualDark from '../assets/about-hero-dark.png';
+import heroVisualLight from '../assets/about-hero-light.png';
 import '../styles/About.css';
 
 // 전환 추적: 모든 About CTA 클릭은 단일 name 사용. target으로 위치를 구분한다.
@@ -191,14 +192,8 @@ const About = () => {
   const [meta, setMeta] = useState({ totalTools: null, totalCategories: null });
   // sticky CTA 는 Hero를 지나친 뒤에만 노출(초기 시야 방해 방지).
   const [showSticky, setShowSticky] = useState(false);
-  // Hero 우측 큐레이션 위젯 데이터 유무 — 없으면 1단(카피 중앙)으로 graceful 복귀.
-  const [heroHasWidget, setHeroHasWidget] = useState(true);
   const heroRef = useRef(null);
   const [statsRef, statsInView] = useInView();
-
-  const handleHeroResolved = useCallback((hasData) => {
-    setHeroHasWidget(hasData);
-  }, []);
 
   const toolsCount = useCountUp(meta.totalTools, statsInView);
   const catCount = useCountUp(meta.totalCategories, statsInView);
@@ -247,11 +242,7 @@ const About = () => {
       <section className="about-hero" ref={heroRef}>
         <div className="hero-gradient" />
         <div className="container">
-          <div
-            className={`about-hero-grid${
-              heroHasWidget ? '' : ' about-hero-grid--solo'
-            }`}
-          >
+          <div className="about-hero-grid">
             <div className="hero-content about-hero-copy">
               <span className="hero-badge">AI 도구 비교 플랫폼</span>
               <h1 className="hero-title">
@@ -286,12 +277,17 @@ const About = () => {
               </ul>
             </div>
 
-            {/* 제품 프리뷰 — 실제 큐레이션 위젯(실 로고·실 순위). 데이터 없으면 1단 복귀. */}
-            {heroHasWidget && (
-              <div className="about-hero-widget">
-                <CuratedHeroLive onResolved={handleHeroResolved} />
-              </div>
-            )}
+            {/* 제품 키비주얼 — 테마별 이미지(라이트/다크) 엣지리스. 장식(aria-hidden).
+                URL은 번들 해시라 인라인 커스텀 프로퍼티로 넘기고, 테마 스왑은 CSS가 담당. */}
+            <div
+              className="about-hero-visual"
+              role="img"
+              aria-label="연결된 AI 도구 중 추천된 하나가 밝게 강조된 개념 이미지"
+              style={{
+                '--hero-img-light': `url(${heroVisualLight})`,
+                '--hero-img-dark': `url(${heroVisualDark})`,
+              }}
+            />
           </div>
         </div>
       </section>

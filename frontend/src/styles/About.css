@@ -17,7 +17,7 @@
   overflow: hidden;
 }
 
-/* 2단 그리드 — 좌: 카피/CTA 앵커, 우: 실제 큐레이션 위젯. */
+/* 2단 그리드 — 좌: 카피/CTA 앵커, 우: 테마별 키비주얼. */
 .about-hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -25,25 +25,6 @@
   align-items: center;
   max-width: 1120px;
   margin: 0 auto;
-}
-
-/* 위젯 데이터 없음 → 1단 복귀(카피 중앙 정렬, 원래 About Hero 형태). */
-.about-hero-grid--solo {
-  grid-template-columns: 1fr;
-  max-width: 760px;
-}
-
-.about-hero-grid--solo .about-hero-copy {
-  text-align: center;
-}
-
-.about-hero-grid--solo .about-hero-copy .hero-title,
-.about-hero-grid--solo .about-hero-copy .hero-subtitle {
-  text-align: center;
-}
-
-.about-hero-grid--solo .about-hero-copy .about-hero-meta {
-  justify-content: center;
 }
 
 /* 좌측 카피는 좌측 정렬(2단 레이아웃). 기존 중앙정렬 오버라이드. */
@@ -63,9 +44,46 @@
   justify-content: flex-start;
 }
 
-/* 실제 큐레이션 위젯 컨테이너 — 그리드 자식 오버플로 방지. */
-.about-hero-widget {
+/* 키비주얼 — 테마별 이미지(라이트 기본, 다크는 토큰과 동일 셀렉터로 스왑).
+   가장자리를 radial mask로 페이드해 히어로 배경(color-background 토큰)에 엣지리스로 녹인다.
+   포인트 카드가 좌중앙(≈42%,48%)이라 opaque 존을 넉넉히 둬 잘리지 않게 한다. */
+.about-hero-visual {
   min-width: 0;
+  aspect-ratio: 4 / 3;
+  background-image: var(--hero-img-light);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  -webkit-mask-image: radial-gradient(
+    118% 118% at 42% 48%,
+    var(--color-primary) 38%,
+    transparent 86%
+  );
+  mask-image: radial-gradient(
+    118% 118% at 42% 48%,
+    var(--color-primary) 38%,
+    transparent 86%
+  );
+}
+
+/* 다크 스왑 — 토큰과 동일 조건(수동 dark + OS 추종 dark).
+   mix-blend-mode:lighten → 히어로보다 어두운 이미지 배경이 통째로 사라지고
+   발광 요소(카드·빛줄기)만 남아 사각 경계가 완전히 녹는다(다크 키비주얼 정석). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .about-hero-visual {
+    background-image: var(--hero-img-dark);
+    mix-blend-mode: lighten;
+  }
+}
+
+:root[data-theme='dark'] .about-hero-visual {
+  background-image: var(--hero-img-dark);
+  mix-blend-mode: lighten;
+}
+
+:root[data-theme='light'] .about-hero-visual {
+  background-image: var(--hero-img-light);
+  mix-blend-mode: normal;
 }
 
 /* ── 공용 섹션 헤더(페르소나·증거 섹션 공유). */
