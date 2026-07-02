@@ -77,7 +77,7 @@
 
 > **IA 최신화(2026-07)**: 구 링크(`/recommendations`·`/compare`·`/`=둘러보기)가 재설계된 목적지(`/#recommend`·`/explore`)를 안 가리키던 부패를 정정. 비교는 도구 선택이 선행돼야 하므로 `/explore`로 유도(빈 모달 회피).
 
-**디자인/트렌드**: 신규 섹션은 `glass-soft`·spacing/radius/font 토큰만 재조합(신규 색토큰 0·인라인 hex 0), 배경 리듬 교차(문제 surface / 3스텝 background / 페르소나 surface / 증거 background). 반영 트렌드 = clarity-led minimalism·구체(실 데이터/UI)로 주장 증명·스크롤 순차 등장·마이크로 인터랙션(count-up·hover)·sticky CTA. 접근성: 진입·count-up `prefers-reduced-motion` 폴백(즉시 노출/최종값), IO 미지원·데이터 실패 graceful, 각 섹션 `aria-labelledby`, sticky 비노출 시 `tabIndex=-1`+`aria-hidden`.
+**디자인/트렌드**: 신규 섹션은 `glass-soft`·spacing/radius/font 토큰만 재조합(신규 색토큰 0·인라인 hex 0), 배경 리듬 교차(문제 surface / 3스텝 background / 페르소나 surface / 증거 background). 반영 트렌드 = clarity-led minimalism·구체(실 데이터/UI)로 주장 증명·스크롤 순차 등장·마이크로 인터랙션(count-up·hover)·sticky CTA. **시각 밀도(richness) 레이어(2026-07)**: 3스텝에 **실 미니 UI**(탐색=검색·카테고리칩 / 비교=도구 막대 / 추천=직군칩 — 실 어휘 정적 데모, Vercel식 "show don't tell") + 글래스 아이콘 타일, 페르소나 라인 아이콘, 배경 **방사형 글로우**(히어로·문제)+**미세 그레인**(SVG 노이즈 3% soft-light 오버레이), 진입은 **블러→선명 리빌**+stagger. 전부 무채색·토큰·`prefers-reduced-motion` 폴백. 접근성: 진입·count-up 즉시 완료 폴백, IO 미지원·데이터 실패 graceful, 각 섹션 `aria-labelledby`, 미니 UI는 `aria-hidden`(장식), sticky 비노출 시 `tabIndex=-1`+`aria-hidden`.
 
 **전환 측정(이벤트 추적)**: 각 CTA 클릭을 **자체 백엔드 이벤트**로 적재(`POST /api/events`, 키 없는 1st-party, IP/UA 미수집). `trackEvent('about_cta_click', {target, path})`는 fire-and-forget. target = `hero_recommend` · `how_explore`·`how_compare`·`how_recommend`(3스텝) · `persona_p1~p4` · `closing_recommend`·`closing_explore` · `sticky_recommend`(문제 섹션은 링크 없음). → 어느 스텝·페르소나 진입이 전환을 끄는지 사후 분석.
 

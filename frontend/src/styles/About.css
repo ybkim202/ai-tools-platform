@@ -183,7 +183,16 @@
   padding: var(--spacing-lg);
   border-radius: var(--radius-2xl);
   text-decoration: none;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  /* 스크롤 리빌은 opacity+blur만(transform은 hover 전용 → 충돌 회피). */
+  opacity: 0;
+  filter: blur(6px);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast),
+    opacity var(--transition-slow), filter var(--transition-slow);
+}
+
+.about-persona-card.is-visible {
+  opacity: 1;
+  filter: blur(0);
 }
 
 .about-persona-card:hover {
@@ -391,7 +400,6 @@
 }
 
 .about-how-grid {
-  position: relative;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--spacing-lg);
@@ -400,37 +408,26 @@
   margin: 0;
 }
 
-/* 카드 사이 수평 커넥터(데스크톱) — 아이콘 행 높이에 헤어라인. 카드 아래(z-0)라
-   반투명 카드 사이 gap에서만 보인다(흐름 암시). 모바일 1단에서는 숨김. */
-.about-how-grid::before {
-  content: '';
-  position: absolute;
-  z-index: 0;
-  top: 74px;
-  left: 16%;
-  right: 16%;
-  height: 2px;
-  background-color: var(--color-border);
-}
-
 .about-how-step {
   position: relative;
-  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--spacing-sm);
   padding: var(--spacing-lg);
   border-radius: var(--radius-2xl);
-  /* 스크롤 진입 전 상태(is-visible 시 나타남). */
+  /* 스크롤 진입 전 상태(is-visible 시 나타남) — 블러→선명 리빌 포함. */
   opacity: 0;
   transform: translateY(16px);
-  transition: opacity var(--transition-slow), transform var(--transition-slow);
+  filter: blur(6px);
+  transition: opacity var(--transition-slow), transform var(--transition-slow),
+    filter var(--transition-slow);
 }
 
 .about-how-step.is-visible {
   opacity: 1;
   transform: translateY(0);
+  filter: blur(0);
 }
 
 /* 순차 등장 stagger. */
@@ -441,15 +438,33 @@
   transition-delay: 160ms;
 }
 
-.about-how-num {
-  font-size: var(--font-size-sm);
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  color: var(--color-text-tertiary);
+/* 헤더 행 — 글래스 아이콘 타일 + 번호. */
+.about-how-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.about-how-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-lg);
+  color: var(--color-text-primary);
 }
 
 .about-how-icon {
   color: var(--color-text-primary);
+}
+
+.about-how-num {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--color-text-tertiary);
 }
 
 .about-how-title {
@@ -459,18 +474,18 @@
 }
 
 .about-how-desc {
-  flex: 1;
   font-size: var(--font-size-base);
   line-height: 1.6;
   color: var(--color-text-secondary);
 }
 
-/* 스텝 CTA 링크 — 인라인 텍스트 링크. */
+/* 스텝 CTA 링크 — 인라인 텍스트 링크. 카드 하단 정렬(균등 높이). */
 .about-how-link {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-sm);
-  margin-top: var(--spacing-sm);
+  margin-top: auto;
+  padding-top: var(--spacing-sm);
   font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--color-primary);
@@ -494,6 +509,158 @@
 /* ArrowIcon 공용 트랜지션(모든 화살표 아이콘). */
 .about-story-arrow {
   transition: transform var(--transition-fast);
+}
+
+/* ── ③ 스텝 미니 UI (실 어휘, 정적 데모) ── */
+.about-mini {
+  width: 100%;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 탐색 — 검색 pill + 카테고리 칩 */
+.about-mini-search {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.about-mini-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.about-mini-chip {
+  padding: 2px var(--spacing-sm);
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-surface);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.about-mini-chip.is-on {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+/* 비교 — 이름 + 막대 + 값 */
+.about-mini-row {
+  display: grid;
+  grid-template-columns: 56px 1fr 20px;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.about-mini-row-name {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.about-mini-bar {
+  height: 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-surface);
+  overflow: hidden;
+}
+
+.about-mini-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary);
+}
+
+.about-mini-row-val {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-align: right;
+}
+
+/* 추천 — 직군 칩 + 결과 라인 */
+.about-mini-rec {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.about-mini-rec-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary-surface);
+  flex-shrink: 0;
+}
+
+.about-mini-rec-line {
+  flex: 1;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-surface);
+}
+
+/* ── ④ 페르소나 아이콘 타일 ── */
+.about-persona-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary-surface);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+/* ── 배경 깊이 ── */
+/* 히어로 방사형 글로우 — 우상단 스포트라이트(모노크롬 primary-surface). */
+.about-hero {
+  background-image: radial-gradient(
+    58% 78% at 74% 22%,
+    var(--color-primary-surface) 0%,
+    transparent 68%
+  );
+}
+
+/* 문제 섹션 중앙 글로우 — 임팩트 타이틀 뒤 은은한 스포트라이트. */
+.about-problem {
+  background-image: radial-gradient(
+    50% 70% at 50% 30%,
+    var(--color-primary-surface) 0%,
+    transparent 70%
+  );
+}
+
+/* 전역 그레인 — 미세 노이즈 텍스처(모노크롬·장식). 고정 오버레이, 콘텐츠 위지만
+   저투명(3%)+soft-light라 가독성 영향 없음. reduced-motion과 무관(정적). */
+.about-page::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  opacity: 0.03;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* ========================================
@@ -529,13 +696,9 @@
     padding: var(--spacing-2xl) 0;
   }
 
-  /* 3스텝 → 1단 스택, 커넥터 숨김. */
+  /* 3스텝 → 1단 스택. */
   .about-how-grid {
     grid-template-columns: 1fr;
-  }
-
-  .about-how-grid::before {
-    display: none;
   }
 
   .about-problem-title,
@@ -561,15 +724,16 @@
   }
 }
 
-/* 모션 민감 사용자 — 진입/화살표 모션 제거, 콘텐츠는 즉시 노출. */
+/* 모션 민감 사용자 — 진입/블러/화살표 모션 제거, 콘텐츠는 즉시 노출. */
 @media (prefers-reduced-motion: reduce) {
-  .about-how-step {
+  .about-how-step,
+  .about-persona-card {
     opacity: 1;
     transform: none;
+    filter: none;
     transition: none;
   }
 
-  .about-persona-card,
   .about-sticky-cta {
     transition: none;
   }

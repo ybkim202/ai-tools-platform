@@ -53,7 +53,7 @@ const STEPS = [
 ];
 
 // ── ④ 누구에게 — 사람 중심 라우터(당신이라면 어디서 시작). ③과 달리 "식별→시작".
-//    desc는 한 줄 자기식별(설명형 아님).
+//    desc는 한 줄 자기식별(설명형 아님). iconPath = 상황 은유 라인 아이콘.
 const PERSONAS = [
   {
     id: 'p1',
@@ -62,6 +62,7 @@ const PERSONAS = [
     to: '/#recommend',
     cta: '맞춤 추천',
     target: 'persona_p1',
+    iconPath: 'M5 3v18 M5 4h11l-1.6 3.5L16 11H5', // 깃발(출발점)
   },
   {
     id: 'p2',
@@ -70,6 +71,7 @@ const PERSONAS = [
     to: '/explore',
     cta: '도구 탐색',
     target: 'persona_p2',
+    iconPath: 'M8 6h13 M8 12h13 M8 18h13 M3 6h.01 M3 12h.01 M3 18h.01', // 목록(후보)
   },
   {
     id: 'p3',
@@ -78,6 +80,7 @@ const PERSONAS = [
     to: '/news',
     cta: 'AI 뉴스',
     target: 'persona_p3',
+    iconPath: 'M3 17l6-6 4 4 8-8 M17 7h4v4', // 상승 추세(흐름)
   },
   {
     id: 'p4',
@@ -86,6 +89,8 @@ const PERSONAS = [
     to: '/trends/github',
     cta: '깃헙 트렌드',
     target: 'persona_p4',
+    iconPath:
+      'M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z M12 9a3 3 0 100 6 3 3 0 000-6z', // 눈(지켜봄)
   },
 ];
 
@@ -112,12 +117,12 @@ const ArrowIcon = () => (
   </svg>
 );
 
-// 스텝 아이콘 — 무채색(currentColor) 라인, 잉크 톤 일치.
-const StepIcon = ({ d }) => (
+// 라인 아이콘 — 무채색(currentColor), 잉크 톤 일치. 스텝·페르소나 공용.
+const LineIcon = ({ d, size = 22, className }) => (
   <svg
-    className="about-how-icon"
-    width="22"
-    height="22"
+    className={className}
+    width={size}
+    height={size}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -129,6 +134,64 @@ const StepIcon = ({ d }) => (
     <path d={d} />
   </svg>
 );
+
+// ③ 스텝별 실 미니 UI — 실제 제품 어휘로 "무엇을 한다"를 보여준다(장식 아닌 데모).
+//    정적이되 실 카테고리·도구·직군 어휘라 목업 티가 나지 않는다(reduced-motion 안전).
+function StepMini({ stepKey }) {
+  if (stepKey === 'explore') {
+    return (
+      <div className="about-mini about-mini-explore" aria-hidden="true">
+        <div className="about-mini-search">
+          <LineIcon d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z M21 21l-4.35-4.35" size={13} />
+          <span>이미지 생성</span>
+        </div>
+        <div className="about-mini-chips">
+          {['개발도구', '생성형AI', '이미지생성', '생산성'].map((c, i) => (
+            <span key={c} className={`about-mini-chip${i === 2 ? ' is-on' : ''}`}>
+              {c}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (stepKey === 'compare') {
+    const rows = [
+      { n: 'ChatGPT', w: 92 },
+      { n: 'Claude', w: 88 },
+      { n: 'Gemini', w: 74 },
+    ];
+    return (
+      <div className="about-mini about-mini-compare" aria-hidden="true">
+        {rows.map((r) => (
+          <div key={r.n} className="about-mini-row">
+            <span className="about-mini-row-name">{r.n}</span>
+            <span className="about-mini-bar">
+              <span className="about-mini-bar-fill" style={{ width: `${r.w}%` }} />
+            </span>
+            <span className="about-mini-row-val">{r.w}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  // recommend
+  return (
+    <div className="about-mini about-mini-recommend" aria-hidden="true">
+      <div className="about-mini-chips">
+        {['마케터', '개발자', '디자이너', '기획자'].map((c, i) => (
+          <span key={c} className={`about-mini-chip${i === 0 ? ' is-on' : ''}`}>
+            {c}
+          </span>
+        ))}
+      </div>
+      <div className="about-mini-rec">
+        <span className="about-mini-rec-dot" />
+        <span className="about-mini-rec-line" />
+      </div>
+    </div>
+  );
+}
 
 // 스크롤 진입 시 .is-visible 부여(1회). reduced-motion이면 처음부터 노출.
 // 관찰자 미지원 환경도 안전하게 노출(graceful).
@@ -367,22 +430,8 @@ const About = () => {
             당신이 어느 쪽이든, 시작점이 있습니다
           </h2>
           <div className="about-persona-grid">
-            {PERSONAS.map((p) => (
-              <Link
-                key={p.id}
-                to={p.to}
-                className="about-persona-card glass-soft"
-                data-track-name={TRACK_NAME}
-                data-track-target={p.target}
-                onClick={() => track(p.target)}
-              >
-                <span className="about-persona-label">{p.label}</span>
-                <span className="about-persona-desc">{p.desc}</span>
-                <span className="about-persona-cta">
-                  {p.cta}
-                  <ArrowIcon />
-                </span>
-              </Link>
+            {PERSONAS.map((p, i) => (
+              <PersonaCard key={p.id} p={p} index={i} onTrack={track} />
             ))}
           </div>
         </div>
@@ -479,6 +528,32 @@ const About = () => {
   );
 };
 
+// ④ 페르소나 카드 — 스크롤 진입 시 is-visible(블러→선명, index로 stagger).
+function PersonaCard({ p, index, onTrack }) {
+  const [ref, inView] = useInView();
+  return (
+    <Link
+      ref={ref}
+      to={p.to}
+      className={`about-persona-card glass-soft${inView ? ' is-visible' : ''}`}
+      style={{ transitionDelay: `${index * 60}ms` }}
+      data-track-name={TRACK_NAME}
+      data-track-target={p.target}
+      onClick={() => onTrack(p.target)}
+    >
+      <span className="about-persona-icon" aria-hidden="true">
+        <LineIcon d={p.iconPath} size={18} />
+      </span>
+      <span className="about-persona-label">{p.label}</span>
+      <span className="about-persona-desc">{p.desc}</span>
+      <span className="about-persona-cta">
+        {p.cta}
+        <ArrowIcon />
+      </span>
+    </Link>
+  );
+}
+
 // ③ 스텝 카드 — 스크롤 진입 시 is-visible(reduced-motion 시 즉시).
 function StepCard({ step, meta, onTrack }) {
   const [ref, inView] = useInView();
@@ -487,10 +562,15 @@ function StepCard({ step, meta, onTrack }) {
       ref={ref}
       className={`about-how-step glass-soft${inView ? ' is-visible' : ''}`}
     >
-      <span className="about-how-num">{step.n}</span>
-      <StepIcon d={step.iconPath} />
+      <div className="about-how-head">
+        <span className="about-how-tile glass-soft">
+          <LineIcon d={step.iconPath} size={22} className="about-how-icon" />
+        </span>
+        <span className="about-how-num">{step.n}</span>
+      </div>
       <h3 className="about-how-title">{step.title}</h3>
       <p className="about-how-desc">{step.desc(meta)}</p>
+      <StepMini stepKey={step.key} />
       <Link
         to={step.to}
         className="about-how-link"
