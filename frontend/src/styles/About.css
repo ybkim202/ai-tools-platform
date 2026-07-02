@@ -17,8 +17,283 @@
   overflow: hidden;
 }
 
-.about-hero .hero-content {
+/* 2단 그리드 — 좌: 카피/CTA 앵커, 우: 제품 프리뷰 목업. */
+.about-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: var(--spacing-3xl);
+  align-items: center;
+  max-width: 1080px;
   margin: 0 auto;
+}
+
+/* 좌측 카피는 좌측 정렬(2단 레이아웃). 기존 중앙정렬 오버라이드. */
+.about-hero-copy {
+  margin: 0;
+  text-align: left;
+}
+
+.about-hero-copy .hero-title,
+.about-hero-copy .hero-subtitle {
+  text-align: left;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.about-hero-copy .about-hero-meta {
+  justify-content: flex-start;
+}
+
+/* 제품 프리뷰 — 실 UI(나란히 비교)를 축약한 글래스 목업. 장식(aria-hidden). */
+.about-hero-preview {
+  min-width: 0;
+  border-radius: var(--radius-3xl);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.about-preview-head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.about-preview-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-border);
+}
+
+.about-preview-title {
+  margin-left: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.about-preview-cols {
+  display: grid;
+  /* minmax(0,1fr) — 컬럼이 min-content 아래로도 줄어 좁은 폭 가로 오버플로 방지. */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacing-md);
+}
+
+.about-preview-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  text-align: center;
+}
+
+.about-preview-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary-surface);
+}
+
+.about-preview-name {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.about-preview-bar {
+  width: 100%;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-surface);
+  overflow: hidden;
+}
+
+.about-preview-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary);
+}
+
+.about-preview-score {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.about-preview-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.about-preview-chip {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-surface);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+/* ── 공용 섹션 헤더(페르소나·증거 섹션 공유). */
+.about-section-eyebrow {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.about-section-title {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.3px;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* ── PERSONAS — 자기식별 4카드. */
+.about-personas {
+  padding: var(--spacing-3xl) 0;
+  background-color: var(--color-background);
+}
+
+.about-persona-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-lg);
+}
+
+.about-persona-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-2xl);
+  text-decoration: none;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.about-persona-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.about-persona-card:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.about-persona-label {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.about-persona-desc {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.about-persona-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.about-persona-card:hover .about-story-arrow {
+  transform: translateX(2px);
+}
+
+/* ── TRUST — 중립성 선언 + 라이브 증거. */
+.about-trust {
+  padding: var(--spacing-3xl) 0;
+  background-color: var(--color-surface);
+}
+
+.about-trust-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-lg);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.about-trust-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-background);
+}
+
+.about-trust-value {
+  font-size: var(--font-size-3xl);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.about-trust-label {
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+/* ── STICKY CTA — Hero 이탈 후 하단 고정(모바일 thumb-zone). */
+.about-sticky-cta {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform var(--transition-normal), opacity var(--transition-normal);
+  pointer-events: none;
+}
+
+.about-sticky-cta.is-visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.about-sticky-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.about-sticky-text {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.about-sticky-btn {
+  flex-shrink: 0;
 }
 
 /* HERO 메타 스트립 — 정적 기능 앵커 라벨(ul/li). hero fadeInUp에 포함.
@@ -90,7 +365,15 @@
   grid-template-columns: 24px 1fr;
   column-gap: var(--spacing-lg);
   padding-bottom: var(--spacing-3xl);
-  animation: fadeIn 400ms ease-out both;
+  /* 스크롤 진입 전 상태 — is-visible 부여 시 나타남(JS IntersectionObserver). */
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity var(--transition-slow), transform var(--transition-slow);
+}
+
+.about-timeline-node.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .about-timeline-node:last-child {
@@ -233,6 +516,23 @@
    ABOUT RESPONSIVE
    ======================================== */
 
+/* 태블릿 — Hero 1단 복귀, 페르소나·증거 2열. */
+@media (max-width: 900px) {
+  .about-hero-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2xl);
+  }
+
+  .about-hero-preview {
+    max-width: min(480px, 100%);
+  }
+
+  .about-persona-grid,
+  .about-trust-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .about-hero {
     padding: var(--spacing-3xl) var(--spacing-lg);
@@ -240,6 +540,11 @@
 
   .about-hero-meta {
     gap: var(--spacing-sm);
+  }
+
+  .about-personas,
+  .about-trust {
+    padding: var(--spacing-2xl) 0;
   }
 
   .about-stories {
@@ -254,22 +559,45 @@
     padding: var(--spacing-md);
   }
 
-  .about-story-title {
+  .about-story-title,
+  .about-section-title {
     font-size: var(--font-size-xl);
+  }
+
+  /* sticky 텍스트는 좁은 폭에서 숨기고 버튼만 폭 채움. */
+  .about-sticky-text {
+    display: none;
+  }
+
+  .about-sticky-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 
 @media (max-width: 640px) {
+  .about-persona-grid,
+  .about-trust-grid {
+    grid-template-columns: 1fr;
+  }
+
   .about-story-links {
     flex-direction: column;
     gap: var(--spacing-md);
   }
 }
 
-/* 모션 민감 사용자 — 진입/화살표 모션 제거. */
+/* 모션 민감 사용자 — 진입/화살표 모션 제거, 콘텐츠는 즉시 노출. */
 @media (prefers-reduced-motion: reduce) {
   .about-timeline-node {
-    animation: none;
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .about-persona-card,
+  .about-sticky-cta {
+    transition: none;
   }
 
   .about-story-arrow {

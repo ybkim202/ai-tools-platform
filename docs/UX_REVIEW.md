@@ -65,13 +65,18 @@
 
 | 구성 | 내용 | 매핑 |
 |------|------|------|
-| **Hero** | 한 줄 정의 + 메타 스트립(실데이터 수치: `total_tools`개+ 도구·`total_categories` 카테고리) | P4 신뢰 앵커. 1차 CTA는 의도적으로 두지 않고 클로징에 집중 |
-| **타임라인 4노드** | 각 노드 = `Pain → 우리의 답 → 해당 기능으로 가는 링크` | PP1→추천/비교 · PP2→비교/벤치마크 · PP3→깃헙트렌드/뉴스 · (탐색)→홈 |
-| **클로징 CTA** | "도구 둘러보기"·"맞춤 추천" 1차 액션 | P1/P2 전환 진입 |
+| **Hero(2단)** | 좌: 한 줄 정의 + 메타 스트립(실데이터 `total_tools`개+·`total_categories` 카테고리) / 우: "나란히 비교" 제품 프리뷰 목업(데이터 의존 0·`aria-hidden` 장식) | P4 신뢰 앵커 + "제품을 보여주는 Hero". 1차 CTA는 의도적으로 두지 않고 클로징·sticky에 집중 |
+| **페르소나 4카드** | "당신이 어느 쪽이든" 자기식별 — P1~P4 각각 → 시작점 링크(추천·탐색·뉴스·트렌드) | 역할 기반 진입. 방문자가 자기 상황을 발견해 이탈 대신 몰입 |
+| **타임라인 4노드** | 각 노드 = `Pain → 우리의 답 → 해당 기능 링크`. 스크롤 진입 애니메이션 | PP1→추천 · PP2→탐색(비교)/벤치마크 · PP3→깃헙트렌드/뉴스 · (탐색)→탐색 |
+| **증거/중립성 스트립** | 라이브 수치(count-up) + "무인증"·"광고랭킹 아님(사용자수·벤치마크 기준)" | 검증 가능한 소셜 프루프. AI 디렉터리 최대 불신("제휴광고 아니냐") 선제 해소 |
+| **클로징 CTA** | 1차 "맞춤 추천 받기"(솔리드) + 2차 "전체 도구 탐색"(고스트) | 위계 명확화(1차 1개 dominant) |
+| **Sticky bottom CTA** | Hero 이탈 후 상시 노출되는 "맞춤 추천 받기"(모바일 thumb-zone) | 스크롤 내내 1차 전환 상시 제공 |
 
-**디자인**: 세로 타임라인 모티프(번호 eyebrow·마커·연결선). Linear 토큰만 재조합(신규 색토큰 0·인라인 hex 금지·pill 금지), 다크모드 잉크 토큰 자동 대응. 접근성: story 노드 `<article>`+`aria-labelledby`(번호+제목 한 단위), 메타칩 `<ul>/<li>`, `focus-visible`, 색 단독 의미전달 금지.
+> **IA 최신화(2026-07)**: 구 링크(`/recommendations`·`/compare`·`/`=둘러보기)가 재설계된 목적지(`/#recommend`·`/explore`)를 안 가리키던 부패를 정정. 비교 CTA는 도구 선택이 선행돼야 하므로 `/explore`로 유도(빈 모달 회피).
 
-**전환 측정(이벤트 추적)**: About은 "클릭 전환"이 1차 성공지표라, 각 CTA 클릭을 **자체 백엔드 이벤트**로 적재한다(`POST /api/events`, 외부 SaaS·키 없는 1st-party, IP/UA 미수집). `trackEvent('about_cta_click', {target, path})`는 **fire-and-forget**(네비 비차단·에러 침묵). target 8종: `story_recommend`·`story_compare`·`story_benchmark`·`story_github`·`story_news`·`story_explore`·`closing_explore`·`closing_recommend`. → 적재 데이터로 어떤 Pain 메시지가 전환을 끄는지 사후 분석 가능.
+**디자인/트렌드(2026-07 리뉴얼)**: 세로 타임라인 모티프 유지 + 신규 섹션은 `glass-soft`·spacing/radius 토큰만 재조합(신규 색토큰 0·인라인 hex 0·pill 금지), 다크모드 잉크 토큰 자동 대응. 반영한 2026 UI/UX 트렌드 = 스크롤리텔링(진입 fade/slide-in)·제품을 보여주는 Hero·마이크로 인터랙션(count-up·hover)·sticky CTA·검증 가능 소셜 프루프. 접근성: 모든 진입·count-up은 `prefers-reduced-motion` 폴백(즉시 노출/최종값), IntersectionObserver 미지원·데이터 실패 시 graceful(내용 노출·단어 폴백), story 노드 `<article>`+`aria-labelledby`, sticky는 비노출 시 `tabIndex=-1`+`aria-hidden`.
+
+**전환 측정(이벤트 추적)**: About은 "클릭 전환"이 1차 성공지표라, 각 CTA 클릭을 **자체 백엔드 이벤트**로 적재한다(`POST /api/events`, 외부 SaaS·키 없는 1st-party, IP/UA 미수집). `trackEvent('about_cta_click', {target, path})`는 **fire-and-forget**(네비 비차단·에러 침묵). target = 기존 story/closing 계열 + 신규 `persona_p1`~`persona_p4`·`sticky_recommend`(비교 CTA는 `/explore` 유도라 `story_compare`·`closing_explore` 유지). → 적재 데이터로 어떤 Pain 메시지·어떤 페르소나 진입이 전환을 끄는지 사후 분석 가능.
 
 > **서사 일관성 주의**: 타임라인이 보내는 `/news`·`/trends/github`는 수집 cron 점등 전 0행이다(F2). About→해당 페이지 직후 빈 상태가 서사의 신뢰를 깎지 않도록 **운영 점등을 우선**하거나 각 페이지 EmptyState 품질에 의존한다.
 
