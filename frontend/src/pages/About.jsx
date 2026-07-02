@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { trackEvent, toolsAPI } from '../services/api';
-import heroVisualDark from '../assets/about-hero-dark.png';
-import heroVisualLight from '../assets/about-hero-light.png';
+import AboutCompareVisual from '../components/AboutCompareVisual';
 import '../styles/About.css';
 
 // 전환 추적: 모든 About CTA 클릭은 단일 name 사용. target으로 위치를 구분한다.
@@ -192,8 +191,14 @@ const About = () => {
   const [meta, setMeta] = useState({ totalTools: null, totalCategories: null });
   // sticky CTA 는 Hero를 지나친 뒤에만 노출(초기 시야 방해 방지).
   const [showSticky, setShowSticky] = useState(false);
+  // Hero 우측 비교뷰 데이터 유무 — 없으면 1단(카피 중앙) graceful 복귀.
+  const [heroHasVisual, setHeroHasVisual] = useState(true);
   const heroRef = useRef(null);
   const [statsRef, statsInView] = useInView();
+
+  const handleHeroResolved = useCallback((hasData) => {
+    setHeroHasVisual(hasData);
+  }, []);
 
   const toolsCount = useCountUp(meta.totalTools, statsInView);
   const catCount = useCountUp(meta.totalCategories, statsInView);
@@ -238,11 +243,15 @@ const About = () => {
 
   return (
     <div className="about-page">
-      {/* HERO: 호명 + 한 줄 정의 + 제품 프리뷰. 1차 CTA는 클로징·sticky에 집중. */}
+      {/* HERO: 호명 + 한 줄 정의 + CTA 1개 / 우측 실데이터 "나란히 비교" 뷰. */}
       <section className="about-hero" ref={heroRef}>
         <div className="hero-gradient" />
         <div className="container">
-          <div className="about-hero-grid">
+          <div
+            className={`about-hero-grid${
+              heroHasVisual ? '' : ' about-hero-grid--solo'
+            }`}
+          >
             <div className="hero-content about-hero-copy">
               <span className="hero-badge">AI 도구 비교 플랫폼</span>
               <h1 className="hero-title">
@@ -271,23 +280,29 @@ const About = () => {
                     <span aria-hidden="true">{meta.totalCategories} 카테고리</span>
                   </li>
                 )}
-                <li className="about-hero-meta-item">탐색·검색</li>
-                <li className="about-hero-meta-item">나란히 비교</li>
-                <li className="about-hero-meta-item">맞춤 추천</li>
+                <li className="about-hero-meta-item">가입 불필요</li>
+                <li className="about-hero-meta-item">광고 랭킹 아님</li>
               </ul>
+              {/* Hero 1차 CTA(리서치: 히어로엔 CTA 1개). 맞춤 추천으로 직행. */}
+              <div className="about-hero-cta">
+                <Link
+                  to="/#recommend"
+                  className="cta-button"
+                  data-track-name={TRACK_NAME}
+                  data-track-target="hero_recommend"
+                  onClick={() => track('hero_recommend')}
+                >
+                  30초, 맞춤 추천 받기
+                  <ArrowIcon />
+                </Link>
+              </div>
             </div>
 
-            {/* 제품 키비주얼 — 테마별 이미지(라이트/다크) 엣지리스. 장식(aria-hidden).
-                URL은 번들 해시라 인라인 커스텀 프로퍼티로 넘기고, 테마 스왑은 CSS가 담당. */}
-            <div
-              className="about-hero-visual"
-              role="img"
-              aria-label="연결된 AI 도구 중 추천된 하나가 밝게 강조된 개념 이미지"
-              style={{
-                '--hero-img-light': `url(${heroVisualLight})`,
-                '--hero-img-dark': `url(${heroVisualDark})`,
-              }}
-            />
+            {/* 우측 "나란히 비교" 미니 뷰 — 실데이터(주장을 확인시키는 비주얼).
+                데이터 없으면 onResolved(false)→1단 복귀. */}
+            <div className="about-hero-visual">
+              <AboutCompareVisual onResolved={handleHeroResolved} />
+            </div>
           </div>
         </div>
       </section>

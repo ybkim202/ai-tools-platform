@@ -17,7 +17,7 @@
   overflow: hidden;
 }
 
-/* 2단 그리드 — 좌: 카피/CTA 앵커, 우: 테마별 키비주얼. */
+/* 2단 그리드 — 좌: 카피/CTA, 우: 실데이터 비교뷰. */
 .about-hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -25,6 +25,26 @@
   align-items: center;
   max-width: 1120px;
   margin: 0 auto;
+}
+
+/* 비교뷰 데이터 없음 → 1단 복귀(카피 중앙, 원래 About Hero 형태). */
+.about-hero-grid--solo {
+  grid-template-columns: 1fr;
+  max-width: 760px;
+}
+
+.about-hero-grid--solo .about-hero-copy {
+  text-align: center;
+}
+
+.about-hero-grid--solo .about-hero-copy .hero-title,
+.about-hero-grid--solo .about-hero-copy .hero-subtitle {
+  text-align: center;
+}
+
+.about-hero-grid--solo .about-hero-copy .about-hero-meta,
+.about-hero-grid--solo .about-hero-cta {
+  justify-content: center;
 }
 
 /* 좌측 카피는 좌측 정렬(2단 레이아웃). 기존 중앙정렬 오버라이드. */
@@ -44,46 +64,85 @@
   justify-content: flex-start;
 }
 
-/* 키비주얼 — 테마별 이미지(라이트 기본, 다크는 토큰과 동일 셀렉터로 스왑).
-   가장자리를 radial mask로 페이드해 히어로 배경(color-background 토큰)에 엣지리스로 녹인다.
-   포인트 카드가 좌중앙(≈42%,48%)이라 opaque 존을 넉넉히 둬 잘리지 않게 한다. */
+/* Hero 1차 CTA — 메타 스트립 아래. */
+.about-hero-cta {
+  display: flex;
+  margin-top: var(--spacing-xl);
+}
+
+/* ── 우측 "나란히 비교" 미니 뷰 (실데이터) ── */
 .about-hero-visual {
   min-width: 0;
-  aspect-ratio: 4 / 3;
-  background-image: var(--hero-img-light);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  -webkit-mask-image: radial-gradient(
-    118% 118% at 42% 48%,
-    var(--color-primary) 38%,
-    transparent 86%
-  );
-  mask-image: radial-gradient(
-    118% 118% at 42% 48%,
-    var(--color-primary) 38%,
-    transparent 86%
-  );
 }
 
-/* 다크 스왑 — 토큰과 동일 조건(수동 dark + OS 추종 dark).
-   mix-blend-mode:lighten → 히어로보다 어두운 이미지 배경이 통째로 사라지고
-   발광 요소(카드·빛줄기)만 남아 사각 경계가 완전히 녹는다(다크 키비주얼 정석). */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .about-hero-visual {
-    background-image: var(--hero-img-dark);
-    mix-blend-mode: lighten;
-  }
+.about-compare {
+  border-radius: var(--radius-3xl);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 
-:root[data-theme='dark'] .about-hero-visual {
-  background-image: var(--hero-img-dark);
-  mix-blend-mode: lighten;
+.about-compare-eyebrow {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--color-text-secondary);
 }
 
-:root[data-theme='light'] .about-hero-visual {
-  background-image: var(--hero-img-light);
-  mix-blend-mode: normal;
+/* 그리드: 행 라벨 열(auto) + 도구 열(--cols개). */
+.about-compare-grid {
+  display: grid;
+  grid-template-columns: auto repeat(var(--cols), minmax(0, 1fr));
+  gap: var(--spacing-sm) var(--spacing-md);
+  align-items: center;
+}
+
+/* 헤더 셀 — 로고 + 이름 세로. */
+.about-compare-tool {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  text-align: center;
+  min-width: 0;
+}
+
+.about-compare-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  object-fit: contain;
+  background-color: var(--color-primary-surface);
+}
+
+.about-compare-name {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 행 라벨 — 좌측, 톤 다운. */
+.about-compare-rowlabel {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+}
+
+/* 데이터 셀 — 중앙, primary. */
+.about-compare-cell {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── 공용 섹션 헤더(페르소나·증거 섹션 공유). */
