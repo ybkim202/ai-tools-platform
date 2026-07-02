@@ -13,13 +13,52 @@ const prefersReducedMotion = () =>
   window.matchMedia &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// ── 페르소나(자기식별) 카드. UX_REVIEW §1 P1~P4를 방문자 관점으로 옮김.
-//    "당신이 어느 쪽이든" → 자기 상황을 발견하게 해 이탈 대신 몰입시킨다.
+// ── ③ 어떻게 돕나 — 제품 핵심 루프(탐색→비교→추천). 기능 중심(무엇을 한다).
+//    desc는 meta를 받아 실데이터(도구 수)를 가볍게 주입할 수 있다(그래픽 부담 0).
+const STEPS = [
+  {
+    n: '01',
+    key: 'explore',
+    title: '탐색',
+    to: '/explore',
+    cta: '탐색하기',
+    target: 'how_explore',
+    // 돋보기
+    iconPath: 'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z M21 21l-4.35-4.35',
+    desc: (m) =>
+      `${m.totalTools ? `${m.totalTools}개+ ` : ''}AI 도구를 카테고리·태그·검색으로 한눈에 훑습니다.`,
+  },
+  {
+    n: '02',
+    key: 'compare',
+    title: '비교',
+    to: '/explore',
+    cta: '비교하기',
+    target: 'how_compare',
+    // 막대(값 비교)
+    iconPath: 'M6 20v-6 M12 20V4 M18 20V10 M3 20h18',
+    desc: () => '후보를 나란히 놓고 가격·난이도·벤치마크 점수로 한 번에 대조합니다.',
+  },
+  {
+    n: '03',
+    key: 'recommend',
+    title: '추천',
+    to: '/#recommend',
+    cta: '추천받기',
+    target: 'how_recommend',
+    // 스파클(맞춤)
+    iconPath: 'M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z',
+    desc: () => '목적·예산·난이도 몇 가지만 답하면, 맞는 도구를 골라 추천합니다.',
+  },
+];
+
+// ── ④ 누구에게 — 사람 중심 라우터(당신이라면 어디서 시작). ③과 달리 "식별→시작".
+//    desc는 한 줄 자기식별(설명형 아님).
 const PERSONAS = [
   {
     id: 'p1',
     label: '이제 막 시작한다면',
-    desc: 'AI 도구가 너무 많아 뭐부터 써야 할지 막막한 실무자',
+    desc: '뭐부터 써야 할지 막막한 분',
     to: '/#recommend',
     cta: '맞춤 추천',
     target: 'persona_p1',
@@ -27,7 +66,7 @@ const PERSONAS = [
   {
     id: 'p2',
     label: '후보를 좁혔다면',
-    desc: '두세 개를 두고 가격·성능·난이도로 근거 있게 고르려는 사람',
+    desc: '근거로 골라야 하는 분',
     to: '/explore',
     cta: '도구 탐색',
     target: 'persona_p2',
@@ -35,7 +74,7 @@ const PERSONAS = [
   {
     id: 'p3',
     label: '흐름을 놓치기 싫다면',
-    desc: '지금 뜨는 도구와 AI 소식을 빠르게 훑는 얼리어답터',
+    desc: '최신 도구·소식을 훑는 분',
     to: '/news',
     cta: 'AI 뉴스',
     target: 'persona_p3',
@@ -43,59 +82,15 @@ const PERSONAS = [
   {
     id: 'p4',
     label: '나만 뒤처질까 불안하다면',
-    desc: '전문가는 아니지만 지금 뭐가 핫한지 가볍게 확인하고 싶은 분',
+    desc: '지금 뭐가 핫한지 궁금한 분',
     to: '/trends/github',
     cta: '깃헙 트렌드',
     target: 'persona_p4',
   },
 ];
 
-// 정적 스토리 콘텐츠(데이터 호출 없음). Pain→답 서사를 위→아래로 보존.
-// 링크는 최신 IA 기준: 추천=/#recommend, 탐색·비교=/explore, 벤치마크/트렌드/뉴스=각 페이지.
-const STORIES = [
-  {
-    id: 'story-1',
-    eyebrow: '문제 01',
-    title: '정보 과잉, 뭘 써야 할지 모르겠다면',
-    pain: '매주 새로운 AI 도구가 쏟아집니다. 비슷한 이름과 과장된 소개 사이에서 내 작업에 맞는 도구를 고르기는 점점 어려워집니다.',
-    answer:
-      '몇 가지 질문에 답하면 목적과 예산, 난이도에 맞는 도구를 골라 추천합니다. 처음부터 다 둘러볼 필요가 없습니다.',
-    links: [{ to: '/#recommend', label: '맞춤 추천 받기', target: 'story_recommend' }],
-  },
-  {
-    id: 'story-2',
-    eyebrow: '문제 02',
-    title: '비슷해 보이는 도구, 무엇이 다른지 궁금하다면',
-    pain: '두세 개로 후보를 좁혀도 가격, 기능, 성능을 일일이 탭을 오가며 대조하는 일은 번거롭고 빠뜨리기 쉽습니다.',
-    answer:
-      '여러 도구를 화면 이탈 없이 나란히 비교하고, 객관적인 벤치마크 점수로 성능 차이를 확인할 수 있습니다.',
-    links: [
-      { to: '/explore', label: '도구 골라 비교하기', target: 'story_compare' },
-      { to: '/benchmarks', label: '벤치마크 보기', target: 'story_benchmark' },
-    ],
-  },
-  {
-    id: 'story-3',
-    eyebrow: '문제 03',
-    title: '흐름을 놓치고 있는 건 아닐까 불안하다면',
-    pain: '도구 생태계는 빠르게 바뀝니다. 어제의 정답이 오늘은 아닐 수 있고, 무엇이 뜨고 있는지 따라가기 벅찹니다.',
-    answer:
-      '깃헙에서 떠오르는 프로젝트와 AI 분야 주요 뉴스를 모아 보여줍니다. 흐름을 한곳에서 확인하세요.',
-    links: [
-      { to: '/trends/github', label: '깃헙 트렌드', target: 'story_github' },
-      { to: '/news', label: 'AI 뉴스', target: 'story_news' },
-    ],
-  },
-  {
-    id: 'story-4',
-    eyebrow: '문제 04',
-    title: '일단 둘러보며 감을 잡고 싶다면',
-    pain: '추천도 비교도 좋지만, 먼저 어떤 도구들이 있는지 가볍게 훑어보고 싶을 때가 있습니다.',
-    answer:
-      '카테고리와 태그로 전체 도구를 탐색하고 검색할 수 있습니다. 마음 가는 대로 둘러보세요.',
-    links: [{ to: '/explore', label: '전체 도구 탐색', target: 'story_explore' }],
-  },
-];
+// ② 문제 섹션 pain 키워드 칩(장식성 요약).
+const PAIN_CHIPS = ['정보 과잉', '객관 비교 부재', '최신성 불안'];
 
 // 우향 화살표(장식) — 링크 텍스트가 의미를 전달하므로 aria-hidden.
 const ArrowIcon = () => (
@@ -114,6 +109,24 @@ const ArrowIcon = () => (
   >
     <path d="M5 12h14" />
     <path d="M13 6l6 6-6 6" />
+  </svg>
+);
+
+// 스텝 아이콘 — 무채색(currentColor) 라인, 잉크 톤 일치.
+const StepIcon = ({ d }) => (
+  <svg
+    className="about-how-icon"
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d={d} />
   </svg>
 );
 
@@ -243,7 +256,7 @@ const About = () => {
 
   return (
     <div className="about-page">
-      {/* HERO: 호명 + 한 줄 정의 + CTA 1개 / 우측 실데이터 "나란히 비교" 뷰. */}
+      {/* ① HERO: 호명 + 한 줄 정의 + CTA 1개 / 우측 실데이터 "나란히 비교" 뷰. */}
       <section className="about-hero" ref={heroRef}>
         <div className="hero-gradient" />
         <div className="container">
@@ -262,8 +275,8 @@ const About = () => {
                 Grepity는 흩어진 AI 도구를 한곳에서 탐색·비교하고, 당신의 작업에
                 맞는 도구를 추천하는 플랫폼입니다.
               </p>
-              {/* 메타 스트립 — 실데이터 카운트(있을 때) + 정적 기능 앵커 라벨. */}
-              <ul className="about-hero-meta" aria-label="플랫폼 규모와 제공 기능">
+              {/* 메타 스트립 — 실데이터 카운트(있을 때) + 신뢰 신호. */}
+              <ul className="about-hero-meta" aria-label="플랫폼 규모와 신뢰 신호">
                 {meta.totalTools !== null && (
                   <li
                     className="about-hero-meta-item"
@@ -307,7 +320,46 @@ const About = () => {
         </div>
       </section>
 
-      {/* PERSONAS: 자기식별 4카드 — "당신이 어느 쪽이든" 몰입 유도. */}
+      {/* ② 문제 한 컷: 공감 앵커(문제만, 링크 없음). */}
+      <section className="about-problem" aria-labelledby="about-problem-title">
+        <div className="container">
+          <div className="about-problem-inner">
+            <p className="about-section-eyebrow">왜 필요한가</p>
+            <h2 id="about-problem-title" className="about-problem-title">
+              쏟아지는 AI 도구, 정작 ‘내게 맞는 것’은
+              <br />고르기 어렵습니다
+            </h2>
+            <p className="about-problem-sub">
+              비슷한 이름, 과장된 소개, 사이트마다 흩어진 정보 — 매주 수십 개씩
+              새로 나옵니다.
+            </p>
+            <ul className="about-problem-chips" aria-label="주요 어려움">
+              {PAIN_CHIPS.map((c) => (
+                <li key={c} className="about-problem-chip glass-soft">
+                  {c}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* ③ 어떻게 돕나: 제품 핵심 루프 3스텝(기능 중심). 스크롤 순차 등장. */}
+      <section className="about-how" aria-labelledby="about-how-title">
+        <div className="container">
+          <p className="about-section-eyebrow">어떻게 돕나</p>
+          <h2 id="about-how-title" className="about-section-title">
+            탐색하고, 비교하고, 추천받고
+          </h2>
+          <ol className="about-how-grid">
+            {STEPS.map((step) => (
+              <StepCard key={step.key} step={step} meta={meta} onTrack={track} />
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* ④ 누구에게: 사람 중심 라우터(자기식별→시작점). */}
       <section className="about-personas" aria-labelledby="about-personas-title">
         <div className="container">
           <p className="about-section-eyebrow">누구를 위한 서비스인가</p>
@@ -336,18 +388,7 @@ const About = () => {
         </div>
       </section>
 
-      {/* STORY: Pain→답 4블록 수직 타임라인 — 스크롤 진입 애니메이션. */}
-      <section className="about-stories" aria-label="우리가 푸는 문제">
-        <div className="container">
-          <div className="about-timeline">
-            {STORIES.map((story) => (
-              <StoryNode key={story.id} story={story} onTrack={track} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* TRUST: 중립성 선언 + 라이브 증거. 소셜 프루프/불신 해소. */}
+      {/* ⑤ 왜 믿나: 중립성 선언 + 라이브 증거. 소셜 프루프/불신 해소. */}
       <section className="about-trust" aria-labelledby="about-trust-title">
         <div className="container" ref={statsRef}>
           <p className="about-section-eyebrow">왜 믿을 수 있나</p>
@@ -381,7 +422,7 @@ const About = () => {
         </div>
       </section>
 
-      {/* CLOSING: 1차(추천, 솔리드) + 2차(탐색, 고스트) 위계. */}
+      {/* ⑥ CLOSING: 1차(추천, 솔리드) + 2차(탐색, 고스트) 위계. */}
       <section className="footer-cta">
         <div className="container">
           <h2>지금 바로 시작하세요</h2>
@@ -438,45 +479,29 @@ const About = () => {
   );
 };
 
-// 타임라인 노드 — 스크롤 진입 시 is-visible.
-function StoryNode({ story, onTrack }) {
+// ③ 스텝 카드 — 스크롤 진입 시 is-visible(reduced-motion 시 즉시).
+function StepCard({ step, meta, onTrack }) {
   const [ref, inView] = useInView();
   return (
-    <article
+    <li
       ref={ref}
-      className={`about-timeline-node${inView ? ' is-visible' : ''}`}
-      aria-labelledby={`${story.id}-eyebrow ${story.id}`}
+      className={`about-how-step glass-soft${inView ? ' is-visible' : ''}`}
     >
-      <span className="about-timeline-marker" aria-hidden="true" />
-      <div className="about-timeline-content">
-        <p id={`${story.id}-eyebrow`} className="about-story-eyebrow">
-          {story.eyebrow}
-        </p>
-        <h2 id={story.id} className="about-story-title">
-          {story.title}
-        </h2>
-        <p className="about-story-pain">{story.pain}</p>
-        <div className="about-answer-panel">
-          <p className="about-story-answer-label">우리의 답</p>
-          <p className="about-story-answer">{story.answer}</p>
-          <div className="about-story-links">
-            {story.links.map((link) => (
-              <Link
-                key={link.to + link.label}
-                to={link.to}
-                className="about-story-link"
-                data-track-name={TRACK_NAME}
-                data-track-target={link.target}
-                onClick={() => onTrack(link.target)}
-              >
-                {link.label}
-                <ArrowIcon />
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-    </article>
+      <span className="about-how-num">{step.n}</span>
+      <StepIcon d={step.iconPath} />
+      <h3 className="about-how-title">{step.title}</h3>
+      <p className="about-how-desc">{step.desc(meta)}</p>
+      <Link
+        to={step.to}
+        className="about-how-link"
+        data-track-name={TRACK_NAME}
+        data-track-target={step.target}
+        onClick={() => onTrack(step.target)}
+      >
+        {step.cta}
+        <ArrowIcon />
+      </Link>
+    </li>
   );
 }
 

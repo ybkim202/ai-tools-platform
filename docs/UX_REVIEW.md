@@ -59,26 +59,29 @@
 
 ---
 
-## 3.5 About 페이지 — Pain→Solution 서사의 제품화
+## 3.5 About 페이지 — 설득 아크로 재구성(2026-07)
 
-본 문서 1~3장의 **Persona·Pain·Solution 골격을 사용자에게 보여주는 화면으로 제품화**한 것이 `/about`(네비 '소개')이다. "누구의 어떤 불편을 왜 이렇게 푸는가"를 마케팅 카피가 아니라 **유저 Pain → 우리의 답** 서사로 노출해, 신규 방문자(특히 P4)에게 제품의 존재 이유를 설득한다.
+`/about`(네비 '소개')은 신규 방문자(특히 P4)를 추천/탐색으로 전환시키는 **설득 페이지**다. 리서치(Linear·Notion·Raycast·Stripe / 2026 clarity-led minimalism)의 결론 — *모든 섹션은 하나의 일을 하고, 추상 일러스트 대신 구체(실 데이터/UI)로 주장을 증명한다* — 을 반영해, 기존 "페르소나 4카드 + Pain→답 타임라인"이 **같은 상황→기능 매핑을 두 번 반복**하던 중복을 제거하고 **훅→문제→해결→이게 나?→왜 믿나→행동** 아크로 재구성했다.
 
-| 구성 | 내용 | 매핑 |
-|------|------|------|
-| **Hero(2단)** | 좌: 한 줄 정의 + 신뢰 메타(`total_tools`개+·카테고리·가입불필요·광고랭킹아님) + **1차 CTA 1개**("30초, 맞춤 추천 받기") / 우: **실데이터 "나란히 비교" 미니 뷰**(`AboutCompareVisual`) | 리서치 원칙: 히어로 비주얼은 "주장을 확인"시키는 역할(장식 아님) → "우리가 비교해준다"를 실 데이터로 증명. 히어로 CTA 1개(전환). 데이터 없으면 1단 복귀 |
-| **페르소나 4카드** | "당신이 어느 쪽이든" 자기식별 — P1~P4 각각 → 시작점 링크(추천·탐색·뉴스·트렌드) | 역할 기반 진입. 방문자가 자기 상황을 발견해 이탈 대신 몰입 |
-| **타임라인 4노드** | 각 노드 = `Pain → 우리의 답 → 해당 기능 링크`. 스크롤 진입 애니메이션 | PP1→추천 · PP2→탐색(비교)/벤치마크 · PP3→깃헙트렌드/뉴스 · (탐색)→탐색 |
-| **증거/중립성 스트립** | 라이브 수치(count-up) + "무인증"·"광고랭킹 아님(사용자수·벤치마크 기준)" | 검증 가능한 소셜 프루프. AI 디렉터리 최대 불신("제휴광고 아니냐") 선제 해소 |
-| **클로징 CTA** | 1차 "맞춤 추천 받기"(솔리드) + 2차 "전체 도구 탐색"(고스트) | 위계 명확화(1차 1개 dominant) |
-| **Sticky bottom CTA** | Hero 이탈 후 상시 노출되는 "맞춤 추천 받기"(모바일 thumb-zone) | 스크롤 내내 1차 전환 상시 제공 |
+| 순서 | 섹션 | 조직 원리 | 내용 |
+|------|------|------|------|
+| ① **Hero(2단)** | 훅+증명+전환 | 좌: 한 줄 정의 + 신뢰 메타(`total_tools`개+·카테고리·가입불필요·광고랭킹아님) + **CTA 1개** / 우: **실데이터 "나란히 비교" 미니 뷰**(`AboutCompareVisual` — 리스트로 난이도 다양성 최대 카테고리 선택 → `compare` 엔드포인트로 실 가격·난이도·인기 3×3). 데이터 없으면 1단 복귀 |
+| ② **문제 한 컷** | 공감(문제만) | 대형 임팩트 타이틀 + pain 키워드 칩 3개(정보 과잉·객관 비교 부재·최신성 불안). 링크 없음 |
+| ③ **어떻게 돕나(3스텝)** | **기능 중심** | 탐색→비교→추천 핵심 루프. 번호(01/02/03)+아이콘+설명+링크. 탐색 스텝에 실 도구 수 주입. 커넥터 라인, 스크롤 순차 등장 |
+| ④ **누구에게(라우터)** | **사람 중심** | P1~P4 컴팩트 카드 — 자기식별→시작점(추천·탐색·뉴스·트렌드). ③보다 가볍게 |
+| ⑤ **왜 믿나** | 증거·이견해소 | 라이브 수치(count-up) + "무인증"·"광고랭킹 아님(사용자수·벤치마크 기준)" |
+| ⑥ **클로징 CTA** | 전환 | 1차 "맞춤 추천"(솔리드) + 2차 "전체 도구 탐색"(고스트) |
+| + **Sticky CTA** | 상시 전환 | Hero 이탈 후 상시 "맞춤 추천"(모바일 thumb-zone) |
 
-> **IA 최신화(2026-07)**: 구 링크(`/recommendations`·`/compare`·`/`=둘러보기)가 재설계된 목적지(`/#recommend`·`/explore`)를 안 가리키던 부패를 정정. 비교 CTA는 도구 선택이 선행돼야 하므로 `/explore`로 유도(빈 모달 회피).
+**③↔④ 중복 차단**: ③=기능 중심(무엇을 한다, 가로 번호 스텝) / ④=사람 중심(당신이라면 어디서 시작, 컴팩트 카드). 시각도 분리. **타임라인 제거**(pain은 ②로 압축, 링크는 ③·④가 흡수).
 
-**디자인/트렌드(2026-07 리뉴얼)**: 세로 타임라인 모티프 유지 + 신규 섹션은 `glass-soft`·spacing/radius 토큰만 재조합(신규 색토큰 0·인라인 hex 0·pill 금지), 다크모드 잉크 토큰 자동 대응. 반영한 2026 UI/UX 트렌드 = 스크롤리텔링(진입 fade/slide-in)·제품을 보여주는 Hero·마이크로 인터랙션(count-up·hover)·sticky CTA·검증 가능 소셜 프루프. 접근성: 모든 진입·count-up은 `prefers-reduced-motion` 폴백(즉시 노출/최종값), IntersectionObserver 미지원·데이터 실패 시 graceful(내용 노출·단어 폴백), story 노드 `<article>`+`aria-labelledby`, sticky는 비노출 시 `tabIndex=-1`+`aria-hidden`.
+> **IA 최신화(2026-07)**: 구 링크(`/recommendations`·`/compare`·`/`=둘러보기)가 재설계된 목적지(`/#recommend`·`/explore`)를 안 가리키던 부패를 정정. 비교는 도구 선택이 선행돼야 하므로 `/explore`로 유도(빈 모달 회피).
 
-**전환 측정(이벤트 추적)**: About은 "클릭 전환"이 1차 성공지표라, 각 CTA 클릭을 **자체 백엔드 이벤트**로 적재한다(`POST /api/events`, 외부 SaaS·키 없는 1st-party, IP/UA 미수집). `trackEvent('about_cta_click', {target, path})`는 **fire-and-forget**(네비 비차단·에러 침묵). target = 기존 story/closing 계열 + 신규 `persona_p1`~`persona_p4`·`sticky_recommend`(비교 CTA는 `/explore` 유도라 `story_compare`·`closing_explore` 유지). → 적재 데이터로 어떤 Pain 메시지·어떤 페르소나 진입이 전환을 끄는지 사후 분석 가능.
+**디자인/트렌드**: 신규 섹션은 `glass-soft`·spacing/radius/font 토큰만 재조합(신규 색토큰 0·인라인 hex 0), 배경 리듬 교차(문제 surface / 3스텝 background / 페르소나 surface / 증거 background). 반영 트렌드 = clarity-led minimalism·구체(실 데이터/UI)로 주장 증명·스크롤 순차 등장·마이크로 인터랙션(count-up·hover)·sticky CTA. 접근성: 진입·count-up `prefers-reduced-motion` 폴백(즉시 노출/최종값), IO 미지원·데이터 실패 graceful, 각 섹션 `aria-labelledby`, sticky 비노출 시 `tabIndex=-1`+`aria-hidden`.
 
-> **서사 일관성 주의**: 타임라인이 보내는 `/news`·`/trends/github`는 수집 cron 점등 전 0행이다(F2). About→해당 페이지 직후 빈 상태가 서사의 신뢰를 깎지 않도록 **운영 점등을 우선**하거나 각 페이지 EmptyState 품질에 의존한다.
+**전환 측정(이벤트 추적)**: 각 CTA 클릭을 **자체 백엔드 이벤트**로 적재(`POST /api/events`, 키 없는 1st-party, IP/UA 미수집). `trackEvent('about_cta_click', {target, path})`는 fire-and-forget. target = `hero_recommend` · `how_explore`·`how_compare`·`how_recommend`(3스텝) · `persona_p1~p4` · `closing_recommend`·`closing_explore` · `sticky_recommend`(문제 섹션은 링크 없음). → 어느 스텝·페르소나 진입이 전환을 끄는지 사후 분석.
+
+> **서사 일관성 주의**: ③·④가 보내는 `/news`·`/trends/github`는 수집 cron 점등 전 0행이다(F2). 직후 빈 상태가 신뢰를 깎지 않도록 **운영 점등 우선** 또는 각 페이지 EmptyState 품질에 의존.
 
 ---
 
