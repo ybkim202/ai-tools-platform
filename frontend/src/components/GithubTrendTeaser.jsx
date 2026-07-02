@@ -4,11 +4,11 @@ import { trendingAPI } from '../services/api';
 import { safeHttpUrl } from '../utils/url';
 import ExternalLinkIcon from './ExternalLinkIcon';
 import '../styles/Curated.css';
-import '../styles/GithubTrends.css';
 
-// 랜딩 깃헙 트렌드 프리뷰 — 주간 급부상 오픈소스 상위 N개를 맛보기로 보여준다.
-// 전체는 /trends/github. 데이터 미점등(0행)이면 렌더하지 않는다(정직성 G3).
-const TOP_N = 4;
+// 랜딩 깃헙 트렌드 프리뷰 — Apple 벤토(Bento) 그리드. 이번 주 급부상 오픈소스 Top N을
+// 큰 히어로 셀(1위: 이름·설명·큰 별점)+작은 셀(2~5위)로. 전체는 /trends/github.
+// 데이터 미점등(0행)이면 렌더하지 않는다(정직성 G3).
+const TOP_N = 5; // 히어로 1 + 셀 4 = 벤토 4×2
 
 // 별점 압축 표기(1,234 → 1.2k). GithubTrends 페이지와 동일 규칙.
 const formatStars = (value) => {
@@ -35,6 +35,47 @@ const StarIcon = () => (
   </svg>
 );
 
+// 레포 → 표시 필드 파생.
+const repoView = (repo) => {
+  const url = safeHttpUrl(repo.html_url);
+  return {
+    url,
+    avatarUrl: safeHttpUrl(repo.avatar_url),
+    ownerRepo: repo.owner
+      ? `${repo.owner}/${repo.repo || repo.name}`
+      : repo.repo || repo.name,
+    starsText: formatStars(repo.stars),
+    descText: repo.description_ko || repo.description || '',
+    topics: Array.isArray(repo.topics) ? repo.topics.slice(0, 3) : [],
+    name: repo.name || repo.repo,
+    language: repo.language,
+  };
+};
+
+const Avatar = ({ url }) =>
+  url ? (
+    <img
+      className="trend-avatar"
+      src={url}
+      alt=""
+      loading="lazy"
+      onError={(e) => {
+        e.currentTarget.style.display = 'none';
+      }}
+    />
+  ) : null;
+
+const cellProps = (url, ownerRepo) =>
+  url
+    ? {
+        as: 'a',
+        href: url,
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        'aria-label': `${ownerRepo} 깃헙 레포 (새 창에서 열림)`,
+      }
+    : { as: 'article' };
+
 const GithubTrendTeaser = () => {
   const [repos, setRepos] = useState([]);
 
@@ -56,6 +97,19 @@ const GithubTrendTeaser = () => {
 
   if (repos.length === 0) return null;
 
+  const hero = repoView(repos[0]);
+  const rest = repos.slice(1, TOP_N).map(repoView);
+
+  const HeroTag = hero.url ? 'a' : 'article';
+  const heroProps = hero.url
+    ? {
+        href: hero.url,
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        'aria-label': `${hero.ownerRepo} 깃헙 레포 (새 창에서 열림)`,
+      }
+    : {};
+
   return (
     <section className="curated-section" aria-labelledby="trend-teaser-title">
       <div className="curated-section-header">
@@ -73,72 +127,80 @@ const GithubTrendTeaser = () => {
         </Link>
       </div>
 
-      <div className="repo-grid repo-grid--teaser">
-        {repos.slice(0, TOP_N).map((repo) => {
-          const url = safeHttpUrl(repo.html_url);
-          const avatarUrl = safeHttpUrl(repo.avatar_url);
-          const ownerRepo = repo.owner
-            ? `${repo.owner}/${repo.repo || repo.name}`
-            : repo.repo || repo.name;
-          const starsText = formatStars(repo.stars);
-          const descText = repo.description_ko || repo.description || '';
-          const CardTag = url ? 'a' : 'article';
-          const cardProps = url
-            ? {
-                href: url,
-                target: '_blank',
-                rel: 'noopener noreferrer',
-                'aria-label': `${ownerRepo} 깃헙 레포 (새 창에서 열림)`,
-              }
-            : {};
-
-          return (
-            <CardTag
-              key={repo.id || repo.html_url || ownerRepo}
-              className="repo-card"
-              {...cardProps}
-            >
-              <div className="repo-card-head">
-                <span className="repo-owner">
-                  {avatarUrl && (
-                    <img
-                      className="repo-owner-avatar"
-                      src={avatarUrl}
-                      alt=""
-                      loading="lazy"
-                      width="28"
-                      height="28"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
-                  )}
-                  <span className="repo-owner-name">{ownerRepo}</span>
+      <div className="bento-grid">
+        {/* 히어로 셀(2×2): 1위 레포 — 이름·설명·큰 별점 */}
+        <HeroTag className="bento-cell bento-hero trend-hero" {...heroProps}>
+          <div className="trend-hero-top">
+            <span className="trend-owner">
+              <Avatar url={hero.avatarUrl} />
+              <span className="trend-owner-name">{hero.ownerRepo}</span>
+            </span>
+            {hero.starsText && (
+              <span className="trend-stars trend-stars--hero">
+                <StarIcon />
+                <b>{hero.starsText}</b>
+              </span>
+            )}
+          </div>
+          <h3 className="trend-hero-name">{hero.name}</h3>
+          <p className="trend-hero-desc">
+            {hero.descText || '설명이 없는 레포예요.'}
+          </p>
+          <div className="trend-hero-foot">
+            <span className="trend-tags">
+              {hero.language && (
+                <span className="trend-lang">
+                  <span className="trend-lang-dot" aria-hidden="true" />
+                  {hero.language}
                 </span>
-                {starsText && (
-                  <span className="repo-stars">
+              )}
+              {hero.topics.map((t) => (
+                <span key={t} className="trend-topic">
+                  #{t}
+                </span>
+              ))}
+            </span>
+            {hero.url && (
+              <span className="trend-go">
+                깃헙에서 보기
+                <ExternalLinkIcon />
+                <span className="sr-only">(새 창에서 열림)</span>
+              </span>
+            )}
+          </div>
+        </HeroTag>
+
+        {/* 나머지(2~5위): 컴팩트 셀 */}
+        {rest.map((r, idx) => {
+          const Tag = r.url ? 'a' : 'article';
+          const p = cellProps(r.url, r.ownerRepo);
+          delete p.as;
+          return (
+            <Tag
+              key={repos[idx + 1].id || r.url || r.ownerRepo}
+              className="bento-cell trend-cell"
+              {...p}
+            >
+              <span className="trend-owner trend-owner--sm">
+                <Avatar url={r.avatarUrl} />
+                <span className="trend-owner-name">{r.ownerRepo}</span>
+              </span>
+              <h4 className="trend-cell-name">{r.name}</h4>
+              <div className="trend-cell-foot">
+                {r.starsText && (
+                  <span className="trend-stars">
                     <StarIcon />
-                    {starsText}
+                    {r.starsText}
+                  </span>
+                )}
+                {r.language && (
+                  <span className="trend-lang">
+                    <span className="trend-lang-dot" aria-hidden="true" />
+                    {r.language}
                   </span>
                 )}
               </div>
-
-              <h3 className="repo-name">{repo.name || repo.repo}</h3>
-
-              {descText ? (
-                <p className="repo-desc">{descText}</p>
-              ) : (
-                <p className="repo-desc repo-desc-empty">설명이 없는 레포예요.</p>
-              )}
-
-              {url && (
-                <span className="repo-link">
-                  깃헙에서 보기
-                  <ExternalLinkIcon />
-                  <span className="sr-only">(새 창에서 열림)</span>
-                </span>
-              )}
-            </CardTag>
+            </Tag>
           );
         })}
       </div>
