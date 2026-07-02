@@ -1,35 +1,71 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { benchmarksAPI } from '../services/api';
-import { benchmarkTypeLabel, formatBenchmarkScore } from '../utils/benchmark';
+import { benchmarkTypeLabel } from '../utils/benchmark';
 import { resolveLogoSrc, handleLogoError } from '../utils/logoFallback';
 import '../styles/Curated.css';
 
-// 랜딩 성능 벤치마크 프리뷰 — 2단 대시보드: 좌(벤치마크 기준 목록) / 우(가로 막대
-// 그래프). 기준을 고르면 우측 그래프가 그 리더보드로 바뀐다. 도구 2개 이상인 type 만
-// (1개짜리 리더보드 제외), 도구 많은 순·최대 6개. 데이터 없으면 미렌더(정직성 G3).
-const TOP_N = 5;
+// 랜딩 성능 벤치마크 프리뷰 — Apple 벤토(Bento) 그리드. 탭 없이 여러 벤치를 한눈에:
+// 큰 히어로 셀(모델 多 벤치의 Top 3 미니 리더보드) + 작은 지표 셀(각 벤치 1위 + 큰 점수).
+// 도구 2개 이상인 type 만(1개짜리 제외), 도구 많은 순, 최대 5개(히어로+4). 데이터 없으면 미렌더(G3).
 const MIN_TOOLS = 2;
-const MAX_CRITERIA = 6;
+const MAX_CRITERIA = 5;
+const HERO_TOP = 3;
 
-// 막대 길이(%) — Benchmarks 페이지와 동일 규칙: percent→만점(100) 분모, elo→축
-// 최고점 분모(절대 만점 없음). 점수 있는 막대는 6% floor 로 0 과 구분.
+// 히어로 미니바 길이(%). percent→만점 분모, elo→그룹 최고점 분모. 6% floor 로 0 구분.
 const barPct = (score, unit, axisMax, maxScore) => {
   const n = Number(score);
   if (!Number.isFinite(n)) return 0;
   const denom =
-    unit === 'elo'
-      ? axisMax
-      : Number(maxScore) > 0
-      ? Number(maxScore)
-      : 100;
+    unit === 'elo' ? axisMax : Number(maxScore) > 0 ? Number(maxScore) : 100;
   if (!Number.isFinite(denom) || denom <= 0) return 0;
   return Math.max(6, Math.min(100, (n / denom) * 100));
 };
 
+// 점수를 큰 숫자 + 맥락으로 분리(벤토 셀의 헤드라인 지표). elo→"Elo", 그 외→"/ 만점".
+const scoreParts = (row) => {
+  const n = Number(row.score);
+  if (!Number.isFinite(n)) return { value: '-', ctx: '' };
+  const value = Number.isInteger(n) ? String(n) : String(Math.round(n * 10) / 10);
+  if ((row.unit || '') === 'elo') return { value, ctx: 'Elo' };
+  const max = Number(row.max_score) > 0 ? Number(row.max_score) : 100;
+  return { value, ctx: `/ ${max}` };
+};
+
+const unitHintOf = (row) =>
+  (row?.unit || '') === 'elo' ? 'Elo · 상대 점수' : '100점 만점';
+
+// 벤토 지표 셀(각 벤치의 1위 모델 + 큰 점수).
+const BentoMetricCell = ({ group }) => {
+  const top = group.rows[0];
+  const { value, ctx } = scoreParts(top);
+  return (
+    <article className="bento-cell bento-metric">
+      <span className="bento-eyebrow">{benchmarkTypeLabel(group.type)}</span>
+      <Link to={`/details/${top.tool_id}`} className="bento-lead">
+        <img
+          src={resolveLogoSrc(top.logo_url, top.tool_name, top.official_url)}
+          alt=""
+          className="bento-logo"
+          loading="lazy"
+          data-official-url={top.official_url || ''}
+          onError={handleLogoError}
+        />
+        <span className="bento-lead-name">{top.tool_name}</span>
+      </Link>
+      <span className="bento-score">
+        <b className="bento-score-val">{value}</b>
+        <span className="bento-score-ctx">{ctx}</span>
+      </span>
+      <span className="bento-meta">
+        {benchmarkTypeLabel(group.type)} 1위 · {group.count}개 모델
+      </span>
+    </article>
+  );
+};
+
 const BenchmarkTeaser = () => {
   const [groups, setGroups] = useState([]); // [{ type, count, rows(top N) }]
-  const [active, setActive] = useState(null);
 
   useEffect(() => {
     let alive = true;
@@ -50,12 +86,9 @@ const BenchmarkTeaser = () => {
           .map(([type, list]) => ({
             type,
             count: list.length,
-            rows: [...list]
-              .sort((a, b) => Number(b.score) - Number(a.score))
-              .slice(0, TOP_N),
+            rows: [...list].sort((a, b) => Number(b.score) - Number(a.score)),
           }));
         setGroups(built);
-        setActive(built.length > 0 ? built[0].type : null);
       })
       .catch(() => {
         if (alive) setGroups([]);
@@ -65,16 +98,13 @@ const BenchmarkTeaser = () => {
     };
   }, []);
 
-  const current = useMemo(
-    () => groups.find((g) => g.type === active) || groups[0] || null,
-    [groups, active]
-  );
+  if (groups.length === 0) return null;
 
-  if (!current) return null;
-
-  const unit = current.rows[0]?.unit || 'percent';
-  const axisMax = Math.max(...current.rows.map((r) => Number(r.score) || 0));
-  const unitHint = unit === 'elo' ? 'Elo · 상대 점수' : '100점 만점';
+  const hero = groups[0];
+  const rest = groups.slice(1);
+  const heroTop = hero.rows.slice(0, HERO_TOP);
+  const heroUnit = hero.rows[0]?.unit || 'percent';
+  const heroAxisMax = Math.max(...hero.rows.map((r) => Number(r.score) || 0));
 
   return (
     <section className="bench-teaser" aria-labelledby="bench-teaser-title">
@@ -93,85 +123,59 @@ const BenchmarkTeaser = () => {
         </Link>
       </div>
 
-      <div className="bench-teaser-split">
-        {/* 좌: 벤치마크 기준 목록(세로 탭) */}
-        <div
-          className="bench-teaser-criteria"
-          role="tablist"
-          aria-orientation="vertical"
-          aria-label="벤치마크 선택"
-        >
-          {groups.map((g) => {
-            const selected = g.type === current.type;
-            return (
-              <button
-                key={g.type}
-                type="button"
-                role="tab"
-                id={`bench-crit-${g.type}`}
-                aria-selected={selected}
-                aria-controls="bench-teaser-graph"
-                className={`bench-teaser-crit${selected ? ' active' : ''}`}
-                onClick={() => setActive(g.type)}
-              >
-                <span className="bench-crit-name">
-                  {benchmarkTypeLabel(g.type)}
-                </span>
-                <span className="bench-crit-meta">{g.count}개 모델</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* 우: 가로 막대 그래프 */}
-        <div
-          className="bench-teaser-graph"
-          id="bench-teaser-graph"
-          role="tabpanel"
-          aria-labelledby={`bench-crit-${current.type}`}
-        >
-          <p className="bench-graph-head">
-            <span className="bench-graph-title">
-              {benchmarkTypeLabel(current.type)}
+      <div className="bento-grid">
+        {/* 히어로 셀 — 모델이 가장 많은 벤치의 Top 3 미니 리더보드(2×2). */}
+        <article className="bento-cell bento-hero">
+          <div className="bento-head">
+            <span className="bento-eyebrow">{benchmarkTypeLabel(hero.type)}</span>
+            <span className="bento-hint">
+              {unitHintOf(hero.rows[0])} · {hero.count}개 모델
             </span>
-            <span className="bench-graph-unit">{unitHint}</span>
-          </p>
-          {/* key=type 으로 탭 전환마다 리스트를 remount → 막대 등장 애니메이션 재생. */}
-          <ul className="bench-bars" aria-live="polite" key={current.type}>
-            {current.rows.map((row, idx) => (
-              <li key={row.id} className="bench-bar-row">
-                <Link
-                  to={`/details/${row.tool_id}`}
-                  className="bench-bar-name"
+          </div>
+          <ol className="bento-rank">
+            {heroTop.map((row, idx) => {
+              const { value, ctx } = scoreParts(row);
+              return (
+                <li
+                  key={row.id}
+                  className={`bento-rank-row${idx === 0 ? ' is-top' : ''}`}
                 >
-                  <span className="bench-bar-rank" aria-hidden="true">
-                    {idx + 1}
-                  </span>
-                  <img
-                    src={resolveLogoSrc(row.logo_url, row.tool_name, row.official_url)}
-                    alt=""
-                    className="bench-bar-logo"
-                    loading="lazy"
-                    data-official-url={row.official_url || ''}
-                    onError={handleLogoError}
-                  />
-                  <span className="bench-bar-toolname">{row.tool_name}</span>
-                </Link>
-                <div className="bench-bar-track" aria-hidden="true">
-                  <div
-                    className={`bench-bar-fill${idx === 0 ? ' is-top' : ''}`}
-                    style={{
-                      width: `${barPct(row.score, unit, axisMax, row.max_score)}%`,
-                    }}
-                  />
-                </div>
-                <span className="bench-bar-score">
-                  {formatBenchmarkScore(row)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
+                  <Link to={`/details/${row.tool_id}`} className="bento-rank-link">
+                    <span className="bento-rank-num" aria-hidden="true">
+                      {idx + 1}
+                    </span>
+                    <img
+                      src={resolveLogoSrc(row.logo_url, row.tool_name, row.official_url)}
+                      alt=""
+                      className="bento-logo"
+                      loading="lazy"
+                      data-official-url={row.official_url || ''}
+                      onError={handleLogoError}
+                    />
+                    <span className="bento-rank-name">{row.tool_name}</span>
+                    <span className="bento-rank-score">
+                      <b>{value}</b>
+                      <span className="bento-score-ctx">{ctx}</span>
+                    </span>
+                  </Link>
+                  <div className="bento-rank-bar" aria-hidden="true">
+                    <div
+                      className={`bento-rank-fill${idx === 0 ? ' is-top' : ''}`}
+                      style={{
+                        width: `${barPct(row.score, heroUnit, heroAxisMax, row.max_score)}%`,
+                      }}
+                    />
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </article>
+
+        {/* 나머지 벤치 — 각 1위 모델 + 큰 점수(1×1). */}
+        {rest.map((g) => (
+          <BentoMetricCell key={g.type} group={g} />
+        ))}
       </div>
     </section>
   );
