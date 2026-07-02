@@ -751,9 +751,16 @@ a.bento-cell:focus-visible {
 
 .trend-hero-top {
   display: flex;
-  align-items: center;
+  /* 큰 별점(44px) 기준 center면 owner가 아래로 떠 컴팩트 셀과 어긋나 보임 → 상단 정렬.
+     별점 숫자의 상단 라인 여백을 줄여(owner와 광학적 상단 일치) 여백 어긋남 방지. */
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--spacing-md);
+}
+
+/* 히어로 owner를 큰 별점 숫자의 광학적 상단에 맞춰 미세 정렬. */
+.trend-hero-top .trend-owner {
+  padding-top: 2px;
 }
 
 .trend-hero-name {
