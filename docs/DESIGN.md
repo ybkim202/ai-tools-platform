@@ -268,6 +268,8 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 
 **`counter-pill`** — 비교 선택 카운터("3 / 5"). 전역 기본은 배경 `{colors.surface}`, 1px `{colors.border}`, `{colors.text-secondary}`. 비교 트레이 안(`.compare-tray .counter-pill`)에서는 잉크 틴트(`{colors.primary-surface-strong}` + `{colors.primary-border}` + `{colors.primary-darker}`)로 강조.
 
+**`explore-sidebar` / `facet-option` (탐색 퍼싯)** — /explore 좌측 퍼싯 사이드바(surface 카드 + 1px `{colors.border}` + `{rounded.lg}`, `position: sticky`). 퍼싯 그룹은 `fieldset/legend`. **`facet-option`**: 비활성 은은(`{colors.text-secondary}`), hover=background 상승, **활성=잉크 틴트**(`{colors.primary-surface-strong}` + `{colors.primary-border}` + `{colors.primary-darker}`, `aria-pressed`). 카운트 `{facet-count}`=보조톤 숫자(색 단독 아님, 라벨 병행), **0건은 `disabled`**(opacity 0.4). 카테고리는 다중선택(OR)·목록 내 검색·세로 스크롤(max-height 264). 모바일: 사이드바 → 슬라이드 **드로어**(오버레이 `{colors.overlay}`·ESC·스크롤락, `필터(N)` 토글). 카운트·옵션은 전부 DB 실값(하드코딩 금지) — 데이터 정합성 원칙.
+
 ### Badges
 
 **`difficulty-badge`** — 난이도. inline-flex, 점(○◐●)+텍스트(색맹 대응), `{type.caption}`/600, 라운드 `{rounded.full}`, 패딩 `{spacing.xs} {spacing.md}`.
