@@ -6,7 +6,8 @@ import TypingHeadline from '../components/TypingHeadline';
 import BenchmarkTeaser from '../components/BenchmarkTeaser';
 import GithubTrendTeaser from '../components/GithubTrendTeaser';
 import RecommendationPanel from '../components/RecommendationPanel';
-import { LoadingState, ErrorState } from '../components/states/StateViews';
+import { ErrorState } from '../components/states/StateViews';
+import { CuratedHeroSkeleton } from '../components/Skeletons';
 import { CATEGORY_HERO_COPY, DEFAULT_HERO_COPY } from '../utils/categoryMeta';
 import '../styles/Home.css';
 
@@ -164,7 +165,7 @@ const Home = () => {
         {/* 우측: 카테고리별 인기 Top N 큐레이션 위젯 */}
         <div className="hero-curated">
           {loading ? (
-            <LoadingState message="추천 도구를 불러오는 중..." />
+            <CuratedHeroSkeleton />
           ) : error ? (
             <ErrorState
               message={error?.message}
