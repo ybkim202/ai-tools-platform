@@ -1,14 +1,303 @@
 /* ========================================
-   EXPLORE (/explore — 전체 도구 탐색)
-   page-header 는 App.css 전역, 탐색 UI(search-filter/tools-section)는 Home.css 를
-   ToolBrowser 가 들고 온다. 여기선 헤더↔탐색 간 간격만 조율(토큰만).
+   EXPLORE (/explore — 전체 도구 탐색) — 퍼싯 사이드바 + 결과 그리드
+   무채색·토큰만(인라인 hex 금지). 활성 퍼싯 = 잉크 틴트(색 단독 아님, aria-pressed+텍스트).
    ======================================== */
 
 .explore-page .page-header {
   margin-bottom: var(--spacing-lg);
 }
 
-/* 헤더 바로 아래라 탐색 검색바 상단 여백을 줄여 이중 간격을 줄인다. */
-.explore-page .search-filter {
-  padding-top: var(--spacing-xl);
+.explore-browser {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg) var(--spacing-4xl);
+}
+
+/* 검색바(전체폭) */
+.explore-search {
+  margin: 0 0 var(--spacing-lg);
+}
+
+/* 2단 레이아웃: [사이드바] [결과]. */
+.explore-layout {
+  display: grid;
+  grid-template-columns: 264px 1fr;
+  gap: var(--spacing-xl);
+  align-items: start;
+}
+
+/* ── 퍼싯 사이드바 ── */
+.explore-sidebar {
+  position: sticky;
+  top: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.explore-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.explore-sidebar-title {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.explore-sidebar-head-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* 드로어 닫기 버튼 — 데스크톱에선 숨김. */
+.explore-sidebar-close {
+  display: none;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xl);
+  line-height: 1;
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.explore-sidebar-close:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* 퍼싯 그룹(fieldset) */
+.facet-group {
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.facet-legend {
+  padding: 0;
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--color-text-secondary);
+}
+
+/* 카테고리 목록 내 검색 */
+.facet-search {
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.facet-search:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.facet-search::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.facet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* 카테고리처럼 긴 목록은 세로 스크롤(과밀 방지). */
+.facet-list--scroll {
+  max-height: 264px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+/* 난이도·라이선스처럼 옵션 적은 퍼싯은 인라인 wrap. */
+.facet-list--inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+/* 퍼싯 옵션 — 비활성 은은, 활성만 잉크 틴트 + 좌측 액센트(세로 목록). */
+.facet-option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  text-align: left;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast),
+    color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.facet-list--scroll .facet-option {
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.facet-option:hover {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+.facet-option.active {
+  background-color: var(--color-primary-surface-strong);
+  border-color: var(--color-primary-border);
+  color: var(--color-primary-darker);
+  font-weight: 600;
+}
+
+.facet-option:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.facet-empty {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  margin: 0;
+}
+
+/* ── 결과 영역 ── */
+.explore-results {
+  min-width: 0;
+}
+
+.explore-results-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.explore-results-bar .tools-count {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.explore-results-bar .tools-sort {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* 모바일 필터 토글 — 데스크톱에선 숨김(사이드바 상시 노출). */
+.explore-filter-toggle {
+  display: none;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.explore-filter-toggle:hover {
+  border-color: var(--color-primary);
+}
+
+/* 드로어 오버레이(모바일) — 기본 숨김. */
+.explore-drawer-overlay {
+  display: none;
+}
+
+/* ── 반응형: 태블릿 이하 → 사이드바를 드로어로 ── */
+@media (max-width: 900px) {
+  .explore-layout {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .explore-filter-toggle {
+    display: inline-flex;
+  }
+
+  .explore-drawer-overlay.is-open {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 800;
+    background-color: var(--color-overlay);
+  }
+
+  .explore-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 810;
+    width: min(320px, 86vw);
+    height: 100%;
+    border-radius: 0;
+    border-right: 1px solid var(--color-border);
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform var(--transition-normal);
+  }
+
+  .explore-sidebar.is-open {
+    transform: translateX(0);
+  }
+
+  .explore-sidebar-close {
+    display: inline-flex;
+  }
+
+  .facet-list--scroll {
+    max-height: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .explore-sidebar {
+    transition: none;
+  }
+}
+
+/* 결과 정렬 툴바 — 좁은 화면에서 줄바꿈 */
+@media (max-width: 560px) {
+  .explore-results-bar {
+    flex-wrap: wrap;
+  }
+  .explore-results-bar .tools-sort {
+    margin-left: 0;
+    width: 100%;
+  }
 }
