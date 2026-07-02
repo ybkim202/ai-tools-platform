@@ -91,7 +91,8 @@ AITools는 Linear의 절제된 시스템 미감을 **라이트 캔버스**에서
 | Token | Size | Weight | Line Height | Letter Spacing | Use |
 |---|---|---|---|---|---|
 | `{type.hero}` | clamp(28–48px) | 700 | 1.2 | 0 | 히어로 헤드라인 (반응형 clamp) |
-| `{type.display}` | 32px (`--font-size-3xl`) | 700 | 1.2 | -0.5px | 페이지 타이틀 |
+| `{type.metric}` | 44px (`--font-size-4xl`) | 700 | 1 | -0.5px | 대형 지표 숫자 — 벤토 셀 헤드라인 점수 |
+| `{type.display}` | 32px (`--font-size-3xl`) | 700 | 1.2 | -0.5px | 페이지 타이틀, 벤토 히어로 1위 점수 |
 | `{type.heading}` | 24px (`--font-size-2xl`) | 700 | 1.3 | -0.3px | 섹션 제목, 카드 그룹 헤더 |
 | `{type.title}` | 20px (`--font-size-xl`) | 600 | 1.4 | -0.2px | 카드 타이틀, 도구명 |
 | `{type.body-lg}` | 16px (`--font-size-lg`) | 400 | 1.6 | 0 | 리드 문단, CTA 라벨 |
@@ -203,6 +204,8 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 | `{rounded.md}` | 6px | **모든 버튼, 입력, 필터 칩** |
 | `{rounded.lg}` | 8px | **카드 (도구 카드, 추천 카드), CTA 버튼** |
 | `{rounded.xl}` | 12px | 큰 패널, 비교 테이블 컨테이너, hero 카드 |
+| `{rounded.2xl}` | 15px | 모달·글래스 패널(Compare 모달 등) |
+| `{rounded.3xl}` | 20px | **벤토(Bento) 카드** — 큰 라운드 surface 셀 |
 | `{rounded.full}` | 9999px | pill 배지, hero badge, 카운터 칩, 아바타 |
 
 정본: [Home.css:44-49](../frontend/src/styles/Home.css#L44-L49). **버튼은 절대 pill로 만들지 않는다**(Linear 규칙) — `{rounded.md}` 6px 또는 `{rounded.lg}` 8px. pill(`{rounded.full}`)은 배지·카운터·뱃지 전용.
@@ -259,6 +262,8 @@ Inter는 무료 가변 폰트로 이미 채택돼 있다. macOS/iOS에선 `-appl
 **`curated-hero` (CuratedHeroWidget)** — 벤치마크 프리뷰형 2단. 좌: 아이콘 전용 카테고리 레일(hover 시 이름 핀 확장, 무채색 라인 아이콘 — 이모지 금지), 우: 인기 Top 5 세로 리스트(로고 폴백은 ToolCard와 동일 `alt`+`data-official-url` 체인). 4.5초 자동 회전, 전환 fade. 아이콘·카피 정본 `utils/categoryMeta.js`.
 
 **`curated-section-title` / `curated-section-subtitle`** — 랜딩 섹션 헤더. 제목은 전 섹션 `{type.h2}` 24px 통일(recommend-panel·footer h2와 동일), 제목 아래 한 줄 소제목(`{type.caption}`·`{colors.text-secondary}`). 섹션 간 간격은 `{spacing.5xl}` 96px.
+
+**`bench-bento` (BenchmarkTeaser)** — 랜딩 성능 벤치마크를 **Apple 벤토(Bento) 그리드**로. 4열 CSS Grid에 **히어로 셀(2×2)** = 모델 최다 벤치의 Top 3 미니 리더보드(1위 점수 `{type.display}` 잉크 강조 + 미니 바), **지표 셀(1×1)** = 각 벤치 1위 모델 + 큰 점수(`{type.metric}` 44px). 셀은 `{colors.surface}` + 1px `{colors.border}` + `{rounded.3xl}` 20px, 패딩 `{spacing.xl}`. 반응형 4→2(태블릿, 히어로 2×1)→1열(모바일). 무채색·토큰만(스포트라이트/네온 없음 — 평면 surface 카드). 탭 없이 여러 벤치를 한눈에.
 
 **`counter-pill`** — 비교 선택 카운터("3 / 5"). 전역 기본은 배경 `{colors.surface}`, 1px `{colors.border}`, `{colors.text-secondary}`. 비교 트레이 안(`.compare-tray .counter-pill`)에서는 잉크 틴트(`{colors.primary-surface-strong}` + `{colors.primary-border}` + `{colors.primary-darker}`)로 강조.
 

@@ -55,6 +55,7 @@
   --font-size-xl: 20px;
   --font-size-2xl: 24px;
   --font-size-3xl: 32px;
+  --font-size-4xl: 44px; /* 벤토 히어로 등 대형 지표 숫자(display) — DESIGN.md 타입 스케일 참조. */
 
   /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -82,6 +83,7 @@
   --radius-lg: 8px;
   --radius-xl: 12px;
   --radius-2xl: 15px;
+  --radius-3xl: 20px; /* 벤토 카드 등 큰 라운드 표면 — DESIGN.md 라운드 스케일 참조. */
   --radius-full: 9999px;
 
   /* Transitions */
