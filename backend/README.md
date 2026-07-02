@@ -201,14 +201,14 @@ ENABLE_SCHEDULER=true SCHEDULER_WORKER=true COLLECT_INTERVAL_HOURS=24 \
 
 ## 백업 · 복구 · 시드 export (운영 안전망)
 
-> DB 호스팅: **Neon** (`ap-southeast-1`). 2026-06-30 Render 무료 PostgreSQL 만료로 이전. Neon 무료는 유휴 시 컴퓨트 **오토서스펜드**(첫 요청 콜드스타트, 데이터 보존)·**영구 삭제 없음**.
-> ⚠️ `pg_dump`/`pg_restore` 는 **클라이언트 버전 ≥ 서버(PG17+)** 여야 한다. macOS: `brew install libpq` → `/opt/homebrew/opt/libpq/bin/`. 대량 복원·DDL 은 Neon **direct 엔드포인트**(호스트에서 `-pooler` 제거) 사용.
+> DB 호스팅: **Supabase** (PG17, `ap-northeast-2` 서울, 프로젝트 `grepity`). 2026-06-30 Render 무료 PostgreSQL 만료로 이전. Supabase 무료는 장기 유휴 시 **일시정지(pause)** 될 수 있으나 데이터 보존·**영구 삭제 없음**. 조직당 무료 프로젝트 2개 한도.
+> ⚠️ `pg_dump`/`pg_restore` 는 **클라이언트 버전 ≥ 서버(PG17+)** 여야 한다. macOS: `brew install libpq` → `/opt/homebrew/opt/libpq/bin/`. 연결은 **Session pooler**(`aws-<n>-<region>.pooler.supabase.com:5432`, IPv4) 사용 — direct(`db.<ref>.supabase.co`)는 IPv6 전용이라 IPv4 환경 실패. DB 비번은 대시보드 Settings→Database에서 **Reset**으로 발급(생성 후 재조회 불가). URL/비번은 환경변수로만(코드/문서 커밋 금지, G9).
 
 ### 정기 백업(권장)
 시드 export 는 baseline(tools/tags/benchmarks)만 잡는다. **news/github_trending 수집 누적분까지** 보존하려면 풀 덤프가 필요하다.
 ```bash
 PG_DUMP=/opt/homebrew/opt/libpq/bin/pg_dump \
-DATABASE_URL='postgresql://...neon.tech/neondb?sslmode=require' \
+DATABASE_URL='postgresql://postgres.<ref>:<PASSWORD>@aws-<n>-<region>.pooler.supabase.com:5432/postgres' \
 python backup_db.py            # → backups/<UTC>.dump (gitignore, 레포 커밋 금지)
 ```
 

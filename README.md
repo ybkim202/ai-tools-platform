@@ -40,9 +40,9 @@
 
 ### Deployment
 - **백엔드 → Railway** (Dockerfile)
-- **DB → Neon** (PostgreSQL, `ap-southeast-1`) — 2026-06-30 Render 무료 만료로 이전(이전: Render). 무료 티어는 유휴 시 컴퓨트 **오토서스펜드**(첫 요청에 수백 ms 콜드스타트, 데이터는 보존). 영구 삭제 없음.
+- **DB → Supabase** (PostgreSQL 17, `ap-northeast-2` 서울, 프로젝트 `grepity`) — 2026-06-30 Render 무료 만료로 이전. 무료 티어는 장기 유휴 시 **일시정지(pause)**될 수 있으나 데이터는 보존(영구 삭제 없음). 조직당 무료 프로젝트 2개 한도.
 - **프론트 → Vercel**
-- 백엔드↔DB는 교차 프로바이더라 DB 접속은 **연결 문자열(Neon direct 엔드포인트, `sslmode=require`)** 사용, CORS는 `ALLOWED_ORIGINS` 환경변수 필수.
+- 백엔드↔DB는 교차 프로바이더. `DATABASE_URL`은 Supabase **Session pooler**(포트 5432, IPv4) 연결 문자열 사용 — direct 연결(`db.<ref>.supabase.co`)은 IPv6 전용이라 IPv4 환경에선 실패. CORS는 `ALLOWED_ORIGINS` 환경변수 필수.
 - **백업·복구**: `backend/backup_db.py`(pg_dump 풀백업) · `backend/export_seeds.py`(라이브→레포 시드 baseline 갱신) · 빈 DB 재구축은 `backend/bootstrap.py`. 절차 정본 [backend/README.md](./backend/README.md).
 
 > ⚠️ 일부 옛 문서(ARCHITECTURE 등)는 TS·Tailwind·Vite를 주장하나 **실제와 다르다**. 코드가 사실이다.
