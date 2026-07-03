@@ -118,7 +118,10 @@ const Home = () => {
               ? `AI 도구 ${totalTools}개 · 매주 갱신`
               : '매주 갱신되는 AI 도구 큐레이션'}
           </div>
-          <TypingHeadline text={heroCopy} />
+          <TypingHeadline
+            text={heroCopy}
+            className="hero-title hero-title--typing"
+          />
           <p className="hero-subtitle">
             용도별로 가장 인기 있는 도구를 먼저 만나고, 필요하면 전체를 탐색하세요
           </p>

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { trackEvent, toolsAPI } from '../services/api';
 import AboutCompareVisual from '../components/AboutCompareVisual';
+import TypingHeadline from '../components/TypingHeadline';
 import '../styles/About.css';
 
 // 전환 추적: 모든 About CTA 클릭은 단일 name 사용. target으로 위치를 구분한다.
@@ -410,7 +411,10 @@ const About = () => {
       {/* ③ 어떻게 돕나: 제품 핵심 루프 3스텝(기능 중심). 스크롤 순차 등장. */}
       <section className="about-how" aria-labelledby="about-how-title">
         <div className="container">
-          <p className="about-section-eyebrow">어떻게 돕나</p>
+          <p className="about-section-eyebrow">
+            <span className="about-eyebrow-en">How</span>
+            <span className="about-eyebrow-ko">어떻게 돕나</span>
+          </p>
           <h2 id="about-how-title" className="about-section-title">
             탐색하고, 비교하고, 추천받고
           </h2>
@@ -425,7 +429,10 @@ const About = () => {
       {/* ④ 누구에게: 사람 중심 라우터(자기식별→시작점). */}
       <section className="about-personas" aria-labelledby="about-personas-title">
         <div className="container">
-          <p className="about-section-eyebrow">누구를 위한 서비스인가</p>
+          <p className="about-section-eyebrow">
+            <span className="about-eyebrow-en">Who</span>
+            <span className="about-eyebrow-ko">누구를 위한 서비스인가</span>
+          </p>
           <h2 id="about-personas-title" className="about-section-title">
             당신이 어느 쪽이든, 시작점이 있습니다
           </h2>
@@ -440,10 +447,18 @@ const About = () => {
       {/* ⑤ 왜 믿나: 중립성 선언 + 라이브 증거. 소셜 프루프/불신 해소. */}
       <section className="about-trust" aria-labelledby="about-trust-title">
         <div className="container" ref={statsRef}>
-          <p className="about-section-eyebrow">왜 믿을 수 있나</p>
-          <h2 id="about-trust-title" className="about-section-title">
-            광고가 아니라 데이터로 고릅니다
-          </h2>
+          <p className="about-section-eyebrow">
+            <span className="about-eyebrow-en">Why</span>
+            <span className="about-eyebrow-ko">왜 믿을 수 있나</span>
+          </p>
+          {/* 스크롤 진입(statsInView) 시 타이핑. reduced-motion이면 즉시 완성. */}
+          <TypingHeadline
+            as="h2"
+            id="about-trust-title"
+            className="about-section-title about-trust-title"
+            text="광고가 아니라 데이터로 고릅니다"
+            start={statsInView}
+          />
           <ul className="about-trust-grid">
             <li className="about-trust-item">
               <span className="about-trust-value">
