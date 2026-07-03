@@ -297,6 +297,14 @@ curl "http://localhost:8000/api/tools/meta"
     "hn_points": null,
     "source": "manual",
     "is_open_source": false,
+    "github_repo": null,
+    "long_description": "위키백과 등 출처의 상세 소개(없으면 null)",
+    "description_source": "wikipedia",
+    "description_source_url": "https://...",
+    "representative_model": null,
+    "metrics_synced_at": null,
+    "created_at": "2026-05-31T01:24:04",
+    "updated_at": "2026-06-04T04:46:31",
     "tasks": ["콘텐츠작성", "코딩"],
     "professions": ["개발자", "마케터"],
     "benchmarks": [
@@ -326,6 +334,21 @@ curl "http://localhost:8000/api/tools/meta"
         "description": "고급 기능 포함"
       }
     ],
+    "models": [
+      {
+        "model_name": "Claude Opus 4.8",
+        "model_slug": "anthropic/claude-opus-4.8",
+        "tier": "flagship",
+        "context_length": 1000000,
+        "input_modalities": "text,image,file",
+        "output_modalities": "text",
+        "price_input": 0.000005,
+        "price_output": 0.000025,
+        "is_flagship": true,
+        "source": "openrouter",
+        "source_url": "https://openrouter.ai/models"
+      }
+    ],
     "recent_news": [
       {
         "id": 1,
@@ -341,6 +364,9 @@ curl "http://localhost:8000/api/tools/meta"
 
 - `tasks`: 해당 도구의 `tags.type='task'` 태그 이름 배열 (없으면 `[]`).
 - `professions`: 해당 도구의 `tags.type='profession'` 태그 이름 배열 (없으면 `[]`).
+- `models`: 세부 모델 라인업(`tool_models`). OpenRouter Models API로 `provider_slug`/이름 매칭 도구만 채워진다(LLM 계열). 비대상 도구는 `[]`. `price_input/price_output`은 **토큰당 USD**(프론트는 1M 토큰당으로 환산 표시). `tier`는 `flagship|balanced|fast`.
+- `long_description`/`description_source`/`description_source_url`: 상세 소개와 출처(위키백과 요약 수집). 없으면 `null`.
+- `github_repo`(owner/repo)·`created_at`·`updated_at`·`metrics_synced_at`: 스펙/이력 표시용.
 
 **예시**
 

@@ -72,6 +72,17 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_tools_hn_object_id ON tools(hn_object_id)
 -- 식별자가 자주 바뀌어도 강건). NULL 이면 자동수집 대상 아님(수동 점수만). 멱등 보강.
 ALTER TABLE tools ADD COLUMN IF NOT EXISTS representative_model VARCHAR(60);
 
+-- 상세 페이지 다각화(Phase: tool-detail-enrich) — nullable, 운영 DB 도 멱등 보강.
+--   long_description       : 한 줄 description 보다 깊은 소개 문단(신뢰할 설명).
+--   description_source     : 출처 종류 'wikipedia' | 'curated' | 'official' (신뢰 근거 표기).
+--   description_source_url : 출처 링크(위키백과 문서 등). 없으면 NULL.
+--   provider_slug          : OpenRouter author 매핑 키(예 'anthropic'·'openai'·'google').
+--                            수집기가 이 slug 로 OpenRouter 모델을 필터해 tool_models 를 채운다.
+ALTER TABLE tools ADD COLUMN IF NOT EXISTS long_description       TEXT;
+ALTER TABLE tools ADD COLUMN IF NOT EXISTS description_source     VARCHAR(40);
+ALTER TABLE tools ADD COLUMN IF NOT EXISTS description_source_url TEXT;
+ALTER TABLE tools ADD COLUMN IF NOT EXISTS provider_slug          VARCHAR(40);
+
 -- ==================== pricing (tools 1:N) ====================
 -- billing_period 는 load_tools_fixed.validate_billing_period() 가 보장하는 4값만 허용.
 CREATE TABLE IF NOT EXISTS pricing (
@@ -85,6 +96,32 @@ CREATE TABLE IF NOT EXISTS pricing (
     description    TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_pricing_tool_id ON pricing(tool_id);
+
+-- ==================== tool_models (tools 1:N) ====================
+-- 도구의 세부 모델 라인업(예: Claude → Opus·Sonnet·Haiku·Fable). OpenRouter Models API
+-- (author 별 그룹)에서 provider_slug 매칭으로 자동 수집한다. (tool_id, model_slug) 멱등 upsert.
+--   tier : 'flagship' | 'balanced' | 'fast' — name 휴리스틱으로 분류(표시용 배지).
+--   price_input/price_output : 토큰당 단가(USD). context_length : 컨텍스트 창(토큰).
+--   input/output_modalities : 콤마 구분(text,image,file). source/url : 출처('openrouter').
+CREATE TABLE IF NOT EXISTS tool_models (
+    id                SERIAL PRIMARY KEY,
+    tool_id           INTEGER NOT NULL REFERENCES tools(id) ON DELETE CASCADE,
+    model_name        TEXT NOT NULL,
+    model_slug        TEXT NOT NULL,
+    tier              VARCHAR(30),
+    context_length    INTEGER,
+    input_modalities  TEXT,
+    output_modalities TEXT,
+    price_input       NUMERIC(16, 10),
+    price_output      NUMERIC(16, 10),
+    is_flagship       BOOLEAN DEFAULT FALSE,
+    source            VARCHAR(40),
+    source_url        TEXT,
+    collected_date    TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_tool_models_tool_id ON tool_models(tool_id);
+-- 멱등 upsert 키: 같은 도구·모델은 1행.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_tool_models_unique ON tool_models(tool_id, model_slug);
 
 -- ==================== benchmarks (tools 1:N) ====================
 CREATE TABLE IF NOT EXISTS benchmarks (

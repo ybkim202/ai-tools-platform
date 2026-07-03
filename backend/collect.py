@@ -95,6 +95,22 @@ def main(argv=None) -> int:
         ),
     )
     parser.add_argument(
+        "--sync-models",
+        action="store_true",
+        help=(
+            "OpenRouter Models API 로 provider_slug 매칭 도구의 세부 모델 라인업"
+            "(tool_models)을 갱신한다(키 불필요, 멱등). 상세 페이지 '모델 라인업' 근거."
+        ),
+    )
+    parser.add_argument(
+        "--sync-descriptions",
+        action="store_true",
+        help=(
+            "위키백과 요약으로 큐레이션 매핑 도구의 long_description 을 채운다"
+            "(키 불필요, 출처 명시, 멱등). 상세 페이지 '소개' 섹션 근거."
+        ),
+    )
+    parser.add_argument(
         "--limit",
         type=int,
         default=50,
@@ -148,6 +164,32 @@ def main(argv=None) -> int:
         finally:
             conn.close()
         logger.info("=== 로고 헬스체크 완료: broken %d 건 ===", broken)
+        return 0
+
+    if args.sync_models:
+        from collectors.openrouter_models import collect as sync_models
+        from collectors.base import get_connection
+
+        logger.info("=== 모델 라인업 동기화 시작 (OpenRouter) ===")
+        conn = get_connection()
+        try:
+            n = sync_models(conn)
+        finally:
+            conn.close()
+        logger.info("=== 모델 라인업 동기화 완료: %d 건 ===", n)
+        return 0
+
+    if args.sync_descriptions:
+        from collectors.wikipedia_desc import collect as sync_desc
+        from collectors.base import get_connection
+
+        logger.info("=== 상세 설명 동기화 시작 (위키백과) ===")
+        conn = get_connection()
+        try:
+            n = sync_desc(conn)
+        finally:
+            conn.close()
+        logger.info("=== 상세 설명 동기화 완료: %d 건 ===", n)
         return 0
 
     from collectors import collect_all

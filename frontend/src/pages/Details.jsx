@@ -23,6 +23,49 @@ import {
 } from '../components/states/StateViews';
 import '../styles/Details.css';
 
+// ── 모델 라인업 표시 헬퍼 (OpenRouter 수집 데이터) ──
+const MODALITY_LABEL = {
+  text: '텍스트',
+  image: '이미지',
+  file: '파일',
+  audio: '오디오',
+  video: '비디오',
+};
+const TIER_LABEL = { flagship: '플래그십', balanced: '밸런스', fast: '빠름' };
+
+// modality CSV("text,image") → "텍스트·이미지"
+const modalityText = (csv) =>
+  (csv || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((m) => MODALITY_LABEL[m] || m)
+    .join('·');
+
+// 컨텍스트 창(토큰) → "128K" / "8K" / 원값.
+const formatContext = (n) => {
+  const v = Number(n);
+  if (!Number.isFinite(v) || v <= 0) return null;
+  return v >= 1000 ? `${Math.round(v / 1000)}K` : String(v);
+};
+
+// OpenRouter 단가(토큰당 USD) → "$N/1M"(백만 토큰당) / "무료".
+const formatModelPrice = (n) => {
+  if (n == null) return null;
+  const v = Number(n);
+  if (!Number.isFinite(v)) return null;
+  if (v === 0) return '무료';
+  return `$${(v * 1_000_000).toFixed(2)}/1M`;
+};
+
+// 스펙 라벨→값 1행(ToolCard .meta-info 패턴 재사용).
+const SpecItem = ({ label, children }) => (
+  <div className="detail-spec-item">
+    <span className="detail-spec-label">{label}</span>
+    <span className="detail-spec-value">{children}</span>
+  </div>
+);
+
 const Details = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -187,13 +230,6 @@ const Details = () => {
     }
   };
 
-  // task/profession 태그 노출(있을 때만). 백엔드 필드명 변형 대비 안전 추출.
-  const detailTags = [
-    ...(Array.isArray(selectedTool.tasks) ? selectedTool.tasks : []),
-    ...(Array.isArray(selectedTool.professions) ? selectedTool.professions : []),
-    ...(Array.isArray(selectedTool.tags) ? selectedTool.tags : []),
-  ];
-
   // 헤더 가격 요약(#4): "얼마인가"를 결정 직전 헤더 meta에 한 줄로 끌어올린다.
   // 상세 가격 섹션(.price 2xl/700)은 그대로 유지 — 여기선 요약만.
   // 규칙: 무료 플랜(price 0)이 하나라도 있으면 "무료 플랜 있음", 아니면 유효 양수
@@ -209,6 +245,52 @@ const Details = () => {
     priceSummary = '무료 플랜 있음';
   } else if (Number.isFinite(minPaidPrice)) {
     priceSummary = `시작가 ${formatPrice(minPaidPrice)}`;
+  }
+  // 가격 카드에서 강조할 최저가(무료 우선). 없으면 강조 안 함.
+  const cheapestValue = hasFreePlan
+    ? 0
+    : Number.isFinite(minPaidPrice)
+    ? minPaidPrice
+    : null;
+
+  // ── 세분화 파생 데이터 ──
+  const repoUrl = selectedTool.github_repo
+    ? `https://github.com/${selectedTool.github_repo}`
+    : null;
+  const models = Array.isArray(selectedTool.models) ? selectedTool.models : [];
+  const tasks = Array.isArray(selectedTool.tasks) ? selectedTool.tasks : [];
+  const professions = Array.isArray(selectedTool.professions)
+    ? selectedTool.professions
+    : [];
+  const longDesc =
+    selectedTool.long_description && selectedTool.long_description.trim()
+      ? selectedTool.long_description.trim()
+      : null;
+  const descSourceUrl = safeHttpUrl(selectedTool.description_source_url);
+
+  // 스펙 그룹 노출 여부(빈 그룹 숨김).
+  const userCountLabel = formatUserCount(selectedTool.user_count);
+  const starsLabel =
+    selectedTool.is_open_source === true
+      ? formatMetric(selectedTool.github_stars)
+      : null;
+  const hnPoints = Number(selectedTool.hn_points);
+  const hnLabel = Number.isFinite(hnPoints) && hnPoints > 0 ? hnPoints : null;
+  const syncedLabel = formatDate(selectedTool.metrics_synced_at);
+  const createdLabel = formatDate(selectedTool.created_at);
+  const updatedLabel = formatDate(selectedTool.updated_at);
+  const hasPopularityGroup =
+    !!userCountLabel || !!starsLabel || !!hnLabel || !!syncedLabel;
+  const hasHistoryGroup = !!createdLabel || !!updatedLabel;
+
+  // 벤치마크 카테고리별 그룹핑(summary 데이터의 category 사용, 없으면 '종합').
+  const benchByCategory = {};
+  if (hasBenchmarks) {
+    Object.entries(benchmarks.benchmarks).forEach(([type, data]) => {
+      const cat = (data && data.category) || '종합';
+      if (!benchByCategory[cat]) benchByCategory[cat] = [];
+      benchByCategory[cat].push([type, data]);
+    });
   }
 
   return (
@@ -232,10 +314,10 @@ const Details = () => {
           )}
           <h1 className="page-title">{selectedTool.name}</h1>
           <p className="description">{selectedTool.description}</p>
-          {/* 헤더 메타: 결정(공식 사이트 방문) 직전 화면이므로 카드와 동일한 신뢰 신호를
-              ⊇로 보강 — 라이선스·난이도(색+점)·국가·GitHub★·사용자 수. (카드 ⊆ 상세 불변식) */}
+          {/* 헤더 메타: 결정 직전 핵심 신호만(라이선스·가격요약·난이도). 국가·인기·이력 등
+              세분 스펙은 아래 "스펙" 섹션이 라벨→값 구조로 담당(납작한 pill 과밀 해소). */}
           <div className="meta">
-            {/* 라이선스: 항상 표시. 색 단독 금지 → 점 문자(◆/◇)+텍스트 2중 채널. */}
+            {/* 라이선스: 색 단독 금지 → 점 문자(◆/◇)+텍스트 2중 채널. */}
             {selectedTool.is_open_source ? (
               <span className="license-badge license-open" title="Open-Source">
                 <span className="license-dot" aria-hidden="true">◆</span>
@@ -248,16 +330,10 @@ const Details = () => {
               </span>
             )}
 
-            {/* 가격 요약(#4): "얼마인가"를 헤더에서 즉시 답한다. priceSummary 텍스트
-                ("무료 플랜 있음"/"시작가 $N")가 의미를 전달하며, formatPrice가 $ 통화를
-                쓰므로 통화 단정 아이콘(₩)은 두지 않는다. 상세 금액 위계는 아래 가격 섹션이 담당. */}
             {priceSummary && (
               <span className="meta-pill price-summary-pill">{priceSummary}</span>
             )}
 
-            {/* 난이도: 카드의 semantic 색+점 배지 재사용(평이한 회색 pill 대신 위계 보존).
-                라벨은 difficulty.js의 displayLabel류 유틸을 통과시켜 점 문자와 일관되게
-                "보통"처럼 표시(raw enum 누출 방지, #12). */}
             {selectedTool.difficulty && (
               <span className={`difficulty-badge ${selectedTool.difficulty}`}>
                 <span className="difficulty-dot" aria-hidden="true">
@@ -266,36 +342,7 @@ const Details = () => {
                 {difficultyLabel(selectedTool.difficulty)}
               </span>
             )}
-
-            {selectedTool.country && (
-              <span className="country">{selectedTool.country}</span>
-            )}
-
-            {/* GitHub stars: 오픈소스 한정(수치 비null). 라벨+아이콘+숫자(색 단독 금지). */}
-            {selectedTool.is_open_source === true &&
-              formatMetric(selectedTool.github_stars) && (
-                <span className="meta-pill">
-                  <span className="popularity-icon" aria-hidden="true">★</span>
-                  GitHub {formatMetric(selectedTool.github_stars)}
-                </span>
-              )}
-
-            {formatUserCount(selectedTool.user_count) && (
-              <span className="meta-pill">
-                사용자 {formatUserCount(selectedTool.user_count)}
-              </span>
-            )}
           </div>
-
-          {detailTags.length > 0 && (
-            <div className="detail-tags">
-              {detailTags.map((tag) => (
-                <span key={tag} className="status-badge">
-                  {displayLabel(tag)}
-                </span>
-              ))}
-            </div>
-          )}
 
           <div className="header-actions">
             {safeHttpUrl(selectedTool.official_url) && (
@@ -331,25 +378,222 @@ const Details = () => {
       </div>
 
       <div className="details-content">
+        {/* 소개 — long_description(위키백과·큐레이션) 있을 때만. 출처 명시(신뢰). */}
+        {longDesc && (
+          <section className="intro-section">
+            <h2>소개</h2>
+            <p className="detail-long-desc">{longDesc}</p>
+            {(selectedTool.description_source || descSourceUrl) && (
+              <p className="detail-source">
+                출처:{' '}
+                {descSourceUrl ? (
+                  <a
+                    href={descSourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="source-link"
+                  >
+                    {selectedTool.description_source === 'wikipedia'
+                      ? '위키백과'
+                      : selectedTool.description_source || '원문'}
+                    <ExternalLinkIcon />
+                    <span className="sr-only">(새 창에서 열림)</span>
+                  </a>
+                ) : (
+                  selectedTool.description_source || '큐레이션'
+                )}
+              </p>
+            )}
+          </section>
+        )}
+
+        {/* 스펙 — 라벨→값 세분 그룹(기본 / 인기·신뢰 / 이력). 헤더 pill 과밀 해소. */}
+        <section className="spec-section">
+          <h2>스펙</h2>
+          <div className="detail-spec-groups">
+            <div className="detail-spec-group">
+              <h3 className="detail-spec-grouptitle">기본</h3>
+              <div className="detail-spec-list">
+                {selectedTool.category && (
+                  <SpecItem label="카테고리">{selectedTool.category}</SpecItem>
+                )}
+                {selectedTool.difficulty && (
+                  <SpecItem label="난이도">
+                    <span className={`difficulty-badge ${selectedTool.difficulty}`}>
+                      <span className="difficulty-dot" aria-hidden="true">
+                        {difficultyDot(selectedTool.difficulty)}
+                      </span>
+                      {difficultyLabel(selectedTool.difficulty)}
+                    </span>
+                  </SpecItem>
+                )}
+                {selectedTool.country && (
+                  <SpecItem label="국가">{selectedTool.country}</SpecItem>
+                )}
+                <SpecItem label="라이선스">
+                  {selectedTool.is_open_source ? '오픈소스' : '독점'}
+                  {repoUrl && (
+                    <>
+                      {' · '}
+                      <a
+                        href={repoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="source-link"
+                      >
+                        GitHub
+                        <ExternalLinkIcon />
+                        <span className="sr-only">(새 창에서 열림)</span>
+                      </a>
+                    </>
+                  )}
+                </SpecItem>
+              </div>
+            </div>
+
+            {hasPopularityGroup && (
+              <div className="detail-spec-group">
+                <h3 className="detail-spec-grouptitle">인기·신뢰</h3>
+                <div className="detail-spec-list">
+                  {userCountLabel && (
+                    <SpecItem label="사용자 수">
+                      {userCountLabel}
+                      {(selectedTool.user_count_source ||
+                        formatDate(selectedTool.user_count_date)) && (
+                        <span className="detail-spec-sub">
+                          {[
+                            selectedTool.user_count_source,
+                            formatDate(selectedTool.user_count_date),
+                          ]
+                            .filter(Boolean)
+                            .join(' · ')}
+                        </span>
+                      )}
+                    </SpecItem>
+                  )}
+                  {starsLabel && (
+                    <SpecItem label="GitHub">
+                      <span className="popularity-icon" aria-hidden="true">
+                        ★
+                      </span>{' '}
+                      {starsLabel}
+                    </SpecItem>
+                  )}
+                  {hnLabel && (
+                    <SpecItem label="Hacker News">{hnLabel} points</SpecItem>
+                  )}
+                  {syncedLabel && (
+                    <SpecItem label="지표 갱신">{syncedLabel}</SpecItem>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {hasHistoryGroup && (
+              <div className="detail-spec-group">
+                <h3 className="detail-spec-grouptitle">이력</h3>
+                <div className="detail-spec-list">
+                  {createdLabel && (
+                    <SpecItem label="추가일">{createdLabel}</SpecItem>
+                  )}
+                  {updatedLabel && (
+                    <SpecItem label="갱신일">{updatedLabel}</SpecItem>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* 모델 라인업 — models[] 있을 때만(비LLM 도구는 숨김, graceful). */}
+        {models.length > 0 && (
+          <section className="models-section">
+            <h2>모델 라인업</h2>
+            <div className="model-grid">
+              {models.map((m) => (
+                <div
+                  key={m.model_slug}
+                  className={`model-card${
+                    m.is_flagship ? ' model-card--flagship' : ''
+                  }`}
+                >
+                  <div className="model-card-head">
+                    <h3 className="model-name">{m.model_name}</h3>
+                    {m.tier && (
+                      <span className="model-tier">
+                        {TIER_LABEL[m.tier] || m.tier}
+                      </span>
+                    )}
+                  </div>
+                  <div className="model-specs">
+                    {formatContext(m.context_length) && (
+                      <span className="model-spec">
+                        <span className="model-spec-label">컨텍스트</span>
+                        {formatContext(m.context_length)}
+                      </span>
+                    )}
+                    {modalityText(m.input_modalities) && (
+                      <span className="model-spec">
+                        <span className="model-spec-label">입력</span>
+                        {modalityText(m.input_modalities)}
+                      </span>
+                    )}
+                    {formatModelPrice(m.price_input) && (
+                      <span className="model-spec">
+                        <span className="model-spec-label">입력가</span>
+                        {formatModelPrice(m.price_input)}
+                      </span>
+                    )}
+                    {formatModelPrice(m.price_output) && (
+                      <span className="model-spec">
+                        <span className="model-spec-label">출력가</span>
+                        {formatModelPrice(m.price_output)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="detail-source">출처: OpenRouter · 1M 토큰당 단가</p>
+          </section>
+        )}
+
         {/* 가격 — 항상 섹션 렌더(숨김 금지). 데이터 없으면 "준비 중" 빈 상태로,
             벤치마크·뉴스·관련 섹션과 동일 패턴. "무료/유료/미상" 불확실성(=의심) 제거. */}
         <section className="pricing-section">
           <h2>가격</h2>
           {selectedTool.pricing && selectedTool.pricing.length > 0 ? (
             <div className="pricing-grid">
-              {selectedTool.pricing.map((price) => (
-                <div key={price.id} className="pricing-card">
-                  <h3>{displayLabel(price.plan_name)}</h3>
-                  <div className="price">
-                    {formatPrice(price.price, {
-                      billingPeriod: price.billing_period,
-                    })}
+              {selectedTool.pricing.map((price) => {
+                const pv = Number(price.price);
+                const isBest =
+                  cheapestValue != null &&
+                  Number.isFinite(pv) &&
+                  pv === cheapestValue;
+                return (
+                  <div
+                    key={price.id}
+                    className={`pricing-card${
+                      isBest ? ' pricing-card--best' : ''
+                    }`}
+                  >
+                    {isBest && (
+                      <span className="pricing-best-badge">
+                        {pv === 0 ? '무료' : '최저가'}
+                      </span>
+                    )}
+                    <h3>{displayLabel(price.plan_name)}</h3>
+                    <div className="price">
+                      {formatPrice(price.price, {
+                        billingPeriod: price.billing_period,
+                      })}
+                    </div>
+                    {price.description && price.description.trim() !== '' && (
+                      <p>{price.description}</p>
+                    )}
                   </div>
-                  {price.description && price.description.trim() !== '' && (
-                    <p>{price.description}</p>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <EmptyNoDataState
@@ -374,24 +618,35 @@ const Details = () => {
             />
           ) : hasBenchmarks ? (
             <>
-              <div className="benchmark-grid">
-                {Object.entries(benchmarks.benchmarks).map(([type, data]) => {
-                  // 점수는 unit·만점 인지 포맷(formatBenchmarkScore): percent→N/만점,
-                  // elo→"N elo"(거짓 /100 금지). 출처·신선도를 함께 노출(구체성=신뢰).
-                  const snapshot = benchmarkSnapshot(data);
-                  return (
-                    <div key={type} className="benchmark-card">
-                      <h3>{type}</h3>
-                      <div className="score">{formatBenchmarkScore(data)}</div>
-                      {(data.source || snapshot) && (
-                        <p className="source">
-                          {[data.source, snapshot].filter(Boolean).join(' · ')}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+              {/* 카테고리(추론/코딩/수학/멀티모달/선호/종합)별로 그룹핑해 세분화. */}
+              {Object.entries(benchByCategory).map(([cat, entries]) => (
+                <div key={cat} className="benchmark-catgroup">
+                  <h3 className="benchmark-cattitle">{cat}</h3>
+                  <div className="benchmark-grid">
+                    {entries.map(([type, data]) => {
+                      // 점수는 unit·만점 인지 포맷(formatBenchmarkScore): percent→N/만점,
+                      // elo→"N elo"(거짓 /100 금지). 모델·출처·신선도 노출(구체성=신뢰).
+                      const snapshot = benchmarkSnapshot(data);
+                      return (
+                        <div key={type} className="benchmark-card">
+                          <h4 className="benchmark-type">{type}</h4>
+                          <div className="score">{formatBenchmarkScore(data)}</div>
+                          {data.model_version && (
+                            <p className="benchmark-model">{data.model_version}</p>
+                          )}
+                          {(data.source || snapshot) && (
+                            <p className="source">
+                              {[data.source, snapshot]
+                                .filter(Boolean)
+                                .join(' · ')}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
               <p className="average">평균 점수: {formatScore(benchmarks.average_score)}</p>
             </>
           ) : (
@@ -402,6 +657,37 @@ const Details = () => {
             />
           )}
         </section>
+
+        {/* 활용 — 업무(task)·직군(profession) 태그를 2그룹으로 세분화. 있을 때만. */}
+        {(tasks.length > 0 || professions.length > 0) && (
+          <section className="tags-section">
+            <h2>활용</h2>
+            {tasks.length > 0 && (
+              <div className="tag-group">
+                <h3 className="tag-group-title">이럴 때 좋아요</h3>
+                <div className="tag-chips">
+                  {tasks.map((t) => (
+                    <span key={t} className="status-badge">
+                      {displayLabel(t)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {professions.length > 0 && (
+              <div className="tag-group">
+                <h3 className="tag-group-title">이런 직군에</h3>
+                <div className="tag-chips">
+                  {professions.map((p) => (
+                    <span key={p} className="status-badge">
+                      {displayLabel(p)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+        )}
 
         {/* 뉴스 — 항상 섹션 렌더(숨김 금지). 비동기 도착 안내용 aria-busy(#18b). */}
         <section className="news-section" aria-busy={newsLoading}>
