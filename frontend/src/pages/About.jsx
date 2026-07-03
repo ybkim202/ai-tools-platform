@@ -388,7 +388,10 @@ const About = () => {
       <section className="about-problem" aria-labelledby="about-problem-title">
         <div className="container">
           <div className="about-problem-inner">
-            <p className="about-section-eyebrow">왜 필요한가</p>
+            <p className="about-section-eyebrow">
+              <span className="about-eyebrow-en">Problem</span>
+              <span className="about-eyebrow-ko">왜 필요한가</span>
+            </p>
             <h2 id="about-problem-title" className="about-problem-title">
               쏟아지는 AI 도구, 정작 ‘내게 맞는 것’은
               <br />고르기 어렵습니다
