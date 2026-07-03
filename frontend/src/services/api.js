@@ -47,8 +47,15 @@ export const toolsAPI = {
     return apiClient.get('/tools', { params });
   },
 
-  // 도구 상세 조회. 위 필드(github_stars/is_open_source) + source('manual'|
-  // 'auto_github')를 추가로 포함한다.
+  // 도구 상세 조회. 목록 필드 + 상세 전용 필드를 포함한다:
+  //   github_stars, hn_points, is_open_source, source, github_repo(owner/repo),
+  //   long_description, description_source('wikipedia'|'curated'|'official'),
+  //   description_source_url, representative_model, metrics_synced_at,
+  //   created_at, updated_at,
+  //   tasks[], professions[], benchmarks[], pricing[], recent_news[],
+  //   models[]: { model_name, model_slug, tier('flagship'|'balanced'|'fast'),
+  //     context_length, input_modalities, output_modalities, price_input,
+  //     price_output(토큰당 USD), is_flagship, source, source_url } (라인업 없으면 []).
   getToolDetail: (toolId) => {
     return apiClient.get(`/tools/${toolId}`);
   },

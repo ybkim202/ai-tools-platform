@@ -313,6 +313,227 @@
   box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
+/* ===== 상세 다각화(tool-detail-enrich) — 토큰만, 신규 색토큰 0 ===== */
+
+/* 소개 */
+.detail-long-desc {
+  font-size: var(--font-size-base);
+  line-height: 1.7;
+  color: var(--color-text-primary);
+  white-space: pre-line;
+}
+
+.detail-source {
+  margin-top: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+.detail-source .source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* 스펙 세분 그룹(라벨→값) */
+.detail-spec-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--spacing-xl);
+}
+
+.detail-spec-grouptitle {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+.detail-spec-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.detail-spec-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.detail-spec-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.detail-spec-value {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.detail-spec-sub {
+  display: block;
+  width: 100%;
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  color: var(--color-text-tertiary);
+  text-align: right;
+}
+
+/* 모델 라인업 */
+.model-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.model-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  background-color: var(--color-background);
+}
+
+.model-card--flagship {
+  border-color: var(--color-primary);
+}
+
+.model-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.model-name {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.model-tier {
+  flex-shrink: 0;
+  padding: 2px var(--spacing-sm);
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-surface);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.model-card--flagship .model-tier {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.model-specs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.model-spec {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.model-spec-label {
+  color: var(--color-text-tertiary);
+}
+
+/* 가격 최저가 앵커 */
+.pricing-card {
+  position: relative;
+}
+
+.pricing-card--best {
+  border-color: var(--color-primary);
+}
+
+.pricing-best-badge {
+  position: absolute;
+  top: calc(-1 * var(--spacing-sm));
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px var(--spacing-md);
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+/* 벤치마크 카테고리 세분 */
+.benchmark-catgroup {
+  margin-bottom: var(--spacing-xl);
+}
+
+.benchmark-catgroup:last-of-type {
+  margin-bottom: 0;
+}
+
+.benchmark-cattitle {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+.benchmark-type {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  margin-bottom: var(--spacing-md);
+}
+
+.benchmark-model {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--spacing-xs);
+}
+
+/* 태그 그룹(업무/직군) */
+.tag-group + .tag-group {
+  margin-top: var(--spacing-lg);
+}
+
+.tag-group-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.tag-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
 @media (max-width: 768px) {
   .details-header {
     flex-direction: column;
@@ -343,5 +564,22 @@
   .header-info .btn {
     width: 100%;
     justify-content: center;
+  }
+}
+
+/* 모션 민감 사용자 — hover translateY 등 모션 제거(Details.css 기존 누락분 보강). */
+@media (prefers-reduced-motion: reduce) {
+  .pricing-card,
+  .benchmark-card,
+  .model-card,
+  .header-info .btn,
+  .back-btn {
+    transition: none;
+  }
+
+  .pricing-card:hover,
+  .benchmark-card:hover,
+  .header-info .btn-primary:hover {
+    transform: none;
   }
 }

@@ -330,6 +330,27 @@ def get_tool_detail(tool_id: int, db: Session = Depends(get_db)):
             "hn_points": tool_row._mapping.get("hn_points"),
             "source": tool_row._mapping.get("source"),
             "is_open_source": tool_row._mapping.get("github_repo") is not None,
+            # 상세 다각화(신규 필드 — SELECT * 라 _mapping 접근, 마이그레이션 전엔 None).
+            "github_repo": tool_row._mapping.get("github_repo"),  # owner/repo (repo 링크 파생용)
+            "long_description": tool_row._mapping.get("long_description"),
+            "description_source": tool_row._mapping.get("description_source"),
+            "description_source_url": tool_row._mapping.get("description_source_url"),
+            "representative_model": tool_row._mapping.get("representative_model"),
+            "metrics_synced_at": (
+                str(tool_row._mapping.get("metrics_synced_at"))
+                if tool_row._mapping.get("metrics_synced_at")
+                else None
+            ),
+            "created_at": (
+                str(tool_row._mapping.get("created_at"))
+                if tool_row._mapping.get("created_at")
+                else None
+            ),
+            "updated_at": (
+                str(tool_row._mapping.get("updated_at"))
+                if tool_row._mapping.get("updated_at")
+                else None
+            ),
         }
         
         # 태그 조회 (task / profession 분류)
@@ -393,6 +414,48 @@ def get_tool_detail(tool_id: int, db: Session = Depends(get_db)):
             for row in news_result.fetchall()
         ]
         
+        # 모델 라인업 조회 — 테이블/컬럼이 아직 없을 수 있어(마이그레이션 전) graceful.
+        # 플래그십 먼저, 그다음 컨텍스트 큰 순으로 정렬(대표 모델이 위로).
+        models = []
+        try:
+            models_query = """
+            SELECT model_name, model_slug, tier, context_length,
+                   input_modalities, output_modalities,
+                   price_input, price_output, is_flagship, source, source_url
+            FROM tool_models
+            WHERE tool_id = :tool_id
+            ORDER BY is_flagship DESC, context_length DESC NULLS LAST, model_name
+            """
+            models_result = db.execute(text(models_query), {"tool_id": tool_id})
+            models = [
+                {
+                    "model_name": row._mapping.get("model_name"),
+                    "model_slug": row._mapping.get("model_slug"),
+                    "tier": row._mapping.get("tier"),
+                    "context_length": row._mapping.get("context_length"),
+                    "input_modalities": row._mapping.get("input_modalities"),
+                    "output_modalities": row._mapping.get("output_modalities"),
+                    "price_input": (
+                        float(row._mapping["price_input"])
+                        if row._mapping.get("price_input") is not None
+                        else None
+                    ),
+                    "price_output": (
+                        float(row._mapping["price_output"])
+                        if row._mapping.get("price_output") is not None
+                        else None
+                    ),
+                    "is_flagship": bool(row._mapping.get("is_flagship")),
+                    "source": row._mapping.get("source"),
+                    "source_url": row._mapping.get("source_url"),
+                }
+                for row in models_result.fetchall()
+            ]
+        except Exception:
+            # tool_models 미마이그레이션 등 — 빈 라인업으로 graceful(상세 조회는 계속).
+            db.rollback()
+            models = []
+
         return {
             "success": True,
             "data": {
@@ -401,6 +464,7 @@ def get_tool_detail(tool_id: int, db: Session = Depends(get_db)):
                 "professions": professions,
                 "benchmarks": benchmarks,
                 "pricing": pricing,
+                "models": models,
                 "recent_news": news
             }
         }
